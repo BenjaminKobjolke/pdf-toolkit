@@ -1,9 +1,0 @@
-FEATURE (cli): add delete-range wizard workflow
-
-add delete-page-range support and expose it through the interactive wizard so
-global installs can reach every operation
-- add pdf-delete-pages CLI entry point and in-place range deletion
-- add pdft wizard with PDF tab-completion and operation dispatch
-- update install-global output, docs, and automated coverage
-
-Refs: n/a
