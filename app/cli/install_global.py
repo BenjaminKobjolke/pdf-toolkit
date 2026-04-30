@@ -15,10 +15,7 @@ DEFAULT_TARGET = Path(r"C:\cmdtools")
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 # Single source of truth: which bats get installed and which module each invokes.
-BAT_FILES: tuple[tuple[str, str], ...] = (
-    ("pdf-swap-pages.bat", "app.cli.swap"),
-    ("pdf-delete-page.bat", "app.cli.delete_page"),
-)
+BAT_FILES: tuple[tuple[str, str], ...] = (("pdft.bat", "app.cli.pdft"),)
 
 log = logging.getLogger("pdf_toolkit")
 

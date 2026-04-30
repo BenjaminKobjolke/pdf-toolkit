@@ -133,3 +133,4 @@ Use the `logging` module (configured once, centrally). Never `print()`.
 - All PDF I/O goes through `pypdf`.
 - The single error boundary for the CLI layer is `app/cli/_common.run_with_backup`.
 - Backup format is locked: `backup/YYYYMMDD-HHMM-<filename>.pdf`.
+- **Every new feature must be added to the wizard** (`app/cli/pdft.py` — append a `WizardOption` to `WIZARD_OPTIONS`). The wizard is the global entry point installed by `pdf-install-global`; if a feature isn't in the wizard, users with the global install can't reach it.
