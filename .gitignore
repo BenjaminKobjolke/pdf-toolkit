@@ -224,3 +224,4 @@ backup/
 .pytest_cache
 .ruff_cache
 claude-plans
+tmp/commit_msg.tmp
