@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "Small CLI toolkit for PDF page operations (swap, delete) with timestamped backups."
 requires-python = ">=3.11,<3.13"
 dependencies = [
+    "img2pdf>=0.5,<1.0",
+    "pillow>=10.0,<12.0",
     "prompt-toolkit>=3.0.43",
     "pypdf>=5.0",
 ]
@@ -12,6 +14,7 @@ dependencies = [
 pdf-swap = "app.cli.swap:main"
 pdf-delete-page = "app.cli.delete_page:main"
 pdf-delete-pages = "app.cli.delete_pages:main"
+pdf-merge-folder = "app.cli.merge_folder:main"
 pdf-install-global = "app.cli.install_global:main"
 pdft = "app.cli.pdft:main"
 

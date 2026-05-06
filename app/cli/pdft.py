@@ -16,10 +16,11 @@ from prompt_toolkit import prompt as pt_prompt
 from prompt_toolkit.completion import CompleteEvent, Completer, Completion
 from prompt_toolkit.document import Document
 
-from app.cli._common import EXIT_OK, run_with_backup
+from app.cli._common import EXIT_OK, run_folder_merge, run_with_backup
 from app.config.settings import Settings
 from app.logging_setup import configure_logging
 from app.pdf.deleter import delete_page, delete_page_range
+from app.pdf.merger import merge_folder
 from app.pdf.swapper import swap_two_pages
 
 log = logging.getLogger("pdf_toolkit")
@@ -72,6 +73,29 @@ def _ask_pdf_path(prompt_text: str = "PDF (Tab to complete): ") -> Path:
         return Path(raw)
 
 
+class FolderCompleter(Completer):
+    """Tab-completes subdirectory names from the current working directory."""
+
+    def get_completions(
+        self, document: Document, complete_event: CompleteEvent
+    ) -> Iterable[Completion]:
+        word = document.text_before_cursor
+        prefix = word.lower()
+        for entry in sorted(Path.cwd().iterdir()):
+            if entry.is_dir() and entry.name.lower().startswith(prefix):
+                yield Completion(entry.name, start_position=-len(word))
+
+
+def _ask_folder_path(prompt_text: str = "Folder (Tab to complete): ") -> Path:
+    """Prompt for a folder path with Tab-completion against subdirectories in CWD."""
+    while True:
+        raw = pt_prompt(prompt_text, completer=FolderCompleter()).strip().strip('"')
+        if not raw:
+            print("path is required")
+            continue
+        return Path(raw)
+
+
 def _ask_choice(option_count: int) -> int | None:
     while True:
         raw = input(f"Choose [1-{option_count}, q to quit]: ").strip().lower()
@@ -105,10 +129,16 @@ def _handle_delete_range(settings: Settings) -> int:
     return run_with_backup(pdf, lambda p: delete_page_range(p, start, end), settings)
 
 
+def _handle_merge_folder(settings: Settings) -> int:
+    folder = _ask_folder_path()
+    return run_folder_merge(folder, merge_folder, settings)
+
+
 WIZARD_OPTIONS: tuple[WizardOption, ...] = (
     WizardOption("Swap pages (2-page PDF)", _handle_swap),
     WizardOption("Delete single page", _handle_delete_single),
     WizardOption("Delete page range", _handle_delete_range),
+    WizardOption("Merge folder (PDFs + images) -> merged.pdf", _handle_merge_folder),
 )
 
 
