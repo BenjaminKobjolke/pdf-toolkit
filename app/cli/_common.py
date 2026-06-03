@@ -8,7 +8,7 @@ from pathlib import Path
 
 from app.config.settings import Settings
 from app.pdf.backup import create_backup
-from app.pdf.merger import MERGED_FILENAME
+from app.pdf.merger import MERGED_FILENAME, find_existing_merged
 
 EXIT_OK = 0
 EXIT_USAGE = 2
@@ -57,7 +57,7 @@ def run_folder_merge(
         log.error("folder not found: %s", folder)
         return EXIT_USAGE
 
-    existing = _find_existing_merged(folder)
+    existing = find_existing_merged(folder)
     if existing is not None:
         try:
             backup_path = create_backup(existing, settings.backup_dir)
@@ -77,11 +77,3 @@ def run_folder_merge(
 
     log.info("done: %s", folder / MERGED_FILENAME)
     return EXIT_OK
-
-
-def _find_existing_merged(folder: Path) -> Path | None:
-    """Return the existing merged.pdf in ``folder`` (case-insensitive on Windows)."""
-    for entry in folder.iterdir():
-        if entry.is_file() and entry.name.lower() == MERGED_FILENAME.lower():
-            return entry
-    return None

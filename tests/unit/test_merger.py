@@ -12,6 +12,7 @@ from pypdf import PdfReader
 from app.pdf.merger import (
     MERGED_FILENAME,
     TMP_SUFFIX,
+    find_existing_merged,
     merge_folder,
     scan_folder,
 )
@@ -99,6 +100,45 @@ def test_scan_folder_no_recursion(
     result = scan_folder(folder)
 
     assert [p.name for p in result] == ["top.pdf"]
+
+
+def test_find_existing_merged_returns_path(
+    tmp_path: Path,
+    make_pdf: MakePdf,
+) -> None:
+    folder = tmp_path / "src"
+    folder.mkdir()
+    _move(make_pdf([(10, 10)], name=MERGED_FILENAME), folder / MERGED_FILENAME)
+
+    result = find_existing_merged(folder)
+
+    assert result is not None
+    assert result.name == MERGED_FILENAME
+
+
+def test_find_existing_merged_case_insensitive(
+    tmp_path: Path,
+    make_pdf: MakePdf,
+) -> None:
+    folder = tmp_path / "src"
+    folder.mkdir()
+    _move(make_pdf([(10, 10)], name="MERGED.PDF"), folder / "MERGED.PDF")
+
+    result = find_existing_merged(folder)
+
+    assert result is not None
+    assert result.name == "MERGED.PDF"
+
+
+def test_find_existing_merged_returns_none_when_absent(
+    tmp_path: Path,
+    make_pdf: MakePdf,
+) -> None:
+    folder = tmp_path / "src"
+    folder.mkdir()
+    _move(make_pdf([(10, 10)], name="a.pdf"), folder / "a.pdf")
+
+    assert find_existing_merged(folder) is None
 
 
 def test_merge_folder_empty_raises_valueerror(tmp_path: Path) -> None:

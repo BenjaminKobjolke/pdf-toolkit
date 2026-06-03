@@ -15,7 +15,7 @@ from pathlib import Path
 from app.config.settings import Settings
 from app.gui import strings
 from app.pdf.backup import create_backup
-from app.pdf.merger import MERGED_FILENAME
+from app.pdf.merger import MERGED_FILENAME, find_existing_merged
 
 log = logging.getLogger("pdf_toolkit")
 
@@ -50,7 +50,7 @@ class GuiOperationRunner:
         if not folder.is_dir():
             return OpResult(False, strings.MSG_NOT_FOUND_FMT.format(path=folder))
 
-        existing = self._find_existing_merged(folder)
+        existing = find_existing_merged(folder)
         if existing is not None:
             backup = self._back_up(existing)
             if backup is not None and not backup.ok:
@@ -76,10 +76,3 @@ class GuiOperationRunner:
             return OpResult(False, str(err))
         log.info("%s", success)
         return OpResult(True, success)
-
-    @staticmethod
-    def _find_existing_merged(folder: Path) -> Path | None:
-        for entry in folder.iterdir():
-            if entry.is_file() and entry.name.lower() == MERGED_FILENAME.lower():
-                return entry
-        return None

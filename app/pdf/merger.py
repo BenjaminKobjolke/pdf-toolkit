@@ -35,6 +35,14 @@ def scan_folder(folder: Path) -> list[Path]:
     return sorted(matches, key=lambda p: p.name.lower())
 
 
+def find_existing_merged(folder: Path) -> Path | None:
+    """Return the existing ``merged.pdf`` in ``folder`` (case-insensitive), or ``None``."""
+    for entry in folder.iterdir():
+        if entry.is_file() and entry.name.lower() == MERGED_FILENAME.lower():
+            return entry
+    return None
+
+
 def merge_folder(folder: Path) -> None:
     """Merge supported files in ``folder`` into ``<folder>/merged.pdf`` atomically.
 
