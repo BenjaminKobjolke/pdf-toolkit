@@ -17,6 +17,7 @@ from prompt_toolkit.completion import CompleteEvent, Completer, Completion
 from prompt_toolkit.document import Document
 
 from app.cli._common import EXIT_OK, run_folder_merge, run_with_backup
+from app.cli.console import console
 from app.config.settings import Settings
 from app.logging_setup import configure_logging
 from app.pdf.deleter import delete_page, delete_page_range
@@ -44,7 +45,7 @@ def _ask_int(prompt: str) -> int:
         try:
             return int(raw)
         except ValueError:
-            print(f"not a valid integer: {raw!r}")
+            console.line(f"not a valid integer: {raw!r}")
 
 
 class PdfCompleter(Completer):
@@ -68,7 +69,7 @@ def _ask_pdf_path(prompt_text: str = "PDF (Tab to complete): ") -> Path:
     while True:
         raw = pt_prompt(prompt_text, completer=PdfCompleter()).strip().strip('"')
         if not raw:
-            print("path is required")
+            console.line("path is required")
             continue
         return Path(raw)
 
@@ -91,7 +92,7 @@ def _ask_folder_path(prompt_text: str = "Folder (Tab to complete): ") -> Path:
     while True:
         raw = pt_prompt(prompt_text, completer=FolderCompleter()).strip().strip('"')
         if not raw:
-            print("path is required")
+            console.line("path is required")
             continue
         return Path(raw)
 
@@ -104,11 +105,11 @@ def _ask_choice(option_count: int) -> int | None:
         try:
             value = int(raw)
         except ValueError:
-            print(f"not a valid choice: {raw!r}")
+            console.line(f"not a valid choice: {raw!r}")
             continue
         if 1 <= value <= option_count:
             return value
-        print(f"out of range: {value}")
+        console.line(f"out of range: {value}")
 
 
 def _handle_swap(settings: Settings) -> int:
@@ -154,10 +155,10 @@ def main() -> int:
     settings = Settings.from_env()
     configure_logging(settings.log_level)
 
-    print("pdf-toolkit wizard")
-    print("==================")
+    console.line("pdf-toolkit wizard")
+    console.line("==================")
     for index, option in enumerate(WIZARD_OPTIONS, start=1):
-        print(f"{index}) {option.label}")
+        console.line(f"{index}) {option.label}")
 
     choice = _ask_choice(len(WIZARD_OPTIONS))
     if choice is None:

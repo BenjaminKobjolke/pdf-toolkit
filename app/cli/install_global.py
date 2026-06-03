@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from app.cli._common import EXIT_FAILURE, EXIT_OK, EXIT_USAGE
+from app.cli.console import console
 from app.config.settings import Settings
 from app.logging_setup import configure_logging
 
@@ -71,9 +72,9 @@ def _read_target_from_stdin() -> Path:
 
 
 def _confirm_overwrite(existing_names: list[str]) -> bool:
-    print("These files already exist:")
+    console.line("These files already exist:")
     for name in existing_names:
-        print(f"  - {name}")
+        console.line(f"  - {name}")
     answer = input("Overwrite? [y/N]: ").strip().lower()
     return answer == "y"
 
@@ -124,10 +125,10 @@ def main() -> int:
             log.error("%s", err)
             return EXIT_FAILURE
 
-    print(f"Installed {len(written)} bat wrapper(s) in {target}:")
+    console.line(f"Installed {len(written)} bat wrapper(s) in {target}:")
     for path in written:
-        print(f"  - {path.name}")
-    print(f"Project root referenced by the wrappers: {PROJECT_ROOT}")
+        console.line(f"  - {path.name}")
+    console.line(f"Project root referenced by the wrappers: {PROJECT_ROOT}")
     return EXIT_OK
 
 
