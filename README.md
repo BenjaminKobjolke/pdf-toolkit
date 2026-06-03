@@ -66,6 +66,29 @@ Double-click opens are launched windowless via `pdft_gui.vbs` (no console flash)
 and the working directory is set to the opened PDF's folder, so its backups land
 in `<that folder>\backup\`.
 
+### Build a standalone `.exe`
+
+Some apps only let you associate a real `.exe` (not a `.bat`) to open files.
+Build a self-contained GUI executable with PyInstaller:
+
+```bat
+tools\build_exe.bat
+```
+
+This produces `dist\pdft-gui.exe` — a single onefile, windowed (no console)
+executable that bundles Python, PySide6, and pymupdf. It takes an optional PDF
+path argument, so `dist\pdft-gui.exe C:\path\to\file.pdf` opens that PDF, and you
+can point Windows' *Open with → Choose another app* at it.
+
+Notes:
+
+- Onefile startup is slightly slower than the `.bat` (it unpacks to a temp dir on
+  each launch).
+- `dist\` and `build\` are git-ignored; the build config `pdft-gui.spec` is
+  committed. To change the icon or bundled modules, edit that spec.
+- Requires the dev dependencies (`install.bat` / `uv sync --all-extras` installs
+  PyInstaller).
+
 ## Install globally
 
 If you keep a folder on `PATH` for command-line tools (e.g. `C:\cmdtools`), you can install the bats there in one step:
