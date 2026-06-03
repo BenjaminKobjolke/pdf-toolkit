@@ -2,6 +2,8 @@
 
 These rules merge the project's required common rules and Python rules. They apply to every change in this repository.
 
+Source rules: `D:\GIT\BenjaminKobjolke\claude-code\coding-rules` (`COMMON_RULES.md` + `PYTHON_RULES.md`). Re-run `/coding-rules:add-or-update` to resync.
+
 ---
 
 ## Common Rules
@@ -9,6 +11,18 @@ These rules merge the project's required common rules and Python rules. They app
 ### Use Objects for Related Values
 
 When multiple related values must be passed between classes or methods, bundle them into a dedicated object (e.g., DTO/Settings/Config) instead of passing many parameters.
+
+### No Bag-of-Keys Returns at Module Boundaries
+
+Public manager/service/repository methods that cross a module boundary return a typed object (DTO/value object/model), never a raw string-keyed `dict`. Lists vs single must be obvious from type + name (`get_thing() -> Thing | None` vs `get_things() -> list[Thing]`). Distinguish absent (`None`) from empty (`[]`). Internal private dict juggling inside one method is fine.
+
+### Reuse Existing Models Before Inventing Array Shapes
+
+Before designing a new DTO, grep for an existing domain class that already owns the same data and use it. A `get_xxx_object()` alongside a legacy dict-returning method is an acceptable migration step; delete the dict version once consumers migrate.
+
+### Tests Pin the Shape Before the Refactor
+
+When converting a dict return to a typed object, write a characterization test first against the current API, confirm it passes, then refactor; the same test stays green afterward. TDD applied to refactors.
 
 ### Test-Driven Development for Features and Bug Fixes
 
@@ -41,6 +55,10 @@ Project name, description, install, usage, dependencies.
 ### Don't Repeat Yourself (DRY)
 
 Extract shared logic into helpers or base abstractions. Use constants for repeated values.
+
+### Reusable Tooling
+
+Before building project-specific infrastructure scripts (audits, codemods, build helpers, lint checks), check the matching language's `*_setup_files/` folder in the coding-rules repo for an existing equivalent. If you build a new one, prove it on real data, copy it back into `*_setup_files/tools/`, and document it in that language's `*_RULES.md` so the next project picks it up.
 
 ### Confirm Dependency Versions
 
