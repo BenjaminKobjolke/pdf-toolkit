@@ -6,7 +6,8 @@ Small Python CLI toolkit for two PDF page operations, each with an automatic tim
 - `pdf-delete-page.bat <page> <pdf>` — delete page `<page>` (1-based), overwriting the original.
 - `pdf-delete-pages.bat <start> <end> <pdf>` — delete pages `<start>`..`<end>` (1-based, inclusive), overwriting the original.
 - `pdf-merge-folder.bat <folder>` — merge every supported file (`.pdf`, `.jpg`, `.jpeg`, `.png`) in `<folder>` into `<folder>\merged.pdf`. Files are added in alphabetical order (case-insensitive). Subfolders are ignored. If `merged.pdf` already exists in the folder, it is backed up first.
-- `pdft.bat` — interactive wizard that prompts for the operation (swap / delete single / delete range / merge folder) and its arguments. The PDF prompt has Tab-completion against `*.pdf` files in the current directory; the folder prompt has Tab-completion against subdirectories (powered by `prompt_toolkit`).
+- `pdft.bat` — interactive wizard that prompts for the operation (swap / delete single / delete range / merge folder / open GUI viewer) and its arguments. The PDF prompt has Tab-completion against `*.pdf` files in the current directory; the folder prompt has Tab-completion against subdirectories (powered by `prompt_toolkit`).
+- `pdft_gui.bat [pdf]` — GUI viewer (PySide6) that renders the PDF page by page and lets you run swap / delete page / delete range / merge folder on it, with the same automatic backups. Optionally pass a PDF path to open on startup.
 
 Every run first copies the original to `backup/YYYYMMDD-HHMM-<filename>.pdf`. The `backup/` directory is resolved relative to your current working directory, so when you run the tool from `C:\Users\me\Documents` the backup lands in `C:\Users\me\Documents\backup\`. Override with the `PDF_TOOLKIT_BACKUP_DIR` environment variable. The backup is created **before** validation, so if validation fails (e.g. swap on a 3-page PDF) the original is untouched but a backup still exists.
 
@@ -30,19 +31,50 @@ pdf-delete-page.bat 2 C:\path\to\file.pdf
 pdf-delete-pages.bat 1 10 C:\path\to\file.pdf
 pdf-merge-folder.bat "E:\path\to\folder"
 pdft.bat                                    REM interactive wizard
+pdft_gui.bat C:\path\to\file.pdf            REM GUI viewer
 ```
 
 Relative paths are resolved against your current working directory.
 
+### GUI viewer
+
+`pdft_gui.bat` (or the wizard's **Open GUI viewer** entry) opens a window that
+renders the current PDF. Use **Prev/Next** to page through it; the toolbar
+buttons run the operations on the open file:
+
+- **Delete current page** — deletes the page you are viewing (after a confirm), then re-renders.
+- **Delete range…** — prompts for a 1-based inclusive start/end.
+- **Swap 2 pages** — swaps the two pages of a 2-page PDF.
+- **Merge folder…** — pick a folder to merge into `<folder>\merged.pdf`.
+
+Every operation writes a backup first (same `backup/YYYYMMDD-HHMM-<name>.pdf`
+format) and surfaces validation errors in a dialog.
+
+### Make it a PDF handler (open PDFs by double-click)
+
+```bat
+pdft_gui_register.bat     REM register the viewer as a PDF handler (HKCU, no admin)
+pdft_gui_unregister.bat   REM undo
+```
+
+`pdft_gui_register.bat` registers a per-user ProgID so the viewer appears in
+Windows' *Open with* list for `.pdf`. Windows 11 does **not** let any tool set
+the *default* app silently, so finish in the UI: right-click a PDF →
+**Open with → Choose another app → PDF (pdf-toolkit viewer)** → tick **Always**.
+
+Double-click opens are launched windowless via `pdft_gui.vbs` (no console flash),
+and the working directory is set to the opened PDF's folder, so its backups land
+in `<that folder>\backup\`.
+
 ## Install globally
 
-If you keep a folder on `PATH` for command-line tools (e.g. `C:\cmdtools`), you can install the two bats there in one step:
+If you keep a folder on `PATH` for command-line tools (e.g. `C:\cmdtools`), you can install the bats there in one step:
 
 ```bat
 tools\install_global.bat
 ```
 
-It prompts for the target directory (default `C:\cmdtools`), then writes a single `pdft.bat` into it. `pdft` is the interactive wizard — it asks which operation to run, lists `*.pdf` files in your current directory for selection, and dispatches to the right tool internally. The generated bat points back to this project's venv, so the toolkit stays installed in one place but is callable from anywhere.
+It prompts for the target directory (default `C:\cmdtools`), then writes `pdft.bat` (the interactive wizard) and `pdft_gui.bat` (the GUI viewer) into it. `pdft` asks which operation to run, lists `*.pdf` files in your current directory for selection, and dispatches to the right tool internally. The generated bats point back to this project's venv, so the toolkit stays installed in one place but is callable from anywhere.
 
 Both commands:
 

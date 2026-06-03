@@ -2,13 +2,27 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+import os
+from collections.abc import Iterator, Sequence
 from pathlib import Path
 from typing import Literal, Protocol
 
 import pytest
 from PIL import Image
 from pypdf import PdfReader, PdfWriter
+
+# Qt must run headless in tests; set before any QApplication is constructed.
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+
+@pytest.fixture(scope="session")
+def qapp() -> Iterator[object]:
+    """Provide a single offscreen QApplication for the whole test session."""
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication.instance() or QApplication([])
+    yield app
+
 
 PageSize = tuple[float, float]
 ImageKind = Literal["png", "jpg", "rgba_png"]

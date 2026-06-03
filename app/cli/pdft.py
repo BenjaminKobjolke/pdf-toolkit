@@ -134,11 +134,19 @@ def _handle_merge_folder(settings: Settings) -> int:
     return run_folder_merge(folder, merge_folder, settings)
 
 
+def _handle_launch_gui(settings: Settings) -> int:
+    # Local import keeps PySide6 out of pure-CLI startup.
+    from app.gui.main import main as gui_main
+
+    return gui_main([])
+
+
 WIZARD_OPTIONS: tuple[WizardOption, ...] = (
     WizardOption("Swap pages (2-page PDF)", _handle_swap),
     WizardOption("Delete single page", _handle_delete_single),
     WizardOption("Delete page range", _handle_delete_range),
     WizardOption("Merge folder (PDFs + images) -> merged.pdf", _handle_merge_folder),
+    WizardOption("Open GUI viewer", _handle_launch_gui),
 )
 
 

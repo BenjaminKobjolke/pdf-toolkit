@@ -7,7 +7,9 @@ dependencies = [
     "img2pdf>=0.5,<1.0",
     "pillow>=10.0,<12.0",
     "prompt-toolkit>=3.0.43",
+    "pymupdf>=1.27.2.3",
     "pypdf>=5.0",
+    "pyside6>=6.11.1",
 ]
 
 [project.scripts]
@@ -17,6 +19,7 @@ pdf-delete-pages = "app.cli.delete_pages:main"
 pdf-merge-folder = "app.cli.merge_folder:main"
 pdf-install-global = "app.cli.install_global:main"
 pdft = "app.cli.pdft:main"
+pdft-gui = "app.cli.gui:main"
 
 [dependency-groups]
 dev = [
@@ -36,6 +39,10 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 python_version = "3.11"
 strict = true
 files = ["app", "tests"]
+
+[[tool.mypy.overrides]]
+module = ["fitz"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

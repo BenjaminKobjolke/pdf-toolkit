@@ -15,7 +15,10 @@ DEFAULT_TARGET = Path(r"C:\cmdtools")
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 # Single source of truth: which bats get installed and which module each invokes.
-BAT_FILES: tuple[tuple[str, str], ...] = (("pdft.bat", "app.cli.pdft"),)
+BAT_FILES: tuple[tuple[str, str], ...] = (
+    ("pdft.bat", "app.cli.pdft"),
+    ("pdft_gui.bat", "app.cli.gui"),
+)
 
 log = logging.getLogger("pdf_toolkit")
 
