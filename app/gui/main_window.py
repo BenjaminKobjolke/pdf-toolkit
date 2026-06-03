@@ -20,7 +20,7 @@ from app.gui.controls import OperationBar
 from app.gui.operations import GuiOperationRunner, OpResult
 from app.gui.page_view import PageView
 from app.pdf.deleter import delete_page, delete_page_range
-from app.pdf.merger import merge_folder
+from app.pdf.merger import MERGED_FILENAME, merge_folder
 from app.pdf.swapper import swap_two_pages
 
 
@@ -112,6 +112,8 @@ class MainWindow(QMainWindow):
         if not chosen:
             return
         result = self._runner.run_folder_merge(Path(chosen), merge_folder)
+        if result.ok:
+            self.open_pdf(Path(chosen) / MERGED_FILENAME)
         self._report(result)
 
     def _run_on_file(self, op: Callable[[Path], None]) -> None:
