@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QColor, QKeyEvent, QPen, QPixmap, QTransform
+from PySide6.QtGui import QColor, QKeyEvent, QPen, QPixmap
 from PySide6.QtWidgets import (
     QGraphicsPixmapItem,
     QGraphicsRectItem,
@@ -20,23 +20,13 @@ from PySide6.QtWidgets import (
 
 from app.gui import render, strings
 from app.gui.text_item import TextFieldItem
+from app.gui.zoom_controller import ZoomController
 
 _HIGHLIGHT_COLOR = "#ffd000"  # gold outline for search matches
 _HIGHLIGHT_Z = 2.0  # above the page (0) and text items (1)
 
-# Zoom modes — remembered so the choice re-applies when the page changes. "fit"
-# re-fits each page (page sizes can differ); "scaled" holds a fixed factor (used
-# by 100% and by manual zoom in/out).
-_MODE_FIT = "fit"
-_MODE_SCALED = "scaled"
-
 _NUDGE_STEP = 10.0  # scene px per arrow press
 _NUDGE_STEP_FINE = 1.0  # scene px per arrow press while Shift is held
-_ZOOM_IN_FACTOR = 1.1  # zoom in 10%
-_ZOOM_OUT_FACTOR = 0.9  # zoom out 10%
-# "100%" = true PDF size: the page is rendered at render.DEFAULT_ZOOM, so the
-# view transform must divide that back out.
-_ZOOM_ACTUAL = 1.0 / render.DEFAULT_ZOOM
 _ARROW_DELTAS: dict[Qt.Key, tuple[float, float]] = {
     Qt.Key.Key_Left: (-1.0, 0.0),
     Qt.Key.Key_Right: (1.0, 0.0),
@@ -66,8 +56,7 @@ class PageView(QGraphicsView):
         self._source: Path | None = None
         self._index = 0
         self._total = 0
-        self._zoom = _ZOOM_ACTUAL
-        self._zoom_mode = _MODE_SCALED
+        self._zoom_ctl = ZoomController(self, self._pixmap_item)
 
     # --- document lifecycle -------------------------------------------------
 
@@ -155,46 +144,24 @@ class PageView(QGraphicsView):
     def highlight_items(self) -> tuple[QGraphicsRectItem, ...]:
         return tuple(self._highlight_items)
 
-    # --- zoom ---------------------------------------------------------------
+    # --- zoom (delegated to ZoomController) ---------------------------------
 
     def zoom(self) -> float:
         """Return the current scene-to-view scale factor."""
-        return self._zoom
+        return self._zoom_ctl.zoom()
 
     def zoom_actual(self) -> None:
-        """Show the page at true PDF size (100%); stays 100% on page changes."""
-        self._zoom_mode = _MODE_SCALED
-        self._apply_zoom(_ZOOM_ACTUAL)
+        self._zoom_ctl.actual()
 
     def zoom_in(self) -> None:
-        self._zoom_mode = _MODE_SCALED
-        self._apply_zoom(self._zoom * _ZOOM_IN_FACTOR)
+        self._zoom_ctl.zoom_in()
 
     def zoom_out(self) -> None:
-        self._zoom_mode = _MODE_SCALED
-        self._apply_zoom(self._zoom * _ZOOM_OUT_FACTOR)
+        self._zoom_ctl.zoom_out()
 
     def zoom_fit(self) -> None:
-        """Fit the page to the viewport; re-fits each page as you navigate."""
-        if self._source is None:
-            return
-        self._zoom_mode = _MODE_FIT
-        self._fit_to_viewport()
-
-    def _apply_zoom(self, scale: float) -> None:
-        self._zoom = scale
-        self.setTransform(QTransform().scale(scale, scale))
-
-    def _fit_to_viewport(self) -> None:
-        self.fitInView(self._pixmap_item, Qt.AspectRatioMode.KeepAspectRatio)
-        self._zoom = self.transform().m11()
-
-    def _reapply_zoom(self) -> None:
-        """Re-apply the current zoom mode after a page render."""
-        if self._zoom_mode == _MODE_FIT:
-            self._fit_to_viewport()
-        else:
-            self.setTransform(QTransform().scale(self._zoom, self._zoom))
+        if self._source is not None:
+            self._zoom_ctl.fit()
 
     # --- queries ------------------------------------------------------------
 
@@ -317,5 +284,5 @@ class PageView(QGraphicsView):
         self._pixmap_item.setPixmap(QPixmap.fromImage(image))
         self._scene.setSceneRect(self._pixmap_item.boundingRect())
         # Re-apply the zoom mode so 100% stays 100% and fit re-fits each page.
-        self._reapply_zoom()
+        self._zoom_ctl.reapply()
         self.page_changed.emit(self.current_page_one_based(), self._total)
