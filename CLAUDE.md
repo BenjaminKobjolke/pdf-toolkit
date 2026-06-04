@@ -6,6 +6,18 @@ Source rules: `D:\GIT\BenjaminKobjolke\claude-code\coding-rules` (`COMMON_RULES.
 
 ---
 
+## Code Analysis
+
+After implementing new features or making significant changes, run the code analysis:
+
+```bash
+powershell -Command "cd 'D:\GIT\BenjaminKobjolke\pdf-toolkit'; cmd /c '.\tools\analyze_code.bat'"
+```
+
+Results are written to `code_analysis_results/*.csv`. To auto-fix Ruff issues first, run `tools\fix_ruff_issues.bat` (preview with `tools\fix_ruff_issues_dry_run.bat`). Fix any reported issues before committing.
+
+---
+
 ## Common Rules
 
 ### Use Objects for Related Values
