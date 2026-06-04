@@ -7,20 +7,11 @@ current value. Returns a normalised ``#rrggbb`` string. No mouse required.
 
 from __future__ import annotations
 
-from typing import cast
-
-from PySide6.QtCore import QEvent, QObject, Qt
-from PySide6.QtGui import QColor, QKeyEvent
-from PySide6.QtWidgets import (
-    QDialog,
-    QLabel,
-    QLineEdit,
-    QListWidget,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QLabel, QWidget
 
 from app.gui import strings
+from app.gui.filterable_dialog import FilterableListDialog
 
 # Curated common colours offered in the list (any valid Qt name still works when
 # typed). Ordered roughly by usefulness.
@@ -58,7 +49,7 @@ def _normalize(text: str) -> str | None:
     return color.name(QColor.NameFormat.HexRgb)
 
 
-class ColorPickerDialog(QDialog):
+class ColorPickerDialog(FilterableListDialog):
     """Filterable colour list with a typed hex/name override and live preview."""
 
     #: Sentinel returned by :meth:`chosen` when the user picks "transparent"
@@ -74,34 +65,19 @@ class ColorPickerDialog(QDialog):
         title: str = "",
         parent: QWidget | None = None,
     ) -> None:
-        super().__init__(parent)
-        self.setWindowTitle(title or strings.COLOR_DIALOG_TITLE)
+        super().__init__(
+            placeholder=strings.COLOR_PLACEHOLDER,
+            title=title or strings.COLOR_DIALOG_TITLE,
+            parent=parent,
+        )
         self._allow_transparent = allow_transparent
         self._rows: list[tuple[str, str]] = self._build_rows(recent or [], allow_transparent)
         self._visible: list[tuple[str, str]] = []
         self._chosen: str | None = None
 
-        self._filter = QLineEdit()
-        self._filter.setPlaceholderText(strings.COLOR_PLACEHOLDER)
-        self._filter.textChanged.connect(self._on_text_changed)
-        self._filter.returnPressed.connect(self.accept_current)
-        self._filter.installEventFilter(self)
-
         self._preview = QLabel()
         self._preview.setMinimumHeight(28)
-
-        self._list = QListWidget()
-        self._list.currentRowChanged.connect(lambda _row: self._update_preview())
-        self._list.itemActivated.connect(lambda _item: self.accept_current())
-
-        layout = QVBoxLayout(self)
-        layout.addWidget(self._filter)
-        layout.addWidget(self._preview)
-        layout.addWidget(self._list)
-        self.resize(360, 420)
-
-        self._apply_filter("")
-        self._filter.setFocus()
+        self._finish_layout(self._preview, size=(360, 420))
 
     # --- queries (callers and tests) ----------------------------------------
 
@@ -126,16 +102,6 @@ class ColorPickerDialog(QDialog):
         return None
 
     # --- interaction --------------------------------------------------------
-
-    def set_query(self, text: str) -> None:
-        self._filter.setText(text)
-
-    def move_selection(self, delta: int) -> None:
-        count = len(self._visible)
-        if count == 0:
-            return
-        row = (self._list.currentRow() + delta) % count
-        self._list.setCurrentRow(row)
 
     def accept_current(self) -> None:
         """Accept the highlighted row, else a valid typed value."""
@@ -173,8 +139,7 @@ class ColorPickerDialog(QDialog):
                 seen.add(hex_value)
         return rows
 
-    def _on_text_changed(self, text: str) -> None:
-        self._apply_filter(text)
+    def _on_row_changed(self) -> None:
         self._update_preview()
 
     def _apply_filter(self, text: str) -> None:
@@ -211,14 +176,3 @@ class ColorPickerDialog(QDialog):
         else:
             self._preview.setStyleSheet(_SWATCH_STYLE.format(hex=value))
             self._preview.setText("")
-
-    def eventFilter(self, watched: QObject, event: QEvent) -> bool:
-        if watched is self._filter and event.type() == QEvent.Type.KeyPress:
-            key = cast(QKeyEvent, event).key()
-            if key == Qt.Key.Key_Down:
-                self.move_selection(1)
-                return True
-            if key == Qt.Key.Key_Up:
-                self.move_selection(-1)
-                return True
-        return super().eventFilter(watched, event)

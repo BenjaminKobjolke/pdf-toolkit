@@ -10,11 +10,11 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import Any
 
-from PySide6.QtCore import QEvent, QObject, Qt
-from PySide6.QtGui import QKeyEvent
-from PySide6.QtWidgets import QDialog, QLineEdit, QListWidget, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QWidget
+
+from app.gui.filterable_dialog import FilterableListDialog
 
 
 def _matches(haystack: str, tokens: list[str]) -> bool:
@@ -36,7 +36,7 @@ class ListEntry:
     payload: Any = None
 
 
-class FilterListDialog(QDialog):
+class FilterListDialog(FilterableListDialog):
     """Filterable single-select list. Disabled entries are never shown.
 
     Two modes: a **static** list filtered by substring (palette, history), or a
@@ -54,31 +54,13 @@ class FilterListDialog(QDialog):
         min_chars: int = 0,
         parent: QWidget | None = None,
     ) -> None:
-        super().__init__(parent)
-        if title:
-            self.setWindowTitle(title)
+        super().__init__(placeholder=placeholder, title=title, parent=parent)
         self._entries = [entry for entry in entries if entry.enabled]
         self._provider = provider
         self._min_chars = min_chars
         self._visible: list[ListEntry] = []
         self._chosen: ListEntry | None = None
-
-        self._filter = QLineEdit()
-        self._filter.setPlaceholderText(placeholder)
-        self._filter.textChanged.connect(self._apply_filter)
-        self._filter.returnPressed.connect(self.accept_current)
-        self._filter.installEventFilter(self)
-
-        self._list = QListWidget()
-        self._list.itemActivated.connect(lambda _item: self.accept_current())
-
-        layout = QVBoxLayout(self)
-        layout.addWidget(self._filter)
-        layout.addWidget(self._list)
-        self.resize(520, 420)
-
-        self._apply_filter("")
-        self._filter.setFocus()
+        self._finish_layout()
 
     # --- queries (used by callers and tests) --------------------------------
 
@@ -98,18 +80,8 @@ class FilterListDialog(QDialog):
             return self._visible[row]
         return None
 
-    # --- interaction --------------------------------------------------------
-
     def set_filter(self, text: str) -> None:
-        self._filter.setText(text)
-
-    def move_selection(self, delta: int) -> None:
-        """Move the highlight by ``delta`` rows, wrapping at the ends."""
-        count = len(self._visible)
-        if count == 0:
-            return
-        row = (self._list.currentRow() + delta) % count
-        self._list.setCurrentRow(row)
+        self.set_query(text)
 
     def accept_current(self) -> None:
         """Accept the highlighted entry (if any) and close."""
@@ -135,15 +107,3 @@ class FilterListDialog(QDialog):
             return self._provider(text)
         tokens = text.casefold().split()
         return [e for e in self._entries if _matches(e.title.casefold(), tokens)]
-
-    def eventFilter(self, watched: QObject, event: QEvent) -> bool:
-        """Route Up/Down from the filter box to the list selection."""
-        if watched is self._filter and event.type() == QEvent.Type.KeyPress:
-            key = cast(QKeyEvent, event).key()
-            if key == Qt.Key.Key_Down:
-                self.move_selection(1)
-                return True
-            if key == Qt.Key.Key_Up:
-                self.move_selection(-1)
-                return True
-        return super().eventFilter(watched, event)
