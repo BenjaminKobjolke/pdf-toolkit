@@ -33,7 +33,7 @@ def test_delete_current_page_shrinks_document(
     monkeypatch.setattr(QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes)
     monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: QMessageBox.StandardButton.Ok)
 
-    window.delete_current_page()
+    window.page_actions.delete_current_page()
 
     assert page_sizes_of(pdf) == [(300, 400), (120, 120)]
     assert window._page_view.total_pages() == 2
@@ -49,7 +49,7 @@ def test_swap_pages_through_window(
     window.open_pdf(pdf)
     monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: QMessageBox.StandardButton.Ok)
 
-    window.swap_pages()
+    window.page_actions.swap()
 
     assert page_sizes_of(pdf) == [(300, 400), (100, 200)]
 
@@ -67,7 +67,7 @@ def test_invalid_swap_reports_error_and_keeps_file(
         QMessageBox, "critical", lambda parent, title, msg, *a, **k: captured.append(msg)
     )
 
-    window.swap_pages()
+    window.page_actions.swap()
 
     assert captured  # an error dialog was shown
     assert page_sizes_of(pdf) == [(100, 200), (300, 400), (120, 120)]

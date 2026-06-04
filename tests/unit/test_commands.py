@@ -28,11 +28,25 @@ _ALL_IDS = {
     commands.DELETE_PAGE,
     commands.DELETE_RANGE,
     commands.MERGE_FOLDER,
+    commands.RENAME_FILE,
+    commands.TOGGLE_MENU,
+    commands.TOGGLE_TOOLBAR,
     commands.EDIT_MODE,
     commands.ADD_FIELD,
     commands.DELETE_FIELD,
     commands.EXPORT_TEXT,
     commands.DELETE_SAVED_FIELDS,
+    commands.SEARCH_PDF,
+    commands.SEARCH_FIELDS,
+    commands.CLEAR_HIGHLIGHTS,
+    commands.FIELD_CHANGE_TEXT,
+    commands.FIELD_FONT_SIZE,
+    commands.FIELD_FONT_FAMILY,
+    commands.FIELD_TEXT_COLOR,
+    commands.FIELD_BG_COLOR,
+    commands.FIELD_TOGGLE_BOLD,
+    commands.FIELD_TOGGLE_ITALIC,
+    commands.FIELD_DELETE,
 }
 
 
@@ -80,3 +94,21 @@ def test_doc_commands_enabled_after_open(window: MainWindow, make_pdf: MakePdf) 
     registry = commands.build_commands(window)
     assert commands.find(registry, commands.ZOOM_IN).is_enabled() is True
     assert commands.find(registry, commands.LAST_PAGE).is_enabled() is True
+
+
+def test_field_commands_disabled_without_selection(window: MainWindow, make_pdf: MakePdf) -> None:
+    window.open_pdf(make_pdf([(200, 300)]))
+    registry = commands.build_commands(window)
+    assert commands.find(registry, commands.FIELD_FONT_SIZE).is_enabled() is False
+    assert commands.find(registry, commands.FIELD_DELETE).is_enabled() is False
+
+
+def test_clear_highlights_enabled_only_with_highlights(
+    window: MainWindow, make_pdf: MakePdf
+) -> None:
+    window.open_pdf(make_pdf([(200, 300)]))
+    registry = commands.build_commands(window)
+    assert commands.find(registry, commands.CLEAR_HIGHLIGHTS).is_enabled() is False
+    window.page_view.set_highlights([(1.0, 2.0, 3.0, 4.0)])
+    registry = commands.build_commands(window)
+    assert commands.find(registry, commands.CLEAR_HIGHLIGHTS).is_enabled() is True

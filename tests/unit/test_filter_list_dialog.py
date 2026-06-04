@@ -63,8 +63,72 @@ def test_move_selection_wraps(qapp: object) -> None:
     assert current.title == "A"
 
 
+def test_multi_token_filter_ignores_word_order_and_punctuation(qapp: object) -> None:
+    entries = [ListEntry(title="Field: delete"), ListEntry(title="Field: change text…")]
+    dialog = FilterListDialog(entries)
+    dialog.set_filter("field del")
+    assert _titles(dialog) == ["Field: delete"]
+
+
+def test_token_filter_requires_all_tokens(qapp: object) -> None:
+    entries = [ListEntry(title="Zoom in"), ListEntry(title="Zoom out")]
+    dialog = FilterListDialog(entries)
+    dialog.set_filter("zoom out")
+    assert _titles(dialog) == ["Zoom out"]
+
+
 def test_no_match_yields_no_chosen(qapp: object) -> None:
     dialog = FilterListDialog([ListEntry(title="A")])
     dialog.set_filter("zzz")
     dialog.accept_current()
     assert dialog.chosen() is None
+
+
+def _provider_titles(dialog: FilterListDialog) -> list[str]:
+    return [dialog.visible_entry(i).title for i in range(dialog.visible_count())]
+
+
+def test_provider_mode_below_min_chars_shows_nothing(qapp: object) -> None:
+    calls: list[str] = []
+
+    def provider(text: str) -> list[ListEntry]:
+        calls.append(text)
+        return [ListEntry(title=f"hit:{text}")]
+
+    dialog = FilterListDialog([], provider=provider, min_chars=3)
+    dialog.set_filter("ab")
+    assert _provider_titles(dialog) == []
+
+
+def test_provider_mode_runs_at_min_chars(qapp: object) -> None:
+    def provider(text: str) -> list[ListEntry]:
+        return [ListEntry(title=f"hit:{text}", payload=text)]
+
+    dialog = FilterListDialog([], provider=provider, min_chars=3)
+    dialog.set_filter("abc")
+    assert _provider_titles(dialog) == ["hit:abc"]
+
+
+def test_provider_reruns_per_keystroke(qapp: object) -> None:
+    calls: list[str] = []
+
+    def provider(text: str) -> list[ListEntry]:
+        calls.append(text)
+        return [ListEntry(title=text)]
+
+    dialog = FilterListDialog([], provider=provider, min_chars=1)
+    dialog.set_filter("a")
+    dialog.set_filter("ab")
+    assert calls == ["a", "ab"]
+
+
+def test_provider_accept_returns_payload(qapp: object) -> None:
+    def provider(text: str) -> list[ListEntry]:
+        return [ListEntry(title="match", payload=(1, 2))]
+
+    dialog = FilterListDialog([], provider=provider, min_chars=3)
+    dialog.set_filter("abc")
+    dialog.accept_current()
+    chosen = dialog.chosen()
+    assert chosen is not None
+    assert chosen.payload == (1, 2)

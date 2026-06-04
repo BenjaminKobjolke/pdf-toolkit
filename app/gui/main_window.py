@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtGui import QCloseEvent, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QFileDialog,
     QInputDialog,
@@ -17,17 +17,20 @@ from PySide6.QtWidgets import (
 
 from app.config.recent_files import RecentFilesStore
 from app.config.settings import Settings
+from app.config.ui_state import UiStateStore
 from app.gui import commands, strings
+from app.gui.chrome import ChromeController
 from app.gui.commands import Command
 from app.gui.controls import OperationBar
 from app.gui.edit_bar import EditBar
 from app.gui.edit_controller import EditController
+from app.gui.field_actions import FieldActions
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.operations import GuiOperationRunner, OpResult
+from app.gui.page_actions import PageActions
 from app.gui.page_view import PageView
-from app.pdf.deleter import delete_page, delete_page_range
-from app.pdf.merger import MERGED_FILENAME, merge_folder
-from app.pdf.swapper import swap_two_pages
+from app.gui.search_actions import SearchActions
+from app.pdf.renamer import rename_document
 
 # Direct keyboard shortcuts -> command id. The palette has its own chord below.
 _SHORTCUTS: tuple[tuple[str, str], ...] = (
@@ -39,7 +42,9 @@ _SHORTCUTS: tuple[tuple[str, str], ...] = (
     ("Ctrl+=", commands.ZOOM_IN),
     ("Ctrl+-", commands.ZOOM_OUT),
     ("Ctrl+0", commands.ZOOM_ACTUAL),
-    ("Ctrl+F", commands.ZOOM_FIT),
+    ("Ctrl+F", commands.SEARCH_PDF),
+    ("Ctrl+Shift+F", commands.SEARCH_FIELDS),
+    ("Ctrl+Shift+H", commands.CLEAR_HIGHLIGHTS),
 )
 _PALETTE_CHORD = "Ctrl+Shift+P"
 
@@ -51,20 +56,28 @@ class MainWindow(QMainWindow):
         super().__init__()
         self._runner = GuiOperationRunner(settings)
         self._recent = RecentFilesStore(settings.recent_file)
+        self._ui_state = UiStateStore(settings.ui_state_file)
         self._source: Path | None = None
 
         self._page_view = PageView()
         self._bar = OperationBar()
         self._edit_bar = EditBar()
         self._controller = EditController(self._page_view)
+        self._field_actions = FieldActions(self, self._page_view, self._controller)
+        self._search_actions = SearchActions(
+            self, self._page_view, self._controller, self._edit_bar, lambda: self._source
+        )
+        self._page_actions = PageActions(
+            self, self._page_view, self._runner, lambda: self._source, self.open_pdf, self._report
+        )
         self._page_view.page_changed.connect(self._bar.set_page_label)
 
         self._bar.prev_requested.connect(self._page_view.show_prev)
         self._bar.next_requested.connect(self._page_view.show_next)
-        self._bar.swap_requested.connect(self.swap_pages)
-        self._bar.delete_page_requested.connect(self.delete_current_page)
-        self._bar.delete_range_requested.connect(self.delete_page_range)
-        self._bar.merge_folder_requested.connect(self.merge_folder)
+        self._bar.swap_requested.connect(self._page_actions.swap)
+        self._bar.delete_page_requested.connect(self._page_actions.delete_current_page)
+        self._bar.delete_range_requested.connect(self._page_actions.delete_page_range)
+        self._bar.merge_folder_requested.connect(self._page_actions.merge_folder)
 
         self._edit_bar.edit_mode_toggled.connect(self._controller.set_edit_mode)
         self._edit_bar.add_field_requested.connect(self._controller.add_field)
@@ -83,6 +96,8 @@ class MainWindow(QMainWindow):
         self._registry = commands.build_commands(self)
         self._build_menu()
         self._install_shortcuts()
+        self._chrome = ChromeController(self.menuBar(), self._bar, self._edit_bar, self._ui_state)
+        self._chrome.apply_saved()
         self.resize(800, 900)
 
     # --- accessors used by the command registry -----------------------------
@@ -94,6 +109,18 @@ class MainWindow(QMainWindow):
     @property
     def controller(self) -> EditController:
         return self._controller
+
+    @property
+    def field_actions(self) -> FieldActions:
+        return self._field_actions
+
+    @property
+    def search_actions(self) -> SearchActions:
+        return self._search_actions
+
+    @property
+    def page_actions(self) -> PageActions:
+        return self._page_actions
 
     def has_document(self) -> bool:
         return self._source is not None
@@ -185,51 +212,42 @@ class MainWindow(QMainWindow):
             return
         self._controller.clear_saved_fields()
 
-    # --- page operations ----------------------------------------------------
-
-    def swap_pages(self) -> None:
+    def rename_file(self) -> None:
+        """Rename the open PDF (and its sidecar) and reopen under the new name."""
         if self._source is None:
             return
-        self._run_on_file(swap_two_pages)
-
-    def delete_current_page(self) -> None:
-        if self._source is None:
-            return
-        page = self._page_view.current_page_one_based()
-        total = self._page_view.total_pages()
-        confirm = QMessageBox.question(
-            self,
-            strings.CONFIRM_TITLE,
-            strings.CONFIRM_DELETE_PAGE_FMT.format(page=page, total=total),
+        name, ok = QInputDialog.getText(
+            self, strings.DIALOG_RENAME_TITLE, strings.PROMPT_RENAME, text=self._source.name
         )
-        if confirm != QMessageBox.StandardButton.Yes:
+        if not ok or not name.strip():
             return
-        self._run_on_file(lambda p: delete_page(p, page))
+        target = self._source.with_name(name.strip())
+        if target.suffix == "":
+            target = target.with_suffix(self._source.suffix)
+        self._controller.flush()
+        try:
+            rename_document(self._source, target)
+        except (OSError, ValueError) as err:
+            self._report(OpResult(False, str(err)))
+            return
+        self.open_pdf(target)
+        self._report(OpResult(True, strings.MSG_RENAMED_FMT.format(name=target.name)))
 
-    def delete_page_range(self) -> None:
-        if self._source is None:
-            return
-        total = self._page_view.total_pages()
-        start, ok = QInputDialog.getInt(
-            self, strings.DIALOG_RANGE_TITLE, strings.PROMPT_RANGE_START, 1, 1, total
-        )
-        if not ok:
-            return
-        end, ok = QInputDialog.getInt(
-            self, strings.DIALOG_RANGE_TITLE, strings.PROMPT_RANGE_END, start, start, total
-        )
-        if not ok:
-            return
-        self._run_on_file(lambda p: delete_page_range(p, start, end))
+    # --- window chrome ------------------------------------------------------
 
-    def merge_folder(self) -> None:
-        chosen = QFileDialog.getExistingDirectory(self, strings.DIALOG_MERGE_TITLE)
-        if not chosen:
-            return
-        result = self._runner.run_folder_merge(Path(chosen), merge_folder)
-        if result.ok:
-            self.open_pdf(Path(chosen) / MERGED_FILENAME)
-        self._report(result)
+    def toggle_menu_bar(self) -> None:
+        """Show/hide the top menu bar (remembered across sessions)."""
+        self._chrome.toggle_menu()
+
+    def toggle_toolbar(self) -> None:
+        """Show/hide the button toolbars (remembered across sessions)."""
+        self._chrome.toggle_toolbar()
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        """Persist pending edits and UI state before the window closes."""
+        self._controller.flush()
+        self._chrome.save()
+        super().closeEvent(event)
 
     # --- internals ----------------------------------------------------------
 
@@ -266,13 +284,6 @@ class MainWindow(QMainWindow):
                 command.run()
 
         return trigger
-
-    def _run_on_file(self, op: Callable[[Path], None]) -> None:
-        assert self._source is not None
-        result = self._runner.run_on_file(self._source, op)
-        if result.ok:
-            self._page_view.reload()
-        self._report(result)
 
     def _report(self, result: OpResult) -> None:
         if result.ok:

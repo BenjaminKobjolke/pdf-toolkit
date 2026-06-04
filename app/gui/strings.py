@@ -42,12 +42,51 @@ CMD_DELETE_SAVED_FIELDS = "Delete saved text fields for this document"
 CONFIRM_DELETE_SAVED_FIELDS = "Delete all saved text fields for this document?"
 LABEL_HISTORY_EMPTY = "No recent documents"
 
+# Colour picker
+COLOR_DIALOG_TITLE = "Pick a colour"
+COLOR_PLACEHOLDER = "Type a hex (#ff8800) or name (white)…"
+
+# Search
+CMD_SEARCH_PDF = "Search PDF text…"
+CMD_SEARCH_FIELDS = "Search text fields…"
+CMD_CLEAR_HIGHLIGHTS = "Clear search highlights"
+SEARCH_PDF_TITLE = "Search PDF text"
+SEARCH_FIELDS_TITLE = "Search text fields"
+SEARCH_PLACEHOLDER = "Type at least 3 characters…"
+SEARCH_RESULT_FMT = "Page {page}: {snippet}"
+SEARCH_RESULT_NO_SNIPPET = "(match)"
+
+# Active-field commands (shown only while a field is selected)
+CMD_FIELD_CHANGE_TEXT = "Field: change text…"
+CMD_FIELD_FONT_SIZE = "Field: font size…"
+CMD_FIELD_FONT_FAMILY = "Field: font family…"
+CMD_FIELD_TEXT_COLOR = "Field: text colour…"
+CMD_FIELD_BG_COLOR = "Field: background colour…"
+CMD_FIELD_TOGGLE_BOLD = "Field: toggle bold"
+CMD_FIELD_TOGGLE_ITALIC = "Field: toggle italic"
+CMD_FIELD_DELETE = "Field: delete"
+
+FONT_DIALOG_TITLE = "Pick a font"
+FONT_PLACEHOLDER = "Type a font name…"
+DIALOG_FIELD_TEXT_TITLE = "Change field text"
+PROMPT_FIELD_TEXT = "Text:"
+HINT_CTRL_ENTER = "Press Ctrl+Enter to apply, Esc to cancel."
+DIALOG_FIELD_SIZE_TITLE = "Field font size"
+PROMPT_FIELD_SIZE = "Size (px):"
+
 BTN_PREV = "◀ Prev"
 BTN_NEXT = "Next ▶"
 BTN_SWAP = "Swap 2 pages"
 BTN_DELETE_PAGE = "Delete current page"
 BTN_DELETE_RANGE = "Delete range…"
 BTN_MERGE_FOLDER = "Merge folder…"
+
+CMD_RENAME_FILE = "Rename file…"
+CMD_TOGGLE_MENU = "Toggle menu bar"
+CMD_TOGGLE_TOOLBAR = "Toggle toolbar"
+DIALOG_RENAME_TITLE = "Rename file"
+PROMPT_RENAME = "New file name:"
+MSG_RENAMED_FMT = "renamed to: {name}"
 
 BTN_EDIT_MODE = "Edit text"
 BTN_ADD_FIELD = "Add field"

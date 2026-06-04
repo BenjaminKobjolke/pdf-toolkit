@@ -45,6 +45,10 @@ class MakeImage(Protocol):
     ) -> Path: ...
 
 
+class MakeSearchablePdf(Protocol):
+    def __call__(self, page_texts: Sequence[str], name: str | None = ...) -> Path: ...
+
+
 def _build_pdf(target: Path, page_sizes: Sequence[PageSize]) -> Path:
     writer = PdfWriter()
     for width, height in page_sizes:
@@ -96,6 +100,34 @@ def make_image(tmp_path: Path) -> MakeImage:
         filename = name or f"image_{counter['n']}{ext}"
         target = tmp_path / filename
         Image.new(mode, size, color).save(target)
+        return target
+
+    return _factory
+
+
+@pytest.fixture
+def make_searchable_pdf(tmp_path: Path) -> MakeSearchablePdf:
+    """Factory: produce a PDF whose pages contain real, searchable text.
+
+    ``make_pdf`` writes blank pages (pypdf); full-text search tests need actual
+    glyphs, so this writes one text string per page via fitz ``insert_text``.
+    """
+    import fitz
+
+    counter = {"n": 0}
+
+    def _factory(page_texts: Sequence[str], name: str | None = None) -> Path:
+        counter["n"] += 1
+        filename = name or f"searchable_{counter['n']}.pdf"
+        target = tmp_path / filename
+        doc = fitz.open()
+        try:
+            for text in page_texts:
+                page = doc.new_page()
+                page.insert_text((50, 80), text, fontsize=14)
+            doc.save(str(target))
+        finally:
+            doc.close()
         return target
 
     return _factory

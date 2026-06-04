@@ -9,9 +9,15 @@ toolbar or menus.
 
 Press **Ctrl+Shift+P** anywhere in the viewer, or use **File → Command palette…**.
 
+> The top **menu bar is hidden by default** — the palette (Ctrl+Shift+P) is the
+> primary entry point. Run **Toggle menu bar** to show it; the choice is
+> remembered and restored next launch.
+
 A filter box opens over a command list:
 
-- **Type** to filter commands by name (case-insensitive substring match).
+- **Type** to filter commands by name. Matching is **relaxed**: each
+  whitespace-separated word must appear, in any order — `field del` finds
+  **Field: delete**.
 - **Up / Down** move the selection (wrapping at the ends).
 - **Enter** runs the highlighted command.
 - **Esc** closes the palette without running anything.
@@ -25,7 +31,9 @@ are hidden until a PDF is open.
 |---------|--------------|
 | **Open PDF…** | Prompt for a PDF and open it. |
 | **Open from history…** | Pick from recently opened documents (see below). |
+| **Rename file…** | Rename the open PDF (and its sidecar) and reopen it. |
 | **Close current document** | Save pending text edits, then return to the empty viewer. |
+| **Toggle menu bar** | Show/hide the top menu bar (remembered across sessions). |
 | **Exit** | Close the viewer. |
 | **Previous page** / **Next page** | Step one page back / forward. |
 | **First page** / **Last page** | Jump to the first / last page. |
@@ -41,6 +49,22 @@ are hidden until a PDF is open.
 | **Delete selected field** | Remove the selected text field(s) (edit mode only). |
 | **Export text to PDF** | Write text fields onto a `_text-embedded` copy. |
 | **Delete saved text fields for this document** | Delete this PDF's saved fields and its JSON sidecar. |
+| **Search PDF text…** | Live full-text search of the document (see below). |
+| **Search text fields…** | Live search of your placed text fields (see below). |
+| **Clear search highlights** | Remove the gold match highlights (shown only while highlights exist). |
+
+When a text field is **selected**, these extra commands appear in the palette
+(and only then):
+
+| Command | What it does |
+|---------|--------------|
+| **Field: change text…** | Edit the selected field's text. |
+| **Field: font size…** | Type a new point/pixel size. |
+| **Field: font family…** | Searchable list of installed fonts. |
+| **Field: text colour…** | Keyboard-first colour picker (see below). |
+| **Field: background colour…** | Same picker for the field's fill. |
+| **Field: toggle bold** / **toggle italic** | Flip the style. |
+| **Field: delete** | Remove the selected field. |
 
 ## Keyboard shortcuts
 
@@ -49,14 +73,41 @@ Common commands also have direct keys, so you do not have to open the palette:
 | Key | Command |
 |-----|---------|
 | **Ctrl+Shift+P** | Open the command palette |
+| **Ctrl+F** | Search PDF text |
+| **Ctrl+Shift+F** | Search text fields |
+| **Ctrl+Shift+H** | Clear search highlights |
 | **Page Down** / **Page Up** | Next / previous page |
 | **Home** / **End** | First / last page |
 | **Ctrl++** (or **Ctrl+=**) | Zoom in 10% |
 | **Ctrl+-** | Zoom out 10% |
 | **Ctrl+0** | Zoom 100% |
-| **Ctrl+F** | Zoom to fit |
 
-Zoom level persists as you change pages.
+Zoom level persists as you change pages. **Zoom to fit** is available from the
+palette.
+
+## Search
+
+Both searches are **live**: type at least **3 characters** and results refresh on
+every keystroke. Navigate with the arrow keys, **Enter** to act, **Esc** to close.
+
+- **Search PDF text…** (`Ctrl+F`) lists **one row per match** — `Page N: …text…`.
+  Selecting a match jumps to its page and draws a **gold highlight** around it.
+  Highlights stay until you run **Clear search highlights** (`Ctrl+Shift+H`).
+- **Search text fields…** (`Ctrl+Shift+F`) searches the text you placed via the
+  editor. Selecting a result jumps to that page and **selects** the field (edit
+  mode turns on) — its field commands then appear in the palette.
+
+## Colour picker
+
+The colour commands open a keyboard-first picker:
+
+- Type a **hex** value (`#ff8800`) or a **colour name** (`white`, `black`, `red`,
+  …) in the box.
+- A **preview swatch** updates live as you type or move through the list.
+- Recently used colours appear at the top, followed by common names.
+- **Enter** accepts the typed value or the highlighted row; **Esc** cancels.
+
+No new dependency — the picker is the same searchable dialog used elsewhere.
 
 ## Open from history
 

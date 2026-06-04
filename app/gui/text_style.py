@@ -53,6 +53,19 @@ def apply_style(item: TextFieldItem, style: TextStyle) -> None:
     item.set_bg_color(hex_to_color(style.bg_color) if style.bg_color is not None else None)
 
 
+def item_to_style(item: TextFieldItem) -> TextStyle:
+    """Read the styling of a live item back into a :class:`TextStyle`."""
+    bg = item.bg_color()
+    return TextStyle(
+        font_family=item.font_family(),
+        font_size=item.font_pixel_size(),
+        color=color_to_hex(item.text_color()),
+        bg_color=color_to_hex(bg) if bg is not None else None,
+        bold=item.is_bold(),
+        italic=item.is_italic(),
+    )
+
+
 def item_to_spec(item: TextFieldItem, page_index: int) -> TextFieldSpec:
     rect = item.boundingRect()
     bg = item.bg_color()

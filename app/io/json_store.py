@@ -1,16 +1,20 @@
-"""Atomic JSON file writes shared across the codebase.
+"""Atomic JSON file writes (and versioned reads) shared across the codebase.
 
-Both the per-PDF sidecar and the recent-files store persist JSON the same way:
-serialize, write to a sibling ``.tmp`` file, then ``os.replace`` it into place so
-a reader never sees a half-written file. This module owns that single pattern.
+Several small stores (sidecar, recent files, UI state) persist JSON the same
+way: serialize, write to a sibling ``.tmp`` file, then ``os.replace`` it so a
+reader never sees a half-written file. The versioned helpers add the matching
+read/write guard the config stores share.
 """
 
 from __future__ import annotations
 
 import json
+import logging
 import os
 from pathlib import Path
 from typing import Any
+
+log = logging.getLogger("pdf_toolkit")
 
 _TMP_SUFFIX = ".tmp"
 
@@ -24,3 +28,29 @@ def write_json_atomic(path: Path, payload: Any) -> None:
     tmp = path.with_name(path.name + _TMP_SUFFIX)
     tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     os.replace(tmp, path)
+
+
+def read_versioned_dict(path: Path, version: int) -> dict[str, Any] | None:
+    """Read a versioned JSON object, or ``None`` if absent/corrupt/mismatched.
+
+    Returns the raw dict only when the file exists, parses, is a JSON object,
+    and carries the expected ``"version"``. A bad read is logged, not raised, so
+    a corrupt store degrades to defaults instead of blocking the app.
+    """
+    if not path.is_file():
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as err:
+        log.warning("ignoring unreadable store %s: %s", path, err)
+        return None
+    if not isinstance(raw, dict) or raw.get("version") != version:
+        log.warning("ignoring store %s with bad shape/version", path)
+        return None
+    return raw
+
+
+def write_versioned(path: Path, version: int, payload: dict[str, Any]) -> None:
+    """Write ``payload`` (with ``version`` injected) atomically, creating dirs."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    write_json_atomic(path, {"version": version, **payload})

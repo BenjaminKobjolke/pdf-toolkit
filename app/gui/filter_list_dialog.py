@@ -8,12 +8,22 @@ a typed :class:`ListEntry` with an opaque ``payload`` the caller interprets.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, cast
 
 from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QDialog, QLineEdit, QListWidget, QVBoxLayout, QWidget
+
+
+def _matches(haystack: str, tokens: list[str]) -> bool:
+    """True if every whitespace-separated token is a substring of ``haystack``.
+
+    Relaxed matching so a query like ``field del`` finds ``Field: delete``
+    without needing the punctuation or exact word order.
+    """
+    return all(token in haystack for token in tokens)
 
 
 @dataclass(frozen=True)
@@ -27,7 +37,12 @@ class ListEntry:
 
 
 class FilterListDialog(QDialog):
-    """Filterable single-select list. Disabled entries are never shown."""
+    """Filterable single-select list. Disabled entries are never shown.
+
+    Two modes: a **static** list filtered by substring (palette, history), or a
+    **live** mode where a ``provider`` callback recomputes the rows on every
+    keystroke once at least ``min_chars`` are typed (PDF / field search).
+    """
 
     def __init__(
         self,
@@ -35,12 +50,16 @@ class FilterListDialog(QDialog):
         *,
         placeholder: str = "",
         title: str = "",
+        provider: Callable[[str], list[ListEntry]] | None = None,
+        min_chars: int = 0,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         if title:
             self.setWindowTitle(title)
         self._entries = [entry for entry in entries if entry.enabled]
+        self._provider = provider
+        self._min_chars = min_chars
         self._visible: list[ListEntry] = []
         self._chosen: ListEntry | None = None
 
@@ -101,14 +120,21 @@ class FilterListDialog(QDialog):
     # --- internals ----------------------------------------------------------
 
     def _apply_filter(self, text: str) -> None:
-        needle = text.casefold()
-        self._visible = [e for e in self._entries if needle in e.title.casefold()]
+        self._visible = self._compute_visible(text)
         self._list.clear()
         for entry in self._visible:
             label = f"{entry.title}   —   {entry.subtitle}" if entry.subtitle else entry.title
             self._list.addItem(label)
         if self._visible:
             self._list.setCurrentRow(0)
+
+    def _compute_visible(self, text: str) -> list[ListEntry]:
+        if self._provider is not None:
+            if len(text.strip()) < self._min_chars:
+                return []
+            return self._provider(text)
+        tokens = text.casefold().split()
+        return [e for e in self._entries if _matches(e.title.casefold(), tokens)]
 
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
         """Route Up/Down from the filter box to the list selection."""

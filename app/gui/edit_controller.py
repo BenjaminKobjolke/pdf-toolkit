@@ -11,6 +11,7 @@ from __future__ import annotations
 import contextlib
 import logging
 import os
+from dataclasses import dataclass
 from pathlib import Path
 
 from PySide6.QtCore import QTimer
@@ -28,6 +29,15 @@ log = logging.getLogger("pdf_toolkit")
 
 _AUTOSAVE_MS = 400
 _NEW_FIELD_POS = (40.0, 40.0)
+
+
+@dataclass(frozen=True)
+class FieldHit:
+    """A text-field search match: its page, position in that page, and text."""
+
+    page_index: int
+    field_index: int
+    text: str
 
 
 class EditController:
@@ -101,6 +111,45 @@ class EditController:
             if item.isSelected():
                 text_style.apply_style(item, style)
         self._schedule_autosave()
+
+    # --- search + active-field editing --------------------------------------
+
+    def field_hits(self, query: str) -> list[FieldHit]:
+        """Return text fields whose text contains ``query`` (case-insensitive)."""
+        needle = query.strip().casefold()
+        if not needle:
+            return []
+        # Harvest the current page so unsaved edits are searchable too.
+        self._harvest_page(self._page_view.current_page_index())
+        hits: list[FieldHit] = []
+        for page_index in sorted(self._fields_by_page):
+            for field_index, spec in enumerate(self._fields_by_page[page_index]):
+                if needle in spec.text.casefold():
+                    hits.append(FieldHit(page_index, field_index, spec.text))
+        return hits
+
+    def activate_field(self, page_index: int, field_index: int) -> None:
+        """Navigate to ``page_index`` and select that page's ``field_index`` field."""
+        if not self._edit_mode:
+            self.set_edit_mode(True)
+        self._page_view.go_to_page(page_index)
+        items = self._page_view.text_items()
+        if 0 <= field_index < len(items):
+            item = items[field_index]
+            item.setSelected(True)
+            item.ensureVisible()
+
+    def selected_style(self) -> TextStyle | None:
+        """Return the style of the selected field, or ``None`` if none selected."""
+        item = self._page_view.selected_text_item()
+        return text_style.item_to_style(item) if item is not None else None
+
+    def set_selected_text(self, text: str) -> None:
+        """Replace the selected field's text."""
+        item = self._page_view.selected_text_item()
+        if item is not None:
+            item.setPlainText(text)
+            self._schedule_autosave()
 
     def clear_saved_fields(self) -> None:
         """Delete this document's saved text fields and its sidecar file."""

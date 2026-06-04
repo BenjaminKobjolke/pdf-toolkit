@@ -46,6 +46,29 @@ def test_zoom_fit_sets_positive_scale(view: PageView) -> None:
     assert view.zoom() > 0
 
 
+def test_actual_zoom_persists_across_pages(view: PageView) -> None:
+    view.zoom_actual()
+    view.show_next()
+    assert view.transform().m11() == pytest.approx(_ACTUAL)
+    assert view.zoom() == pytest.approx(_ACTUAL)
+
+
+def test_manual_zoom_persists_across_pages(view: PageView) -> None:
+    view.zoom_actual()
+    view.zoom_in()
+    expected = _ACTUAL * 1.1
+    view.show_next()
+    assert view.transform().m11() == pytest.approx(expected)
+
+
+def test_fit_mode_refits_each_page(view: PageView) -> None:
+    view.zoom_fit()
+    # Switching pages keeps fit mode (re-fits rather than reverting to a fixed
+    # scale); the view stays in a fitted, positive-scale state.
+    view.show_next()
+    assert view.zoom() > 0
+
+
 def test_show_last_then_first(view: PageView) -> None:
     view.show_last()
     assert view.current_page_one_based() == 3
