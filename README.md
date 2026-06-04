@@ -46,6 +46,8 @@ buttons run the operations on the open file:
 - **Delete range…** — prompts for a 1-based inclusive start/end.
 - **Swap 2 pages** — swaps the two pages of a 2-page PDF.
 - **Merge folder…** — pick a folder to merge into `<folder>\merged.pdf`.
+- **Edit text** — toggle text-editing mode to place, style, move, and export text
+  fields onto the page. See [docs/TEXT_EDITING.md](docs/TEXT_EDITING.md).
 
 Every operation writes a backup first (same `backup/YYYYMMDD-HHMM-<name>.pdf`
 format) and surfaces validation errors in a dialog.

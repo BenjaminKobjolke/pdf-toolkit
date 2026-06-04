@@ -142,6 +142,9 @@ def _handle_launch_gui(settings: Settings) -> int:
     return gui_main([])
 
 
+# The "Edit text" feature (place/style/export text fields) is interactive-only
+# and lives inside the GUI viewer; it is reached via "Open GUI viewer" below, so
+# it needs no separate WizardOption of its own.
 WIZARD_OPTIONS: tuple[WizardOption, ...] = (
     WizardOption("Swap pages (2-page PDF)", _handle_swap),
     WizardOption("Delete single page", _handle_delete_single),
