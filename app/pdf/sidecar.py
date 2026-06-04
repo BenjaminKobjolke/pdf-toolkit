@@ -8,15 +8,14 @@ private. Writes are atomic (tmp + ``os.replace``), matching the core PDF ops.
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 from typing import Any
 
+from app.io.json_store import write_json_atomic
 from app.pdf.text_spec import TextDocumentSpec, TextFieldSpec
 
 SIDECAR_SUFFIX = ".json"
 SIDECAR_VERSION = 1
-_TMP_SUFFIX = ".json.tmp"
 
 
 def sidecar_path(pdf: Path) -> Path:
@@ -57,10 +56,7 @@ def save_sidecar(pdf: Path, doc: TextDocumentSpec) -> None:
         "version": SIDECAR_VERSION,
         "fields": [_field_to_dict(field) for field in doc.fields],
     }
-    path = sidecar_path(pdf)
-    tmp = path.with_suffix(_TMP_SUFFIX)
-    tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    os.replace(tmp, path)
+    write_json_atomic(sidecar_path(pdf), payload)
 
 
 def _field_to_dict(field: TextFieldSpec) -> dict[str, Any]:

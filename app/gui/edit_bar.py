@@ -99,6 +99,13 @@ class EditBar(QWidget):
         for widget in self._edit_widgets:
             widget.setVisible(visible)
 
+    def toggle_edit_mode(self) -> None:
+        """Flip the edit-mode button (emits ``edit_mode_toggled`` via its handler)."""
+        self._toggle.toggle()
+
+    def is_edit_mode(self) -> bool:
+        return self._toggle.isChecked()
+
     def current_style(self) -> TextStyle:
         return TextStyle(
             font_family=self._font.currentFont().family(),

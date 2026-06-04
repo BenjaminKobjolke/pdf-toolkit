@@ -44,7 +44,11 @@ def _press(view: PageView, key: Qt.Key, shift: bool = False) -> None:
 
 @pytest.fixture
 def window(qapp: object, tmp_path: Path) -> MainWindow:
-    settings = Settings(backup_dir=tmp_path / "backup", log_level="INFO")
+    settings = Settings(
+        backup_dir=tmp_path / "backup",
+        log_level="INFO",
+        recent_file=tmp_path / "recent.json",
+    )
     return MainWindow(settings)
 
 

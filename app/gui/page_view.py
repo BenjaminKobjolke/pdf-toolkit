@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QKeyEvent, QPixmap
+from PySide6.QtGui import QKeyEvent, QPixmap, QTransform
 from PySide6.QtWidgets import QGraphicsPixmapItem, QGraphicsScene, QGraphicsView
 
 from app.gui import render, strings
@@ -18,6 +18,11 @@ from app.gui.text_item import TextFieldItem
 
 _NUDGE_STEP = 10.0  # scene px per arrow press
 _NUDGE_STEP_FINE = 1.0  # scene px per arrow press while Shift is held
+_ZOOM_IN_FACTOR = 1.1  # zoom in 10%
+_ZOOM_OUT_FACTOR = 0.9  # zoom out 10%
+# "100%" = true PDF size: the page is rendered at render.DEFAULT_ZOOM, so the
+# view transform must divide that back out.
+_ZOOM_ACTUAL = 1.0 / render.DEFAULT_ZOOM
 _ARROW_DELTAS: dict[Qt.Key, tuple[float, float]] = {
     Qt.Key.Key_Left: (-1.0, 0.0),
     Qt.Key.Key_Right: (1.0, 0.0),
@@ -46,6 +51,7 @@ class PageView(QGraphicsView):
         self._source: Path | None = None
         self._index = 0
         self._total = 0
+        self._zoom = _ZOOM_ACTUAL
 
     # --- document lifecycle -------------------------------------------------
 
@@ -55,6 +61,15 @@ class PageView(QGraphicsView):
         self._total = render.page_count(source)
         self._index = 0
         self._show()
+
+    def reset(self) -> None:
+        """Clear the open document and show the no-doc placeholder."""
+        self.clear_text_items()
+        self._pixmap_item.setPixmap(QPixmap())
+        self._placeholder.setVisible(True)
+        self._source = None
+        self._index = 0
+        self._total = 0
 
     def reload(self) -> None:
         """Re-render after the document changed, clamping the index if it shrank."""
@@ -76,6 +91,46 @@ class PageView(QGraphicsView):
             self._index -= 1
             self._show()
 
+    def show_first(self) -> None:
+        if self._source is not None and self._index != 0:
+            self.page_will_change.emit(self._index)
+            self._index = 0
+            self._show()
+
+    def show_last(self) -> None:
+        last = self._total - 1
+        if self._source is not None and self._index != last:
+            self.page_will_change.emit(self._index)
+            self._index = last
+            self._show()
+
+    # --- zoom ---------------------------------------------------------------
+
+    def zoom(self) -> float:
+        """Return the current scene-to-view scale factor."""
+        return self._zoom
+
+    def zoom_actual(self) -> None:
+        """Show the page at true PDF size (100%)."""
+        self._apply_zoom(_ZOOM_ACTUAL)
+
+    def zoom_in(self) -> None:
+        self._apply_zoom(self._zoom * _ZOOM_IN_FACTOR)
+
+    def zoom_out(self) -> None:
+        self._apply_zoom(self._zoom * _ZOOM_OUT_FACTOR)
+
+    def zoom_fit(self) -> None:
+        """Scale the page to fit the viewport, preserving aspect ratio."""
+        if self._source is None:
+            return
+        self.fitInView(self._pixmap_item, Qt.AspectRatioMode.KeepAspectRatio)
+        self._zoom = self.transform().m11()
+
+    def _apply_zoom(self, scale: float) -> None:
+        self._zoom = scale
+        self.setTransform(QTransform().scale(scale, scale))
+
     # --- queries ------------------------------------------------------------
 
     def current_page_one_based(self) -> int:
@@ -87,6 +142,10 @@ class PageView(QGraphicsView):
 
     def total_pages(self) -> int:
         return self._total
+
+    def source(self) -> Path | None:
+        """Return the open PDF path, or ``None`` when no document is loaded."""
+        return self._source
 
     def graphics_scene(self) -> QGraphicsScene:
         """Expose the scene so the controller can watch it for changes."""
@@ -153,4 +212,7 @@ class PageView(QGraphicsView):
         image = render.render_page(self._source, self._index)
         self._pixmap_item.setPixmap(QPixmap.fromImage(image))
         self._scene.setSceneRect(self._pixmap_item.boundingRect())
+        # Keep the view transform in sync with the stored zoom so it persists
+        # across page changes and matches what zoom() reports.
+        self.setTransform(QTransform().scale(self._zoom, self._zoom))
         self.page_changed.emit(self.current_page_one_based(), self._total)

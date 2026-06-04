@@ -8,7 +8,9 @@ JSON sidecar (debounced) and feed the fitz overlay export.
 
 from __future__ import annotations
 
+import contextlib
 import logging
+import os
 from pathlib import Path
 
 from PySide6.QtCore import QTimer
@@ -18,7 +20,7 @@ from app.gui.operations import OpResult
 from app.gui.page_view import PageView
 from app.gui.text_item import TextFieldItem
 from app.gui.text_style import TextStyle
-from app.pdf.sidecar import load_sidecar, save_sidecar
+from app.pdf.sidecar import load_sidecar, save_sidecar, sidecar_path
 from app.pdf.text_overlay import apply_text_overlay, embedded_output_path
 from app.pdf.text_spec import TextDocumentSpec, TextFieldSpec
 
@@ -99,6 +101,20 @@ class EditController:
             if item.isSelected():
                 text_style.apply_style(item, style)
         self._schedule_autosave()
+
+    def clear_saved_fields(self) -> None:
+        """Delete this document's saved text fields and its sidecar file."""
+        self._timer.stop()
+        self._fields_by_page = {}
+        self._page_view.clear_text_items()
+        if self._source is not None:
+            with contextlib.suppress(FileNotFoundError):
+                os.remove(sidecar_path(self._source))
+
+    def flush(self) -> None:
+        """Persist any pending edits immediately (e.g. before closing a doc)."""
+        self._timer.stop()
+        self._save()
 
     def export(self, source: Path) -> OpResult:
         """Write a copy of ``source`` with the text fields embedded.

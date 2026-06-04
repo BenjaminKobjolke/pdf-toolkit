@@ -14,7 +14,11 @@ from tests.conftest import MakePdf, PageSizesOf
 
 @pytest.fixture
 def window(qapp: object, tmp_path: Path) -> MainWindow:
-    settings = Settings(backup_dir=tmp_path / "backup", log_level="INFO")
+    settings = Settings(
+        backup_dir=tmp_path / "backup",
+        log_level="INFO",
+        recent_file=tmp_path / "recent.json",
+    )
     return MainWindow(settings)
 
 
@@ -29,7 +33,7 @@ def test_delete_current_page_shrinks_document(
     monkeypatch.setattr(QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes)
     monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: QMessageBox.StandardButton.Ok)
 
-    window._on_delete_page()
+    window.delete_current_page()
 
     assert page_sizes_of(pdf) == [(300, 400), (120, 120)]
     assert window._page_view.total_pages() == 2
@@ -45,7 +49,7 @@ def test_swap_pages_through_window(
     window.open_pdf(pdf)
     monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: QMessageBox.StandardButton.Ok)
 
-    window._on_swap()
+    window.swap_pages()
 
     assert page_sizes_of(pdf) == [(300, 400), (100, 200)]
 
@@ -63,7 +67,7 @@ def test_invalid_swap_reports_error_and_keeps_file(
         QMessageBox, "critical", lambda parent, title, msg, *a, **k: captured.append(msg)
     )
 
-    window._on_swap()
+    window.swap_pages()
 
     assert captured  # an error dialog was shown
     assert page_sizes_of(pdf) == [(100, 200), (300, 400), (120, 120)]
