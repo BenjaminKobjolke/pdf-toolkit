@@ -7,7 +7,7 @@ Small Python CLI toolkit for two PDF page operations, each with an automatic tim
 - `pdf-delete-pages.bat <start> <end> <pdf>` — delete pages `<start>`..`<end>` (1-based, inclusive), overwriting the original.
 - `pdf-merge-folder.bat <folder>` — merge every supported file (`.pdf`, `.jpg`, `.jpeg`, `.png`) in `<folder>` into `<folder>\merged.pdf`. Files are added in alphabetical order (case-insensitive). Subfolders are ignored. If `merged.pdf` already exists in the folder, it is backed up first.
 - `pdft.bat` — interactive wizard that prompts for the operation (swap / delete single / delete range / merge folder / open GUI viewer) and its arguments. The PDF prompt has Tab-completion against `*.pdf` files in the current directory; the folder prompt has Tab-completion against subdirectories (powered by `prompt_toolkit`).
-- `pdft_gui.bat [pdf]` — GUI viewer (PySide6) that renders the PDF page by page and lets you run swap / delete page / delete range / merge folder on it, with the same automatic backups. Optionally pass a PDF path to open on startup.
+- `pdft_gui.bat [pdf]` — GUI viewer (PySide6) that renders the PDF page by page, with a **command palette** (`Ctrl+Shift+P`) for every action: page operations, zoom, navigation, full-text + field search, recent-document history, rename, and in-place text editing. Optionally pass a PDF path to open on startup.
 
 Every run first copies the original to `backup/YYYYMMDD-HHMM-<filename>.pdf`. The `backup/` directory is resolved relative to your current working directory, so when you run the tool from `C:\Users\me\Documents` the backup lands in `C:\Users\me\Documents\backup\`. Override with the `PDF_TOOLKIT_BACKUP_DIR` environment variable. The backup is created **before** validation, so if validation fails (e.g. swap on a 3-page PDF) the original is untouched but a backup still exists.
 
@@ -39,17 +39,49 @@ Relative paths are resolved against your current working directory.
 ### GUI viewer
 
 `pdft_gui.bat` (or the wizard's **Open GUI viewer** entry) opens a window that
-renders the current PDF. Use **Prev/Next** to page through it; the toolbar
-buttons run the operations on the open file:
+renders the current PDF. The viewer is **keyboard-first**: the menu bar and
+button toolbars are **hidden by default** (toggle them from the palette), so the
+command palette is the primary way to drive it.
 
-- **Delete current page** — deletes the page you are viewing (after a confirm), then re-renders.
-- **Delete range…** — prompts for a 1-based inclusive start/end.
-- **Swap 2 pages** — swaps the two pages of a 2-page PDF.
-- **Merge folder…** — pick a folder to merge into `<folder>\merged.pdf`.
-- **Edit text** — toggle text-editing mode to place, style, move, and export text
-  fields onto the page. See [docs/TEXT_EDITING.md](docs/TEXT_EDITING.md).
+#### Command palette (`Ctrl+Shift+P`)
 
-Every operation writes a backup first (same `backup/YYYYMMDD-HHMM-<name>.pdf`
+A searchable list of every action — type to filter (relaxed: `field del` finds
+**Field: delete**), arrow keys to move, **Enter** to run, **Esc** to close.
+Commands needing an open document are hidden until one is open. Full reference:
+[docs/COMMAND_PALETTE.md](docs/COMMAND_PALETTE.md).
+
+The palette and direct shortcuts cover:
+
+- **Document** — Open, **Open from history…** (last 100 PDFs), **Rename file…**
+  (renames the PDF and its text-field sidecar together), Close, Exit.
+- **Pages** — Previous/Next, **First/Last**, Swap 2 pages, Delete current page,
+  Delete range…, Merge folder…
+- **Zoom** — Fit, 100% (true PDF size), in/out 10%. The zoom *mode* sticks as you
+  change pages (fit re-fits each page).
+- **Search** — **Search PDF text** (`Ctrl+F`, live, jump to a match + gold
+  highlight that stays until **Clear highlights**) and **Search text fields**
+  (`Ctrl+Shift+F`, jump to and select a placed field).
+- **View** — **Toggle menu bar** / **Toggle toolbar** (remembered across runs).
+- **Text editing** — toggle edit mode, and when a field is selected the palette
+  exposes its options (change text, font size/family, text + background colour,
+  bold/italic, delete) via keyboard-first dialogs. See
+  [docs/TEXT_EDITING.md](docs/TEXT_EDITING.md) and
+  [docs/WIDGETS.md](docs/WIDGETS.md) (custom colour picker — type a hex or name,
+  pick transparent, recents + live preview).
+
+#### Keyboard shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+Shift+P` | Command palette |
+| `Ctrl+F` / `Ctrl+Shift+F` | Search PDF text / text fields |
+| `Ctrl+Shift+H` | Clear search highlights |
+| `Page Down` / `Page Up` | Next / previous page |
+| `Home` / `End` | First / last page |
+| `Ctrl++` / `Ctrl+-` / `Ctrl+0` | Zoom in / out / 100% |
+| `↑` / `↓` at the page edge | Previous / next page |
+
+Every page operation writes a backup first (same `backup/YYYYMMDD-HHMM-<name>.pdf`
 format) and surfaces validation errors in a dialog.
 
 ### Make it a PDF handler (open PDFs by double-click)
@@ -149,3 +181,5 @@ Environment variables (optional):
 
 - `PDF_TOOLKIT_BACKUP_DIR` — override the backup directory (default `./backup`).
 - `PDF_TOOLKIT_LOG_LEVEL` — `DEBUG`, `INFO`, `WARNING`, `ERROR` (default `INFO`).
+- `PDF_TOOLKIT_RECENT_FILE` — recent-documents store (default `~/.pdf-toolkit/recent.json`).
+- `PDF_TOOLKIT_UI_STATE_FILE` — remembered menu/toolbar visibility (default `~/.pdf-toolkit/ui_state.json`).
