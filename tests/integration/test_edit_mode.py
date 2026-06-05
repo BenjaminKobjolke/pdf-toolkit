@@ -78,6 +78,17 @@ def test_add_field_only_in_edit_mode(window: MainWindow, make_pdf: MakePdf) -> N
     assert len(window._page_view.text_items()) == 1
 
 
+def test_add_text_field_enters_edit_mode(window: MainWindow, make_pdf: MakePdf) -> None:
+    pdf = make_pdf([(300, 400)])
+    window.open_pdf(pdf)
+    assert not window._edit_bar.is_edit_mode()  # starts in Regular mode
+
+    window.add_text_field()  # palette/button entry point
+
+    assert window._edit_bar.is_edit_mode()  # auto-entered edit mode
+    assert len(window._page_view.text_items()) == 1  # field actually added
+
+
 def test_delete_selected_removes_field(window: MainWindow, make_pdf: MakePdf) -> None:
     pdf = make_pdf([(300, 400)])
     window.open_pdf(pdf)

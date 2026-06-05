@@ -117,6 +117,10 @@ DIALOG_SUCCESS_TITLE = "Done"
 LABEL_NO_DOC = "No PDF open"
 LABEL_PAGE_FMT = "Page {current} / {total}"
 
+# Mode footer bar
+MODE_REGULAR = "Regular Mode"
+MODE_EDIT_TEXT = "Edit Text Mode"
+
 MSG_NOT_FOUND_FMT = "input file not found: {path}"
 MSG_BACKUP_FAILED_FMT = "failed to create backup: {error}"
 MSG_DONE_FMT = "done: {name}"

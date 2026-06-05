@@ -26,6 +26,7 @@ from app.gui.edit_bar import EditBar
 from app.gui.edit_controller import EditController
 from app.gui.field_actions import FieldActions
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
+from app.gui.mode_status_bar import ModeStatusBar
 from app.gui.operations import GuiOperationRunner, OpResult
 from app.gui.page_actions import PageActions
 from app.gui.page_view import PageView
@@ -62,6 +63,7 @@ class MainWindow(QMainWindow):
         self._page_view = PageView()
         self._bar = OperationBar()
         self._edit_bar = EditBar()
+        self._mode_bar = ModeStatusBar()
         self._controller = EditController(self._page_view)
         self._field_actions = FieldActions(self, self._page_view, self._controller)
         self._search_actions = SearchActions(
@@ -80,7 +82,8 @@ class MainWindow(QMainWindow):
         self._bar.merge_folder_requested.connect(self._page_actions.merge_folder)
 
         self._edit_bar.edit_mode_toggled.connect(self._controller.set_edit_mode)
-        self._edit_bar.add_field_requested.connect(self._controller.add_field)
+        self._edit_bar.edit_mode_toggled.connect(self._mode_bar.set_edit_mode)
+        self._edit_bar.add_field_requested.connect(self.add_text_field)
         self._edit_bar.delete_field_requested.connect(self._controller.delete_selected)
         self._edit_bar.style_changed.connect(self._controller.apply_style)
         self._edit_bar.export_text_requested.connect(self.export_text)
@@ -90,6 +93,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self._bar)
         layout.addWidget(self._edit_bar)
         layout.addWidget(self._page_view, 1)
+        layout.addWidget(self._mode_bar)
         self.setCentralWidget(central)
 
         self.setWindowTitle(strings.WINDOW_TITLE)
@@ -196,6 +200,14 @@ class MainWindow(QMainWindow):
 
     def toggle_edit_mode(self) -> None:
         self._edit_bar.toggle_edit_mode()
+
+    def add_text_field(self) -> None:
+        """Add a text field, entering edit mode first if needed (palette/button)."""
+        if self._source is None:
+            return
+        if not self._edit_bar.is_edit_mode():
+            self._edit_bar.toggle_edit_mode()  # syncs toolbar + controller + footer
+        self._controller.add_field()
 
     def export_text(self) -> None:
         if self._source is None:

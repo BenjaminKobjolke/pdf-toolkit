@@ -97,7 +97,7 @@ def build_commands(window: MainWindow) -> list[Command]:
         Command(TOGGLE_MENU, strings.CMD_TOGGLE_MENU, window.toggle_menu_bar),
         Command(TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
         Command(EDIT_MODE, strings.CMD_EDIT_MODE, window.toggle_edit_mode, has_doc),
-        Command(ADD_FIELD, strings.CMD_ADD_FIELD, controller.add_field, has_doc),
+        Command(ADD_FIELD, strings.CMD_ADD_FIELD, window.add_text_field, has_doc),
         Command(DELETE_FIELD, strings.CMD_DELETE_FIELD, controller.delete_selected, has_doc),
         Command(EXPORT_TEXT, strings.CMD_EXPORT_TEXT, window.export_text, has_doc),
         Command(
