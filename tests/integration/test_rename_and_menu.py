@@ -10,8 +10,25 @@ from app.config.settings import Settings
 from app.config.ui_state import UiState, UiStateStore
 from app.gui.main_window import MainWindow
 from app.pdf.sidecar import save_sidecar, sidecar_path
-from app.pdf.text_spec import TextDocumentSpec
+from app.pdf.text_spec import TextDocumentSpec, TextFieldSpec
 from tests.conftest import MakePdf
+
+
+def _spec() -> TextFieldSpec:
+    return TextFieldSpec(
+        page_index=0,
+        x=20.0,
+        y=30.0,
+        width=0.0,
+        height=0.0,
+        text="Saved",
+        font_family="Helvetica",
+        font_size=18.0,
+        color="#000000",
+        bg_color=None,
+        bold=False,
+        italic=False,
+    )
 
 
 def _settings(tmp_path: Path) -> Settings:
@@ -34,7 +51,7 @@ def test_rename_moves_pdf_and_sidecar(
     from PySide6.QtWidgets import QInputDialog, QMessageBox
 
     pdf = make_pdf([(200, 300)], name="before.pdf")
-    save_sidecar(pdf, TextDocumentSpec(fields=()))
+    save_sidecar(pdf, TextDocumentSpec(fields=(_spec(),)))
     window.open_pdf(pdf)
 
     monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("after.pdf", True))

@@ -216,4 +216,11 @@ class EditController:
     def _save(self) -> None:
         if self._source is None:
             return
-        save_sidecar(self._source, TextDocumentSpec(fields=self._collect_specs()))
+        specs = self._collect_specs()
+        if not specs:
+            # No fields to persist: never create an empty sidecar, and drop a
+            # stale one (e.g. the user deleted every previously-saved field).
+            with contextlib.suppress(FileNotFoundError):
+                os.remove(sidecar_path(self._source))
+            return
+        save_sidecar(self._source, TextDocumentSpec(fields=specs))
