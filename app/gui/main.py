@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QApplication
 
 from app.config.settings import Settings
 from app.gui.main_window import MainWindow
-from app.gui.resources import app_icon
+from app.gui.resources import app_icon, set_app_user_model_id
 from app.logging_setup import configure_logging
 
 
@@ -19,6 +19,7 @@ def main(argv: list[str] | None = None) -> int:
     settings = Settings.from_env()
     configure_logging(settings.log_level)
 
+    set_app_user_model_id()
     existing = QApplication.instance()
     app = existing if isinstance(existing, QApplication) else QApplication([])
     app.setWindowIcon(app_icon())

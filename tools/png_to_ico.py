@@ -31,7 +31,13 @@ def convert(src: Path, dst: Path) -> None:
     if not src.is_file():
         raise FileNotFoundError(f"Source PNG not found: {src}")
     dst.parent.mkdir(parents=True, exist_ok=True)
-    with Image.open(src) as image:
+    with Image.open(src) as opened:
+        image = opened.convert("RGBA")
+        side = max(image.size)
+        if image.size != (side, side):
+            canvas = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+            canvas.paste(image, ((side - image.width) // 2, (side - image.height) // 2))
+            image = canvas
         image.save(dst, format="ICO", sizes=ICON_SIZES)
     logger.info("Wrote %s (sizes: %s)", dst, ", ".join(f"{w}x{h}" for w, h in ICON_SIZES))
 
