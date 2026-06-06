@@ -62,6 +62,15 @@ CMD_DELETE_SAVED_FIELDS = "Delete saved text fields for this document"
 CONFIRM_DELETE_SAVED_FIELDS = "Delete all saved text fields for this document?"
 LABEL_HISTORY_EMPTY = "No recent documents"
 
+# Text-field placement chooser (where a new field lands)
+PLACEMENT_TITLE = "Place new text field"
+PLACEMENT_PLACEHOLDER = "Choose where to add the field…"
+PLACEMENT_TOP_LEFT = "Top left of page"
+PLACEMENT_PAGE_CENTER = "Center of page"
+PLACEMENT_VIEW_CENTER = "Center of current view"
+PLACEMENT_CUSTOM = "Custom position…"
+PLACEMENT_HINT = "Click or arrows + Enter to place • Esc to cancel"
+
 # Colour picker
 COLOR_DIALOG_TITLE = "Pick a colour"
 COLOR_PLACEHOLDER = "Type a hex (#ff8800) or name (white)…"
@@ -77,7 +86,7 @@ SEARCH_RESULT_FMT = "Page {page}: {snippet}"
 SEARCH_RESULT_NO_SNIPPET = "(match)"
 
 # Active-field commands (shown only while a field is selected)
-CMD_FIELD_CHANGE_TEXT = "Field: change text…"
+CMD_FIELD_CHANGE_TEXT = "Field: Change / Edit text"
 CMD_FIELD_FONT_SIZE = "Field: font size…"
 CMD_FIELD_FONT_FAMILY = "Field: font family…"
 CMD_FIELD_TEXT_COLOR = "Field: text colour…"

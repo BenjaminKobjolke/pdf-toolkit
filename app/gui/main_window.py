@@ -33,6 +33,7 @@ from app.gui.operations import GuiOperationRunner, OpResult
 from app.gui.page_actions import PageActions
 from app.gui.page_view import PageView
 from app.gui.palette_controller import PaletteController
+from app.gui.placement import PlacementController
 from app.gui.rotate_actions import RotateActions
 from app.gui.save_controller import SaveController
 from app.gui.search_actions import SearchActions
@@ -61,7 +62,11 @@ class MainWindow(QMainWindow):
             self, self._working_doc, self._mode_bar, self._report, lambda: self._controller.flush()
         )
         self._controller = EditController(self._page_view, self._save.mark_dirty)
+        self._placement = PlacementController(
+            self, self._page_view, self._controller, self._mode_bar
+        )
         self._field_actions = FieldActions(self, self._page_view, self._controller)
+        self._page_view.edit_text_requested.connect(self._field_actions.change_text)
         self._search_actions = SearchActions(
             self, self._page_view, self._controller, self._edit_bar, self._working_doc.working
         )
@@ -254,7 +259,7 @@ class MainWindow(QMainWindow):
             return
         if not self._edit_bar.is_edit_mode():
             self._edit_bar.toggle_edit_mode()  # syncs toolbar + controller + footer
-        self._controller.add_field()
+        self._placement.choose_and_place()
 
     def export_text(self) -> None:
         """Flatten placed text fields into the working copy (saved to the original on Save)."""

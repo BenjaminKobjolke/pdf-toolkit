@@ -7,10 +7,11 @@ pure view — it owns no field state, only the items currently on screen.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QColor, QKeyEvent, QPen, QPixmap, QWheelEvent
+from PySide6.QtCore import QPointF, Qt, Signal
+from PySide6.QtGui import QColor, QKeyEvent, QMouseEvent, QPen, QPixmap, QWheelEvent
 from PySide6.QtWidgets import (
     QGraphicsPixmapItem,
     QGraphicsRectItem,
@@ -33,12 +34,16 @@ class PageView(QGraphicsView):
     page_changed = Signal(int, int)  # (current 1-based, total)
     page_will_change = Signal(int)  # (current 0-based index, before navigation)
     delete_requested = Signal()  # Delete/Backspace pressed on a selected field
+    edit_text_requested = Signal()  # Enter pressed on a selected (not inline-editing) field
 
     def __init__(self) -> None:
         super().__init__()
         self._scene = QGraphicsScene(self)
         self.setScene(self._scene)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # Track moves without a pressed button so the placement crosshair follows
+        # the cursor; mouseMoveEvent ignores them unless placement is active.
+        self.viewport().setMouseTracking(True)
         self._pixmap_item = QGraphicsPixmapItem()
         self._pixmap_item.setZValue(0)
         self._scene.addItem(self._pixmap_item)
@@ -176,6 +181,28 @@ class PageView(QGraphicsView):
         """Expose the scene so the controller can watch it for changes."""
         return self._scene
 
+    def page_center(self) -> QPointF:
+        """Return the centre of the page in scene pixels."""
+        return self._scene.sceneRect().center()
+
+    def viewport_center_scene(self) -> QPointF:
+        """Return the centre of the visible viewport in scene pixels.
+
+        Clamped to the page rect so a zoomed-out view (page smaller than the
+        viewport) still yields a point on the page.
+        """
+        center = self.mapToScene(self.viewport().rect().center())
+        rect = self._scene.sceneRect()
+        x = min(max(center.x(), rect.left()), rect.right())
+        y = min(max(center.y(), rect.top()), rect.bottom())
+        return QPointF(x, y)
+
+    # --- custom text-field placement ----------------------------------------
+
+    def begin_custom_placement(self, on_done: Callable[[QPointF | None], None]) -> None:
+        """Show a draggable crosshair; call ``on_done`` with the chosen point or None."""
+        self._input.begin_placement(on_done)
+
     # --- text items ---------------------------------------------------------
 
     def add_text_item(self, item: TextFieldItem) -> None:
@@ -214,6 +241,20 @@ class PageView(QGraphicsView):
             event.accept()
             return
         super().wheelEvent(event)
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        if self._input.placement_active():
+            self._input.mouse_press(self.mapToScene(event.position().toPoint()))
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        if self._input.placement_active():
+            self._input.mouse_move(self.mapToScene(event.position().toPoint()))
+            event.accept()
+            return
+        super().mouseMoveEvent(event)
 
     # --- rendering ----------------------------------------------------------
 

@@ -7,11 +7,14 @@ navigation. It talks to the view through its public API only.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPointF, Qt
 from PySide6.QtGui import QKeyEvent, QWheelEvent
 
+from app.gui.crosshair_item import CrosshairItem
 from app.gui.text_item import TextFieldItem
 
 if TYPE_CHECKING:
@@ -25,6 +28,15 @@ _ARROW_DELTAS: dict[Qt.Key, tuple[float, float]] = {
     Qt.Key.Key_Up: (0.0, -1.0),
     Qt.Key.Key_Down: (0.0, 1.0),
 }
+_CONFIRM_KEYS = (Qt.Key.Key_Return, Qt.Key.Key_Enter)
+
+
+@dataclass
+class _PlacementSession:
+    """An in-flight custom-placement: the live crosshair and its completion hook."""
+
+    crosshair: CrosshairItem
+    on_done: Callable[[QPointF | None], None]
 
 
 class PageInputController:
@@ -32,14 +44,75 @@ class PageInputController:
 
     def __init__(self, view: PageView) -> None:
         self._view = view
+        self._placement: _PlacementSession | None = None
+
+    # --- custom placement ---------------------------------------------------
+
+    def begin_placement(self, on_done: Callable[[QPointF | None], None]) -> None:
+        """Start picking a spot: show a crosshair at the view centre.
+
+        ``on_done`` is called exactly once when the session finishes: with the
+        chosen scene point (click or Enter), or with ``None`` if cancelled (Esc).
+        A second call cancels any in-flight session first.
+        """
+        self._finish_placement(None)
+        crosshair = CrosshairItem()
+        crosshair.setPos(self._view.viewport_center_scene())
+        self._view.graphics_scene().addItem(crosshair)
+        self._placement = _PlacementSession(crosshair, on_done)
+
+    def placement_active(self) -> bool:
+        return self._placement is not None
+
+    def mouse_press(self, scene_pt: QPointF) -> None:
+        """Confirm placement at ``scene_pt`` immediately (single click creates)."""
+        if self._placement is not None:
+            self._finish_placement(scene_pt)
+
+    def mouse_move(self, scene_pt: QPointF) -> None:
+        """Move the crosshair under the cursor (hover feedback)."""
+        if self._placement is not None:
+            self._placement.crosshair.setPos(scene_pt)
+
+    def _key_in_placement(self, event: QKeyEvent, key: Qt.Key) -> bool:
+        session = self._placement
+        if session is None:
+            return False
+        if key == Qt.Key.Key_Escape:
+            self._finish_placement(None)
+            return True
+        if key in _CONFIRM_KEYS:
+            self._finish_placement(session.crosshair.pos())
+            return True
+        if key in _ARROW_DELTAS:
+            fine = bool(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)
+            step = _NUDGE_STEP_FINE if fine else _NUDGE_STEP
+            dx, dy = _ARROW_DELTAS[key]
+            session.crosshair.moveBy(dx * step, dy * step)
+            return True
+        return False
+
+    def _finish_placement(self, point: QPointF | None) -> None:
+        """Tear down the session (if any) and fire its completion hook once."""
+        session = self._placement
+        if session is None:
+            return
+        self._view.graphics_scene().removeItem(session.crosshair)
+        self._placement = None
+        session.on_done(point)
 
     # --- keyboard -----------------------------------------------------------
 
     def key_press(self, event: QKeyEvent) -> bool:
         """Handle a key event. Returns True when it was consumed."""
         key = Qt.Key(event.key())
+        if self._placement is not None:
+            return self._key_in_placement(event, key)
         if key in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace) and self._can_edit_selection():
             self._view.delete_requested.emit()
+            return True
+        if key in _CONFIRM_KEYS and self._can_edit_selection():
+            self._view.edit_text_requested.emit()
             return True
         if key in _ARROW_DELTAS and self._can_edit_selection() and self._nudge(event, key):
             return True

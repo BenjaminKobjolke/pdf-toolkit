@@ -15,7 +15,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QPointF, QTimer
 
 from app.gui import strings, text_style
 from app.gui.operations import OpResult
@@ -87,14 +87,30 @@ class EditController:
         for item in self._page_view.text_items():
             item.set_editable(on)
 
-    def add_field(self) -> None:
-        """Add a new default text field to the current page (edit mode only)."""
+    def add_field(self, anchor: QPointF | None = None, *, centered: bool = False) -> None:
+        """Add a new text field to the current page (edit mode only).
+
+        ``anchor`` is a scene-pixel point: ``None`` keeps the legacy top-left
+        default; otherwise the field's top-left is placed at ``anchor``, or the
+        field is centred on ``anchor`` when ``centered`` is set (the centring
+        offset needs the item's ``boundingRect``, known only once it exists).
+        """
         if not self._edit_mode or self._source is None:
             return
         item = TextFieldItem()
         text_style.apply_style(item, self._style)
-        item.setPos(*_NEW_FIELD_POS)
+        if anchor is None:
+            item.setPos(*_NEW_FIELD_POS)
+        elif centered:
+            center = item.boundingRect().center()
+            item.setPos(anchor.x() - center.x(), anchor.y() - center.y())
+        else:
+            item.setPos(anchor)
         self._page_view.add_text_item(item)
+        # Select the fresh field so it is the active target (arrow nudge, Enter
+        # to edit its text) right after creation.
+        self._page_view.graphics_scene().clearSelection()
+        item.setSelected(True)
         self._schedule_autosave()
 
     def delete_selected(self) -> None:

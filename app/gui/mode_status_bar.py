@@ -34,6 +34,14 @@ class ModeStatusBar(QWidget):
         """Show the edit-text label when ``on``, otherwise the regular label."""
         self._label.setText(strings.MODE_EDIT_TEXT if on else strings.MODE_REGULAR)
 
+    def set_hint(self, text: str) -> None:
+        """Show a transient hint in place of the mode label (e.g. while placing)."""
+        self._label.setText(text)
+
+    def clear_hint(self) -> None:
+        """Restore the mode label after a transient hint, reading the toggle state."""
+        self.set_edit_mode(True)
+
     def set_page_label(self, current: int, total: int) -> None:
         """Show ``current/total`` in the centre (e.g. ``5/7``)."""
         self._page_label.setText(strings.PAGE_OF_FMT.format(current=current, total=total))
