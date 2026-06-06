@@ -7,8 +7,9 @@ from pathlib import Path
 
 import pytest
 
+from app.pdf.image_spec import SidecarDocument
 from app.pdf.sidecar import load_sidecar, save_sidecar, sidecar_path
-from app.pdf.text_spec import TextDocumentSpec, TextFieldSpec
+from app.pdf.text_spec import TextFieldSpec
 
 
 def _field(**overrides: object) -> TextFieldSpec:
@@ -36,25 +37,25 @@ def test_sidecar_path_swaps_extension(tmp_path: Path) -> None:
 
 def test_save_then_load_round_trips(tmp_path: Path) -> None:
     pdf = tmp_path / "document.pdf"
-    doc = TextDocumentSpec(fields=(_field(), _field(page_index=1, bg_color="#ffff00", bold=True)))
+    doc = SidecarDocument(fields=(_field(), _field(page_index=1, bg_color="#ffff00", bold=True)))
     save_sidecar(pdf, doc)
     assert load_sidecar(pdf) == doc
 
 
 def test_load_absent_returns_empty(tmp_path: Path) -> None:
-    assert load_sidecar(tmp_path / "missing.pdf") == TextDocumentSpec(fields=())
+    assert load_sidecar(tmp_path / "missing.pdf") == SidecarDocument(fields=())
 
 
 def test_save_empty_then_load_returns_empty(tmp_path: Path) -> None:
     pdf = tmp_path / "document.pdf"
-    save_sidecar(pdf, TextDocumentSpec(fields=()))
+    save_sidecar(pdf, SidecarDocument(fields=()))
     assert sidecar_path(pdf).is_file()
-    assert load_sidecar(pdf) == TextDocumentSpec(fields=())
+    assert load_sidecar(pdf) == SidecarDocument(fields=())
 
 
 def test_save_leaves_no_tmp_file(tmp_path: Path) -> None:
     pdf = tmp_path / "document.pdf"
-    save_sidecar(pdf, TextDocumentSpec(fields=(_field(),)))
+    save_sidecar(pdf, SidecarDocument(fields=(_field(),)))
     leftovers = list(tmp_path.glob("*.tmp"))
     assert leftovers == []
 

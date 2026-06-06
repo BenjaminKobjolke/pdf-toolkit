@@ -19,7 +19,7 @@ def test_defaults_to_regular_mode(bar: ModeStatusBar) -> None:
 
 def test_edit_mode_shows_edit_text(bar: ModeStatusBar) -> None:
     bar.set_edit_mode(True)
-    assert bar.mode_text() == strings.MODE_EDIT_TEXT
+    assert bar.mode_text() == strings.MODE_EDIT
 
 
 def test_toggling_back_returns_to_regular(bar: ModeStatusBar) -> None:

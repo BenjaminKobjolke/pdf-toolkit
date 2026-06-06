@@ -9,8 +9,8 @@ absent) so a bad write never blocks startup.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 
+from app.config.file_backed_store import FileBackedStore
 from app.io.json_store import read_versioned_dict, write_versioned
 
 WINDOW_GEOMETRY_VERSION = 1
@@ -26,11 +26,10 @@ class WindowGeometry:
     height: int
 
 
-class WindowGeometryStore:
+class WindowGeometryStore(FileBackedStore):
     """Reads and writes :class:`WindowGeometry` at a fixed JSON path."""
 
-    def __init__(self, path: Path) -> None:
-        self._path = path
+    LABEL = "Window position and size"
 
     def load(self) -> WindowGeometry | None:
         """Return the stored geometry, or ``None`` if absent/corrupt/incomplete."""

@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from app.gui import strings
+from app.gui.gui_items import set_item_editable
 
 
 class TextFieldItem(QGraphicsTextItem):
@@ -32,11 +33,9 @@ class TextFieldItem(QGraphicsTextItem):
 
     def set_editable(self, on: bool) -> None:
         """Toggle move/select/edit interaction; fields stay visible either way."""
-        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, on)
-        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, on)
+        set_item_editable(self, on)
         if not on:
             self.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
-            self.setSelected(False)
 
     # --- style setters/getters ---------------------------------------------
 

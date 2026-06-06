@@ -8,18 +8,16 @@ on ``app.gui``.
 
 from __future__ import annotations
 
-from pathlib import Path
-
+from app.config.file_backed_store import FileBackedStore
 from app.io.json_store import read_versioned_dict, write_versioned
 
 PLACEMENT_VERSION = 1
 
 
-class PlacementStore:
+class PlacementStore(FileBackedStore):
     """Reads and writes the last placement-mode id at a fixed JSON path."""
 
-    def __init__(self, path: Path) -> None:
-        self._path = path
+    LABEL = "Last overlay placement choice"
 
     def load(self) -> str | None:
         """Return the stored mode id, or ``None`` if absent/corrupt."""

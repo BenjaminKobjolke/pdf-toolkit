@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
+from app.pdf.image_spec import SidecarDocument
 from app.pdf.renamer import rename_document
 from app.pdf.sidecar import save_sidecar, sidecar_path
-from app.pdf.text_spec import TextDocumentSpec
 from tests.conftest import MakePdf
 
 
@@ -22,7 +22,7 @@ def test_renames_pdf(make_pdf: MakePdf) -> None:
 
 def test_renames_sidecar_alongside(make_pdf: MakePdf) -> None:
     pdf = make_pdf([(100, 200)], name="old.pdf")
-    save_sidecar(pdf, TextDocumentSpec(fields=()))
+    save_sidecar(pdf, SidecarDocument(fields=()))
     target = pdf.with_name("new.pdf")
     rename_document(pdf, target)
     assert sidecar_path(target).is_file()

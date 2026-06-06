@@ -7,6 +7,7 @@ The window maps each mode to a scene point and hands it to the edit controller.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from enum import StrEnum
 from typing import cast
 
@@ -15,14 +16,17 @@ from PySide6.QtWidgets import QWidget
 
 from app.config.placement_settings import PlacementStore
 from app.gui import strings
-from app.gui.edit_controller import EditController
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.mode_status_bar import ModeStatusBar
 from app.gui.page_view import PageView
 
+# A creator gets the chosen scene anchor (or None for the legacy top-left
+# default) and whether the new item should be centred on that anchor.
+PlaceFn = Callable[[QPointF | None, bool], None]
+
 
 class PlacementMode(StrEnum):
-    """How a newly-added text field is positioned on the current page."""
+    """How a newly-added overlay item is positioned on the current page."""
 
     TOP_LEFT = "top_left"
     PAGE_CENTER = "page_center"
@@ -55,31 +59,34 @@ def _mode_from_stored(value: str | None) -> PlacementMode:
 
 
 class PlacementController:
-    """Choose and apply placement for newly created text fields."""
+    """Choose placement for a newly created overlay item and invoke its creator.
+
+    The creator callback decouples placement from what is being placed, so the
+    same chooser serves both text fields and images.
+    """
 
     def __init__(
         self,
         parent: QWidget,
         page_view: PageView,
-        edit_controller: EditController,
         mode_bar: ModeStatusBar,
         store: PlacementStore,
     ) -> None:
         self._parent = parent
         self._page_view = page_view
-        self._edit_controller = edit_controller
         self._mode_bar = mode_bar
         self._store = store
         self._last = _mode_from_stored(store.load())
+        self._pending_create: PlaceFn | None = None
 
-    def choose_and_place(self) -> None:
-        """Ask where the new field should land and apply the selected mode."""
+    def choose_and_place(self, create: PlaceFn) -> None:
+        """Ask where the new item should land and hand the anchor to ``create``."""
         mode = self._choose()
         if mode is None:
             return
         self._last = mode
         self._store.save(mode.value)
-        self._place(mode)
+        self._place(mode, create)
 
     def _choose(self) -> PlacementMode | None:
         entries = [
@@ -96,18 +103,20 @@ class PlacementController:
             return cast(PlacementMode, chosen.payload)
         return None
 
-    def _place(self, mode: PlacementMode) -> None:
+    def _place(self, mode: PlacementMode, create: PlaceFn) -> None:
         if mode is PlacementMode.PAGE_CENTER:
-            self._edit_controller.add_field(self._page_view.page_center(), centered=True)
+            create(self._page_view.page_center(), True)
         elif mode is PlacementMode.VIEW_CENTER:
-            self._edit_controller.add_field(self._page_view.viewport_center_scene(), centered=True)
+            create(self._page_view.viewport_center_scene(), True)
         elif mode is PlacementMode.CUSTOM:
+            self._pending_create = create
             self._mode_bar.set_hint(strings.PLACEMENT_HINT)
             self._page_view.begin_custom_placement(self._custom_placement_done)
         else:
-            self._edit_controller.add_field()
+            create(None, False)
 
     def _custom_placement_done(self, point: QPointF | None) -> None:
         self._mode_bar.clear_hint()
-        if point is not None:
-            self._edit_controller.add_field(point, centered=True)
+        create, self._pending_create = self._pending_create, None
+        if point is not None and create is not None:
+            create(point, True)

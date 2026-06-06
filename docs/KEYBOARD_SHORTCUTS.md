@@ -49,6 +49,20 @@ page (to next/previous/first/last) is palette-only; see `COMMAND_PALETTE.md`.
 Zoom level persists as you move between pages. **Zoom to fit** is available from
 the palette (no default key).
 
+## Edit mode (text fields & images)
+
+These act on the page overlay while edit mode is on; see
+`edit_mode/EDIT_MODE.md`.
+
+| Key | Action |
+|-----|--------|
+| **Tab** / **Shift+Tab** | Select next / previous editable element (reading order) |
+| **Arrow keys** | Move the selected element 10 px (**Shift+Arrow** = 1 px) |
+| **+** / **-** | Scale the selected image (about its center, aspect locked) |
+| **Ctrl+↑** / **Ctrl+↓** | Selected text field: font size · selected image: scale · else: zoom page |
+| **Enter** | Edit the selected text field |
+| **Delete** / **Backspace** | Delete the selected element |
+
 ## Mouse
 
 | Gesture | Action |
@@ -58,6 +72,6 @@ the palette (no default key).
 | **Ctrl+Wheel** | Previous / next page (regardless of scroll position) |
 
 Shortcuts that act on a document (navigation, zoom) are no-ops until a PDF is
-open. The remaining viewer commands — page edits, text editing, document
+open. The remaining viewer commands — page edits, text/image editing, document
 management, and the palette appearance settings — live in the command palette;
 see `COMMAND_PALETTE.md`.

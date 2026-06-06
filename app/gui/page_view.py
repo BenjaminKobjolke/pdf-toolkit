@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtCore import QPointF, Qt, Signal
+from PySide6.QtCore import QEvent, QPointF, Qt, Signal
 from PySide6.QtGui import QColor, QKeyEvent, QMouseEvent, QPen, QPixmap, QWheelEvent
 from PySide6.QtWidgets import (
     QGraphicsPixmapItem,
@@ -20,12 +20,15 @@ from PySide6.QtWidgets import (
 )
 
 from app.gui import render, strings
+from app.gui.image_item import ImageItem
+from app.gui.item_layer import ItemLayer
 from app.gui.page_input import PageInputController
 from app.gui.text_item import TextFieldItem
 from app.gui.zoom_controller import ZoomController
 
+_OVERLAY_Z = 1.0  # text fields and images sit above the page (0)
 _HIGHLIGHT_COLOR = "#ffd000"  # gold outline for search matches
-_HIGHLIGHT_Z = 2.0  # above the page (0) and text items (1)
+_HIGHLIGHT_Z = 2.0  # above the page (0) and overlay items (1)
 
 
 class PageView(QGraphicsView):
@@ -48,7 +51,8 @@ class PageView(QGraphicsView):
         self._pixmap_item.setZValue(0)
         self._scene.addItem(self._pixmap_item)
         self._placeholder = self._scene.addText(strings.LABEL_NO_DOC)
-        self._text_items: list[TextFieldItem] = []
+        self._text_layer: ItemLayer[TextFieldItem] = ItemLayer(self._scene, _OVERLAY_Z)
+        self._image_layer: ItemLayer[ImageItem] = ItemLayer(self._scene, _OVERLAY_Z)
         self._highlight_items: list[QGraphicsRectItem] = []
         self._source: Path | None = None
         self._index = 0
@@ -68,6 +72,7 @@ class PageView(QGraphicsView):
     def reset(self) -> None:
         """Clear the open document and show the no-doc placeholder."""
         self.clear_text_items()
+        self.clear_image_items()
         self.clear_highlights()
         self._pixmap_item.setPixmap(QPixmap())
         self._placeholder.setVisible(True)
@@ -206,29 +211,50 @@ class PageView(QGraphicsView):
     # --- text items ---------------------------------------------------------
 
     def add_text_item(self, item: TextFieldItem) -> None:
-        item.setZValue(1)
-        self._scene.addItem(item)
-        self._text_items.append(item)
+        self._text_layer.add(item)
 
     def text_items(self) -> tuple[TextFieldItem, ...]:
-        return tuple(self._text_items)
+        return self._text_layer.items()
 
     def selected_text_item(self) -> TextFieldItem | None:
         """Return the first selected field on the current page, if any."""
-        for item in self._text_items:
-            if item.isSelected():
-                return item
-        return None
+        return self._text_layer.selected()
 
     def remove_text_item(self, item: TextFieldItem) -> None:
-        if item in self._text_items:
-            self._scene.removeItem(item)
-            self._text_items.remove(item)
+        self._text_layer.remove(item)
 
     def clear_text_items(self) -> None:
-        for item in self._text_items:
-            self._scene.removeItem(item)
-        self._text_items.clear()
+        self._text_layer.clear()
+
+    # --- image items --------------------------------------------------------
+
+    def add_image_item(self, item: ImageItem) -> None:
+        self._image_layer.add(item)
+
+    def image_items(self) -> tuple[ImageItem, ...]:
+        return self._image_layer.items()
+
+    def selected_image_item(self) -> ImageItem | None:
+        """Return the first selected image on the current page, if any."""
+        return self._image_layer.selected()
+
+    def remove_image_item(self, item: ImageItem) -> None:
+        self._image_layer.remove(item)
+
+    def clear_image_items(self) -> None:
+        self._image_layer.clear()
+
+    def event(self, event: QEvent) -> bool:
+        # Intercept Tab/Backtab before Qt's focus traversal swallows them, so they
+        # cycle the editable overlay items instead of moving widget focus.
+        if (
+            event.type() == QEvent.Type.KeyPress
+            and isinstance(event, QKeyEvent)
+            and event.key() in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab)
+            and self._input.key_press(event)
+        ):
+            return True
+        return super().event(event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if self._input.key_press(event):

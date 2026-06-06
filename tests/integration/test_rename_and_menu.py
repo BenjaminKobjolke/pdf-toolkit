@@ -9,8 +9,9 @@ import pytest
 from app.config.settings import Settings
 from app.config.ui_state import UiState, UiStateStore
 from app.gui.main_window import MainWindow
+from app.pdf.image_spec import SidecarDocument
 from app.pdf.sidecar import save_sidecar, sidecar_path
-from app.pdf.text_spec import TextDocumentSpec, TextFieldSpec
+from app.pdf.text_spec import TextFieldSpec
 from tests.conftest import MakePdf
 
 
@@ -51,7 +52,7 @@ def test_rename_moves_pdf_and_sidecar(
     from PySide6.QtWidgets import QInputDialog, QMessageBox
 
     pdf = make_pdf([(200, 300)], name="before.pdf")
-    save_sidecar(pdf, TextDocumentSpec(fields=(_spec(),)))
+    save_sidecar(pdf, SidecarDocument(fields=(_spec(),)))
     window.open_pdf(pdf)
 
     monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("after.pdf", True))

@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 from PySide6.QtCore import QPointF, Qt
 from PySide6.QtGui import QKeyEvent, QWheelEvent
 
+from app.gui import overlay_selection
 from app.gui.crosshair_item import CrosshairItem
 from app.gui.text_item import TextFieldItem
 
@@ -29,6 +30,9 @@ _ARROW_DELTAS: dict[Qt.Key, tuple[float, float]] = {
     Qt.Key.Key_Down: (0.0, 1.0),
 }
 _CONFIRM_KEYS = (Qt.Key.Key_Return, Qt.Key.Key_Enter)
+_SCALE_UP_KEYS = (Qt.Key.Key_Plus, Qt.Key.Key_Equal)
+_SCALE_DOWN_KEYS = (Qt.Key.Key_Minus, Qt.Key.Key_Underscore)
+_SCALE_STEP = 1.1  # multiply / divide the selected image's scale per keypress
 
 
 @dataclass
@@ -114,6 +118,12 @@ class PageInputController:
         if key in _CONFIRM_KEYS and self._can_edit_selection():
             self._view.edit_text_requested.emit()
             return True
+        if (key in _SCALE_UP_KEYS or key in _SCALE_DOWN_KEYS) and self._scale_selected_image(key):
+            return True
+        if key in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab) and not self._is_text_editing():
+            return overlay_selection.select_adjacent_editable(
+                self._view, forward=key == Qt.Key.Key_Tab
+            )
         if key in _ARROW_DELTAS and self._can_edit_selection() and self._nudge(event, key):
             return True
         return (
@@ -172,8 +182,8 @@ class PageInputController:
         return False
 
     def _nudge(self, event: QKeyEvent, key: Qt.Key) -> bool:
-        """Move selected fields by an arrow step. Returns False if none selected."""
-        selected = [item for item in self._view.text_items() if item.isSelected()]
+        """Move selected items by an arrow step. Returns False if none selected."""
+        selected = overlay_selection.selected_movable_items(self._view)
         if not selected:
             return False
         fine = bool(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)
@@ -183,11 +193,22 @@ class PageInputController:
             item.moveBy(dx * step, dy * step)
         return True
 
+    def _scale_selected_image(self, key: Qt.Key) -> bool:
+        """Grow/shrink the selected image. Returns False if none / text-editing."""
+        if self._is_text_editing():
+            return False
+        image = self._view.selected_image_item()
+        if image is None:
+            return False
+        factor = _SCALE_STEP if key in _SCALE_UP_KEYS else 1.0 / _SCALE_STEP
+        image.scale_about_center(image.scale_factor() * factor)
+        return True
+
     def _can_edit_selection(self) -> bool:
-        """True when a field is selected and none is being text-edited."""
+        """True when an overlay item is selected and none is being text-edited."""
         if self._is_text_editing():
             return False  # let the keystroke act on the text being edited
-        return any(item.isSelected() for item in self._view.text_items())
+        return bool(overlay_selection.selected_movable_items(self._view))
 
     def _is_text_editing(self) -> bool:
         """True when a field currently has inline text-editing focus."""

@@ -16,6 +16,8 @@ from pathlib import Path
 import fitz  # PyMuPDF
 
 from app.pdf.fonts import FontRequest, ResolvedFont, resolve_font
+from app.pdf.image_overlay import draw_image
+from app.pdf.image_spec import ImageFieldSpec
 from app.pdf.text_spec import TextFieldSpec
 
 log = logging.getLogger("pdf_toolkit")
@@ -49,15 +51,34 @@ def screen_px_to_point_size(size_px: float, zoom: float) -> float:
 def apply_text_overlay(
     source: Path, fields: Sequence[TextFieldSpec], output: Path | None = None
 ) -> None:
-    """Draw ``fields`` onto ``source`` and write the result to ``output``.
+    """Draw text ``fields`` onto ``source`` (thin wrapper over :func:`apply_overlay`).
 
-    ``output`` defaults to ``source`` (overwrite in place). The write is atomic
-    (tmp + ``os.replace``). Raises ``ValueError`` if the PDF is encrypted, a
-    field targets a missing page, a colour is malformed, or text cannot be
-    fitted into its box.
+    Kept as the text-only entry point used by callers and tests that have no
+    images; image resolution is irrelevant, so ``base_dir`` defaults to the
+    source's directory.
+    """
+    apply_overlay(source, fields, (), base_dir=source.parent, output=output)
+
+
+def apply_overlay(
+    source: Path,
+    fields: Sequence[TextFieldSpec],
+    images: Sequence[ImageFieldSpec],
+    *,
+    base_dir: Path,
+    output: Path | None = None,
+) -> None:
+    """Draw ``fields`` and ``images`` onto ``source`` in a single pass.
+
+    ``output`` defaults to ``source`` (overwrite in place). Image paths resolve
+    against ``base_dir`` (the original PDF's directory). The write is atomic (tmp
+    + ``os.replace``). Raises ``ValueError`` if the PDF is encrypted, a field or
+    image targets a missing page, a colour is malformed, text cannot be fitted,
+    or an image file is missing.
     """
     from app.gui import render  # local import: avoid a Qt dependency at import time
 
+    zoom = render.DEFAULT_ZOOM
     target = output if output is not None else source
     doc = fitz.open(str(source))
     try:
@@ -65,11 +86,11 @@ def apply_text_overlay(
             raise ValueError(f"PDF is encrypted: {source}")
         total = int(doc.page_count)
         for field in fields:
-            if not 0 <= field.page_index < total:
-                raise ValueError(
-                    f"page index {field.page_index} out of range; PDF has {total} pages"
-                )
-            _draw_field(doc.load_page(field.page_index), field, render.DEFAULT_ZOOM)
+            _require_page(field.page_index, total)
+            _draw_field(doc.load_page(field.page_index), field, zoom)
+        for image in images:
+            _require_page(image.page_index, total)
+            draw_image(doc.load_page(image.page_index), image, zoom, base_dir)
 
         tmp = target.with_suffix(_TMP_SUFFIX)
         doc.save(str(tmp), garbage=4, deflate=True)
@@ -77,6 +98,11 @@ def apply_text_overlay(
         doc.close()
 
     os.replace(tmp, target)
+
+
+def _require_page(page_index: int, total: int) -> None:
+    if not 0 <= page_index < total:
+        raise ValueError(f"page index {page_index} out of range; PDF has {total} pages")
 
 
 def _draw_field(page: fitz.Page, field: TextFieldSpec, zoom: float) -> None:

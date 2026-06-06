@@ -32,7 +32,7 @@ class ModeStatusBar(QWidget):
 
     def set_edit_mode(self, on: bool) -> None:
         """Show the edit-text label when ``on``, otherwise the regular label."""
-        self._label.setText(strings.MODE_EDIT_TEXT if on else strings.MODE_REGULAR)
+        self._label.setText(strings.MODE_EDIT if on else strings.MODE_REGULAR)
 
     def set_hint(self, text: str) -> None:
         """Show a transient hint in place of the mode label (e.g. while placing)."""

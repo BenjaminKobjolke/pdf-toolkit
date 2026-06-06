@@ -40,6 +40,7 @@ def gui_settings(tmp_path: Path) -> Settings:
         command_history_file=tmp_path / "command_history.json",
         placement_file=tmp_path / "placement.json",
         window_file=tmp_path / "window.json",
+        image_choice_file=tmp_path / "image_choice.json",
     )
 
 

@@ -56,10 +56,16 @@ PALETTE_FONT = "palette_font"
 PALETTE_OPACITY = "palette_opacity"
 PALETTE_BORDERLESS = "palette_borderless"
 EDIT_MODE = "edit_mode"
+SELECT_NEXT = "select_next"
+SELECT_PREV = "select_prev"
 ADD_FIELD = "add_field"
+ADD_IMAGE = "add_image"
+IMAGE_SCALE = "image_scale"
+IMAGE_DELETE = "image_delete"
 DELETE_FIELD = "delete_field"
 EXPORT_TEXT = "export_text"
 DELETE_SAVED_FIELDS = "delete_saved_fields"
+REMEMBERED_SETTINGS = "remembered_settings"
 SEARCH_PDF = "search_pdf"
 SEARCH_FIELDS = "search_fields"
 CLEAR_HIGHLIGHTS = "clear_highlights"
@@ -91,6 +97,7 @@ def build_commands(window: MainWindow) -> list[Command]:
     has_doc = window.has_document
     has_highlights = window.page_view.has_highlights
     has_field: Predicate = lambda: window.page_view.selected_text_item() is not None  # noqa: E731
+    has_image: Predicate = lambda: window.page_view.selected_image_item() is not None  # noqa: E731
     return [
         *_document_commands(window, has_doc),
         *_navigation_commands(window, has_doc),
@@ -102,6 +109,7 @@ def build_commands(window: MainWindow) -> list[Command]:
         *_edit_commands(window, has_doc),
         *_search_commands(window, has_doc, has_highlights),
         *_field_commands(window, has_field),
+        *_image_commands(window, has_image),
     ]
 
 
@@ -181,6 +189,11 @@ def _view_commands(window: MainWindow) -> list[Command]:
         Command(PALETTE_FONT, strings.CMD_PALETTE_FONT, palette.set_font_size),
         Command(PALETTE_OPACITY, strings.CMD_PALETTE_OPACITY, palette.set_opacity),
         Command(PALETTE_BORDERLESS, strings.CMD_PALETTE_BORDERLESS, palette.toggle_borderless),
+        Command(
+            REMEMBERED_SETTINGS,
+            strings.CMD_REMEMBERED_SETTINGS,
+            window.open_remembered_settings,
+        ),
     ]
 
 
@@ -188,7 +201,10 @@ def _edit_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     controller = window.controller
     return [
         Command(EDIT_MODE, strings.CMD_EDIT_MODE, window.toggle_edit_mode, has_doc),
+        Command(SELECT_NEXT, strings.CMD_SELECT_NEXT, window.select_next_editable, has_doc),
+        Command(SELECT_PREV, strings.CMD_SELECT_PREV, window.select_previous_editable, has_doc),
         Command(ADD_FIELD, strings.CMD_ADD_FIELD, window.add_text_field, has_doc),
+        Command(ADD_IMAGE, strings.CMD_ADD_IMAGE, window.add_image, has_doc),
         Command(DELETE_FIELD, strings.CMD_DELETE_FIELD, controller.delete_selected, has_doc),
         Command(EXPORT_TEXT, strings.CMD_EXPORT_TEXT, window.export_text, has_doc),
         Command(
@@ -197,6 +213,15 @@ def _edit_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
             window.delete_saved_text_fields,
             has_doc,
         ),
+    ]
+
+
+def _image_commands(window: MainWindow, has_image: Predicate) -> list[Command]:
+    """Commands shown only while an image is selected."""
+    images = window.image_actions
+    return [
+        Command(IMAGE_SCALE, strings.CMD_IMAGE_SCALE, images.change_scale, has_image),
+        Command(IMAGE_DELETE, strings.CMD_IMAGE_DELETE, images.delete, has_image),
     ]
 
 

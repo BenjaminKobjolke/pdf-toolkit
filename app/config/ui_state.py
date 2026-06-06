@@ -7,8 +7,8 @@ from the command palette. Stored as JSON next to the recent-files store.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 
+from app.config.file_backed_store import FileBackedStore
 from app.io.json_store import read_versioned_dict, write_versioned
 
 UI_STATE_VERSION = 1
@@ -23,11 +23,10 @@ class UiState:
     statusbar_visible: bool = True
 
 
-class UiStateStore:
+class UiStateStore(FileBackedStore):
     """Reads and writes :class:`UiState` at a fixed JSON path."""
 
-    def __init__(self, path: Path) -> None:
-        self._path = path
+    LABEL = "Window chrome preferences"
 
     def load(self) -> UiState:
         """Return the stored state, or defaults if absent/corrupt."""

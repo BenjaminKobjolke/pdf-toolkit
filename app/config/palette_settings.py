@@ -8,8 +8,8 @@ stores, using the same versioned-dict pattern as :mod:`app.config.ui_state`.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 
+from app.config.file_backed_store import FileBackedStore
 from app.io.json_store import read_versioned_dict, write_versioned
 
 PALETTE_SETTINGS_VERSION = 1
@@ -33,11 +33,10 @@ class PaletteSettings:
     opacity_pct: int = 100
 
 
-class PaletteSettingsStore:
+class PaletteSettingsStore(FileBackedStore):
     """Reads and writes :class:`PaletteSettings` at a fixed JSON path."""
 
-    def __init__(self, path: Path) -> None:
-        self._path = path
+    LABEL = "Command-palette appearance"
 
     def load(self) -> PaletteSettings:
         """Return the stored settings, or defaults if absent/corrupt."""

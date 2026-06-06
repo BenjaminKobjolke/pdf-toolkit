@@ -9,17 +9,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from app.config.file_backed_store import FileBackedStore
 from app.io.json_store import read_versioned_dict, write_versioned
 
 MAX_RECENT = 100
 RECENT_VERSION = 1
 
 
-class RecentFilesStore:
+class RecentFilesStore(FileBackedStore):
     """Reads and writes the recent-documents list at a fixed JSON path."""
 
-    def __init__(self, path: Path) -> None:
-        self._path = path
+    LABEL = "Recent documents list"
 
     def load(self) -> list[Path]:
         """Return the stored paths, most-recent first; ``[]`` if absent/corrupt."""

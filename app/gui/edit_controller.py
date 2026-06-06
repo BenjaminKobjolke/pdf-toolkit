@@ -1,9 +1,12 @@
-"""Owns the text-field editing model: per-page specs, autosave, and export.
+"""Owns the overlay editing model: per-page specs, autosave, and export.
 
 The view (:class:`PageView`) holds only the items currently on screen; this
-controller is the source of truth across pages. On navigation it harvests live
-items back into specs and rebuilds the destination page. Specs persist to the
-JSON sidecar (debounced) and feed the fitz overlay export.
+controller plus the shared :class:`PageItemStore` are the source of truth across
+pages. It owns the text-field items directly and delegates image items to an
+:class:`ImageController`, but it is the single persistence owner: one autosave
+timer writes both kinds to the JSON sidecar, and one flatten bakes both onto the
+PDF. ``_source`` is the working-copy path; ``_base_dir`` is the original PDF's
+directory, against which relative (assets) image paths resolve.
 """
 
 from __future__ import annotations
@@ -18,13 +21,14 @@ from pathlib import Path
 from PySide6.QtCore import QPointF, QTimer
 
 from app.gui import strings, text_style
+from app.gui.image_controller import ImageController
 from app.gui.operations import OpResult
+from app.gui.page_item_store import PageItemStore
 from app.gui.page_view import PageView
 from app.gui.text_item import TextFieldItem
 from app.gui.text_style import TextStyle
 from app.pdf.sidecar import load_sidecar, save_sidecar, sidecar_path
-from app.pdf.text_overlay import apply_text_overlay
-from app.pdf.text_spec import TextDocumentSpec, TextFieldSpec
+from app.pdf.text_overlay import apply_overlay
 
 log = logging.getLogger("pdf_toolkit")
 
@@ -42,13 +46,15 @@ class FieldHit:
 
 
 class EditController:
-    """Coordinates text-field editing between the page view and persistence."""
+    """Coordinates overlay editing between the page view and persistence."""
 
     def __init__(self, page_view: PageView, mark_dirty: Callable[[], None] = lambda: None) -> None:
         self._page_view = page_view
         self._mark_dirty = mark_dirty
         self._source: Path | None = None
-        self._fields_by_page: dict[int, list[TextFieldSpec]] = {}
+        self._base_dir: Path | None = None
+        self._store = PageItemStore()
+        self._images: ImageController | None = None
         self._edit_mode = False
         self._style = text_style.DEFAULT_STYLE
 
@@ -62,22 +68,42 @@ class EditController:
         page_view.delete_requested.connect(self.delete_selected)
         page_view.graphics_scene().changed.connect(self._on_scene_changed)
 
+    # --- wiring -------------------------------------------------------------
+
+    @property
+    def store(self) -> PageItemStore:
+        """The shared store, so the image controller persists into the same doc."""
+        return self._store
+
+    def attach_images(self, images: ImageController) -> None:
+        """Register the image controller this controller persists alongside text."""
+        self._images = images
+
+    def set_base_dir(self, base_dir: Path) -> None:
+        """Set the original PDF's directory (asset paths + flatten resolve here)."""
+        self._base_dir = base_dir
+
+    def schedule_autosave(self) -> None:
+        """Public autosave trigger, shared with the image controller."""
+        self._schedule_autosave()
+
     # --- public API ---------------------------------------------------------
 
     def on_document_loaded(self, pdf: Path) -> None:
-        """Load the sidecar for ``pdf``. Fields are shown whether editing or not.
+        """Load the sidecar for ``pdf``. Content shows whether editing or not.
 
         Call before the page view renders; the resulting ``page_changed`` signal
-        restores this page's fields. Raises ``ValueError`` on a malformed sidecar.
+        restores this page. Raises ``ValueError`` on a malformed sidecar.
         """
         self._edit_mode = False
-        self._fields_by_page = {}
+        self._store.clear()
+        if self._images is not None:
+            self._images.reset_edit_mode()
         try:
             doc = load_sidecar(pdf)
         finally:
             self._source = pdf  # set even on failure so stale specs are dropped
-        for field in doc.fields:
-            self._fields_by_page.setdefault(field.page_index, []).append(field)
+        self._store.load(doc)
 
     def set_edit_mode(self, on: bool) -> None:
         """Toggle whether the (always-visible) fields can be moved/edited."""
@@ -92,8 +118,7 @@ class EditController:
 
         ``anchor`` is a scene-pixel point: ``None`` keeps the legacy top-left
         default; otherwise the field's top-left is placed at ``anchor``, or the
-        field is centred on ``anchor`` when ``centered`` is set (the centring
-        offset needs the item's ``boundingRect``, known only once it exists).
+        field is centred on ``anchor`` when ``centered`` is set.
         """
         if not self._edit_mode or self._source is None:
             return
@@ -107,8 +132,7 @@ class EditController:
         else:
             item.setPos(anchor)
         self._page_view.add_text_item(item)
-        # Select the fresh field so it is the active target (arrow nudge, Enter
-        # to edit its text) right after creation.
+        # Select the fresh field so it is the active target right after creation.
         self._page_view.graphics_scene().clearSelection()
         item.setSelected(True)
         self._schedule_autosave()
@@ -140,8 +164,9 @@ class EditController:
         # Harvest the current page so unsaved edits are searchable too.
         self._harvest_page(self._page_view.current_page_index())
         hits: list[FieldHit] = []
-        for page_index in sorted(self._fields_by_page):
-            for field_index, spec in enumerate(self._fields_by_page[page_index]):
+        pages = sorted({field.page_index for field in self._store.all_fields()})
+        for page_index in pages:
+            for field_index, spec in enumerate(self._store.fields_on(page_index)):
                 if needle in spec.text.casefold():
                     hits.append(FieldHit(page_index, field_index, spec.text))
         return hits
@@ -170,10 +195,12 @@ class EditController:
             self._schedule_autosave()
 
     def clear_saved_fields(self) -> None:
-        """Delete this document's saved text fields and its sidecar file."""
+        """Delete this document's saved overlay content and its sidecar file."""
         self._timer.stop()
-        self._fields_by_page = {}
+        self._store.clear()
         self._page_view.clear_text_items()
+        if self._images is not None:
+            self._images.clear()
         if self._source is not None:
             with contextlib.suppress(FileNotFoundError):
                 os.remove(sidecar_path(self._source))
@@ -185,47 +212,38 @@ class EditController:
         self._save()
 
     def embed_into_document(self, target: Path) -> OpResult:
-        """Flatten the placed fields into ``target`` in place, then drop them.
-
-        Used by the deferred "Export text to PDF" command: the text is baked into
-        the working PDF (reaching the original only on save), so the now-embedded
-        fields and their sidecar are cleared to avoid drawing them twice.
-        """
+        """Flatten the placed overlay into ``target`` in place, then drop it."""
         error = self._flatten(target)
         if error is not None:
             return OpResult(False, error)
         self._timer.stop()
-        self._fields_by_page = {}
+        self._store.clear()
         self._page_view.clear_text_items()
+        if self._images is not None:
+            self._images.clear()
         if self._source is not None:
             with contextlib.suppress(FileNotFoundError):
                 os.remove(sidecar_path(self._source))
         return OpResult(True, strings.MSG_TEXT_EMBEDDED)
 
-    def has_placed_fields(self) -> bool:
-        """Return whether any page has a text field, including unsaved current-page fields."""
-        return bool(self._collect_specs())
+    def has_overlay(self) -> bool:
+        """Return whether any page has a text field or image (incl. unsaved)."""
+        return not self._current_document_is_empty()
 
     def export_to_file(self, source: Path, output: Path) -> OpResult:
-        """Bake the placed fields from ``source`` into ``output``.
-
-        Unlike :meth:`embed_into_document`, the edit session (in-memory fields
-        and the sidecar) is left intact, so the document stays editable after a
-        "save to a new file" export.
-        """
+        """Bake the placed overlay from ``source`` into ``output``, keeping the session."""
         error = self._flatten(source, output)
         if error is not None:
             return OpResult(False, error)
         return OpResult(True, strings.MSG_TEXT_EXPORTED_FMT.format(name=output.name))
 
     def _flatten(self, source: Path, output: Path | None = None) -> str | None:
-        """Bake all fields from ``source`` onto ``output`` (or ``source`` in place).
-
-        Returns an error message on failure, or ``None`` on success.
-        """
-        specs = self._collect_specs()
+        """Bake all overlay from ``source`` onto ``output`` (or ``source`` in place)."""
+        self._harvest_all()
+        doc = self._store.document()
+        base = self._base_dir or source.parent
         try:
-            apply_text_overlay(source, specs, output)
+            apply_overlay(source, doc.fields, doc.images, base_dir=base, output=output)
         except (ValueError, OSError) as err:
             log.error("%s", err)
             return str(err)
@@ -241,23 +259,27 @@ class EditController:
             self._schedule_autosave()
 
     def _harvest_page(self, index: int) -> None:
-        self._fields_by_page[index] = [
-            text_style.item_to_spec(item, index) for item in self._page_view.text_items()
-        ]
+        self._store.set_fields(
+            index,
+            [text_style.item_to_spec(item, index) for item in self._page_view.text_items()],
+        )
+
+    def _harvest_all(self) -> None:
+        """Harvest the current page for both kinds before save/flatten."""
+        self._harvest_page(self._page_view.current_page_index())
+        if self._images is not None:
+            self._images.harvest_current()
 
     def _restore_page(self, index: int) -> None:
         self._page_view.clear_text_items()
-        for spec in self._fields_by_page.get(index, []):
+        for spec in self._store.fields_on(index):
             item = text_style.spec_to_item(spec)
             item.set_editable(self._edit_mode)
             self._page_view.add_text_item(item)
 
-    def _collect_specs(self) -> tuple[TextFieldSpec, ...]:
-        self._harvest_page(self._page_view.current_page_index())
-        ordered: list[TextFieldSpec] = []
-        for index in sorted(self._fields_by_page):
-            ordered.extend(self._fields_by_page[index])
-        return tuple(ordered)
+    def _current_document_is_empty(self) -> bool:
+        self._harvest_all()
+        return self._store.is_empty()
 
     def _schedule_autosave(self) -> None:
         if self._source is not None:
@@ -267,11 +289,11 @@ class EditController:
     def _save(self) -> None:
         if self._source is None:
             return
-        specs = self._collect_specs()
-        if not specs:
-            # No fields to persist: never create an empty sidecar, and drop a
-            # stale one (e.g. the user deleted every previously-saved field).
+        self._harvest_all()
+        if self._store.is_empty():
+            # Nothing to persist: never create an empty sidecar, and drop a stale
+            # one (e.g. the user deleted every previously-saved item).
             with contextlib.suppress(FileNotFoundError):
                 os.remove(sidecar_path(self._source))
             return
-        save_sidecar(self._source, TextDocumentSpec(fields=specs))
+        save_sidecar(self._source, self._store.document())

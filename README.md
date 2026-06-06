@@ -72,10 +72,16 @@ The palette and direct shortcuts cover:
 - **View** — **Toggle menu bar** / **Toggle toolbar** / **Toggle status bar**
   (remembered across runs) and **Toggle fullscreen** (session only). Window
   position and size are also remembered across runs.
-- **Text editing** — toggle edit mode, and when a field is selected the palette
-  exposes its options (change text, font size/family, text + background colour,
-  bold/italic, delete) via keyboard-first dialogs. See
-  [docs/TEXT_EDITING.md](docs/TEXT_EDITING.md) and
+- **Edit mode (text + images)** — toggle edit mode to place text fields and
+  images (e.g. a transparent `signature.png`). When a field is selected the
+  palette exposes its options (change text, font size/family, text + background
+  colour, bold/italic, delete); a selected image can be moved, scaled (corner
+  handles, palette, or **+**/**-**, aspect locked), and deleted. Images are
+  copied into an `assets/` folder next to the PDF or referenced in place. **Tab**
+  / **Shift+Tab** cycle the editable elements. See
+  [docs/edit_mode/EDIT_MODE.md](docs/edit_mode/EDIT_MODE.md) (overview, links to
+  [TEXT_EDITING.md](docs/edit_mode/TEXT_EDITING.md) and
+  [IMAGE_EDITING.md](docs/edit_mode/IMAGE_EDITING.md)) and
   [docs/WIDGETS.md](docs/WIDGETS.md) (custom colour picker — type a hex or name,
   pick transparent, recents + live preview).
 

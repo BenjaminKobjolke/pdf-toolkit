@@ -11,8 +11,9 @@ from app.gui import commands
 from app.gui.filter_list_dialog import ListEntry
 from app.gui.main_window import MainWindow
 from app.gui.palette_entries import build_palette_entries
+from app.pdf.image_spec import SidecarDocument
 from app.pdf.sidecar import save_sidecar, sidecar_path
-from app.pdf.text_spec import TextDocumentSpec, TextFieldSpec
+from app.pdf.text_spec import TextFieldSpec
 from tests.conftest import MakePdf, gui_settings
 
 
@@ -61,7 +62,7 @@ def test_delete_saved_fields_command_removes_sidecar(
     from PySide6.QtWidgets import QMessageBox
 
     pdf = make_pdf([(200, 300)])
-    save_sidecar(pdf, TextDocumentSpec(fields=(_spec(),)))
+    save_sidecar(pdf, SidecarDocument(fields=(_spec(),)))
     window.open_pdf(pdf)
     monkeypatch.setattr(QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes)
     monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: QMessageBox.StandardButton.Ok)

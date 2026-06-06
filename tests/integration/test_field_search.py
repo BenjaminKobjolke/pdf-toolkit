@@ -6,8 +6,9 @@ import pytest
 
 from app.gui.edit_controller import EditController
 from app.gui.page_view import PageView
+from app.pdf.image_spec import SidecarDocument
 from app.pdf.sidecar import save_sidecar
-from app.pdf.text_spec import TextDocumentSpec, TextFieldSpec
+from app.pdf.text_spec import TextFieldSpec
 from tests.conftest import MakePdf
 
 
@@ -33,7 +34,7 @@ def loaded(qapp: object, make_pdf: MakePdf) -> tuple[PageView, EditController]:
     pdf = make_pdf([(300, 400), (300, 400), (300, 400)])
     save_sidecar(
         pdf,
-        TextDocumentSpec(
+        SidecarDocument(
             fields=(
                 _spec(0, "lala test"),
                 _spec(1, "other"),

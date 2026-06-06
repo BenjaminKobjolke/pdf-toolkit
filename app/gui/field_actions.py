@@ -21,6 +21,8 @@ from app.gui.page_view import PageView
 from app.gui.text_input_dialog import TextInputDialog
 
 _MAX_RECENT_COLORS = 8
+_MIN_FONT_SIZE = 4.0
+_MAX_FONT_SIZE = 400.0
 
 
 class FieldActions:
@@ -54,6 +56,14 @@ class FieldActions:
         )
         if ok:
             self._controller.apply_style(replace(style, font_size=size))
+
+    def scale_font(self, factor: float) -> None:
+        """Multiply the selected field's font size by ``factor`` (clamped). For Ctrl+↑/↓."""
+        style = self._controller.selected_style()
+        if style is None:
+            return
+        size = max(_MIN_FONT_SIZE, min(_MAX_FONT_SIZE, style.font_size * factor))
+        self._controller.apply_style(replace(style, font_size=size))
 
     def change_font(self) -> None:
         style = self._controller.selected_style()

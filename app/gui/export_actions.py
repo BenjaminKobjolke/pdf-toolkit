@@ -50,7 +50,7 @@ class ExportActions:
         source = self._doc.original()
         if working is None or source is None:
             return
-        if not self._controller.has_placed_fields():
+        if not self._controller.has_overlay():
             self._report(OpResult(True, strings.MSG_NO_TEXT_TO_EXPORT))
             return
         choice = QMessageBox.question(

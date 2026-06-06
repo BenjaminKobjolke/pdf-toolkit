@@ -15,7 +15,7 @@ below).
    ^ mode (left)        ^ page (centre)      ^ dirty (right)
 ```
 
-- **Left — mode label.** Reads `Regular Mode` or `Edit Text Mode`, driven by the
+- **Left — mode label.** Reads `Regular Mode` or `Edit Mode`, driven by the
   same `edit_mode_toggled` signal that switches the editor and toolbar, so it
   always reflects the real mode.
 - **Centre — page indicator.** Shows `current/total` (e.g. `5/7`). It updates on

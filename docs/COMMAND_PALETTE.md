@@ -71,11 +71,15 @@ missing or corrupt file just means no commands are floated yet.
 | **Move page to next position** / **previous position** | Swap the current page one step forward / back. |
 | **Move page to first** / **to last** | Move the current page to the start / end. |
 | **Merge folder…** | Merge a folder of PDFs and images into `merged.pdf`. |
-| **Toggle text edit mode** | Turn text editing on / off (see `TEXT_EDITING.md`). |
+| **Toggle edit mode** | Turn edit mode on / off (see `edit_mode/EDIT_MODE.md`). |
+| **Select next / previous editable element** | Cycle selection through text fields and images (also **Tab** / **Shift+Tab**). |
 | **Add text field** | Add a new text field (edit mode only). |
+| **Add image…** | Place an image — e.g. a signature — on the page (edit mode only). |
+| **Image: scale…** / **Image: delete** | Resize or remove the selected image. |
 | **Delete selected field** | Remove the selected text field(s) (edit mode only). |
-| **Export text to PDF** | Flatten the placed text fields into the document (deferred until save). |
+| **Export to PDF (text + images)** | Flatten the placed overlay into the document (deferred until save). |
 | **Delete saved text fields for this document** | Delete this PDF's saved fields and its JSON sidecar. |
+| **Remembered settings…** | Reset stored preferences (placement, image choice, palette, …) individually or all. |
 | **Search PDF text…** | Live full-text search of the document (see below). |
 | **Search text fields…** | Live search of your placed text fields (see below). |
 | **Clear search highlights** | Remove the gold match highlights (shown only while highlights exist). |
@@ -92,6 +96,17 @@ When a text field is **selected**, these extra commands appear in the palette
 | **Field: background colour…** | Same picker for the field's fill. |
 | **Field: toggle bold** / **toggle italic** | Flip the style. |
 | **Field: delete** | Remove the selected field. |
+
+When an **image** is selected, these extra commands appear instead:
+
+| Command | What it does |
+|---------|--------------|
+| **Image: scale…** | Type a new uniform scale factor (aspect ratio is locked). |
+| **Image: delete** | Remove the selected image. |
+
+You can also resize a selected image by dragging its corner handles, and grow /
+shrink it with **+** / **-** (or **Ctrl+↑/↓**). See `edit_mode/IMAGE_EDITING.md`
+for the full image workflow.
 
 ## Deferred saving
 
@@ -123,6 +138,9 @@ Common commands also have direct keys, so you do not have to open the palette:
 | **Ctrl+0** | Zoom 100% |
 | **Ctrl+R** / **Ctrl+Shift+R** | Rotate current page right / left |
 | **Ctrl+S** | Save changes to the original file |
+| **Tab** / **Shift+Tab** | Select next / previous editable element (edit mode) |
+| **Ctrl+↑/↓** | Selected text field: font size · image: scale · else: zoom |
+| **+** / **-** | Scale the selected image |
 | **Wheel** | Scroll the page; flip page at the scroll edge |
 | **Shift+Wheel** | Scroll horizontally |
 | **Ctrl+Wheel** | Previous / next page |
@@ -201,7 +219,7 @@ more things across restarts:
   is **not** persisted; the underlying windowed rect is stored instead.
 - **Last text-field placement** — the placement chooser (**Add text field**)
   floats your last pick to the top, remembered in `~/.pdf-toolkit/placement.json`
-  (override: `PDF_TOOLKIT_PLACEMENT_FILE`). See `TEXT_EDITING.md`.
+  (override: `PDF_TOOLKIT_PLACEMENT_FILE`). See `edit_mode/EDIT_MODE.md`.
 
 Each store is independent and degrades to its default if missing or corrupt.
 
@@ -210,5 +228,5 @@ Each store is independent and degrades to its default if missing or corrupt.
 **Delete saved text fields for this document** removes the text-field layout for
 the open PDF: it clears the fields from the page and deletes the JSON sidecar
 (`document.json`) next to the PDF. It asks for confirmation first. The PDF itself
-is not modified — only the saved field layout is discarded. See `TEXT_EDITING.md`
+is not modified — only the saved field layout is discarded. See `edit_mode/EDIT_MODE.md`
 for how the sidecar works.

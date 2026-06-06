@@ -30,6 +30,7 @@ class EditBar(QWidget):
 
     edit_mode_toggled = Signal(bool)
     add_field_requested = Signal()
+    add_image_requested = Signal()
     delete_field_requested = Signal()
     export_text_requested = Signal()
     style_changed = Signal(object)  # TextStyle
@@ -45,6 +46,9 @@ class EditBar(QWidget):
 
         self._add = QPushButton(strings.BTN_ADD_FIELD)
         self._add.clicked.connect(self.add_field_requested.emit)
+
+        self._add_image = QPushButton(strings.BTN_ADD_IMAGE)
+        self._add_image.clicked.connect(self.add_image_requested.emit)
 
         self._delete = QPushButton(strings.BTN_DELETE_FIELD)
         self._delete.clicked.connect(self.delete_field_requested.emit)
@@ -75,6 +79,7 @@ class EditBar(QWidget):
 
         self._edit_widgets: list[QWidget] = [
             self._add,
+            self._add_image,
             self._delete,
             QLabel(strings.LABEL_FONT),
             self._font,

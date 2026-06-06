@@ -11,8 +11,9 @@ from app.gui.main_window import MainWindow
 from app.gui.page_view import PageView
 from app.gui.placement import PlacementController, PlacementMode
 from app.gui.text_input_dialog import TextInputDialog
+from app.pdf.image_spec import SidecarDocument
 from app.pdf.sidecar import load_sidecar, save_sidecar, sidecar_path
-from app.pdf.text_spec import TextDocumentSpec, TextFieldSpec
+from app.pdf.text_spec import TextFieldSpec
 from tests.conftest import MakePdf
 
 _MOVABLE = QGraphicsItem.GraphicsItemFlag.ItemIsMovable
@@ -42,7 +43,7 @@ def _press(view: PageView, key: Qt.Key, shift: bool = False) -> None:
 
 def test_saved_fields_show_without_edit_mode(window: MainWindow, make_pdf: MakePdf) -> None:
     pdf = make_pdf([(300, 400)])
-    save_sidecar(pdf, TextDocumentSpec(fields=(_spec(),)))
+    save_sidecar(pdf, SidecarDocument(fields=(_spec(),)))
 
     window.open_pdf(pdf)
 

@@ -40,6 +40,15 @@ _SHORTCUTS: tuple[tuple[str, str], ...] = (
 )
 _PALETTE_CHORD = "Ctrl+Shift+P"
 
+# Zoom chords double as image-scale chords: when an image is selected they resize
+# it (aspect locked) instead of zooming the page. Maps a zoom command id to its
+# scale factor.
+_IMAGE_SCALE_STEP = 1.1
+_ZOOM_SCALE_FACTORS: dict[str, float] = {
+    commands.ZOOM_IN: _IMAGE_SCALE_STEP,
+    commands.ZOOM_OUT: 1.0 / _IMAGE_SCALE_STEP,
+}
+
 # Mouse-wheel gestures handled by PageInputController. Not bound to commands, so
 # they are listed as static (gesture, description) rows in the controls dialog.
 _MOUSE_CONTROLS: tuple[tuple[str, str], ...] = (
@@ -63,6 +72,38 @@ def shortcut_pairs(registry: list[Command]) -> list[tuple[str, str]]:
     return pairs
 
 
+def install_control_signals(window: MainWindow) -> None:
+    """Connect the operation bar, edit bar, and page-view signals to ``window``.
+
+    Kept here so :class:`MainWindow.__init__` stays a thin sequence of
+    constructions; every connection routes to a public window method/controller.
+    """
+    bar = window.operation_bar
+    bar.prev_requested.connect(window.page_view.show_prev)
+    bar.next_requested.connect(window.page_view.show_next)
+    bar.swap_requested.connect(window.page_actions.swap)
+    bar.delete_page_requested.connect(window.page_actions.delete_current_page)
+    bar.delete_range_requested.connect(window.page_actions.delete_page_range)
+    bar.insert_page_requested.connect(window.page_actions.insert_pages)
+    bar.extract_page_requested.connect(window.page_actions.extract_current_page)
+    bar.merge_folder_requested.connect(window.page_actions.merge_folder)
+
+    edit = window.edit_bar
+    edit.edit_mode_toggled.connect(window.controller.set_edit_mode)
+    edit.edit_mode_toggled.connect(window.images.set_edit_mode)
+    edit.edit_mode_toggled.connect(window.mode_bar.set_edit_mode)
+    edit.add_field_requested.connect(window.add_text_field)
+    edit.add_image_requested.connect(window.add_image)
+    edit.delete_field_requested.connect(window.controller.delete_selected)
+    edit.style_changed.connect(window.controller.apply_style)
+    edit.export_text_requested.connect(window.export_text)
+
+    view = window.page_view
+    view.page_changed.connect(bar.set_page_label)
+    view.page_changed.connect(window.mode_bar.set_page_label)
+    view.edit_text_requested.connect(window.field_actions.change_text)
+
+
 def build_file_menu(window: MainWindow) -> None:
     """Add the File menu to ``window``'s menu bar."""
     menu = window.menuBar().addMenu(strings.MENU_FILE)
@@ -78,7 +119,11 @@ def install_shortcuts(window: MainWindow, registry: list[Command]) -> None:
     QShortcut(QKeySequence(_PALETTE_CHORD), window, window.open_command_palette)
     for chord, command_id in _SHORTCUTS:
         command = commands.find(registry, command_id)
-        QShortcut(QKeySequence(chord), window, _guarded(command))
+        if command_id in _ZOOM_SCALE_FACTORS:
+            trigger = _zoom_or_scale(window, command, _ZOOM_SCALE_FACTORS[command_id])
+        else:
+            trigger = _guarded(command)
+        QShortcut(QKeySequence(chord), window, trigger)
 
 
 def _guarded(command: Command) -> Callable[[], None]:
@@ -86,6 +131,26 @@ def _guarded(command: Command) -> Callable[[], None]:
 
     def trigger() -> None:
         if command.is_enabled():
+            command.run()
+
+    return trigger
+
+
+def _zoom_or_scale(window: MainWindow, command: Command, factor: float) -> Callable[[], None]:
+    """Resize the selected overlay element if any; otherwise run the zoom command.
+
+    Lets the zoom keys (``Ctrl+↑/↓``, ``Ctrl++/-``) change a selected text field's
+    font size or a selected image's scale, while leaving the palette's explicit
+    "Zoom" entries to always zoom the page.
+    """
+
+    def trigger() -> None:
+        scale = window.images.selected_scale()
+        if window.page_view.selected_text_item() is not None:
+            window.field_actions.scale_font(factor)
+        elif scale is not None:
+            window.images.set_selected_scale(scale * factor)
+        elif command.is_enabled():
             command.run()
 
     return trigger
