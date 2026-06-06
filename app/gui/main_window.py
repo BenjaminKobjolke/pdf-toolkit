@@ -194,6 +194,7 @@ class MainWindow(QMainWindow):
         self._page_view.reset()
         self._bar.set_enabled_for_doc(False)
         self._mode_bar.clear_page_label()
+        self._mode_bar.clear_zoom_label()
         self._mode_bar.set_dirty(False)
         if self._edit_bar.is_edit_mode():
             self._edit_bar.toggle_edit_mode()

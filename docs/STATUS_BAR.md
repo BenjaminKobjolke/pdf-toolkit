@@ -10,9 +10,9 @@ below).
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ Regular Mode              5/7              ● Modified     │
+│ Regular Mode          5/7          150%    ● Modified     │
 └─────────────────────────────────────────────────────────┘
-   ^ mode (left)        ^ page (centre)      ^ dirty (right)
+   ^ mode (left)    ^ page (centre)  ^ zoom   ^ dirty (right)
 ```
 
 - **Left — mode label.** Reads `Regular Mode` or `Edit Mode`, driven by the
@@ -21,6 +21,11 @@ below).
 - **Centre — page indicator.** Shows `current/total` (e.g. `5/7`). It updates on
   every page change via the `page_changed` signal from `PageView`, and is blank
   when no document is open.
+- **Right of centre — zoom indicator.** Shows the live zoom as `150%`
+  (`strings.ZOOM_FMT`), where `100%` is the page's true PDF size. It updates via
+  the `zoom_changed` signal from `PageView` whenever the zoom changes (fit, 100%,
+  zoom in/out, or a window resize while fitting), and is blank when no document is
+  open.
 - **Right — unsaved-changes marker.** Shows `● Modified` (`strings.MODIFIED_MARKER`)
   once an edit has been made to the working copy but not yet saved to the original
   file; it clears on save, open, and close. Set via `set_dirty(on)`.

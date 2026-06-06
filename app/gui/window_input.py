@@ -101,6 +101,7 @@ def install_control_signals(window: MainWindow) -> None:
     view = window.page_view
     view.page_changed.connect(bar.set_page_label)
     view.page_changed.connect(window.mode_bar.set_page_label)
+    view.zoom_changed.connect(window.mode_bar.set_zoom_label)
     view.edit_text_requested.connect(window.field_actions.change_text)
 
 

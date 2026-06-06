@@ -44,6 +44,7 @@ class PageView(QGraphicsView):
 
     page_changed = Signal(int, int)  # (current 1-based, total)
     page_will_change = Signal(int)  # (current 0-based index, before navigation)
+    zoom_changed = Signal(int)  # current zoom percentage
     delete_requested = Signal()  # Delete/Backspace pressed on a selected field
     edit_text_requested = Signal()  # Enter pressed on a selected (not inline-editing) field
 
@@ -69,8 +70,13 @@ class PageView(QGraphicsView):
         self._nav = PageNavigator(self._show, self.page_will_change)
         # Re-render the page sharper as zoom changes; never moves overlay coords.
         self._render_ctl = RenderQualityController(self, self._pixmap_item)
-        self._zoom_ctl = ZoomController(self, self._pixmap_item, self._render_ctl.request)
+        self._zoom_ctl = ZoomController(self, self._pixmap_item, self._on_zoom_scale)
         self._input = PageInputController(self)
+
+    def _on_zoom_scale(self, scale: float) -> None:
+        """Re-render sharp for the new scale and publish the zoom percentage."""
+        self._render_ctl.request(scale)
+        self.zoom_changed.emit(self._zoom_ctl.percent())
 
     # --- document lifecycle -------------------------------------------------
 

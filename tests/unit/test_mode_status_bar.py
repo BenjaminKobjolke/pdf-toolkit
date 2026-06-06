@@ -43,6 +43,21 @@ def test_clear_page_label_blanks_it(bar: ModeStatusBar) -> None:
     assert bar.page_text() == ""
 
 
+def test_zoom_label_blank_by_default(bar: ModeStatusBar) -> None:
+    assert bar.zoom_text() == ""
+
+
+def test_set_zoom_label_shows_percent(bar: ModeStatusBar) -> None:
+    bar.set_zoom_label(150)
+    assert bar.zoom_text() == "150%"
+
+
+def test_clear_zoom_label_blanks_it(bar: ModeStatusBar) -> None:
+    bar.set_zoom_label(150)
+    bar.clear_zoom_label()
+    assert bar.zoom_text() == ""
+
+
 def test_dirty_marker_blank_by_default(bar: ModeStatusBar) -> None:
     assert bar.dirty_text() == ""
 

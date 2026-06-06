@@ -11,7 +11,6 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QTransform
 from PySide6.QtWidgets import QGraphicsPixmapItem, QGraphicsView
 
@@ -45,6 +44,10 @@ class ZoomController:
     def zoom(self) -> float:
         """Return the current scene-to-view scale factor."""
         return self._zoom
+
+    def percent(self) -> int:
+        """Current zoom as a user-facing percentage (100 = true PDF size)."""
+        return round(self._zoom / _ZOOM_ACTUAL * 100)
 
     def actual(self) -> None:
         """Show the page at true PDF size (100%); stays 100% on page changes."""
@@ -89,9 +92,16 @@ class ZoomController:
         self._notify()
 
     def _fit_to_viewport(self) -> None:
-        self._view.fitInView(self._pixmap_item, Qt.AspectRatioMode.KeepAspectRatio)
-        self._zoom = self._view.transform().m11()
-        self._notify()
+        # Compute the fit scale directly instead of using ``fitInView``, whose
+        # result drifts with the current scrollbar/frame state (so it isn't
+        # idempotent and mis-fits on page change). ``maximumViewportSize`` is the
+        # viewport size as if no scrollbars are shown -- a stable basis.
+        rect = self._pixmap_item.boundingRect()
+        if rect.width() <= 0 or rect.height() <= 0:
+            return
+        avail = self._view.maximumViewportSize()
+        scale = min(avail.width() / rect.width(), avail.height() / rect.height())
+        self._apply(scale)
 
     def _notify(self) -> None:
         if self._on_scale_changed is not None:

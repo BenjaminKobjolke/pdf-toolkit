@@ -238,6 +238,7 @@ LABEL_PAGE_FMT = "Page {current} / {total}"
 MODE_REGULAR = "Regular Mode"
 MODE_EDIT = "Edit Mode"
 PAGE_OF_FMT = "{current}/{total}"
+ZOOM_FMT = "{percent}%"
 MODIFIED_MARKER = "● Modified"
 
 MSG_NOT_FOUND_FMT = "input file not found: {path}"

@@ -19,6 +19,7 @@ class ModeStatusBar(QWidget):
         super().__init__()
         self._label = QLabel()
         self._page_label = QLabel()
+        self._zoom_label = QLabel()
         self._dirty_label = QLabel()
         layout = QHBoxLayout(self)
         layout.setContentsMargins(8, 2, 8, 2)
@@ -26,6 +27,7 @@ class ModeStatusBar(QWidget):
         layout.addStretch(1)
         layout.addWidget(self._page_label)
         layout.addStretch(1)
+        layout.addWidget(self._zoom_label)
         layout.addWidget(self._dirty_label)
         self.set_edit_mode(False)
         self.set_dirty(False)
@@ -49,6 +51,18 @@ class ModeStatusBar(QWidget):
     def clear_page_label(self) -> None:
         """Blank the page indicator (no document open)."""
         self._page_label.setText("")
+
+    def set_zoom_label(self, percent: int) -> None:
+        """Show the current zoom as ``150%`` (right of the page indicator)."""
+        self._zoom_label.setText(strings.ZOOM_FMT.format(percent=percent))
+
+    def clear_zoom_label(self) -> None:
+        """Blank the zoom indicator (no document open)."""
+        self._zoom_label.setText("")
+
+    def zoom_text(self) -> str:
+        """Return the currently displayed zoom indicator (used by tests)."""
+        return self._zoom_label.text()
 
     def set_dirty(self, on: bool) -> None:
         """Show the unsaved-changes marker when ``on``, otherwise blank it."""
