@@ -16,6 +16,7 @@ ENV_COMMAND_HISTORY_FILE = "PDF_TOOLKIT_COMMAND_HISTORY_FILE"
 ENV_PLACEMENT_FILE = "PDF_TOOLKIT_PLACEMENT_FILE"
 ENV_WINDOW_FILE = "PDF_TOOLKIT_WINDOW_FILE"
 ENV_IMAGE_CHOICE_FILE = "PDF_TOOLKIT_IMAGE_CHOICE_FILE"
+ENV_OUTLINE_FILE = "PDF_TOOLKIT_OUTLINE_FILE"
 
 DEFAULT_BACKUP_DIR = "backup"
 DEFAULT_LOG_LEVEL = "INFO"
@@ -49,6 +50,10 @@ def _default_image_choice_file() -> Path:
     return Path.home() / ".pdf-toolkit" / "image_choice.json"
 
 
+def _default_outline_file() -> Path:
+    return Path.home() / ".pdf-toolkit" / "outline.json"
+
+
 def _path_from_env(env_var: str, default_fn: Callable[[], Path]) -> Path:
     """Return the env-var path if set, otherwise the computed default."""
     value = os.getenv(env_var)
@@ -66,6 +71,7 @@ class Settings:
     placement_file: Path = field(default_factory=_default_placement_file)
     window_file: Path = field(default_factory=_default_window_file)
     image_choice_file: Path = field(default_factory=_default_image_choice_file)
+    outline_file: Path = field(default_factory=_default_outline_file)
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -81,4 +87,5 @@ class Settings:
             placement_file=_path_from_env(ENV_PLACEMENT_FILE, _default_placement_file),
             window_file=_path_from_env(ENV_WINDOW_FILE, _default_window_file),
             image_choice_file=_path_from_env(ENV_IMAGE_CHOICE_FILE, _default_image_choice_file),
+            outline_file=_path_from_env(ENV_OUTLINE_FILE, _default_outline_file),
         )

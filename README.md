@@ -11,7 +11,7 @@ Small Python CLI toolkit for two PDF page operations, each with an automatic tim
 - `pdf-extract-page.bat <page> <pdf> [-o <out>]` — extract 1-based `<page>` into its own new file (default `<name>-pNN.pdf` beside the source); the original is left untouched, so no backup is made.
 - `pdf-merge-folder.bat <folder>` — merge every supported file (`.pdf`, `.jpg`, `.jpeg`, `.png`) in `<folder>` into `<folder>\merged.pdf`. Files are added in alphabetical order (case-insensitive). Subfolders are ignored. If `merged.pdf` already exists in the folder, it is backed up first.
 - `pdft.bat` — interactive wizard that prompts for the operation (swap / delete single / delete range / rotate / move / insert pages / extract page / merge folder / open GUI viewer) and its arguments. The PDF prompt has Tab-completion against `*.pdf` files in the current directory; the insert-file prompt completes PDFs + images; the folder prompt has Tab-completion against subdirectories (powered by `prompt_toolkit`).
-- `pdft_gui.bat [pdf]` — GUI viewer (PySide6) that renders the PDF page by page, with a **command palette** (`Ctrl+Shift+P`) for every action: page operations (rotate, move, delete, swap), zoom, navigation, full-text + field search, recent-document history, rename, and in-place text editing. Edits go to a temporary working copy and reach the original only when you **Save** (`Ctrl+S`); closing with unsaved changes prompts first. Press **F1** for the keyboard and mouse controls. Optionally pass a PDF path to open on startup.
+- `pdft_gui.bat [pdf]` — GUI viewer (PySide6) that renders the PDF page by page, with a **command palette** (`Ctrl+Shift+P`) for every action: page operations (rotate, move, delete, swap), zoom, navigation, full-text + field search, recent-document history, rename, and in-place editing of text fields and images. Edits go to a temporary working copy and reach the original only when you **Save** (`Ctrl+S`); closing with unsaved changes prompts first. Press **F1** for the keyboard and mouse controls. Optionally pass a PDF path to open on startup.
 
 Every run first copies the original to `backup/YYYYMMDD-HHMM-<filename>.pdf`. The `backup/` directory is resolved relative to your current working directory, so when you run the tool from `C:\Users\me\Documents` the backup lands in `C:\Users\me\Documents\backup\`. Override with the `PDF_TOOLKIT_BACKUP_DIR` environment variable. The backup is created **before** validation, so if validation fails (e.g. swap on a 3-page PDF) the original is untouched but a backup still exists.
 
@@ -78,7 +78,10 @@ The palette and direct shortcuts cover:
   colour, bold/italic, delete); a selected image can be moved, scaled (corner
   handles, palette, or **+**/**-**, aspect locked), and deleted. Images are
   copied into an `assets/` folder next to the PDF or referenced in place. **Tab**
-  / **Shift+Tab** cycle the editable elements. See
+  / **Shift+Tab** cycle the editable elements. The **selected element's outline**
+  (width, dashed/solid, colour) is configurable from the palette — **Outline:
+  width / type / colour…** — and remembered across sessions (default 2px dashed
+  red). See
   [docs/edit_mode/EDIT_MODE.md](docs/edit_mode/EDIT_MODE.md) (overview, links to
   [TEXT_EDITING.md](docs/edit_mode/TEXT_EDITING.md) and
   [IMAGE_EDITING.md](docs/edit_mode/IMAGE_EDITING.md)) and
@@ -105,7 +108,8 @@ Full key + mouse map: [docs/KEYBOARD_SHORTCUTS.md](docs/KEYBOARD_SHORTCUTS.md).
 A footer **status bar** shows the current mode (left) and page `current/total`
 (centre); shown by default and hideable via **Toggle status bar** (remembered).
 See [docs/STATUS_BAR.md](docs/STATUS_BAR.md). The palette window itself is tunable
-(size, font, opacity, borderless) — see the *Appearance settings* section of
+(size, font, opacity, borderless), as is the selected-element outline (width,
+type, colour) — see the *Appearance settings* section of
 [docs/COMMAND_PALETTE.md](docs/COMMAND_PALETTE.md).
 
 Every page operation writes a backup first (same `backup/YYYYMMDD-HHMM-<name>.pdf`
@@ -228,3 +232,6 @@ Environment variables (optional):
 - `PDF_TOOLKIT_COMMAND_HISTORY_FILE` — command-palette usage history for recency ordering (default `~/.pdf-toolkit/command_history.json`).
 - `PDF_TOOLKIT_PLACEMENT_FILE` — last text-field placement mode (default `~/.pdf-toolkit/placement.json`).
 - `PDF_TOOLKIT_WINDOW_FILE` — remembered window position/size (default `~/.pdf-toolkit/window.json`).
+- `PDF_TOOLKIT_PALETTE_FILE` — command-palette appearance (size/font/opacity/borderless) (default `~/.pdf-toolkit/palette.json`).
+- `PDF_TOOLKIT_IMAGE_CHOICE_FILE` — last image copy/reference choice (default `~/.pdf-toolkit/image_choice.json`).
+- `PDF_TOOLKIT_OUTLINE_FILE` — selected-element outline appearance (width/type/colour) (default `~/.pdf-toolkit/outline.json`).

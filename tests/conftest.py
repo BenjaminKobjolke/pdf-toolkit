@@ -41,6 +41,7 @@ def gui_settings(tmp_path: Path) -> Settings:
         placement_file=tmp_path / "placement.json",
         window_file=tmp_path / "window.json",
         image_choice_file=tmp_path / "image_choice.json",
+        outline_file=tmp_path / "outline.json",
     )
 
 

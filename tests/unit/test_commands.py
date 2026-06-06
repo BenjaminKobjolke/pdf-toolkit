@@ -71,6 +71,9 @@ _ALL_IDS = {
     commands.PALETTE_FONT,
     commands.PALETTE_OPACITY,
     commands.PALETTE_BORDERLESS,
+    commands.OUTLINE_WIDTH,
+    commands.OUTLINE_STYLE,
+    commands.OUTLINE_COLOR,
 }
 
 

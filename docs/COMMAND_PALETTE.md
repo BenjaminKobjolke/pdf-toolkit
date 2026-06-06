@@ -57,6 +57,9 @@ missing or corrupt file just means no commands are floated yet.
 | **Palette: font size…** | Set the palette font size in points (0 = default). |
 | **Palette: opacity %…** | Set the palette window opacity. |
 | **Palette: toggle borderless** | Show/hide the palette window frame. |
+| **Outline: width…** | Stroke width (px) of the selected-element outline (see *Appearance settings*). |
+| **Outline: type…** | Line type of the outline — Dashed or Solid. |
+| **Outline: colour…** | Colour of the outline (keyboard-first picker). |
 | **Exit** | Close the viewer. |
 | **Show keyboard and mouse controls** | Open a searchable, read-only list of every key + mouse gesture (also **F1**). |
 | **Previous page** / **Next page** | Step one page back / forward. |
@@ -79,7 +82,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Delete selected field** | Remove the selected text field(s) (edit mode only). |
 | **Export to PDF (text + images)** | Flatten the placed overlay into the document (deferred until save). |
 | **Delete saved text fields for this document** | Delete this PDF's saved fields and its JSON sidecar. |
-| **Remembered settings…** | Reset stored preferences (placement, image choice, palette, …) individually or all. |
+| **Remembered settings…** | Reset stored preferences (placement, image choice, palette, outline, …) individually or all. |
 | **Search PDF text…** | Live full-text search of the document (see below). |
 | **Search text fields…** | Live search of your placed text fields (see below). |
 | **Clear search highlights** | Remove the gold match highlights (shown only while highlights exist). |
@@ -170,6 +173,22 @@ Settings persist in a global file:
 The location can be overridden with the `PDF_TOOLKIT_PALETTE_FILE` environment
 variable. A missing or corrupt file falls back to the defaults (width 80%,
 height 60%, default font, opaque, framed).
+
+### Selected-element outline
+
+The dashed rectangle drawn around the **selected** text field or image in edit
+mode is also tunable from the palette and remembered across sessions:
+
+| Command | Range | Effect |
+|---------|-------|--------|
+| **Outline: width…** | 1–12 px | Stroke width of the outline (zoom-independent). |
+| **Outline: type…** | Dashed / Solid | Line style of the outline. |
+| **Outline: colour…** | any colour | Outline colour (same picker as the field colours). |
+
+Settings persist in `~/.pdf-toolkit/outline.json` (override:
+`PDF_TOOLKIT_OUTLINE_FILE`). A missing or corrupt file falls back to the default
+**2 px dashed red (`#FF0000`)** — chosen to stand out more than Qt's faint
+built-in selection marquee. Reset it from **Remembered settings…**.
 
 ## Search
 

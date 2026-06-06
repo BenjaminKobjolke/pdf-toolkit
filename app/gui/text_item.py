@@ -12,11 +12,12 @@ from PySide6.QtWidgets import (
     QGraphicsItem,
     QGraphicsSceneMouseEvent,
     QGraphicsTextItem,
+    QStyle,
     QStyleOptionGraphicsItem,
     QWidget,
 )
 
-from app.gui import strings
+from app.gui import outline_style, strings
 from app.gui.gui_items import set_item_editable
 
 
@@ -104,7 +105,13 @@ class TextFieldItem(QGraphicsTextItem):
     ) -> None:
         if self._bg_color is not None:
             painter.fillRect(self.boundingRect(), self._bg_color)  # type: ignore[attr-defined]
+        # Suppress Qt's faint default selection marquee and draw our own
+        # configurable outline instead (see app.gui.outline_style).
+        selected = bool(option.state & QStyle.StateFlag.State_Selected)
+        option.state &= ~QStyle.StateFlag.State_Selected
         super().paint(painter, option, widget)  # type: ignore[arg-type]
+        if selected:
+            outline_style.active().draw(painter, self.boundingRect())  # type: ignore[arg-type]
 
     @staticmethod
     def default_font(family: str, size_px: float, bold: bool, italic: bool) -> QFont:

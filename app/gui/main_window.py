@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from app.gui.mode_status_bar import ModeStatusBar
     from app.gui.move_actions import MoveActions
     from app.gui.operations import GuiOperationRunner, OpResult
+    from app.gui.outline_controller import OutlineController
     from app.gui.overlay_actions import OverlayActions
     from app.gui.page_actions import PageActions
     from app.gui.page_view import PageView
@@ -57,6 +58,7 @@ class MainWindow(QMainWindow):
     _recent: RecentFilesStore
     _ui_state: UiStateStore
     _palette: PaletteController
+    _outline: OutlineController
     _command_history: CommandHistoryStore
     _geometry: WindowGeometryController
     _working_doc: WorkingDocument
@@ -139,6 +141,10 @@ class MainWindow(QMainWindow):
     @property
     def palette_controller(self) -> PaletteController:
         return self._palette
+
+    @property
+    def outline_controller(self) -> OutlineController:
+        return self._outline
 
     def has_document(self) -> bool:
         return self._source is not None

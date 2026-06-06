@@ -15,6 +15,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 from app.config.command_history import CommandHistoryStore
 from app.config.file_backed_store import FileBackedStore
 from app.config.image_choice_settings import ImageChoiceStore
+from app.config.outline_settings import OutlineSettingsStore
 from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
 from app.config.recent_files import RecentFilesStore
@@ -35,6 +36,8 @@ from app.gui.image_controller import ImageController
 from app.gui.mode_status_bar import ModeStatusBar
 from app.gui.move_actions import MoveActions
 from app.gui.operations import GuiOperationRunner
+from app.gui.outline_controller import OutlineController
+from app.gui.outline_style import OutlineStyle, set_active
 from app.gui.overlay_actions import OverlayActions
 from app.gui.page_actions import PageActions
 from app.gui.page_view import PageView
@@ -72,6 +75,14 @@ def _build_core(window: MainWindow, settings: Settings) -> None:
     window._geometry = WindowGeometryController(window, WindowGeometryStore(settings.window_file))
     window._working_doc = WorkingDocument(settings)
     window._page_view = PageView()
+    outline_holder = OutlineStyle()
+    set_active(outline_holder)
+    window._outline = OutlineController(
+        window,
+        OutlineSettingsStore(settings.outline_file),
+        outline_holder,
+        lambda: window._page_view.graphics_scene().update(),
+    )
     window._bar = OperationBar()
     window._edit_bar = EditBar()
     window._mode_bar = ModeStatusBar()
@@ -193,4 +204,5 @@ def _remembered_stores(window: MainWindow, settings: Settings) -> list[FileBacke
         PlacementStore(settings.placement_file),
         WindowGeometryStore(settings.window_file),
         ImageChoiceStore(settings.image_choice_file),
+        OutlineSettingsStore(settings.outline_file),
     ]

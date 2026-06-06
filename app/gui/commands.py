@@ -55,6 +55,9 @@ PALETTE_HEIGHT = "palette_height"
 PALETTE_FONT = "palette_font"
 PALETTE_OPACITY = "palette_opacity"
 PALETTE_BORDERLESS = "palette_borderless"
+OUTLINE_WIDTH = "outline_width"
+OUTLINE_STYLE = "outline_style"
+OUTLINE_COLOR = "outline_color"
 EDIT_MODE = "edit_mode"
 SELECT_NEXT = "select_next"
 SELECT_PREV = "select_prev"
@@ -177,8 +180,9 @@ def _move_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
 
 
 def _view_commands(window: MainWindow) -> list[Command]:
-    """Window chrome plus command-palette appearance settings."""
+    """Window chrome plus command-palette and outline appearance settings."""
     palette = window.palette_controller
+    outline = window.outline_controller
     return [
         Command(TOGGLE_MENU, strings.CMD_TOGGLE_MENU, window.toggle_menu_bar),
         Command(TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
@@ -189,6 +193,9 @@ def _view_commands(window: MainWindow) -> list[Command]:
         Command(PALETTE_FONT, strings.CMD_PALETTE_FONT, palette.set_font_size),
         Command(PALETTE_OPACITY, strings.CMD_PALETTE_OPACITY, palette.set_opacity),
         Command(PALETTE_BORDERLESS, strings.CMD_PALETTE_BORDERLESS, palette.toggle_borderless),
+        Command(OUTLINE_WIDTH, strings.CMD_OUTLINE_WIDTH, outline.set_width),
+        Command(OUTLINE_STYLE, strings.CMD_OUTLINE_STYLE, outline.set_style),
+        Command(OUTLINE_COLOR, strings.CMD_OUTLINE_COLOR, outline.set_color),
         Command(
             REMEMBERED_SETTINGS,
             strings.CMD_REMEMBERED_SETTINGS,

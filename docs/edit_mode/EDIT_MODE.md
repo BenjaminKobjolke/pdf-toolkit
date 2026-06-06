@@ -38,6 +38,11 @@ bar reads **Edit Mode** while it is on, otherwise **Regular Mode** (see
   turn edit mode on first).
 - With something selected, **arrow keys** move it `10 px` at a time (`1 px` with
   **Shift**); **Delete** / **Backspace** removes it.
+- The selected element is marked with a configurable **outline** (default 2px
+  dashed red). Tune its width, type (dashed / solid), and colour from the command
+  palette — **Outline: width / type / colour…** — and the choice is remembered
+  across sessions. See the *Selected-element outline* section of
+  `../COMMAND_PALETTE.md`.
 
 ## Deferred saving and the JSON sidecar
 
