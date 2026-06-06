@@ -32,6 +32,8 @@ def test_wizard_options_are_registered() -> None:
     assert "Delete page range" in labels
     assert "Rotate page" in labels
     assert "Move page" in labels
+    assert "Insert pages (PDF or image)" in labels
+    assert "Extract page to new file" in labels
 
 
 def test_wizard_options_have_callable_handlers() -> None:

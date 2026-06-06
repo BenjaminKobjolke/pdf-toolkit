@@ -71,6 +71,16 @@ class GuiOperationRunner:
             return OpResult(False, strings.MSG_NOT_FOUND_FMT.format(path=working))
         return self._run(op, working, strings.MSG_DONE_FMT.format(name=working.name))
 
+    def run_to_new_file(self, source: Path, op: Callable[[Path], None]) -> OpResult:
+        """Run ``op`` on ``source`` with no backup (``op`` writes a separate new file).
+
+        Used by extract, which leaves ``source`` untouched, so the timestamped
+        backup the in-place ops make is unnecessary.
+        """
+        if not source.is_file():
+            return OpResult(False, strings.MSG_NOT_FOUND_FMT.format(path=source))
+        return self._run(op, source, strings.MSG_DONE_FMT.format(name=source.name))
+
     def run_folder_merge(self, folder: Path, op: Callable[[Path], None]) -> OpResult:
         """Validate ``folder``, back up an existing merged.pdf, then run ``op``."""
         if not folder.is_dir():

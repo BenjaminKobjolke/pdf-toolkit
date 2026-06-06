@@ -18,6 +18,8 @@ from app.gui.deferred_ops import DeferredOps
 from app.gui.operations import GuiOperationRunner, OpResult
 from app.gui.page_view import PageView
 from app.pdf.deleter import delete_page, delete_page_range
+from app.pdf.extractor import default_extract_dest, extract_page
+from app.pdf.inserter import insert_after
 from app.pdf.merger import MERGED_FILENAME, merge_folder
 from app.pdf.swapper import swap_two_pages
 
@@ -32,6 +34,7 @@ class PageActions:
         runner: GuiOperationRunner,
         open_pdf: Callable[[Path], None],
         report: Callable[[OpResult], None],
+        current_source: Callable[[], Path | None],
     ) -> None:
         self._parent = parent
         self._deferred = deferred
@@ -39,6 +42,7 @@ class PageActions:
         self._runner = runner
         self._open_pdf = open_pdf
         self._report = report
+        self._current_source = current_source
 
     def swap(self) -> None:
         self._deferred.run(swap_two_pages)
@@ -72,6 +76,35 @@ class PageActions:
         if not ok:
             return
         self._deferred.run(lambda p: delete_page_range(p, start, end))
+
+    def insert_pages(self) -> None:
+        """Insert a chosen PDF or image after the current page (deferred until save)."""
+        if self._deferred.working() is None:
+            return
+        chosen, _ = QFileDialog.getOpenFileName(
+            self._parent, strings.DIALOG_INSERT_TITLE, "", strings.FILE_FILTER_INSERT
+        )
+        if not chosen:
+            return
+        insert = Path(chosen)
+        after = self._page_view.current_page_one_based()
+        self._deferred.run(lambda p: insert_after(p, insert, after), follow_page=after + 1)
+
+    def extract_current_page(self) -> None:
+        """Write the current page to a new file; the open document is left unchanged."""
+        working = self._deferred.working()
+        original = self._current_source()
+        if working is None or original is None:
+            return
+        page = self._page_view.current_page_one_based()
+        default = str(default_extract_dest(original, page))
+        chosen, _ = QFileDialog.getSaveFileName(
+            self._parent, strings.DIALOG_EXTRACT_TITLE, default, strings.FILE_FILTER_PDF
+        )
+        if not chosen:
+            return
+        dest = Path(chosen)
+        self._report(self._runner.run_to_new_file(working, lambda p: extract_page(p, page, dest)))
 
     def merge_folder(self) -> None:
         chosen = QFileDialog.getExistingDirectory(self._parent, strings.DIALOG_MERGE_TITLE)

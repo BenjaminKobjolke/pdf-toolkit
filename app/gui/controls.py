@@ -16,6 +16,8 @@ class OperationBar(QWidget):
     swap_requested = Signal()
     delete_page_requested = Signal()
     delete_range_requested = Signal()
+    insert_page_requested = Signal()
+    extract_page_requested = Signal()
     merge_folder_requested = Signal()
 
     def __init__(self) -> None:
@@ -31,6 +33,8 @@ class OperationBar(QWidget):
         layout.addWidget(self._button(strings.BTN_DELETE_PAGE, self.delete_page_requested, True))
         layout.addWidget(self._button(strings.BTN_DELETE_RANGE, self.delete_range_requested, True))
         layout.addWidget(self._button(strings.BTN_SWAP, self.swap_requested, doc_only=True))
+        layout.addWidget(self._button(strings.BTN_INSERT_PAGE, self.insert_page_requested, True))
+        layout.addWidget(self._button(strings.BTN_EXTRACT_PAGE, self.extract_page_requested, True))
         layout.addWidget(self._button(strings.BTN_MERGE_FOLDER, self.merge_folder_requested))
 
         self.set_enabled_for_doc(False)

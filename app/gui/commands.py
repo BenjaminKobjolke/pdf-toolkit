@@ -33,6 +33,8 @@ ZOOM_OUT = "zoom_out"
 SWAP = "swap"
 DELETE_PAGE = "delete_page"
 DELETE_RANGE = "delete_range"
+INSERT_PAGE = "insert_page"
+EXTRACT_PAGE = "extract_page"
 MERGE_FOLDER = "merge_folder"
 ROTATE_LEFT = "rotate_left"
 ROTATE_RIGHT = "rotate_right"
@@ -141,6 +143,8 @@ def _page_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
         Command(SWAP, strings.CMD_SWAP, pages.swap, has_doc),
         Command(DELETE_PAGE, strings.CMD_DELETE_PAGE, pages.delete_current_page, has_doc),
         Command(DELETE_RANGE, strings.CMD_DELETE_RANGE, pages.delete_page_range, has_doc),
+        Command(INSERT_PAGE, strings.CMD_INSERT_PAGE, pages.insert_pages, has_doc),
+        Command(EXTRACT_PAGE, strings.CMD_EXTRACT_PAGE, pages.extract_current_page, has_doc),
         Command(MERGE_FOLDER, strings.CMD_MERGE_FOLDER, pages.merge_folder),
     ]
 

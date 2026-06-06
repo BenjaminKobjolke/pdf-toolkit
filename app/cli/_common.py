@@ -75,6 +75,34 @@ def run_with_backup(
     return EXIT_OK
 
 
+def run_to_new_file(
+    source: Path,
+    op: Callable[[Path], None],
+    settings: Settings,
+) -> int:
+    """Validate ``source`` then run ``op`` with no backup (``op`` writes a new file).
+
+    Used by operations like extract that leave ``source`` untouched, so the
+    timestamped backup the in-place ops make is unnecessary. ``settings`` is
+    accepted to match the :data:`CliRunner` signature.
+    """
+    if not source.is_file():
+        log.error("input file not found: %s", source)
+        return EXIT_USAGE
+
+    try:
+        op(source)
+    except ValueError as err:
+        log.error("%s", err)
+        return EXIT_FAILURE
+    except OSError as err:
+        log.error("I/O error while processing %s: %s", source, err)
+        return EXIT_FAILURE
+
+    log.info("done: %s", source)
+    return EXIT_OK
+
+
 def run_folder_merge(
     folder: Path,
     op: Callable[[Path], None],

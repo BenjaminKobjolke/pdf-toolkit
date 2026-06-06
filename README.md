@@ -7,8 +7,10 @@ Small Python CLI toolkit for two PDF page operations, each with an automatic tim
 - `pdf-delete-pages.bat <start> <end> <pdf>` — delete pages `<start>`..`<end>` (1-based, inclusive), overwriting the original.
 - `pdf-rotate-page.bat <page> <degrees> <pdf>` — rotate page `<page>` (1-based) clockwise by `<degrees>` (`90` = right, `180` = flip, `270` = left), overwriting the original.
 - `pdf-move-page.bat <from> <to> <pdf>` — move page `<from>` to 1-based position `<to>`, overwriting the original.
+- `pdf-insert-page.bat <insert> <after> <pdf>` — insert `<insert>` (a PDF or `.jpg`/`.jpeg`/`.png` image) after 1-based page `<after>` of `<pdf>` (`0` = before the first page), overwriting the original.
+- `pdf-extract-page.bat <page> <pdf> [-o <out>]` — extract 1-based `<page>` into its own new file (default `<name>-pNN.pdf` beside the source); the original is left untouched, so no backup is made.
 - `pdf-merge-folder.bat <folder>` — merge every supported file (`.pdf`, `.jpg`, `.jpeg`, `.png`) in `<folder>` into `<folder>\merged.pdf`. Files are added in alphabetical order (case-insensitive). Subfolders are ignored. If `merged.pdf` already exists in the folder, it is backed up first.
-- `pdft.bat` — interactive wizard that prompts for the operation (swap / delete single / delete range / rotate / move / merge folder / open GUI viewer) and its arguments. The PDF prompt has Tab-completion against `*.pdf` files in the current directory; the folder prompt has Tab-completion against subdirectories (powered by `prompt_toolkit`).
+- `pdft.bat` — interactive wizard that prompts for the operation (swap / delete single / delete range / rotate / move / insert pages / extract page / merge folder / open GUI viewer) and its arguments. The PDF prompt has Tab-completion against `*.pdf` files in the current directory; the insert-file prompt completes PDFs + images; the folder prompt has Tab-completion against subdirectories (powered by `prompt_toolkit`).
 - `pdft_gui.bat [pdf]` — GUI viewer (PySide6) that renders the PDF page by page, with a **command palette** (`Ctrl+Shift+P`) for every action: page operations (rotate, move, delete, swap), zoom, navigation, full-text + field search, recent-document history, rename, and in-place text editing. Edits go to a temporary working copy and reach the original only when you **Save** (`Ctrl+S`); closing with unsaved changes prompts first. Press **F1** for the keyboard and mouse controls. Optionally pass a PDF path to open on startup.
 
 Every run first copies the original to `backup/YYYYMMDD-HHMM-<filename>.pdf`. The `backup/` directory is resolved relative to your current working directory, so when you run the tool from `C:\Users\me\Documents` the backup lands in `C:\Users\me\Documents\backup\`. Override with the `PDF_TOOLKIT_BACKUP_DIR` environment variable. The backup is created **before** validation, so if validation fails (e.g. swap on a 3-page PDF) the original is untouched but a backup still exists.
@@ -60,7 +62,8 @@ The palette and direct shortcuts cover:
   **Rename file…** (renames the PDF and its text-field sidecar together), Close,
   Exit.
 - **Pages** — Previous/Next, **First/Last**, Swap 2 pages, Delete current page,
-  Delete range…, Merge folder…
+  Delete range…, **Insert pages (PDF or image)…** (after the current page),
+  **Extract current page to file…**, Merge folder…
 - **Zoom** — Fit, 100% (true PDF size), in/out 10%. The zoom *mode* sticks as you
   change pages (fit re-fits each page).
 - **Search** — **Search PDF text** (`Ctrl+F`, live, jump to a match + gold
@@ -174,6 +177,19 @@ Both commands:
 - Refuses `end < start` (no auto-swap).
 - Refuses if `end` exceeds the page count.
 - Refuses if the range covers the whole PDF (would leave it empty).
+
+### Insert-page rules
+
+- `<insert>` may be a PDF (all its pages are inserted) or a `.jpg`/`.jpeg`/`.png` image (one page).
+- `<after>` is 1-based; `0` inserts before the first page, `N` (the page count) appends at the end.
+- Refuses out-of-range positions, encrypted source PDFs, and unsupported insert file types.
+- In the GUI the inserted content lands after the page you are viewing, deferred until **Save** like the other page operations.
+
+### Extract-page rules
+
+- 1-based page number; refuses out-of-range pages and encrypted PDFs.
+- Writes a **new** single-page file and never modifies the source, so no backup is created.
+- Default destination is `<name>-pNN.pdf` beside the source; override with `-o <out>` (CLI) or the save dialog (GUI).
 
 ### Merge-folder rules
 

@@ -27,6 +27,8 @@ _ALL_IDS = {
     commands.SWAP,
     commands.DELETE_PAGE,
     commands.DELETE_RANGE,
+    commands.INSERT_PAGE,
+    commands.EXTRACT_PAGE,
     commands.MERGE_FOLDER,
     commands.ROTATE_LEFT,
     commands.ROTATE_RIGHT,

@@ -266,7 +266,7 @@ def test_merge_folder_no_tmp_left_on_failure(
     _move(make_pdf([(10, 10)], name="a.pdf"), folder / "a.pdf")
 
     with (
-        patch("app.pdf.merger._append_pdf", side_effect=ValueError("boom")),
+        patch("app.pdf.merger.pages_for_input", side_effect=ValueError("boom")),
         pytest.raises(ValueError, match="boom"),
     ):
         merge_folder(folder)

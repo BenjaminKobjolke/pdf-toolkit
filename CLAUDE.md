@@ -138,7 +138,7 @@ Single `Settings` module driven by env vars. No `os.getenv` scattered across the
 
 ### Required Batch Files
 
-- `pdf-swap-pages.bat`, `pdf-delete-page.bat` (this project's CLI entry points)
+- `pdf-swap-pages.bat`, `pdf-delete-page.bat`, `pdf-insert-page.bat`, `pdf-extract-page.bat` (this project's CLI entry points)
 - `tools/run_tests.bat`
 - `tools/run_integration_tests.bat`
 - `install.bat`, `update.bat`

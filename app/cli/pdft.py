@@ -16,11 +16,14 @@ from prompt_toolkit import prompt as pt_prompt
 from prompt_toolkit.completion import CompleteEvent, Completer, Completion
 from prompt_toolkit.document import Document
 
-from app.cli._common import EXIT_OK, run_folder_merge, run_with_backup
+from app.cli._common import EXIT_OK, run_folder_merge, run_to_new_file, run_with_backup
 from app.cli.console import console
 from app.config.settings import Settings
 from app.logging_setup import configure_logging
+from app.pdf._inputs import PDF_EXTENSION, SUPPORTED_EXTENSIONS
 from app.pdf.deleter import delete_page, delete_page_range
+from app.pdf.extractor import default_extract_dest, extract_page
+from app.pdf.inserter import insert_after
 from app.pdf.merger import merge_folder
 from app.pdf.mover import move_page
 from app.pdf.rotator import rotate_page
@@ -50,34 +53,11 @@ def _ask_int(prompt: str) -> int:
             console.line(f"not a valid integer: {raw!r}")
 
 
-class PdfCompleter(Completer):
-    """Tab-completes ``*.pdf`` filenames from the current working directory.
+class FileCompleter(Completer):
+    """Tab-completes CWD entries matching ``predicate`` (case-insensitive prefix)."""
 
-    Case-insensitive prefix match against the text already typed.
-    """
-
-    def get_completions(
-        self, document: Document, complete_event: CompleteEvent
-    ) -> Iterable[Completion]:
-        word = document.text_before_cursor
-        prefix = word.lower()
-        for pdf in sorted(Path.cwd().glob("*.pdf")):
-            if pdf.name.lower().startswith(prefix):
-                yield Completion(pdf.name, start_position=-len(word))
-
-
-def _ask_pdf_path(prompt_text: str = "PDF (Tab to complete): ") -> Path:
-    """Prompt for a PDF path with Tab-completion against ``*.pdf`` files in CWD."""
-    while True:
-        raw = pt_prompt(prompt_text, completer=PdfCompleter()).strip().strip('"')
-        if not raw:
-            console.line("path is required")
-            continue
-        return Path(raw)
-
-
-class FolderCompleter(Completer):
-    """Tab-completes subdirectory names from the current working directory."""
+    def __init__(self, predicate: Callable[[Path], bool]) -> None:
+        self._predicate = predicate
 
     def get_completions(
         self, document: Document, complete_event: CompleteEvent
@@ -85,18 +65,48 @@ class FolderCompleter(Completer):
         word = document.text_before_cursor
         prefix = word.lower()
         for entry in sorted(Path.cwd().iterdir()):
-            if entry.is_dir() and entry.name.lower().startswith(prefix):
+            if self._predicate(entry) and entry.name.lower().startswith(prefix):
                 yield Completion(entry.name, start_position=-len(word))
 
 
-def _ask_folder_path(prompt_text: str = "Folder (Tab to complete): ") -> Path:
-    """Prompt for a folder path with Tab-completion against subdirectories in CWD."""
+def _is_pdf(entry: Path) -> bool:
+    return entry.is_file() and entry.suffix.lower() == PDF_EXTENSION
+
+
+def _is_insertable(entry: Path) -> bool:
+    return entry.is_file() and entry.suffix.lower() in SUPPORTED_EXTENSIONS
+
+
+class PdfCompleter(FileCompleter):
+    """Tab-completes ``*.pdf`` filenames from the current working directory."""
+
+    def __init__(self) -> None:
+        super().__init__(_is_pdf)
+
+
+def _ask_path(prompt_text: str, completer: Completer) -> Path:
+    """Prompt for a non-empty path with Tab-completion via ``completer``."""
     while True:
-        raw = pt_prompt(prompt_text, completer=FolderCompleter()).strip().strip('"')
+        raw = pt_prompt(prompt_text, completer=completer).strip().strip('"')
         if not raw:
             console.line("path is required")
             continue
         return Path(raw)
+
+
+def _ask_pdf_path(prompt_text: str = "PDF (Tab to complete): ") -> Path:
+    """Prompt for a PDF path with Tab-completion against ``*.pdf`` files in CWD."""
+    return _ask_path(prompt_text, PdfCompleter())
+
+
+def _ask_insert_path(prompt_text: str = "PDF or image to insert (Tab to complete): ") -> Path:
+    """Prompt for a PDF/image path with Tab-completion against supported files in CWD."""
+    return _ask_path(prompt_text, FileCompleter(_is_insertable))
+
+
+def _ask_folder_path(prompt_text: str = "Folder (Tab to complete): ") -> Path:
+    """Prompt for a folder path with Tab-completion against subdirectories in CWD."""
+    return _ask_path(prompt_text, FileCompleter(lambda entry: entry.is_dir()))
 
 
 def _ask_choice(option_count: int) -> int | None:
@@ -146,6 +156,20 @@ def _handle_move(settings: Settings) -> int:
     return run_with_backup(pdf, lambda p: move_page(p, from_page, to_page), settings)
 
 
+def _handle_insert(settings: Settings) -> int:
+    pdf = _ask_pdf_path()
+    insert = _ask_insert_path()
+    after_page = _ask_int("Insert after page (1-based, 0 = front): ")
+    return run_with_backup(pdf, lambda p: insert_after(p, insert, after_page), settings)
+
+
+def _handle_extract(settings: Settings) -> int:
+    pdf = _ask_pdf_path()
+    page = _ask_int("Page to extract (1-based): ")
+    dest = default_extract_dest(pdf, page)
+    return run_to_new_file(pdf, lambda p: extract_page(p, page, dest), settings)
+
+
 def _handle_merge_folder(settings: Settings) -> int:
     folder = _ask_folder_path()
     return run_folder_merge(folder, merge_folder, settings)
@@ -167,6 +191,8 @@ WIZARD_OPTIONS: tuple[WizardOption, ...] = (
     WizardOption("Delete page range", _handle_delete_range),
     WizardOption("Rotate page", _handle_rotate),
     WizardOption("Move page", _handle_move),
+    WizardOption("Insert pages (PDF or image)", _handle_insert),
+    WizardOption("Extract page to new file", _handle_extract),
     WizardOption("Merge folder (PDFs + images) -> merged.pdf", _handle_merge_folder),
     WizardOption("Open GUI viewer", _handle_launch_gui),
 )

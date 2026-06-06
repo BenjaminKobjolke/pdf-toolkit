@@ -55,6 +55,31 @@ def test_run_on_file_missing_file(tmp_path: Path) -> None:
     assert "not found" in result.message
 
 
+def test_run_to_new_file_no_backup(
+    tmp_path: Path, make_pdf: MakePdf, page_sizes_of: PageSizesOf
+) -> None:
+    from app.pdf.extractor import extract_page
+
+    pdf = make_pdf([(100, 200), (300, 400)], name="doc.pdf")
+    dest = tmp_path / "out.pdf"
+    runner, backup_dir = _runner(tmp_path)
+
+    result = runner.run_to_new_file(pdf, lambda p: extract_page(p, 2, dest))
+
+    assert result.ok
+    assert page_sizes_of(dest) == [(300, 400)]
+    assert not backup_dir.exists() or not list(backup_dir.iterdir())
+
+
+def test_run_to_new_file_missing_source(tmp_path: Path) -> None:
+    runner, _ = _runner(tmp_path)
+
+    result = runner.run_to_new_file(tmp_path / "nope.pdf", lambda _p: None)
+
+    assert not result.ok
+    assert "not found" in result.message
+
+
 def test_run_folder_merge_writes_merged(tmp_path: Path, make_image: MakeImage) -> None:
     folder = tmp_path / "src"
     folder.mkdir()

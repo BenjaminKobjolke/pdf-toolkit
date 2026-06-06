@@ -90,7 +90,12 @@ class MainWindow(QMainWindow):
             self._report,
         )
         self._page_actions = PageActions(
-            self, self._deferred, self._runner, self.open_pdf, self._report
+            self,
+            self._deferred,
+            self._runner,
+            self.open_pdf,
+            self._report,
+            self._working_doc.original,
         )
         self._rotate_actions = RotateActions(self._deferred)
         self._move_actions = MoveActions(self._deferred)
@@ -102,6 +107,8 @@ class MainWindow(QMainWindow):
         self._bar.swap_requested.connect(self._page_actions.swap)
         self._bar.delete_page_requested.connect(self._page_actions.delete_current_page)
         self._bar.delete_range_requested.connect(self._page_actions.delete_page_range)
+        self._bar.insert_page_requested.connect(self._page_actions.insert_pages)
+        self._bar.extract_page_requested.connect(self._page_actions.extract_current_page)
         self._bar.merge_folder_requested.connect(self._page_actions.merge_folder)
 
         self._edit_bar.edit_mode_toggled.connect(self._controller.set_edit_mode)
