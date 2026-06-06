@@ -74,6 +74,7 @@ _ALL_IDS = {
     commands.OUTLINE_WIDTH,
     commands.OUTLINE_STYLE,
     commands.OUTLINE_COLOR,
+    commands.ZOOM_SET_DEFAULT,
 }
 
 

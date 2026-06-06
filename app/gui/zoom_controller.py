@@ -9,6 +9,8 @@ factor (100% and manual in/out).
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QTransform
 from PySide6.QtWidgets import QGraphicsPixmapItem, QGraphicsView
@@ -28,11 +30,17 @@ _MODE_SCALED = "scaled"
 class ZoomController:
     """Owns the page view's zoom factor + mode and applies it as a transform."""
 
-    def __init__(self, view: QGraphicsView, pixmap_item: QGraphicsPixmapItem) -> None:
+    def __init__(
+        self,
+        view: QGraphicsView,
+        pixmap_item: QGraphicsPixmapItem,
+        on_scale_changed: Callable[[float], None] | None = None,
+    ) -> None:
         self._view = view
         self._pixmap_item = pixmap_item
         self._zoom = _ZOOM_ACTUAL
         self._mode = _MODE_SCALED
+        self._on_scale_changed = on_scale_changed
 
     def zoom(self) -> float:
         """Return the current scene-to-view scale factor."""
@@ -56,6 +64,18 @@ class ZoomController:
         self._mode = _MODE_FIT
         self._fit_to_viewport()
 
+    def set_default(self, fit: bool, percent: int) -> None:
+        """Set the remembered start mode without applying it (safe before load).
+
+        ``reapply`` (called on every page render) then realises it: ``fit``
+        re-fits each page, ``scaled`` holds ``percent`` of true PDF size.
+        """
+        if fit:
+            self._mode = _MODE_FIT
+        else:
+            self._mode = _MODE_SCALED
+            self._zoom = (percent / 100.0) * _ZOOM_ACTUAL
+
     def reapply(self) -> None:
         """Re-apply the current zoom mode after a page render."""
         if self._mode == _MODE_FIT:
@@ -66,7 +86,13 @@ class ZoomController:
     def _apply(self, scale: float) -> None:
         self._zoom = scale
         self._view.setTransform(QTransform().scale(scale, scale))
+        self._notify()
 
     def _fit_to_viewport(self) -> None:
         self._view.fitInView(self._pixmap_item, Qt.AspectRatioMode.KeepAspectRatio)
         self._zoom = self._view.transform().m11()
+        self._notify()
+
+    def _notify(self) -> None:
+        if self._on_scale_changed is not None:
+            self._on_scale_changed(self._zoom)

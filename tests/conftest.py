@@ -42,6 +42,7 @@ def gui_settings(tmp_path: Path) -> Settings:
         window_file=tmp_path / "window.json",
         image_choice_file=tmp_path / "image_choice.json",
         outline_file=tmp_path / "outline.json",
+        zoom_file=tmp_path / "zoom.json",
     )
 
 

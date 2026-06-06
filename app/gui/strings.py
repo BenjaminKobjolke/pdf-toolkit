@@ -186,6 +186,15 @@ OUTLINE_STYLE_PLACEHOLDER = "Type to filter line types…"
 OUTLINE_STYLE_DASHED = "Dashed"
 OUTLINE_STYLE_SOLID = "Solid"
 
+# Default-zoom setting (applied when a PDF first loads)
+CMD_SET_DEFAULT_ZOOM = "Set default zoom…"
+DIALOG_DEFAULT_ZOOM_TITLE = "Default zoom"
+ZOOM_PLACEHOLDER = "Type to filter zoom levels…"
+PROMPT_DEFAULT_ZOOM_PCT = "Zoom (%):"
+ZOOM_FIT_LABEL = "Fit to window"
+ZOOM_CUSTOM_LABEL = "Custom percentage…"
+ZOOM_PERCENT_FMT = "{n}%"
+
 DIALOG_RENAME_TITLE = "Rename file"
 PROMPT_RENAME = "New file name:"
 MSG_RENAMED_FMT = "renamed to: {name}"

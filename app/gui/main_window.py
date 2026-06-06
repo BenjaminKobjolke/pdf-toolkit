@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from app.gui.search_actions import SearchActions
     from app.gui.window_geometry_controller import WindowGeometryController
     from app.gui.working_document import WorkingDocument
+    from app.gui.zoom_settings_controller import ZoomSettingsController
 
 
 class MainWindow(QMainWindow):
@@ -63,6 +64,7 @@ class MainWindow(QMainWindow):
     _geometry: WindowGeometryController
     _working_doc: WorkingDocument
     _page_view: PageView
+    _zoom_settings: ZoomSettingsController
     _bar: OperationBar
     _edit_bar: EditBar
     _mode_bar: ModeStatusBar
@@ -145,6 +147,10 @@ class MainWindow(QMainWindow):
     @property
     def outline_controller(self) -> OutlineController:
         return self._outline
+
+    @property
+    def zoom_settings_controller(self) -> ZoomSettingsController:
+        return self._zoom_settings
 
     def has_document(self) -> bool:
         return self._source is not None

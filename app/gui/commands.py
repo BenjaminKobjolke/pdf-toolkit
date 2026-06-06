@@ -58,6 +58,7 @@ PALETTE_BORDERLESS = "palette_borderless"
 OUTLINE_WIDTH = "outline_width"
 OUTLINE_STYLE = "outline_style"
 OUTLINE_COLOR = "outline_color"
+ZOOM_SET_DEFAULT = "zoom_set_default"
 EDIT_MODE = "edit_mode"
 SELECT_NEXT = "select_next"
 SELECT_PREV = "select_prev"
@@ -183,6 +184,7 @@ def _view_commands(window: MainWindow) -> list[Command]:
     """Window chrome plus command-palette and outline appearance settings."""
     palette = window.palette_controller
     outline = window.outline_controller
+    zoom = window.zoom_settings_controller
     return [
         Command(TOGGLE_MENU, strings.CMD_TOGGLE_MENU, window.toggle_menu_bar),
         Command(TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
@@ -196,6 +198,7 @@ def _view_commands(window: MainWindow) -> list[Command]:
         Command(OUTLINE_WIDTH, strings.CMD_OUTLINE_WIDTH, outline.set_width),
         Command(OUTLINE_STYLE, strings.CMD_OUTLINE_STYLE, outline.set_style),
         Command(OUTLINE_COLOR, strings.CMD_OUTLINE_COLOR, outline.set_color),
+        Command(ZOOM_SET_DEFAULT, strings.CMD_SET_DEFAULT_ZOOM, zoom.set_default_zoom),
         Command(
             REMEMBERED_SETTINGS,
             strings.CMD_REMEMBERED_SETTINGS,

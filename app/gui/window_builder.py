@@ -22,6 +22,7 @@ from app.config.recent_files import RecentFilesStore
 from app.config.settings import Settings
 from app.config.ui_state import UiStateStore
 from app.config.window_geometry import WindowGeometryStore
+from app.config.zoom_settings import ZoomSettingsStore
 from app.gui import commands, strings
 from app.gui.chrome import ChromeController
 from app.gui.controls import OperationBar
@@ -51,6 +52,7 @@ from app.gui.search_actions import SearchActions
 from app.gui.window_geometry_controller import WindowGeometryController
 from app.gui.window_input import build_file_menu, install_control_signals, install_shortcuts
 from app.gui.working_document import WorkingDocument
+from app.gui.zoom_settings_controller import ZoomSettingsController
 
 if TYPE_CHECKING:
     from app.gui.main_window import MainWindow
@@ -75,6 +77,9 @@ def _build_core(window: MainWindow, settings: Settings) -> None:
     window._geometry = WindowGeometryController(window, WindowGeometryStore(settings.window_file))
     window._working_doc = WorkingDocument(settings)
     window._page_view = PageView()
+    window._zoom_settings = ZoomSettingsController(
+        window, ZoomSettingsStore(settings.zoom_file), window._page_view
+    )
     outline_holder = OutlineStyle()
     set_active(outline_holder)
     window._outline = OutlineController(
@@ -205,4 +210,5 @@ def _remembered_stores(window: MainWindow, settings: Settings) -> list[FileBacke
         WindowGeometryStore(settings.window_file),
         ImageChoiceStore(settings.image_choice_file),
         OutlineSettingsStore(settings.outline_file),
+        ZoomSettingsStore(settings.zoom_file),
     ]

@@ -11,7 +11,14 @@ from collections.abc import Callable
 from pathlib import Path
 
 from PySide6.QtCore import QEvent, QPointF, Qt, Signal
-from PySide6.QtGui import QColor, QKeyEvent, QMouseEvent, QPen, QPixmap, QWheelEvent
+from PySide6.QtGui import (
+    QKeyEvent,
+    QMouseEvent,
+    QPainter,
+    QPixmap,
+    QResizeEvent,
+    QWheelEvent,
+)
 from PySide6.QtWidgets import (
     QGraphicsPixmapItem,
     QGraphicsRectItem,
@@ -19,16 +26,17 @@ from PySide6.QtWidgets import (
     QGraphicsView,
 )
 
-from app.gui import render, strings
+from app.gui import strings
 from app.gui.image_item import ImageItem
 from app.gui.item_layer import ItemLayer
+from app.gui.page_highlights import PageHighlights
 from app.gui.page_input import PageInputController
+from app.gui.page_navigator import PageNavigator
+from app.gui.render_quality import RenderQualityController
 from app.gui.text_item import TextFieldItem
 from app.gui.zoom_controller import ZoomController
 
 _OVERLAY_Z = 1.0  # text fields and images sit above the page (0)
-_HIGHLIGHT_COLOR = "#ffd000"  # gold outline for search matches
-_HIGHLIGHT_Z = 2.0  # above the page (0) and overlay items (1)
 
 
 class PageView(QGraphicsView):
@@ -44,6 +52,10 @@ class PageView(QGraphicsView):
         self._scene = QGraphicsScene(self)
         self.setScene(self._scene)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # Smooth any scaling between re-renders and antialias highlight outlines.
+        self.setRenderHints(
+            QPainter.RenderHint.SmoothPixmapTransform | QPainter.RenderHint.Antialiasing
+        )
         # Track moves without a pressed button so the placement crosshair follows
         # the cursor; mouseMoveEvent ignores them unless placement is active.
         self.viewport().setMouseTracking(True)
@@ -53,21 +65,18 @@ class PageView(QGraphicsView):
         self._placeholder = self._scene.addText(strings.LABEL_NO_DOC)
         self._text_layer: ItemLayer[TextFieldItem] = ItemLayer(self._scene, _OVERLAY_Z)
         self._image_layer: ItemLayer[ImageItem] = ItemLayer(self._scene, _OVERLAY_Z)
-        self._highlight_items: list[QGraphicsRectItem] = []
-        self._source: Path | None = None
-        self._index = 0
-        self._total = 0
-        self._zoom_ctl = ZoomController(self, self._pixmap_item)
+        self._highlights = PageHighlights(self._scene)
+        self._nav = PageNavigator(self._show, self.page_will_change)
+        # Re-render the page sharper as zoom changes; never moves overlay coords.
+        self._render_ctl = RenderQualityController(self, self._pixmap_item)
+        self._zoom_ctl = ZoomController(self, self._pixmap_item, self._render_ctl.request)
         self._input = PageInputController(self)
 
     # --- document lifecycle -------------------------------------------------
 
     def load(self, source: Path) -> None:
         """Open ``source`` and show its first page."""
-        self._source = source
-        self._total = render.page_count(source)
-        self._index = 0
-        self._show()
+        self._nav.load(source)
 
     def reset(self) -> None:
         """Clear the open document and show the no-doc placeholder."""
@@ -76,76 +85,42 @@ class PageView(QGraphicsView):
         self.clear_highlights()
         self._pixmap_item.setPixmap(QPixmap())
         self._placeholder.setVisible(True)
-        self._source = None
-        self._index = 0
-        self._total = 0
+        self._nav.clear()
 
     def reload(self) -> None:
         """Re-render after the document changed, clamping the index if it shrank."""
-        if self._source is None:
-            return
-        self._total = render.page_count(self._source)
-        self._index = max(0, min(self._index, self._total - 1))
-        self._show()
+        self._nav.reload()
 
     def show_next(self) -> None:
-        if self._source is not None and self._index < self._total - 1:
-            self.page_will_change.emit(self._index)
-            self._index += 1
-            self._show()
+        self._nav.show_next()
 
     def show_prev(self) -> None:
-        if self._source is not None and self._index > 0:
-            self.page_will_change.emit(self._index)
-            self._index -= 1
-            self._show()
+        self._nav.show_prev()
 
     def show_first(self) -> None:
-        if self._source is not None and self._index != 0:
-            self.page_will_change.emit(self._index)
-            self._index = 0
-            self._show()
+        self._nav.show_first()
 
     def show_last(self) -> None:
-        last = self._total - 1
-        if self._source is not None and self._index != last:
-            self.page_will_change.emit(self._index)
-            self._index = last
-            self._show()
+        self._nav.show_last()
 
     def go_to_page(self, index: int) -> None:
         """Jump to absolute 0-based ``index`` (clamped to the page range)."""
-        if self._source is None:
-            return
-        target = max(0, min(index, self._total - 1))
-        if target != self._index:
-            self.page_will_change.emit(self._index)
-            self._index = target
-            self._show()
+        self._nav.go_to_page(index)
 
     # --- search highlights --------------------------------------------------
 
     def set_highlights(self, rects_pts: list[tuple[float, float, float, float]]) -> None:
         """Draw gold outlines for the given match rects (in PDF points)."""
-        self.clear_highlights()
-        pen = QPen(QColor(_HIGHLIGHT_COLOR))
-        pen.setWidth(2)
-        z = render.DEFAULT_ZOOM
-        for x0, y0, x1, y1 in rects_pts:
-            item = self._scene.addRect(x0 * z, y0 * z, (x1 - x0) * z, (y1 - y0) * z, pen)
-            item.setZValue(_HIGHLIGHT_Z)
-            self._highlight_items.append(item)
+        self._highlights.set(rects_pts)
 
     def clear_highlights(self) -> None:
-        for item in self._highlight_items:
-            self._scene.removeItem(item)
-        self._highlight_items.clear()
+        self._highlights.clear()
 
     def has_highlights(self) -> bool:
-        return bool(self._highlight_items)
+        return self._highlights.has()
 
     def highlight_items(self) -> tuple[QGraphicsRectItem, ...]:
-        return tuple(self._highlight_items)
+        return self._highlights.items()
 
     # --- zoom (delegated to ZoomController) ---------------------------------
 
@@ -163,24 +138,30 @@ class PageView(QGraphicsView):
         self._zoom_ctl.zoom_out()
 
     def zoom_fit(self) -> None:
-        if self._source is not None:
+        if self._nav.source() is not None:
             self._zoom_ctl.fit()
+
+    def set_default_zoom(self, fit: bool, percent: int) -> None:
+        """Set the start zoom mode; apply it now if a document is already open."""
+        self._zoom_ctl.set_default(fit, percent)
+        if self._nav.source() is not None:
+            self._zoom_ctl.reapply()
 
     # --- queries ------------------------------------------------------------
 
     def current_page_one_based(self) -> int:
-        return self._index + 1
+        return self._nav.index() + 1
 
     def current_page_index(self) -> int:
         """Return the displayed page index (0-based)."""
-        return self._index
+        return self._nav.index()
 
     def total_pages(self) -> int:
-        return self._total
+        return self._nav.total()
 
     def source(self) -> Path | None:
         """Return the open PDF path, or ``None`` when no document is loaded."""
-        return self._source
+        return self._nav.source()
 
     def graphics_scene(self) -> QGraphicsScene:
         """Expose the scene so the controller can watch it for changes."""
@@ -282,17 +263,24 @@ class PageView(QGraphicsView):
             return
         super().mouseMoveEvent(event)
 
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        # Fit mode depends on the viewport size, so re-fit when it changes. This
+        # also fixes the initial fit: the view is first sized only after the
+        # window is shown, which happens after the document already loaded.
+        super().resizeEvent(event)
+        if self._nav.source() is not None:
+            self._zoom_ctl.reapply()
+
     # --- rendering ----------------------------------------------------------
 
     def _show(self) -> None:
-        if self._source is None:
+        if self._nav.source() is None:
             return
         # Highlights belong to the page they were drawn on; drop them on render.
         self.clear_highlights()
         self._placeholder.setVisible(False)
-        image = render.render_page(self._source, self._index)
-        self._pixmap_item.setPixmap(QPixmap.fromImage(image))
+        self._render_ctl.render_now()
         self._scene.setSceneRect(self._pixmap_item.boundingRect())
         # Re-apply the zoom mode so 100% stays 100% and fit re-fits each page.
         self._zoom_ctl.reapply()
-        self.page_changed.emit(self.current_page_one_based(), self._total)
+        self.page_changed.emit(self.current_page_one_based(), self._nav.total())
