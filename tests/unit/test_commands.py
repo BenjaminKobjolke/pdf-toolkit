@@ -40,6 +40,8 @@ _ALL_IDS = {
     commands.RENAME_FILE,
     commands.TOGGLE_MENU,
     commands.TOGGLE_TOOLBAR,
+    commands.TOGGLE_STATUSBAR,
+    commands.TOGGLE_FULLSCREEN,
     commands.EDIT_MODE,
     commands.ADD_FIELD,
     commands.DELETE_FIELD,

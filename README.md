@@ -49,13 +49,16 @@ command palette is the primary way to drive it.
 
 A searchable list of every action — type to filter (relaxed: `field del` finds
 **Field: delete**), arrow keys to move, **Enter** to run, **Esc** to close.
-Commands needing an open document are hidden until one is open. Full reference:
+Commands needing an open document are hidden until one is open. **Recently-run
+commands float to the top** (most-recent first; the top one in bold), remembered
+across restarts. Full reference:
 [docs/COMMAND_PALETTE.md](docs/COMMAND_PALETTE.md).
 
 The palette and direct shortcuts cover:
 
-- **Document** — Open, **Open from history…** (last 100 PDFs), **Rename file…**
-  (renames the PDF and its text-field sidecar together), Close, Exit.
+- **Document** — Open, **Open from recent / history…** (last 100 PDFs),
+  **Rename file…** (renames the PDF and its text-field sidecar together), Close,
+  Exit.
 - **Pages** — Previous/Next, **First/Last**, Swap 2 pages, Delete current page,
   Delete range…, Merge folder…
 - **Zoom** — Fit, 100% (true PDF size), in/out 10%. The zoom *mode* sticks as you
@@ -63,7 +66,9 @@ The palette and direct shortcuts cover:
 - **Search** — **Search PDF text** (`Ctrl+F`, live, jump to a match + gold
   highlight that stays until **Clear highlights**) and **Search text fields**
   (`Ctrl+Shift+F`, jump to and select a placed field).
-- **View** — **Toggle menu bar** / **Toggle toolbar** (remembered across runs).
+- **View** — **Toggle menu bar** / **Toggle toolbar** / **Toggle status bar**
+  (remembered across runs) and **Toggle fullscreen** (session only). Window
+  position and size are also remembered across runs.
 - **Text editing** — toggle edit mode, and when a field is selected the palette
   exposes its options (change text, font size/family, text + background colour,
   bold/italic, delete) via keyboard-first dialogs. See
@@ -89,8 +94,8 @@ The palette and direct shortcuts cover:
 Full key + mouse map: [docs/KEYBOARD_SHORTCUTS.md](docs/KEYBOARD_SHORTCUTS.md).
 
 A footer **status bar** shows the current mode (left) and page `current/total`
-(centre); it stays visible even with the toolbars hidden. See
-[docs/STATUS_BAR.md](docs/STATUS_BAR.md). The palette window itself is tunable
+(centre); shown by default and hideable via **Toggle status bar** (remembered).
+See [docs/STATUS_BAR.md](docs/STATUS_BAR.md). The palette window itself is tunable
 (size, font, opacity, borderless) — see the *Appearance settings* section of
 [docs/COMMAND_PALETTE.md](docs/COMMAND_PALETTE.md).
 
@@ -195,4 +200,7 @@ Environment variables (optional):
 - `PDF_TOOLKIT_BACKUP_DIR` — override the backup directory (default `./backup`).
 - `PDF_TOOLKIT_LOG_LEVEL` — `DEBUG`, `INFO`, `WARNING`, `ERROR` (default `INFO`).
 - `PDF_TOOLKIT_RECENT_FILE` — recent-documents store (default `~/.pdf-toolkit/recent.json`).
-- `PDF_TOOLKIT_UI_STATE_FILE` — remembered menu/toolbar visibility (default `~/.pdf-toolkit/ui_state.json`).
+- `PDF_TOOLKIT_UI_STATE_FILE` — remembered menu/toolbar/status-bar visibility (default `~/.pdf-toolkit/ui_state.json`).
+- `PDF_TOOLKIT_COMMAND_HISTORY_FILE` — command-palette usage history for recency ordering (default `~/.pdf-toolkit/command_history.json`).
+- `PDF_TOOLKIT_PLACEMENT_FILE` — last text-field placement mode (default `~/.pdf-toolkit/placement.json`).
+- `PDF_TOOLKIT_WINDOW_FILE` — remembered window position/size (default `~/.pdf-toolkit/window.json`).

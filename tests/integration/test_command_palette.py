@@ -8,20 +8,21 @@ import pytest
 
 from app.config.settings import Settings
 from app.gui import commands
+from app.gui.filter_list_dialog import ListEntry
 from app.gui.main_window import MainWindow
+from app.gui.palette_entries import build_palette_entries
 from app.pdf.sidecar import save_sidecar, sidecar_path
 from app.pdf.text_spec import TextDocumentSpec, TextFieldSpec
-from tests.conftest import MakePdf
+from tests.conftest import MakePdf, gui_settings
+
+
+def _settings(tmp_path: Path) -> Settings:
+    return gui_settings(tmp_path)
 
 
 @pytest.fixture
 def window(qapp: object, tmp_path: Path) -> MainWindow:
-    settings = Settings(
-        backup_dir=tmp_path / "backup",
-        log_level="INFO",
-        recent_file=tmp_path / "recent.json",
-    )
-    return MainWindow(settings)
+    return MainWindow(_settings(tmp_path))
 
 
 def _spec() -> TextFieldSpec:
@@ -78,3 +79,42 @@ def test_close_document_resets_state(window: MainWindow, make_pdf: MakePdf) -> N
     window.close_document()
     assert window.has_document() is False
     assert window.page_view.total_pages() == 0
+
+
+def test_palette_entries_float_recent_and_bold_top(window: MainWindow) -> None:
+    window._command_history.add(commands.OPEN_HISTORY)
+    window._command_history.add(commands.OPEN)  # most-recent
+    entries = build_palette_entries(window._registry, window._command_history.load())
+
+    # Most-recent first, then the next-recent.
+    assert entries[0].payload.command_id == commands.OPEN
+    assert entries[1].payload.command_id == commands.OPEN_HISTORY
+    # Only the top enabled entry is bolded.
+    assert entries[0].bold is True
+    assert sum(1 for e in entries if e.bold) == 1
+
+
+def test_palette_records_command_on_run(
+    window: MainWindow, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    target = commands.find(window._registry, commands.TOGGLE_STATUSBAR)
+
+    class _FakeDialog:
+        def __init__(self, entries: list[ListEntry], **_kw: object) -> None:
+            self._entries = entries
+
+        def exec(self) -> int:
+            return 1
+
+        def chosen(self) -> ListEntry | None:
+            return next(e for e in self._entries if e.payload is target)
+
+    monkeypatch.setattr("app.gui.palette_actions.FilterListDialog", _FakeDialog)
+    monkeypatch.setattr(window._palette, "apply_to", lambda *a, **k: None)
+
+    window.open_command_palette()
+
+    assert window._command_history.load()[0] == commands.TOGGLE_STATUSBAR
+    # Survives a fresh window against the same store path.
+    reopened = MainWindow(_settings(tmp_path))
+    assert reopened._command_history.load()[0] == commands.TOGGLE_STATUSBAR

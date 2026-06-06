@@ -20,6 +20,7 @@ class UiState:
 
     menu_visible: bool = False
     toolbar_visible: bool = False
+    statusbar_visible: bool = True
 
 
 class UiStateStore:
@@ -36,11 +37,16 @@ class UiStateStore:
         return UiState(
             menu_visible=bool(raw.get("menu_visible", False)),
             toolbar_visible=bool(raw.get("toolbar_visible", False)),
+            statusbar_visible=bool(raw.get("statusbar_visible", True)),
         )
 
     def save(self, state: UiState) -> None:
         write_versioned(
             self._path,
             UI_STATE_VERSION,
-            {"menu_visible": state.menu_visible, "toolbar_visible": state.toolbar_visible},
+            {
+                "menu_visible": state.menu_visible,
+                "toolbar_visible": state.toolbar_visible,
+                "statusbar_visible": state.statusbar_visible,
+            },
         )

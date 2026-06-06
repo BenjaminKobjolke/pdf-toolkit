@@ -12,7 +12,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QListWidgetItem, QWidget
 
 from app.gui.filterable_dialog import FilterableListDialog
 
@@ -34,6 +34,7 @@ class ListEntry:
     subtitle: str = ""
     enabled: bool = True
     payload: Any = None
+    bold: bool = False
 
 
 class FilterListDialog(FilterableListDialog):
@@ -96,7 +97,12 @@ class FilterListDialog(FilterableListDialog):
         self._list.clear()
         for entry in self._visible:
             label = f"{entry.title}   —   {entry.subtitle}" if entry.subtitle else entry.title
-            self._list.addItem(label)
+            item = QListWidgetItem(label)
+            if entry.bold:
+                font = item.font()
+                font.setBold(True)
+                item.setFont(font)
+            self._list.addItem(item)
         if self._visible:
             self._list.setCurrentRow(0)
 

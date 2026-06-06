@@ -13,6 +13,7 @@ from typing import cast
 from PySide6.QtCore import QPointF
 from PySide6.QtWidgets import QWidget
 
+from app.config.placement_settings import PlacementStore
 from app.gui import strings
 from app.gui.edit_controller import EditController
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
@@ -43,6 +44,16 @@ def ordered_modes(last: PlacementMode) -> list[PlacementMode]:
     return [last, *rest]
 
 
+def _mode_from_stored(value: str | None) -> PlacementMode:
+    """Map a stored mode id back to a :class:`PlacementMode`, defaulting to top-left."""
+    if value is None:
+        return PlacementMode.TOP_LEFT
+    try:
+        return PlacementMode(value)
+    except ValueError:
+        return PlacementMode.TOP_LEFT
+
+
 class PlacementController:
     """Choose and apply placement for newly created text fields."""
 
@@ -52,12 +63,14 @@ class PlacementController:
         page_view: PageView,
         edit_controller: EditController,
         mode_bar: ModeStatusBar,
+        store: PlacementStore,
     ) -> None:
         self._parent = parent
         self._page_view = page_view
         self._edit_controller = edit_controller
         self._mode_bar = mode_bar
-        self._last = PlacementMode.TOP_LEFT
+        self._store = store
+        self._last = _mode_from_stored(store.load())
 
     def choose_and_place(self) -> None:
         """Ask where the new field should land and apply the selected mode."""
@@ -65,6 +78,7 @@ class PlacementController:
         if mode is None:
             return
         self._last = mode
+        self._store.save(mode.value)
         self._place(mode)
 
     def _choose(self) -> PlacementMode | None:

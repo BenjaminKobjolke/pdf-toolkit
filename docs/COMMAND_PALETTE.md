@@ -25,17 +25,33 @@ A filter box opens over a command list:
 Commands that need an open document (zoom, navigation, page edits, text edits)
 are hidden until a PDF is open.
 
+### Recently-used ordering
+
+The palette floats **recently-run commands to the top**, most-recent first, and
+the single top-most command is shown in **bold** as the "last command" cue. The
+order survives restarts — it is persisted in a global file:
+
+```
+~/.pdf-toolkit/command_history.json
+```
+
+The most-recent 50 command ids are kept (dedup + move-to-front). The location can
+be overridden with the `PDF_TOOLKIT_COMMAND_HISTORY_FILE` environment variable; a
+missing or corrupt file just means no commands are floated yet.
+
 ## Commands
 
 | Command | What it does |
 |---------|--------------|
 | **Open PDF…** | Prompt for a PDF and open it. |
-| **Open from history…** | Pick from recently opened documents (see below). |
+| **Open from recent / history…** | Pick from recently opened documents (see below). |
 | **Save changes to original file** | Write the working copy back to the original (with a backup). See *Deferred saving*. |
 | **Rename file…** | Rename the open PDF (and its sidecar) and reopen it. |
 | **Close current document** | Offer to save unsaved changes, then return to the empty viewer. |
 | **Toggle menu bar** | Show/hide the top menu bar (remembered across sessions). |
 | **Toggle toolbar** | Show/hide the button toolbars (remembered across sessions). |
+| **Toggle status bar** | Show/hide the footer status bar (remembered across sessions; see `STATUS_BAR.md`). |
+| **Toggle fullscreen** | Enter/leave fullscreen for the current session (not remembered). |
 | **Palette: width %…** | Set the palette width as a % of the window (see *Appearance settings*). |
 | **Palette: height %…** | Set the palette height as a % of the window. |
 | **Palette: font size…** | Set the palette font size in points (0 = default). |
@@ -161,7 +177,7 @@ The colour commands open a keyboard-first picker:
 
 No new dependency — the picker is the same searchable dialog used elsewhere.
 
-## Open from history
+## Open from recent / history
 
 The viewer records every PDF you open (most recent first, up to 100 entries) in a
 global file:
@@ -170,10 +186,24 @@ global file:
 ~/.pdf-toolkit/recent.json
 ```
 
-**Open from history…** shows that list — filename plus full path — in the same
-type-to-filter dialog as the palette. Filter, select with the arrow keys, and
+**Open from recent / history…** shows that list — filename plus full path — in the
+same type-to-filter dialog as the palette. Filter, select with the arrow keys, and
 press **Enter** to open. The location can be overridden with the
 `PDF_TOOLKIT_RECENT_FILE` environment variable.
+
+## Remembered window state
+
+Beyond the palette appearance and chrome toggles above, the viewer remembers two
+more things across restarts:
+
+- **Window position and size** — restored on the next launch. Saved on close in
+  `~/.pdf-toolkit/window.json` (override: `PDF_TOOLKIT_WINDOW_FILE`). Fullscreen
+  is **not** persisted; the underlying windowed rect is stored instead.
+- **Last text-field placement** — the placement chooser (**Add text field**)
+  floats your last pick to the top, remembered in `~/.pdf-toolkit/placement.json`
+  (override: `PDF_TOOLKIT_PLACEMENT_FILE`). See `TEXT_EDITING.md`.
+
+Each store is independent and degrades to its default if missing or corrupt.
 
 ## Delete saved text fields
 

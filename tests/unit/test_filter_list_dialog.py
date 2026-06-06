@@ -34,6 +34,13 @@ def test_disabled_entries_are_skipped(qapp: object) -> None:
     assert _titles(dialog) == ["Open"]
 
 
+def test_bold_entry_renders_with_bold_font(qapp: object) -> None:
+    entries = [ListEntry(title="Recent", bold=True), ListEntry(title="Other")]
+    dialog = FilterListDialog(entries)
+    assert dialog._list.item(0).font().bold() is True
+    assert dialog._list.item(1).font().bold() is False
+
+
 def test_enter_accepts_highlighted_command_payload(qapp: object) -> None:
     entries = [ListEntry(title="A", payload="pa"), ListEntry(title="B", payload="pb")]
     dialog = FilterListDialog(entries)

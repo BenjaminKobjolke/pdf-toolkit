@@ -191,12 +191,9 @@ class EditController:
         the working PDF (reaching the original only on save), so the now-embedded
         fields and their sidecar are cleared to avoid drawing them twice.
         """
-        specs = self._collect_specs()
-        try:
-            apply_text_overlay(target, specs)
-        except (ValueError, OSError) as err:
-            log.error("%s", err)
-            return OpResult(False, str(err))
+        error = self._flatten(target)
+        if error is not None:
+            return OpResult(False, error)
         self._timer.stop()
         self._fields_by_page = {}
         self._page_view.clear_text_items()
@@ -204,6 +201,35 @@ class EditController:
             with contextlib.suppress(FileNotFoundError):
                 os.remove(sidecar_path(self._source))
         return OpResult(True, strings.MSG_TEXT_EMBEDDED)
+
+    def has_placed_fields(self) -> bool:
+        """Return whether any page has a text field, including unsaved current-page fields."""
+        return bool(self._collect_specs())
+
+    def export_to_file(self, source: Path, output: Path) -> OpResult:
+        """Bake the placed fields from ``source`` into ``output``.
+
+        Unlike :meth:`embed_into_document`, the edit session (in-memory fields
+        and the sidecar) is left intact, so the document stays editable after a
+        "save to a new file" export.
+        """
+        error = self._flatten(source, output)
+        if error is not None:
+            return OpResult(False, error)
+        return OpResult(True, strings.MSG_TEXT_EXPORTED_FMT.format(name=output.name))
+
+    def _flatten(self, source: Path, output: Path | None = None) -> str | None:
+        """Bake all fields from ``source`` onto ``output`` (or ``source`` in place).
+
+        Returns an error message on failure, or ``None`` on success.
+        """
+        specs = self._collect_specs()
+        try:
+            apply_text_overlay(source, specs, output)
+        except (ValueError, OSError) as err:
+            log.error("%s", err)
+            return str(err)
+        return None
 
     # --- internals ----------------------------------------------------------
 

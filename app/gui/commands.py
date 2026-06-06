@@ -46,6 +46,8 @@ SHOW_SHORTCUTS = "show_shortcuts"
 RENAME_FILE = "rename_file"
 TOGGLE_MENU = "toggle_menu"
 TOGGLE_TOOLBAR = "toggle_toolbar"
+TOGGLE_STATUSBAR = "toggle_statusbar"
+TOGGLE_FULLSCREEN = "toggle_fullscreen"
 PALETTE_WIDTH = "palette_width"
 PALETTE_HEIGHT = "palette_height"
 PALETTE_FONT = "palette_font"
@@ -168,6 +170,8 @@ def _view_commands(window: MainWindow) -> list[Command]:
     return [
         Command(TOGGLE_MENU, strings.CMD_TOGGLE_MENU, window.toggle_menu_bar),
         Command(TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
+        Command(TOGGLE_STATUSBAR, strings.CMD_TOGGLE_STATUSBAR, window.toggle_statusbar),
+        Command(TOGGLE_FULLSCREEN, strings.CMD_TOGGLE_FULLSCREEN, window.toggle_fullscreen),
         Command(PALETTE_WIDTH, strings.CMD_PALETTE_WIDTH, palette.set_width),
         Command(PALETTE_HEIGHT, strings.CMD_PALETTE_HEIGHT, palette.set_height),
         Command(PALETTE_FONT, strings.CMD_PALETTE_FONT, palette.set_font_size),

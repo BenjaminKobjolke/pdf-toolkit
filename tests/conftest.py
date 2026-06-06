@@ -5,11 +5,14 @@ from __future__ import annotations
 import os
 from collections.abc import Iterator, Sequence
 from pathlib import Path
-from typing import Literal, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol
 
 import pytest
 from PIL import Image
 from pypdf import PdfReader, PdfWriter
+
+if TYPE_CHECKING:
+    from app.config.settings import Settings
 
 # Qt must run headless in tests; set before any QApplication is constructed.
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -22,6 +25,30 @@ def qapp() -> Iterator[object]:
 
     app = QApplication.instance() or QApplication([])
     yield app
+
+
+def gui_settings(tmp_path: Path) -> Settings:
+    """Settings with every store path under ``tmp_path`` so GUI tests stay hermetic."""
+    from app.config.settings import Settings
+
+    return Settings(
+        backup_dir=tmp_path / "backup",
+        log_level="INFO",
+        recent_file=tmp_path / "recent.json",
+        ui_state_file=tmp_path / "ui_state.json",
+        palette_file=tmp_path / "palette.json",
+        command_history_file=tmp_path / "command_history.json",
+        placement_file=tmp_path / "placement.json",
+        window_file=tmp_path / "window.json",
+    )
+
+
+@pytest.fixture
+def window(qapp: object, tmp_path: Path) -> object:
+    """A fresh viewer window backed by per-test temp settings (all stores)."""
+    from app.gui.main_window import MainWindow
+
+    return MainWindow(gui_settings(tmp_path))
 
 
 PageSize = tuple[float, float]

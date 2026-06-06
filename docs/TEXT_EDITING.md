@@ -1,11 +1,12 @@
 # Text Editing
 
 The GUI viewer can place text fields onto a PDF page, style them, and bake them
-permanently into the file. Edits are **deferred**: field layout changes and the
-"Export text to PDF" flatten go to a temporary working copy and reach the
-original PDF (and its JSON sidecar) only when you **Save** (`Ctrl+S`). The saved
-layout is reloaded automatically the next time you open that PDF. See the
-*Deferred saving* section of `COMMAND_PALETTE.md` for the full save/discard flow.
+permanently into the file. Field layout changes are **deferred**: they go to a
+temporary working copy and reach the original PDF (and its JSON sidecar) only
+when you **Save** (`Ctrl+S`). The saved layout is reloaded automatically the next
+time you open that PDF. **Export text to PDF** is different — it commits straight
+to disk (see *Exporting onto the PDF* below). See the *Deferred saving* section
+of `COMMAND_PALETTE.md` for the full save/discard flow.
 
 ## Opening the viewer
 
@@ -90,14 +91,21 @@ otherwise ignored.
 
 Click **Export text** (or run **Export text to PDF** from the palette) to **flatten**
 all fields into the document. The text (and any background rectangles) is drawn
-directly onto each page of the working copy — positions and sizes shown in the
-viewer map 1:1 onto the result — and the now-baked editable fields are cleared so
-they are not drawn twice.
+directly onto each page — positions and sizes shown in the viewer map 1:1 onto the
+result.
 
-This is deferred like every other edit: the working copy is flattened immediately
-(the page re-renders to show the baked text and the footer shows **● Modified**),
-but the **original file changes only when you Save** (`Ctrl+S`). Discarding on exit
-throws the flatten away.
+Unlike the deferred layout edits, exporting **commits straight to disk** and asks
+how:
+
+- **Yes — overwrite the original.** The text is baked into the original file (a
+  timestamped backup is written first, as with every save) and the editable JSON
+  sidecar is deleted. The fields are cleared from the view; the text now lives in
+  the page and can no longer be edited.
+- **No — export to a new file.** You are prompted for a file name, pre-filled with
+  the original name and the caret at the end. A flattened copy is written there
+  while the **original PDF and its fields stay untouched and editable**. The new
+  file has no sidecar.
+- **Cancel.** Nothing happens; the fields stay in place.
 
 ## Fonts
 
@@ -114,5 +122,6 @@ substitutes and continues.
   swap, delete, merge) use pypdf.
 - Bold/italic are not synthesised on embedded fonts — a real style file is used
   when available, otherwise a styled built-in font.
-- After export, the page **is** re-rendered so you see the baked-in text; the
-  editable field items are removed (the text now lives in the page itself).
+- After an **overwrite** export the page is re-rendered with the baked-in text and
+  the editable field items are removed (the text now lives in the page itself). A
+  **new-file** export leaves the on-screen fields untouched so you can keep editing.

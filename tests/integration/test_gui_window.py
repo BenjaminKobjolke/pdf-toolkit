@@ -8,18 +8,18 @@ import pytest
 from PySide6.QtWidgets import QMessageBox
 
 from app.config.settings import Settings
+from app.config.window_geometry import WindowGeometry, WindowGeometryStore
 from app.gui.main_window import MainWindow
-from tests.conftest import MakePdf, PageSizesOf
+from tests.conftest import MakePdf, PageSizesOf, gui_settings
+
+
+def _settings(tmp_path: Path) -> Settings:
+    return gui_settings(tmp_path)
 
 
 @pytest.fixture
 def window(qapp: object, tmp_path: Path) -> MainWindow:
-    settings = Settings(
-        backup_dir=tmp_path / "backup",
-        log_level="INFO",
-        recent_file=tmp_path / "recent.json",
-    )
-    return MainWindow(settings)
+    return MainWindow(_settings(tmp_path))
 
 
 def test_delete_current_page_shrinks_document(
@@ -79,3 +79,45 @@ def test_invalid_swap_reports_error_and_keeps_file(
 
     assert captured  # an error dialog was shown
     assert page_sizes_of(pdf) == [(100, 200), (300, 400), (120, 120)]
+
+
+def test_window_geometry_restored_on_construct(qapp: object, tmp_path: Path) -> None:
+    settings = _settings(tmp_path)
+    WindowGeometryStore(settings.window_file).save(
+        WindowGeometry(x=120, y=90, width=640, height=480)
+    )
+    win = MainWindow(settings)
+    assert win.width() == 640
+    assert win.height() == 480
+
+
+def test_close_event_persists_geometry(qapp: object, tmp_path: Path) -> None:
+    settings = _settings(tmp_path)
+    win = MainWindow(settings)
+    win.resize(700, 500)
+    win.close()
+    geom = WindowGeometryStore(settings.window_file).load()
+    assert geom is not None
+    assert (geom.width, geom.height) == (700, 500)
+
+
+def test_toggle_statusbar_hides_and_persists(qapp: object, tmp_path: Path) -> None:
+    settings = _settings(tmp_path)
+    win = MainWindow(settings)
+    assert win._mode_bar.isHidden() is False
+
+    win.toggle_statusbar()
+    assert win._mode_bar.isHidden() is True
+
+    # Persisted: a fresh window restores the hidden status bar.
+    reopened = MainWindow(settings)
+    assert reopened._mode_bar.isHidden() is True
+
+
+def test_toggle_fullscreen_is_session_only(qapp: object, tmp_path: Path) -> None:
+    settings = _settings(tmp_path)
+    win = MainWindow(settings)
+    win.toggle_fullscreen()
+    assert win.isFullScreen() is True
+    win.toggle_fullscreen()
+    assert win.isFullScreen() is False

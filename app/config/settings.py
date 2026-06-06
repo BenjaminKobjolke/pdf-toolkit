@@ -12,6 +12,9 @@ ENV_LOG_LEVEL = "PDF_TOOLKIT_LOG_LEVEL"
 ENV_RECENT_FILE = "PDF_TOOLKIT_RECENT_FILE"
 ENV_UI_STATE_FILE = "PDF_TOOLKIT_UI_STATE_FILE"
 ENV_PALETTE_FILE = "PDF_TOOLKIT_PALETTE_FILE"
+ENV_COMMAND_HISTORY_FILE = "PDF_TOOLKIT_COMMAND_HISTORY_FILE"
+ENV_PLACEMENT_FILE = "PDF_TOOLKIT_PLACEMENT_FILE"
+ENV_WINDOW_FILE = "PDF_TOOLKIT_WINDOW_FILE"
 
 DEFAULT_BACKUP_DIR = "backup"
 DEFAULT_LOG_LEVEL = "INFO"
@@ -29,6 +32,18 @@ def _default_palette_file() -> Path:
     return Path.home() / ".pdf-toolkit" / "palette.json"
 
 
+def _default_command_history_file() -> Path:
+    return Path.home() / ".pdf-toolkit" / "command_history.json"
+
+
+def _default_placement_file() -> Path:
+    return Path.home() / ".pdf-toolkit" / "placement.json"
+
+
+def _default_window_file() -> Path:
+    return Path.home() / ".pdf-toolkit" / "window.json"
+
+
 def _path_from_env(env_var: str, default_fn: Callable[[], Path]) -> Path:
     """Return the env-var path if set, otherwise the computed default."""
     value = os.getenv(env_var)
@@ -42,6 +57,9 @@ class Settings:
     recent_file: Path = field(default_factory=_default_recent_file)
     ui_state_file: Path = field(default_factory=_default_ui_state_file)
     palette_file: Path = field(default_factory=_default_palette_file)
+    command_history_file: Path = field(default_factory=_default_command_history_file)
+    placement_file: Path = field(default_factory=_default_placement_file)
+    window_file: Path = field(default_factory=_default_window_file)
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -51,4 +69,9 @@ class Settings:
             recent_file=_path_from_env(ENV_RECENT_FILE, _default_recent_file),
             ui_state_file=_path_from_env(ENV_UI_STATE_FILE, _default_ui_state_file),
             palette_file=_path_from_env(ENV_PALETTE_FILE, _default_palette_file),
+            command_history_file=_path_from_env(
+                ENV_COMMAND_HISTORY_FILE, _default_command_history_file
+            ),
+            placement_file=_path_from_env(ENV_PLACEMENT_FILE, _default_placement_file),
+            window_file=_path_from_env(ENV_WINDOW_FILE, _default_window_file),
         )

@@ -8,12 +8,12 @@ MENU_FILE = "&File"
 ACTION_OPEN = "Open PDF…"
 ACTION_QUIT = "Quit"
 ACTION_COMMAND_PALETTE = "Command palette…"
-ACTION_OPEN_HISTORY = "Open from history…"
+ACTION_OPEN_HISTORY = "Open from recent / history…"
 
 # Command palette / history picker
 PALETTE_TITLE = "Command palette"
 PALETTE_PLACEHOLDER = "Type a command…"
-HISTORY_TITLE = "Open from history"
+HISTORY_TITLE = "Open from recent / history"
 HISTORY_PLACEHOLDER = "Filter recent documents…"
 SHORTCUTS_TITLE = "Keyboard and mouse controls"
 SHORTCUTS_PLACEHOLDER = "Filter controls…"
@@ -29,7 +29,7 @@ MOUSE_CTRL_WHEEL_DESC = "Previous / next page"
 
 # Command titles (shown in the palette and menus)
 CMD_OPEN = "Open PDF…"
-CMD_OPEN_HISTORY = "Open from history…"
+CMD_OPEN_HISTORY = "Open from recent / history…"
 CMD_CLOSE_DOC = "Close current document"
 CMD_EXIT = "Exit"
 CMD_PREV_PAGE = "Previous page"
@@ -58,6 +58,19 @@ CMD_ADD_FIELD = "Add text field"
 CMD_DELETE_FIELD = "Delete selected field"
 CMD_EXPORT_TEXT = "Export text to PDF"
 CMD_DELETE_SAVED_FIELDS = "Delete saved text fields for this document"
+
+# Export-text flow (overwrite original vs. write a new flattened file)
+CONFIRM_EXPORT_TITLE = "Export text"
+CONFIRM_EXPORT_OVERWRITE = (
+    "Overwrite the original PDF?\n\n"
+    "Yes: flatten the text into the original and remove the editable text data "
+    "(the text can no longer be edited).\n"
+    "No: export to a new file; the original stays editable."
+)
+DIALOG_EXPORT_NAME_TITLE = "Export to new file"
+PROMPT_EXPORT_NAME = "New file name:"
+MSG_TEXT_EXPORTED_FMT = "exported text to: {name}"
+MSG_NO_TEXT_TO_EXPORT = "No text fields to export."
 
 CONFIRM_DELETE_SAVED_FIELDS = "Delete all saved text fields for this document?"
 LABEL_HISTORY_EMPTY = "No recent documents"
@@ -113,6 +126,8 @@ BTN_MERGE_FOLDER = "Merge folder…"
 CMD_RENAME_FILE = "Rename file…"
 CMD_TOGGLE_MENU = "Toggle menu bar"
 CMD_TOGGLE_TOOLBAR = "Toggle toolbar"
+CMD_TOGGLE_STATUSBAR = "Toggle status bar"
+CMD_TOGGLE_FULLSCREEN = "Toggle fullscreen"
 
 # Command-palette appearance settings
 CMD_PALETTE_WIDTH = "Palette: width %…"
