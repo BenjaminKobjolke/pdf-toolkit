@@ -40,16 +40,26 @@ _SHORTCUTS: tuple[tuple[str, str], ...] = (
 )
 _PALETTE_CHORD = "Ctrl+Shift+P"
 
+# Mouse-wheel gestures handled by PageInputController. Not bound to commands, so
+# they are listed as static (gesture, description) rows in the controls dialog.
+_MOUSE_CONTROLS: tuple[tuple[str, str], ...] = (
+    (strings.MOUSE_WHEEL, strings.MOUSE_WHEEL_DESC),
+    (strings.MOUSE_SHIFT_WHEEL, strings.MOUSE_SHIFT_WHEEL_DESC),
+    (strings.MOUSE_CTRL_WHEEL, strings.MOUSE_CTRL_WHEEL_DESC),
+)
+
 
 def shortcut_pairs(registry: list[Command]) -> list[tuple[str, str]]:
-    """Return ``(chord, command title)`` for the palette chord and every shortcut.
+    """Return ``(chord/gesture, title)`` rows for the controls dialog.
 
-    Single source for the "show keyboard shortcuts" dialog: titles are resolved
-    through the same registry the shortcuts trigger, so they never drift.
+    Single source for the controls dialog: keyboard titles are resolved through
+    the same registry the shortcuts trigger so they never drift; mouse gestures
+    are appended from the static :data:`_MOUSE_CONTROLS` table.
     """
     pairs = [(_PALETTE_CHORD, strings.ACTION_COMMAND_PALETTE)]
     for chord, command_id in _SHORTCUTS:
         pairs.append((chord, commands.find(registry, command_id).title))
+    pairs.extend(_MOUSE_CONTROLS)
     return pairs
 
 

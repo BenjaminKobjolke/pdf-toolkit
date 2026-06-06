@@ -42,7 +42,7 @@ are hidden until a PDF is open.
 | **Palette: opacity %…** | Set the palette window opacity. |
 | **Palette: toggle borderless** | Show/hide the palette window frame. |
 | **Exit** | Close the viewer. |
-| **Show keyboard shortcuts** | Open a searchable, read-only list of every shortcut (also **F1**). |
+| **Show keyboard and mouse controls** | Open a searchable, read-only list of every key + mouse gesture (also **F1**). |
 | **Previous page** / **Next page** | Step one page back / forward. |
 | **First page** / **Last page** | Jump to the first / last page. |
 | **Zoom to fit** | Scale the page to fit the window. |
@@ -96,7 +96,7 @@ Common commands also have direct keys, so you do not have to open the palette:
 | Key | Command |
 |-----|---------|
 | **Ctrl+Shift+P** | Open the command palette |
-| **F1** | Show keyboard shortcuts |
+| **F1** | Show keyboard and mouse controls |
 | **Ctrl+F** | Search PDF text |
 | **Ctrl+Shift+F** | Search text fields |
 | **Ctrl+Shift+H** | Clear search highlights |
@@ -107,9 +107,12 @@ Common commands also have direct keys, so you do not have to open the palette:
 | **Ctrl+0** | Zoom 100% |
 | **Ctrl+R** / **Ctrl+Shift+R** | Rotate current page right / left |
 | **Ctrl+S** | Save changes to the original file |
+| **Wheel** | Scroll the page; flip page at the scroll edge |
+| **Shift+Wheel** | Scroll horizontally |
+| **Ctrl+Wheel** | Previous / next page |
 
 Zoom level persists as you change pages. **Zoom to fit** is available from the
-palette. The full key map lives in `KEYBOARD_SHORTCUTS.md`.
+palette. The full key + mouse map lives in `KEYBOARD_SHORTCUTS.md`.
 
 ## Appearance settings
 

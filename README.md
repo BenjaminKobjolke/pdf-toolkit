@@ -9,7 +9,7 @@ Small Python CLI toolkit for two PDF page operations, each with an automatic tim
 - `pdf-move-page.bat <from> <to> <pdf>` — move page `<from>` to 1-based position `<to>`, overwriting the original.
 - `pdf-merge-folder.bat <folder>` — merge every supported file (`.pdf`, `.jpg`, `.jpeg`, `.png`) in `<folder>` into `<folder>\merged.pdf`. Files are added in alphabetical order (case-insensitive). Subfolders are ignored. If `merged.pdf` already exists in the folder, it is backed up first.
 - `pdft.bat` — interactive wizard that prompts for the operation (swap / delete single / delete range / rotate / move / merge folder / open GUI viewer) and its arguments. The PDF prompt has Tab-completion against `*.pdf` files in the current directory; the folder prompt has Tab-completion against subdirectories (powered by `prompt_toolkit`).
-- `pdft_gui.bat [pdf]` — GUI viewer (PySide6) that renders the PDF page by page, with a **command palette** (`Ctrl+Shift+P`) for every action: page operations (rotate, move, delete, swap), zoom, navigation, full-text + field search, recent-document history, rename, and in-place text editing. Edits go to a temporary working copy and reach the original only when you **Save** (`Ctrl+S`); closing with unsaved changes prompts first. Press **F1** for the shortcut list. Optionally pass a PDF path to open on startup.
+- `pdft_gui.bat [pdf]` — GUI viewer (PySide6) that renders the PDF page by page, with a **command palette** (`Ctrl+Shift+P`) for every action: page operations (rotate, move, delete, swap), zoom, navigation, full-text + field search, recent-document history, rename, and in-place text editing. Edits go to a temporary working copy and reach the original only when you **Save** (`Ctrl+S`); closing with unsaved changes prompts first. Press **F1** for the keyboard and mouse controls. Optionally pass a PDF path to open on startup.
 
 Every run first copies the original to `backup/YYYYMMDD-HHMM-<filename>.pdf`. The `backup/` directory is resolved relative to your current working directory, so when you run the tool from `C:\Users\me\Documents` the backup lands in `C:\Users\me\Documents\backup\`. Override with the `PDF_TOOLKIT_BACKUP_DIR` environment variable. The backup is created **before** validation, so if validation fails (e.g. swap on a 3-page PDF) the original is untouched but a backup still exists.
 
@@ -71,7 +71,7 @@ The palette and direct shortcuts cover:
   [docs/WIDGETS.md](docs/WIDGETS.md) (custom colour picker — type a hex or name,
   pick transparent, recents + live preview).
 
-#### Keyboard shortcuts
+#### Keyboard and mouse controls
 
 | Key | Action |
 |-----|--------|
@@ -83,8 +83,10 @@ The palette and direct shortcuts cover:
 | `Ctrl++` / `Ctrl+-` / `Ctrl+0` | Zoom in / out / 100% |
 | `Ctrl+↑` / `Ctrl+↓` | Zoom in / out 10% |
 | `↑` / `↓` at the page edge | Previous / next page |
+| `Wheel` / `Shift+Wheel` | Scroll vertically (flip at edge) / horizontally |
+| `Ctrl+Wheel` | Previous / next page |
 
-Full key map: [docs/KEYBOARD_SHORTCUTS.md](docs/KEYBOARD_SHORTCUTS.md).
+Full key + mouse map: [docs/KEYBOARD_SHORTCUTS.md](docs/KEYBOARD_SHORTCUTS.md).
 
 A footer **status bar** shows the current mode (left) and page `current/total`
 (centre); it stays visible even with the toolbars hidden. See

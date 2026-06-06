@@ -1,16 +1,17 @@
-# Keyboard Shortcuts
+# Keyboard and Mouse Controls
 
 The GUI viewer (`pdft-gui`) is keyboard-first. Common actions have direct keys;
 everything else is reachable through the command palette. The keys below are
-registered in `app/gui/window_input.py` (`_SHORTCUTS` + `_PALETTE_CHORD`). Press
-**F1** in the viewer to see this list in a searchable dialog.
+registered in `app/gui/window_input.py` (`_SHORTCUTS` + `_PALETTE_CHORD`); mouse
+gestures live in `_MOUSE_CONTROLS`. Press **F1** in the viewer to see this list
+in a searchable dialog.
 
 ## Palette & search
 
 | Key | Action |
 |-----|--------|
 | **Ctrl+Shift+P** | Open the command palette |
-| **F1** | Show keyboard shortcuts |
+| **F1** | Show keyboard and mouse controls |
 | **Ctrl+F** | Search PDF text |
 | **Ctrl+Shift+F** | Search text fields |
 | **Ctrl+Shift+H** | Clear search highlights |
@@ -47,6 +48,14 @@ page (to next/previous/first/last) is palette-only; see `COMMAND_PALETTE.md`.
 
 Zoom level persists as you move between pages. **Zoom to fit** is available from
 the palette (no default key).
+
+## Mouse
+
+| Gesture | Action |
+|---------|--------|
+| **Wheel** | Scroll the page; flip to the next/previous page at the scroll edge |
+| **Shift+Wheel** | Scroll horizontally |
+| **Ctrl+Wheel** | Previous / next page (regardless of scroll position) |
 
 Shortcuts that act on a document (navigation, zoom) are no-ops until a PDF is
 open. The remaining viewer commands — page edits, text editing, document
