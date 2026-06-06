@@ -15,7 +15,7 @@ from app.gui.remembered_settings import RememberedSettingsController
 def _store(path: Path, label: str) -> FileBackedStore:
     path.write_text("{}", encoding="utf-8")
     store = FileBackedStore(path)
-    store.LABEL = label  # type: ignore[misc]
+    store.LABEL = label
     return store
 
 

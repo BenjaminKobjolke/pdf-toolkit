@@ -67,7 +67,7 @@ class PlacementController:
 
     def __init__(
         self,
-        parent: QWidget,
+        parent: QWidget | None,
         page_view: PageView,
         mode_bar: ModeStatusBar,
         store: PlacementStore,

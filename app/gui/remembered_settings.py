@@ -21,7 +21,7 @@ class RememberedSettingsController:
 
     def __init__(
         self,
-        parent: QWidget,
+        parent: QWidget | None,
         stores: Sequence[FileBackedStore],
         report: Callable[[OpResult], None],
     ) -> None:
