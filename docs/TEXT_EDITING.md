@@ -1,8 +1,11 @@
 # Text Editing
 
-The GUI viewer can place text fields onto a PDF page, style them, and write them
-permanently into the file. Field layouts are saved alongside the PDF as a JSON
-sidecar and reloaded automatically the next time you open that PDF.
+The GUI viewer can place text fields onto a PDF page, style them, and bake them
+permanently into the file. Edits are **deferred**: field layout changes and the
+"Export text to PDF" flatten go to a temporary working copy and reach the
+original PDF (and its JSON sidecar) only when you **Save** (`Ctrl+S`). The saved
+layout is reloaded automatically the next time you open that PDF. See the
+*Deferred saving* section of `COMMAND_PALETTE.md` for the full save/discard flow.
 
 ## Opening the viewer
 
@@ -65,16 +68,18 @@ become the defaults for the next field you add:
 
 ## Saving the layout (JSON sidecar)
 
-Field configuration is written automatically to a JSON file next to the PDF, named
-after it:
+Field configuration is written automatically to a JSON file named after the PDF:
 
 ```
 document.pdf  ->  document.json
 ```
 
-Saving is debounced — it happens shortly after you stop editing, and again on
-export. When you open a PDF that has a matching `.json` sidecar, its fields are
-loaded automatically (toggle **Edit text** to see and adjust them).
+Autosave is debounced — it happens shortly after you stop editing — but it writes
+to the **working copy's** sidecar, not the original. The original `document.json`
+is updated (or removed, if you cleared every field) only when you **Save**
+(`Ctrl+S`); the footer shows **● Modified** until then. When you open a PDF that
+has a matching `.json` sidecar, its fields are loaded automatically (toggle
+**Edit text** to see and adjust them).
 
 The sidecar stores, per field: page index, position and size, the text, font
 family/size, text colour, background colour (or `null` for transparent), and the
@@ -83,17 +88,16 @@ otherwise ignored.
 
 ## Exporting onto the PDF
 
-Click **Export text** to write all fields onto the PDF. Export writes a **new
-file** next to the original, with `_text-embedded` inserted before the extension,
-and leaves the source PDF untouched:
+Click **Export text** (or run **Export text to PDF** from the palette) to **flatten**
+all fields into the document. The text (and any background rectangles) is drawn
+directly onto each page of the working copy — positions and sizes shown in the
+viewer map 1:1 onto the result — and the now-baked editable fields are cleared so
+they are not drawn twice.
 
-```
-document.pdf  ->  document_text-embedded.pdf
-```
-
-Re-exporting overwrites the `_text-embedded` copy. Export draws the text (and any
-background rectangles) directly onto each page; positions and sizes shown in the
-viewer map 1:1 onto the exported PDF.
+This is deferred like every other edit: the working copy is flattened immediately
+(the page re-renders to show the baked text and the footer shows **● Modified**),
+but the **original file changes only when you Save** (`Ctrl+S`). Discarding on exit
+throws the flatten away.
 
 ## Fonts
 
@@ -106,9 +110,9 @@ substitutes and continues.
 
 ## Notes and limitations
 
-- Fitz (PyMuPDF) performs the text writing; the page-reordering operations
-  (swap/delete/merge) continue to use pypdf.
+- Fitz (PyMuPDF) performs the text writing; the page operations (rotate, move,
+  swap, delete, merge) use pypdf.
 - Bold/italic are not synthesised on embedded fonts — a real style file is used
   when available, otherwise a styled built-in font.
-- After export, the on-screen page is not re-rendered; the live field items
-  already match what was written to the file.
+- After export, the page **is** re-rendered so you see the baked-in text; the
+  editable field items are removed (the text now lives in the page itself).
