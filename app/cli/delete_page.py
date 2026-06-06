@@ -6,9 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from app.cli._common import EXIT_USAGE, run_with_backup
-from app.config.settings import Settings
-from app.logging_setup import configure_logging
+from app.cli._common import run_cli
 from app.pdf.deleter import delete_page
 
 
@@ -23,17 +21,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def main() -> int:
-    settings = Settings.from_env()
-    configure_logging(settings.log_level)
-    try:
-        args = _parse_args(sys.argv[1:])
-    except SystemExit as err:
-        return int(err.code) if isinstance(err.code, int) else EXIT_USAGE
-
-    def _op(path: Path) -> None:
-        delete_page(path, args.page)
-
-    return run_with_backup(args.pdf, _op, settings)
+    return run_cli(_parse_args, lambda a: a.pdf, lambda a: lambda p: delete_page(p, a.page))
 
 
 if __name__ == "__main__":

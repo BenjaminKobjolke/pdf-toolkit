@@ -6,9 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from app.cli._common import EXIT_USAGE, run_folder_merge
-from app.config.settings import Settings
-from app.logging_setup import configure_logging
+from app.cli._common import run_cli, run_folder_merge
 from app.pdf.merger import merge_folder
 
 
@@ -25,13 +23,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def main() -> int:
-    settings = Settings.from_env()
-    configure_logging(settings.log_level)
-    try:
-        args = _parse_args(sys.argv[1:])
-    except SystemExit as err:
-        return int(err.code) if isinstance(err.code, int) else EXIT_USAGE
-    return run_folder_merge(args.folder, merge_folder, settings)
+    return run_cli(_parse_args, lambda a: a.folder, lambda a: merge_folder, runner=run_folder_merge)
 
 
 if __name__ == "__main__":

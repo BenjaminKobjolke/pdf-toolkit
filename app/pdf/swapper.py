@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
+
+from app.pdf._atomic import write_pdf_atomic
 
 
 def swap_two_pages(source: Path) -> None:
@@ -23,7 +24,4 @@ def swap_two_pages(source: Path) -> None:
     writer.add_page(reader.pages[1])
     writer.add_page(reader.pages[0])
 
-    tmp = source.with_suffix(source.suffix + ".tmp")
-    with tmp.open("wb") as fh:
-        writer.write(fh)
-    os.replace(tmp, source)
+    write_pdf_atomic(source, writer)

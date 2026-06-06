@@ -22,6 +22,8 @@ from app.config.settings import Settings
 from app.logging_setup import configure_logging
 from app.pdf.deleter import delete_page, delete_page_range
 from app.pdf.merger import merge_folder
+from app.pdf.mover import move_page
+from app.pdf.rotator import rotate_page
 from app.pdf.swapper import swap_two_pages
 
 log = logging.getLogger("pdf_toolkit")
@@ -130,6 +132,20 @@ def _handle_delete_range(settings: Settings) -> int:
     return run_with_backup(pdf, lambda p: delete_page_range(p, start, end), settings)
 
 
+def _handle_rotate(settings: Settings) -> int:
+    pdf = _ask_pdf_path()
+    page = _ask_int("Page number (1-based): ")
+    degrees = _ask_int("Rotate clockwise degrees (90=right, 180=flip, 270=left): ")
+    return run_with_backup(pdf, lambda p: rotate_page(p, page, degrees), settings)
+
+
+def _handle_move(settings: Settings) -> int:
+    pdf = _ask_pdf_path()
+    from_page = _ask_int("Move page (1-based): ")
+    to_page = _ask_int("To position (1-based): ")
+    return run_with_backup(pdf, lambda p: move_page(p, from_page, to_page), settings)
+
+
 def _handle_merge_folder(settings: Settings) -> int:
     folder = _ask_folder_path()
     return run_folder_merge(folder, merge_folder, settings)
@@ -149,6 +165,8 @@ WIZARD_OPTIONS: tuple[WizardOption, ...] = (
     WizardOption("Swap pages (2-page PDF)", _handle_swap),
     WizardOption("Delete single page", _handle_delete_single),
     WizardOption("Delete page range", _handle_delete_range),
+    WizardOption("Rotate page", _handle_rotate),
+    WizardOption("Move page", _handle_move),
     WizardOption("Merge folder (PDFs + images) -> merged.pdf", _handle_merge_folder),
     WizardOption("Open GUI viewer", _handle_launch_gui),
 )

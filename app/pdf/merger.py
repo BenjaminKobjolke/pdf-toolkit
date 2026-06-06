@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import logging
-import os
 from io import BytesIO
 from pathlib import Path
 
 import img2pdf  # type: ignore[import-untyped]
 from PIL import Image
 from pypdf import PdfReader, PdfWriter
+
+from app.pdf._atomic import write_pdf_atomic
 
 MERGED_FILENAME: str = "merged.pdf"
 PDF_EXTENSION: str = ".pdf"
@@ -68,9 +69,7 @@ def merge_folder(folder: Path) -> None:
             else:
                 _append_image(writer, path)
 
-        with tmp.open("wb") as fh:
-            writer.write(fh)
-        os.replace(tmp, target)
+        write_pdf_atomic(target, writer)
         log.info("merged %d files into %s", len(inputs), target)
     finally:
         if tmp.exists():

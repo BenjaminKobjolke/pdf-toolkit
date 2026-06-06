@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
+
+from app.pdf._atomic import write_pdf_atomic
 
 
 def delete_page(source: Path, page_number: int) -> None:
@@ -35,10 +36,7 @@ def delete_page(source: Path, page_number: int) -> None:
         if index != drop_index:
             writer.add_page(page)
 
-    tmp = source.with_suffix(source.suffix + ".tmp")
-    with tmp.open("wb") as fh:
-        writer.write(fh)
-    os.replace(tmp, source)
+    write_pdf_atomic(source, writer)
 
 
 def delete_page_range(source: Path, start_page: int, end_page: int) -> None:
@@ -75,7 +73,4 @@ def delete_page_range(source: Path, start_page: int, end_page: int) -> None:
         if index < drop_start or index >= drop_end:
             writer.add_page(page)
 
-    tmp = source.with_suffix(source.suffix + ".tmp")
-    with tmp.open("wb") as fh:
-        writer.write(fh)
-    os.replace(tmp, source)
+    write_pdf_atomic(source, writer)

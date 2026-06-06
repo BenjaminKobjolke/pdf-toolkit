@@ -30,6 +30,8 @@ def test_wizard_options_are_registered() -> None:
     assert "Swap pages (2-page PDF)" in labels
     assert "Delete single page" in labels
     assert "Delete page range" in labels
+    assert "Rotate page" in labels
+    assert "Move page" in labels
 
 
 def test_wizard_options_have_callable_handlers() -> None:
