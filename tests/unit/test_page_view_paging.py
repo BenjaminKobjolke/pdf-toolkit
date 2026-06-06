@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import pytest
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QKeyEvent
+from PySide6.QtCore import QPoint, QPointF, Qt
+from PySide6.QtGui import QKeyEvent, QWheelEvent
 
 from app.gui.page_view import PageView
 from app.gui.text_item import TextFieldItem
@@ -20,6 +20,24 @@ def view(qapp: object, make_pdf: MakePdf) -> PageView:
 
 def _press(view: PageView, key: Qt.Key) -> None:
     view.keyPressEvent(QKeyEvent(QKeyEvent.Type.KeyPress, key, Qt.KeyboardModifier.NoModifier))
+
+
+def _wheel(
+    view: PageView,
+    dy: int,
+    mods: Qt.KeyboardModifier = Qt.KeyboardModifier.NoModifier,
+) -> None:
+    event = QWheelEvent(
+        QPointF(0, 0),
+        QPointF(0, 0),
+        QPoint(0, 0),
+        QPoint(0, dy),
+        Qt.MouseButton.NoButton,
+        mods,
+        Qt.ScrollPhase.NoScrollPhase,
+        False,
+    )
+    view.wheelEvent(event)
 
 
 def test_down_at_bottom_goes_next(view: PageView) -> None:
@@ -41,6 +59,38 @@ def test_down_stops_at_last_page(view: PageView) -> None:
 
 def test_up_stops_at_first_page(view: PageView) -> None:
     _press(view, Qt.Key.Key_Up)
+    assert view.current_page_one_based() == 1
+
+
+def test_wheel_down_at_bottom_goes_next(view: PageView) -> None:
+    _wheel(view, -120)
+    assert view.current_page_one_based() == 2
+
+
+def test_wheel_up_at_top_goes_prev(view: PageView) -> None:
+    view.go_to_page(2)
+    _wheel(view, 120)
+    assert view.current_page_one_based() == 2
+
+
+def test_wheel_down_stops_at_last_page(view: PageView) -> None:
+    view.go_to_page(2)
+    _wheel(view, -120)
+    assert view.current_page_one_based() == 3
+
+
+def test_ctrl_wheel_down_goes_next(view: PageView) -> None:
+    _wheel(view, -120, Qt.KeyboardModifier.ControlModifier)
+    assert view.current_page_one_based() == 2
+
+
+def test_ctrl_wheel_up_stops_at_first_page(view: PageView) -> None:
+    _wheel(view, 120, Qt.KeyboardModifier.ControlModifier)
+    assert view.current_page_one_based() == 1
+
+
+def test_shift_wheel_does_not_flip_page(view: PageView) -> None:
+    _wheel(view, -120, Qt.KeyboardModifier.ShiftModifier)
     assert view.current_page_one_based() == 1
 
 

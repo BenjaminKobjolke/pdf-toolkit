@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QColor, QKeyEvent, QPen, QPixmap
+from PySide6.QtGui import QColor, QKeyEvent, QPen, QPixmap, QWheelEvent
 from PySide6.QtWidgets import (
     QGraphicsPixmapItem,
     QGraphicsRectItem,
@@ -19,20 +19,12 @@ from PySide6.QtWidgets import (
 )
 
 from app.gui import render, strings
+from app.gui.page_input import PageInputController
 from app.gui.text_item import TextFieldItem
 from app.gui.zoom_controller import ZoomController
 
 _HIGHLIGHT_COLOR = "#ffd000"  # gold outline for search matches
 _HIGHLIGHT_Z = 2.0  # above the page (0) and text items (1)
-
-_NUDGE_STEP = 10.0  # scene px per arrow press
-_NUDGE_STEP_FINE = 1.0  # scene px per arrow press while Shift is held
-_ARROW_DELTAS: dict[Qt.Key, tuple[float, float]] = {
-    Qt.Key.Key_Left: (-1.0, 0.0),
-    Qt.Key.Key_Right: (1.0, 0.0),
-    Qt.Key.Key_Up: (0.0, -1.0),
-    Qt.Key.Key_Down: (0.0, 1.0),
-}
 
 
 class PageView(QGraphicsView):
@@ -57,6 +49,7 @@ class PageView(QGraphicsView):
         self._index = 0
         self._total = 0
         self._zoom_ctl = ZoomController(self, self._pixmap_item)
+        self._input = PageInputController(self)
 
     # --- document lifecycle -------------------------------------------------
 
@@ -211,66 +204,16 @@ class PageView(QGraphicsView):
         self._text_items.clear()
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
-        key = Qt.Key(event.key())
-        if key in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace) and self._can_edit_selection():
-            self.delete_requested.emit()
-            event.accept()
-            return
-        if key in _ARROW_DELTAS and self._can_edit_selection() and self._nudge(event, key):
-            event.accept()
-            return
-        if (
-            key in (Qt.Key.Key_Down, Qt.Key.Key_Up)
-            and not self._is_text_editing()
-            and self._flip_at_edge(key)
-        ):
+        if self._input.key_press(event):
             event.accept()
             return
         super().keyPressEvent(event)
 
-    def _flip_at_edge(self, key: Qt.Key) -> bool:
-        """Flip to the next/previous page when an arrow hits the scroll edge.
-
-        Returns False when there is still room to scroll (let the view scroll) or
-        when already on the first/last page.
-        """
-        bar = self.verticalScrollBar()
-        at_bottom = key == Qt.Key.Key_Down and bar.value() >= bar.maximum()
-        at_top = key == Qt.Key.Key_Up and bar.value() <= bar.minimum()
-        if at_bottom and self._index < self._total - 1:
-            self.show_next()
-            self.verticalScrollBar().setValue(self.verticalScrollBar().minimum())
-            return True
-        if at_top and self._index > 0:
-            self.show_prev()
-            self.verticalScrollBar().setValue(self.verticalScrollBar().maximum())
-            return True
-        return False
-
-    def _nudge(self, event: QKeyEvent, key: Qt.Key) -> bool:
-        """Move selected fields by an arrow step. Returns False if none selected."""
-        selected = [item for item in self._text_items if item.isSelected()]
-        if not selected:
-            return False
-        fine = bool(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)
-        step = _NUDGE_STEP_FINE if fine else _NUDGE_STEP
-        dx, dy = _ARROW_DELTAS[key]
-        for item in selected:
-            item.moveBy(dx * step, dy * step)
-        return True
-
-    def _can_edit_selection(self) -> bool:
-        """True when a field is selected and none is being text-edited."""
-        if self._is_text_editing():
-            return False  # let the keystroke act on the text being edited
-        return any(item.isSelected() for item in self._text_items)
-
-    def _is_text_editing(self) -> bool:
-        """True when a field currently has inline text-editing focus."""
-        focus = self._scene.focusItem()
-        return isinstance(focus, TextFieldItem) and (
-            focus.textInteractionFlags() != Qt.TextInteractionFlag.NoTextInteraction
-        )
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        if self._input.wheel(event):
+            event.accept()
+            return
+        super().wheelEvent(event)
 
     # --- rendering ----------------------------------------------------------
 
