@@ -141,6 +141,8 @@ Notes:
   each launch).
 - `dist\` and `build\` are git-ignored; the build config `pdft-gui.spec` is
   committed. To change the icon or bundled modules, edit that spec.
+- The window and exe icon come from one source PNG; see
+  [docs/APP_ICON.md](docs/APP_ICON.md) for the PNG → `.ico` workflow.
 - Requires the dev dependencies (`install.bat` / `uv sync --all-extras` installs
   PyInstaller).
 

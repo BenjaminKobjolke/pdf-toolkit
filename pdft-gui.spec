@@ -6,7 +6,7 @@ a = Analysis(
     ['app/cli/gui.py'],
     pathex=['.'],  # project root so `import app...` resolves
     binaries=[],
-    datas=[],
+    datas=[('assets/icon.ico', 'assets')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -36,4 +36,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='assets/icon.ico',
 )
