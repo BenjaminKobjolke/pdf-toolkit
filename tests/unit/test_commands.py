@@ -28,6 +28,15 @@ _ALL_IDS = {
     commands.DELETE_PAGE,
     commands.DELETE_RANGE,
     commands.MERGE_FOLDER,
+    commands.ROTATE_LEFT,
+    commands.ROTATE_RIGHT,
+    commands.ROTATE_180,
+    commands.MOVE_NEXT,
+    commands.MOVE_PREV,
+    commands.MOVE_FIRST,
+    commands.MOVE_LAST,
+    commands.SAVE,
+    commands.SHOW_SHORTCUTS,
     commands.RENAME_FILE,
     commands.TOGGLE_MENU,
     commands.TOGGLE_TOOLBAR,
@@ -47,6 +56,11 @@ _ALL_IDS = {
     commands.FIELD_TOGGLE_BOLD,
     commands.FIELD_TOGGLE_ITALIC,
     commands.FIELD_DELETE,
+    commands.PALETTE_WIDTH,
+    commands.PALETTE_HEIGHT,
+    commands.PALETTE_FONT,
+    commands.PALETTE_OPACITY,
+    commands.PALETTE_BORDERLESS,
 }
 
 

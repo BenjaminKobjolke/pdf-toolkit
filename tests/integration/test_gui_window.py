@@ -35,8 +35,13 @@ def test_delete_current_page_shrinks_document(
 
     window.page_actions.delete_current_page()
 
-    assert page_sizes_of(pdf) == [(300, 400), (120, 120)]
+    # Deferred: the view + working copy shrink; the original is intact until save.
     assert window._page_view.total_pages() == 2
+    assert window._working_doc.is_dirty()
+    assert page_sizes_of(pdf) == [(100, 200), (300, 400), (120, 120)]
+
+    window.save_changes()
+    assert page_sizes_of(pdf) == [(300, 400), (120, 120)]
 
 
 def test_swap_pages_through_window(
@@ -51,6 +56,9 @@ def test_swap_pages_through_window(
 
     window.page_actions.swap()
 
+    # Deferred: the original changes only after an explicit save.
+    assert page_sizes_of(pdf) == [(100, 200), (300, 400)]
+    window.save_changes()
     assert page_sizes_of(pdf) == [(300, 400), (100, 200)]
 
 

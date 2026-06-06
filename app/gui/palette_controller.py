@@ -1,0 +1,106 @@
+"""Owns command-palette appearance: the live settings, their edit prompts, and
+applying them to a palette dialog. Persists every change via
+:class:`PaletteSettingsStore`, so the window stays a thin coordinator.
+"""
+
+from __future__ import annotations
+
+from dataclasses import replace
+from typing import Any
+
+from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QDialog, QInputDialog, QWidget
+
+from app.config.palette_settings import (
+    FONT_PT_MAX,
+    FONT_PT_MIN,
+    HEIGHT_PCT_MAX,
+    HEIGHT_PCT_MIN,
+    OPACITY_PCT_MAX,
+    OPACITY_PCT_MIN,
+    WIDTH_PCT_MAX,
+    WIDTH_PCT_MIN,
+    PaletteSettingsStore,
+)
+from app.gui import strings
+from app.gui.palette_appearance import apply_appearance
+
+
+class PaletteController:
+    """Loads, edits, persists, and applies the palette appearance settings."""
+
+    def __init__(self, parent: QWidget, store: PaletteSettingsStore) -> None:
+        self._parent = parent
+        self._store = store
+        self._settings = store.load()
+
+    def apply_to(self, dialog: QDialog, window_size: QSize) -> None:
+        """Size/style/flag ``dialog`` from the current settings before it shows."""
+        apply_appearance(dialog, self._settings, window_size)
+
+    # --- edit prompts (bound to palette commands) ---------------------------
+
+    def set_width(self) -> None:
+        """Prompt for the palette width as a percentage of the window."""
+        self._edit_int(
+            "width_pct",
+            strings.DIALOG_PALETTE_WIDTH_TITLE,
+            strings.PROMPT_PALETTE_WIDTH,
+            WIDTH_PCT_MIN,
+            WIDTH_PCT_MAX,
+        )
+
+    def set_height(self) -> None:
+        """Prompt for the palette height as a percentage of the window."""
+        self._edit_int(
+            "height_pct",
+            strings.DIALOG_PALETTE_HEIGHT_TITLE,
+            strings.PROMPT_PALETTE_HEIGHT,
+            HEIGHT_PCT_MIN,
+            HEIGHT_PCT_MAX,
+        )
+
+    def set_font_size(self) -> None:
+        """Prompt for the palette font size in points (0 = reset to default).
+
+        When unset, the prompt is pre-filled with the actual default size rather
+        than ``0``, so the spinner shows a real number.
+        """
+        current = self._settings.font_pt or max(self._parent.font().pointSize(), FONT_PT_MIN + 1)
+        value, ok = QInputDialog.getInt(
+            self._parent,
+            strings.DIALOG_PALETTE_FONT_TITLE,
+            strings.PROMPT_PALETTE_FONT,
+            current,
+            FONT_PT_MIN,
+            FONT_PT_MAX,
+        )
+        if ok:
+            self._save(font_pt=value)
+
+    def set_opacity(self) -> None:
+        """Prompt for the palette opacity as a percentage."""
+        self._edit_int(
+            "opacity_pct",
+            strings.DIALOG_PALETTE_OPACITY_TITLE,
+            strings.PROMPT_PALETTE_OPACITY,
+            OPACITY_PCT_MIN,
+            OPACITY_PCT_MAX,
+        )
+
+    def toggle_borderless(self) -> None:
+        """Flip the palette frameless-window preference."""
+        self._save(borderless=not self._settings.borderless)
+
+    # --- internals ----------------------------------------------------------
+
+    def _edit_int(self, field_name: str, title: str, prompt: str, low: int, high: int) -> None:
+        """Prompt for one bounded integer field, then persist it."""
+        current = int(getattr(self._settings, field_name))
+        value, ok = QInputDialog.getInt(self._parent, title, prompt, current, low, high)
+        if ok:
+            self._save(**{field_name: value})
+
+    def _save(self, **changes: Any) -> None:
+        self._settings = replace(self._settings, **changes)
+        self._store.save(self._settings)

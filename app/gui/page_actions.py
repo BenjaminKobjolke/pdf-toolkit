@@ -1,8 +1,9 @@
 """Page-level PDF operations (swap, delete, merge) for the viewer window.
 
-Each runs through the shared :class:`GuiOperationRunner` (the single error
-boundary) and reloads the page on success. Kept out of ``MainWindow`` so the
-window stays a thin coordinator.
+Swap/delete run on the temp working copy through :class:`DeferredOps`, so they
+only reach the original file when the user saves. Merge is different — it builds
+a new ``merged.pdf`` and reopens it — so it stays immediate via the runner. Kept
+out of ``MainWindow`` so the window stays a thin coordinator.
 """
 
 from __future__ import annotations
@@ -13,6 +14,7 @@ from pathlib import Path
 from PySide6.QtWidgets import QFileDialog, QInputDialog, QMessageBox, QWidget
 
 from app.gui import strings
+from app.gui.deferred_ops import DeferredOps
 from app.gui.operations import GuiOperationRunner, OpResult
 from app.gui.page_view import PageView
 from app.pdf.deleter import delete_page, delete_page_range
@@ -21,29 +23,28 @@ from app.pdf.swapper import swap_two_pages
 
 
 class PageActions:
-    """Swap/delete/merge commands bound to the open document."""
+    """Swap/delete (deferred) and merge (immediate) commands for the open document."""
 
     def __init__(
         self,
         parent: QWidget,
-        page_view: PageView,
+        deferred: DeferredOps,
         runner: GuiOperationRunner,
-        source: Callable[[], Path | None],
         open_pdf: Callable[[Path], None],
         report: Callable[[OpResult], None],
     ) -> None:
         self._parent = parent
-        self._page_view = page_view
+        self._deferred = deferred
+        self._page_view: PageView = deferred.page_view
         self._runner = runner
-        self._source = source
         self._open_pdf = open_pdf
         self._report = report
 
     def swap(self) -> None:
-        self._run_on_file(swap_two_pages)
+        self._deferred.run(swap_two_pages)
 
     def delete_current_page(self) -> None:
-        if self._source() is None:
+        if self._deferred.working() is None:
             return
         page = self._page_view.current_page_one_based()
         total = self._page_view.total_pages()
@@ -54,10 +55,10 @@ class PageActions:
         )
         if confirm != QMessageBox.StandardButton.Yes:
             return
-        self._run_on_file(lambda p: delete_page(p, page))
+        self._deferred.run(lambda p: delete_page(p, page))
 
     def delete_page_range(self) -> None:
-        if self._source() is None:
+        if self._deferred.working() is None:
             return
         total = self._page_view.total_pages()
         start, ok = QInputDialog.getInt(
@@ -70,7 +71,7 @@ class PageActions:
         )
         if not ok:
             return
-        self._run_on_file(lambda p: delete_page_range(p, start, end))
+        self._deferred.run(lambda p: delete_page_range(p, start, end))
 
     def merge_folder(self) -> None:
         chosen = QFileDialog.getExistingDirectory(self._parent, strings.DIALOG_MERGE_TITLE)
@@ -79,13 +80,4 @@ class PageActions:
         result = self._runner.run_folder_merge(Path(chosen), merge_folder)
         if result.ok:
             self._open_pdf(Path(chosen) / MERGED_FILENAME)
-        self._report(result)
-
-    def _run_on_file(self, op: Callable[[Path], None]) -> None:
-        source = self._source()
-        if source is None:
-            return
-        result = self._runner.run_on_file(source, op)
-        if result.ok:
-            self._page_view.reload()
         self._report(result)

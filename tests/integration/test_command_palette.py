@@ -63,9 +63,13 @@ def test_delete_saved_fields_command_removes_sidecar(
     save_sidecar(pdf, TextDocumentSpec(fields=(_spec(),)))
     window.open_pdf(pdf)
     monkeypatch.setattr(QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes)
+    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: QMessageBox.StandardButton.Ok)
 
     window.delete_saved_text_fields()
 
+    # Deferred: the original sidecar is removed only on save.
+    assert sidecar_path(pdf).is_file()
+    window.save_changes()
     assert not sidecar_path(pdf).is_file()
 
 

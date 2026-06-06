@@ -11,6 +11,7 @@ from __future__ import annotations
 import contextlib
 import logging
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -22,7 +23,7 @@ from app.gui.page_view import PageView
 from app.gui.text_item import TextFieldItem
 from app.gui.text_style import TextStyle
 from app.pdf.sidecar import load_sidecar, save_sidecar, sidecar_path
-from app.pdf.text_overlay import apply_text_overlay, embedded_output_path
+from app.pdf.text_overlay import apply_text_overlay
 from app.pdf.text_spec import TextDocumentSpec, TextFieldSpec
 
 log = logging.getLogger("pdf_toolkit")
@@ -43,8 +44,9 @@ class FieldHit:
 class EditController:
     """Coordinates text-field editing between the page view and persistence."""
 
-    def __init__(self, page_view: PageView) -> None:
+    def __init__(self, page_view: PageView, mark_dirty: Callable[[], None] = lambda: None) -> None:
         self._page_view = page_view
+        self._mark_dirty = mark_dirty
         self._source: Path | None = None
         self._fields_by_page: dict[int, list[TextFieldSpec]] = {}
         self._edit_mode = False
@@ -159,27 +161,33 @@ class EditController:
         if self._source is not None:
             with contextlib.suppress(FileNotFoundError):
                 os.remove(sidecar_path(self._source))
+            self._mark_dirty()
 
     def flush(self) -> None:
         """Persist any pending edits immediately (e.g. before closing a doc)."""
         self._timer.stop()
         self._save()
 
-    def export(self, source: Path) -> OpResult:
-        """Write a copy of ``source`` with the text fields embedded.
+    def embed_into_document(self, target: Path) -> OpResult:
+        """Flatten the placed fields into ``target`` in place, then drop them.
 
-        Writes ``<stem>_text-embedded.pdf`` next to ``source`` (leaving the
-        original untouched) and saves the sidecar. Returns an :class:`OpResult`.
+        Used by the deferred "Export text to PDF" command: the text is baked into
+        the working PDF (reaching the original only on save), so the now-embedded
+        fields and their sidecar are cleared to avoid drawing them twice.
         """
         specs = self._collect_specs()
-        output = embedded_output_path(source)
         try:
-            apply_text_overlay(source, specs, output)
+            apply_text_overlay(target, specs)
         except (ValueError, OSError) as err:
             log.error("%s", err)
             return OpResult(False, str(err))
-        self._save()
-        return OpResult(True, strings.MSG_TEXT_EXPORTED_FMT.format(name=output.name))
+        self._timer.stop()
+        self._fields_by_page = {}
+        self._page_view.clear_text_items()
+        if self._source is not None:
+            with contextlib.suppress(FileNotFoundError):
+                os.remove(sidecar_path(self._source))
+        return OpResult(True, strings.MSG_TEXT_EMBEDDED)
 
     # --- internals ----------------------------------------------------------
 
@@ -212,6 +220,7 @@ class EditController:
     def _schedule_autosave(self) -> None:
         if self._source is not None:
             self._timer.start()
+            self._mark_dirty()
 
     def _save(self) -> None:
         if self._source is None:

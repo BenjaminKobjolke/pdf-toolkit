@@ -28,6 +28,22 @@ class OpResult:
     message: str
 
 
+def back_up(source: Path, backup_dir: Path) -> OpResult | None:
+    """Back up ``source`` into ``backup_dir``.
+
+    Returns ``None`` on success or an error :class:`OpResult` if the copy fails,
+    so callers in both the runner and :class:`~app.gui.working_document.WorkingDocument`
+    share one backup error path.
+    """
+    try:
+        backup_path = create_backup(source, backup_dir)
+    except OSError as err:
+        log.error("failed to create backup: %s", err)
+        return OpResult(False, strings.MSG_BACKUP_FAILED_FMT.format(error=err))
+    log.info("backup written: %s", backup_path)
+    return None
+
+
 class GuiOperationRunner:
     """Run core PDF ops with a backup and turn failures into :class:`OpResult`."""
 
@@ -45,6 +61,16 @@ class GuiOperationRunner:
 
         return self._run(op, source, strings.MSG_DONE_FMT.format(name=source.name))
 
+    def run_on_working(self, working: Path, op: Callable[[Path], None]) -> OpResult:
+        """Run ``op`` on the temp working copy with no backup.
+
+        Page ops mutate the working copy, not the original; the single backup
+        happens later in :meth:`WorkingDocument.save`.
+        """
+        if not working.is_file():
+            return OpResult(False, strings.MSG_NOT_FOUND_FMT.format(path=working))
+        return self._run(op, working, strings.MSG_DONE_FMT.format(name=working.name))
+
     def run_folder_merge(self, folder: Path, op: Callable[[Path], None]) -> OpResult:
         """Validate ``folder``, back up an existing merged.pdf, then run ``op``."""
         if not folder.is_dir():
@@ -60,13 +86,7 @@ class GuiOperationRunner:
         return self._run(op, folder, strings.MSG_MERGED_FMT.format(path=merged))
 
     def _back_up(self, source: Path) -> OpResult | None:
-        try:
-            backup_path = create_backup(source, self._settings.backup_dir)
-        except OSError as err:
-            log.error("failed to create backup: %s", err)
-            return OpResult(False, strings.MSG_BACKUP_FAILED_FMT.format(error=err))
-        log.info("backup written: %s", backup_path)
-        return None
+        return back_up(source, self._settings.backup_dir)
 
     def _run(self, op: Callable[[Path], None], target: Path, success: str) -> OpResult:
         try:

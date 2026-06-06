@@ -31,10 +31,18 @@ are hidden until a PDF is open.
 |---------|--------------|
 | **Open PDF…** | Prompt for a PDF and open it. |
 | **Open from history…** | Pick from recently opened documents (see below). |
+| **Save changes to original file** | Write the working copy back to the original (with a backup). See *Deferred saving*. |
 | **Rename file…** | Rename the open PDF (and its sidecar) and reopen it. |
-| **Close current document** | Save pending text edits, then return to the empty viewer. |
+| **Close current document** | Offer to save unsaved changes, then return to the empty viewer. |
 | **Toggle menu bar** | Show/hide the top menu bar (remembered across sessions). |
+| **Toggle toolbar** | Show/hide the button toolbars (remembered across sessions). |
+| **Palette: width %…** | Set the palette width as a % of the window (see *Appearance settings*). |
+| **Palette: height %…** | Set the palette height as a % of the window. |
+| **Palette: font size…** | Set the palette font size in points (0 = default). |
+| **Palette: opacity %…** | Set the palette window opacity. |
+| **Palette: toggle borderless** | Show/hide the palette window frame. |
 | **Exit** | Close the viewer. |
+| **Show keyboard shortcuts** | Open a searchable, read-only list of every shortcut (also **F1**). |
 | **Previous page** / **Next page** | Step one page back / forward. |
 | **First page** / **Last page** | Jump to the first / last page. |
 | **Zoom to fit** | Scale the page to fit the window. |
@@ -43,11 +51,14 @@ are hidden until a PDF is open.
 | **Swap 2 pages** | Swap the two pages of a 2-page PDF. |
 | **Delete current page** | Delete the page on screen (asks first). |
 | **Delete page range…** | Delete an inclusive range of pages. |
+| **Rotate page 90° left** / **90° right** / **180°** | Rotate the current page (also `Ctrl+Shift+R` / `Ctrl+R`). |
+| **Move page to next position** / **previous position** | Swap the current page one step forward / back. |
+| **Move page to first** / **to last** | Move the current page to the start / end. |
 | **Merge folder…** | Merge a folder of PDFs and images into `merged.pdf`. |
 | **Toggle text edit mode** | Turn text editing on / off (see `TEXT_EDITING.md`). |
 | **Add text field** | Add a new text field (edit mode only). |
 | **Delete selected field** | Remove the selected text field(s) (edit mode only). |
-| **Export text to PDF** | Write text fields onto a `_text-embedded` copy. |
+| **Export text to PDF** | Flatten the placed text fields into the document (deferred until save). |
 | **Delete saved text fields for this document** | Delete this PDF's saved fields and its JSON sidecar. |
 | **Search PDF text…** | Live full-text search of the document (see below). |
 | **Search text fields…** | Live search of your placed text fields (see below). |
@@ -66,6 +77,18 @@ When a text field is **selected**, these extra commands appear in the palette
 | **Field: toggle bold** / **toggle italic** | Flip the style. |
 | **Field: delete** | Remove the selected field. |
 
+## Deferred saving
+
+Page edits (rotate, move, delete, swap), **Export text to PDF**, and your text-field
+layout all apply to a **temporary working copy** — the original file and its JSON
+sidecar on disk are left untouched. The footer shows **● Modified** while there are
+unsaved changes.
+
+- **Save changes to original file** (`Ctrl+S`) writes the working copy back to the
+  original, creating one timestamped backup (`backup/YYYYMMDD-HHMM-<name>.pdf`).
+- Closing the window, opening another PDF, or closing the document while modified
+  prompts to **Save**, **Discard**, or **Cancel**.
+
 ## Keyboard shortcuts
 
 Common commands also have direct keys, so you do not have to open the palette:
@@ -73,17 +96,43 @@ Common commands also have direct keys, so you do not have to open the palette:
 | Key | Command |
 |-----|---------|
 | **Ctrl+Shift+P** | Open the command palette |
+| **F1** | Show keyboard shortcuts |
 | **Ctrl+F** | Search PDF text |
 | **Ctrl+Shift+F** | Search text fields |
 | **Ctrl+Shift+H** | Clear search highlights |
 | **Page Down** / **Page Up** | Next / previous page |
 | **Home** / **End** | First / last page |
-| **Ctrl++** (or **Ctrl+=**) | Zoom in 10% |
-| **Ctrl+-** | Zoom out 10% |
+| **Ctrl++** (or **Ctrl+=**, **Ctrl+↑**) | Zoom in 10% |
+| **Ctrl+-** (or **Ctrl+↓**) | Zoom out 10% |
 | **Ctrl+0** | Zoom 100% |
+| **Ctrl+R** / **Ctrl+Shift+R** | Rotate current page right / left |
+| **Ctrl+S** | Save changes to the original file |
 
 Zoom level persists as you change pages. **Zoom to fit** is available from the
-palette.
+palette. The full key map lives in `KEYBOARD_SHORTCUTS.md`.
+
+## Appearance settings
+
+The palette window itself is tunable, all from inside the palette (per-value
+prompts) and remembered across sessions:
+
+| Command | Range | Effect |
+|---------|-------|--------|
+| **Palette: width %…** | 20–100 | Width as a percentage of the main window. |
+| **Palette: height %…** | 20–100 | Height as a percentage of the main window. |
+| **Palette: font size…** | 0–40 pt | Font size of the filter box + list (0 keeps the default). |
+| **Palette: opacity %…** | 20–100 | Window transparency. |
+| **Palette: toggle borderless** | — | Removes/restores the OS window frame. |
+
+Settings persist in a global file:
+
+```
+~/.pdf-toolkit/palette.json
+```
+
+The location can be overridden with the `PDF_TOOLKIT_PALETTE_FILE` environment
+variable. A missing or corrupt file falls back to the defaults (width 80%,
+height 60%, default font, opaque, framed).
 
 ## Search
 

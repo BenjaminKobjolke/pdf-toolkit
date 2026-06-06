@@ -80,9 +80,7 @@ def test_flush_without_fields_creates_no_sidecar(qapp: object, make_pdf: MakePdf
     assert not sidecar_path(pdf).is_file()
 
 
-def test_flush_after_deleting_all_fields_removes_sidecar(
-    qapp: object, make_pdf: MakePdf
-) -> None:
+def test_flush_after_deleting_all_fields_removes_sidecar(qapp: object, make_pdf: MakePdf) -> None:
     pdf = make_pdf([(300, 400)])
     save_sidecar(pdf, TextDocumentSpec(fields=(_spec(),)))
     view = PageView()

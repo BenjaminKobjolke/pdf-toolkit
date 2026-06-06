@@ -145,23 +145,28 @@ def test_fields_restore_on_navigation(window: MainWindow, make_pdf: MakePdf) -> 
     assert len(window._page_view.text_items()) == 1  # page 1 field restored
 
 
-def test_export_writes_embedded_copy_and_keeps_source(
-    window: MainWindow, make_pdf: MakePdf
+def test_export_embeds_text_into_working_copy_and_defers(
+    window: MainWindow, make_pdf: MakePdf, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    from PySide6.QtWidgets import QMessageBox
+
+    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: QMessageBox.StandardButton.Ok)
     pdf = make_pdf([(300, 400)])
+    original_bytes = pdf.read_bytes()
     window.open_pdf(pdf)
     controller = window._controller
     controller.set_edit_mode(True)
     controller.add_field()
 
-    result = controller.export(pdf)
+    window.export_text()
 
-    output = embedded_output_path(pdf)
-    assert result.ok
-    assert output.name.endswith("_text-embedded.pdf")
-    assert output.is_file()  # embedded copy written
-    assert pdf.is_file()  # original untouched
-    assert sidecar_path(pdf).is_file()
+    # Fields are flattened into the working copy and cleared from the view.
+    assert window._page_view.text_items() == ()
+    assert window._working_doc.is_dirty()
+    # The original on disk is untouched until the user saves.
+    assert pdf.read_bytes() == original_bytes
+    # No separate _text-embedded.pdf is written next to the original any more.
+    assert not embedded_output_path(pdf).exists()
 
 
 def test_autosave_persists_fields(window: MainWindow, make_pdf: MakePdf) -> None:
@@ -173,6 +178,10 @@ def test_autosave_persists_fields(window: MainWindow, make_pdf: MakePdf) -> None
 
     controller._save()  # what the debounce timer would call
 
-    doc = load_sidecar(pdf)
+    # Autosave writes to the working copy's sidecar, not the original (deferred).
+    working = window._working_doc.working()
+    assert working is not None
+    doc = load_sidecar(working)
     assert len(doc.fields) == 1
     assert doc.fields[0].page_index == 0
+    assert not sidecar_path(pdf).is_file()

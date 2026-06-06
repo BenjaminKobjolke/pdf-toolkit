@@ -34,9 +34,23 @@ SWAP = "swap"
 DELETE_PAGE = "delete_page"
 DELETE_RANGE = "delete_range"
 MERGE_FOLDER = "merge_folder"
+ROTATE_LEFT = "rotate_left"
+ROTATE_RIGHT = "rotate_right"
+ROTATE_180 = "rotate_180"
+MOVE_NEXT = "move_next"
+MOVE_PREV = "move_prev"
+MOVE_FIRST = "move_first"
+MOVE_LAST = "move_last"
+SAVE = "save"
+SHOW_SHORTCUTS = "show_shortcuts"
 RENAME_FILE = "rename_file"
 TOGGLE_MENU = "toggle_menu"
 TOGGLE_TOOLBAR = "toggle_toolbar"
+PALETTE_WIDTH = "palette_width"
+PALETTE_HEIGHT = "palette_height"
+PALETTE_FONT = "palette_font"
+PALETTE_OPACITY = "palette_opacity"
+PALETTE_BORDERLESS = "palette_borderless"
 EDIT_MODE = "edit_mode"
 ADD_FIELD = "add_field"
 DELETE_FIELD = "delete_field"
@@ -65,37 +79,106 @@ class Command:
     is_enabled: Callable[[], bool] = field(default=lambda: True)
 
 
-def build_commands(window: MainWindow) -> list[Command]:
-    """Build the full command registry bound to ``window`` and its collaborators."""
-    view = window.page_view
-    controller = window.controller
-    fields = window.field_actions
-    search = window.search_actions
-    pages = window.page_actions
-    has_doc = window.has_document
-    has_highlights = view.has_highlights
-    has_field = lambda: view.selected_text_item() is not None  # noqa: E731
+Predicate = Callable[[], bool]
 
+
+def build_commands(window: MainWindow) -> list[Command]:
+    """Assemble the full registry from the per-concern command groups."""
+    has_doc = window.has_document
+    has_highlights = window.page_view.has_highlights
+    has_field: Predicate = lambda: window.page_view.selected_text_item() is not None  # noqa: E731
+    return [
+        *_document_commands(window, has_doc),
+        *_navigation_commands(window, has_doc),
+        *_zoom_commands(window, has_doc),
+        *_page_commands(window, has_doc),
+        *_rotate_commands(window, has_doc),
+        *_move_commands(window, has_doc),
+        *_view_commands(window),
+        *_edit_commands(window, has_doc),
+        *_search_commands(window, has_doc, has_highlights),
+        *_field_commands(window, has_field),
+    ]
+
+
+def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     return [
         Command(OPEN, strings.CMD_OPEN, lambda: window.open_pdf()),
         Command(OPEN_HISTORY, strings.CMD_OPEN_HISTORY, window.open_from_history),
+        Command(SAVE, strings.CMD_SAVE, window.save_changes, has_doc),
+        Command(RENAME_FILE, strings.CMD_RENAME_FILE, window.rename_file, has_doc),
         Command(CLOSE_DOC, strings.CMD_CLOSE_DOC, window.close_document, has_doc),
         Command(EXIT, strings.CMD_EXIT, window.exit_app),
+        Command(SHOW_SHORTCUTS, strings.CMD_SHOW_SHORTCUTS, window.show_keyboard_shortcuts),
+    ]
+
+
+def _navigation_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+    view = window.page_view
+    return [
         Command(PREV_PAGE, strings.CMD_PREV_PAGE, view.show_prev, has_doc),
         Command(NEXT_PAGE, strings.CMD_NEXT_PAGE, view.show_next, has_doc),
         Command(FIRST_PAGE, strings.CMD_FIRST_PAGE, view.show_first, has_doc),
         Command(LAST_PAGE, strings.CMD_LAST_PAGE, view.show_last, has_doc),
+    ]
+
+
+def _zoom_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+    view = window.page_view
+    return [
         Command(ZOOM_FIT, strings.CMD_ZOOM_FIT, view.zoom_fit, has_doc),
         Command(ZOOM_ACTUAL, strings.CMD_ZOOM_ACTUAL, view.zoom_actual, has_doc),
         Command(ZOOM_IN, strings.CMD_ZOOM_IN, view.zoom_in, has_doc),
         Command(ZOOM_OUT, strings.CMD_ZOOM_OUT, view.zoom_out, has_doc),
+    ]
+
+
+def _page_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+    pages = window.page_actions
+    return [
         Command(SWAP, strings.CMD_SWAP, pages.swap, has_doc),
         Command(DELETE_PAGE, strings.CMD_DELETE_PAGE, pages.delete_current_page, has_doc),
         Command(DELETE_RANGE, strings.CMD_DELETE_RANGE, pages.delete_page_range, has_doc),
         Command(MERGE_FOLDER, strings.CMD_MERGE_FOLDER, pages.merge_folder),
-        Command(RENAME_FILE, strings.CMD_RENAME_FILE, window.rename_file, has_doc),
+    ]
+
+
+def _rotate_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+    rotate = window.rotate_actions
+    return [
+        Command(ROTATE_LEFT, strings.CMD_ROTATE_LEFT, rotate.rotate_left, has_doc),
+        Command(ROTATE_RIGHT, strings.CMD_ROTATE_RIGHT, rotate.rotate_right, has_doc),
+        Command(ROTATE_180, strings.CMD_ROTATE_180, rotate.rotate_180, has_doc),
+    ]
+
+
+def _move_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+    move = window.move_actions
+    return [
+        Command(MOVE_NEXT, strings.CMD_MOVE_NEXT, move.move_to_next, has_doc),
+        Command(MOVE_PREV, strings.CMD_MOVE_PREV, move.move_to_prev, has_doc),
+        Command(MOVE_FIRST, strings.CMD_MOVE_FIRST, move.move_to_first, has_doc),
+        Command(MOVE_LAST, strings.CMD_MOVE_LAST, move.move_to_last, has_doc),
+    ]
+
+
+def _view_commands(window: MainWindow) -> list[Command]:
+    """Window chrome plus command-palette appearance settings."""
+    palette = window.palette_controller
+    return [
         Command(TOGGLE_MENU, strings.CMD_TOGGLE_MENU, window.toggle_menu_bar),
         Command(TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
+        Command(PALETTE_WIDTH, strings.CMD_PALETTE_WIDTH, palette.set_width),
+        Command(PALETTE_HEIGHT, strings.CMD_PALETTE_HEIGHT, palette.set_height),
+        Command(PALETTE_FONT, strings.CMD_PALETTE_FONT, palette.set_font_size),
+        Command(PALETTE_OPACITY, strings.CMD_PALETTE_OPACITY, palette.set_opacity),
+        Command(PALETTE_BORDERLESS, strings.CMD_PALETTE_BORDERLESS, palette.toggle_borderless),
+    ]
+
+
+def _edit_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+    controller = window.controller
+    return [
         Command(EDIT_MODE, strings.CMD_EDIT_MODE, window.toggle_edit_mode, has_doc),
         Command(ADD_FIELD, strings.CMD_ADD_FIELD, window.add_text_field, has_doc),
         Command(DELETE_FIELD, strings.CMD_DELETE_FIELD, controller.delete_selected, has_doc),
@@ -106,11 +189,26 @@ def build_commands(window: MainWindow) -> list[Command]:
             window.delete_saved_text_fields,
             has_doc,
         ),
+    ]
+
+
+def _search_commands(
+    window: MainWindow, has_doc: Predicate, has_highlights: Predicate
+) -> list[Command]:
+    search = window.search_actions
+    return [
         Command(SEARCH_PDF, strings.CMD_SEARCH_PDF, search.search_pdf_text, has_doc),
         Command(SEARCH_FIELDS, strings.CMD_SEARCH_FIELDS, search.search_fields, has_doc),
         Command(
             CLEAR_HIGHLIGHTS, strings.CMD_CLEAR_HIGHLIGHTS, search.clear_highlights, has_highlights
         ),
+    ]
+
+
+def _field_commands(window: MainWindow, has_field: Predicate) -> list[Command]:
+    """Commands shown only while a text field is selected."""
+    fields = window.field_actions
+    return [
         Command(FIELD_CHANGE_TEXT, strings.CMD_FIELD_CHANGE_TEXT, fields.change_text, has_field),
         Command(FIELD_FONT_SIZE, strings.CMD_FIELD_FONT_SIZE, fields.change_size, has_field),
         Command(FIELD_FONT_FAMILY, strings.CMD_FIELD_FONT_FAMILY, fields.change_font, has_field),

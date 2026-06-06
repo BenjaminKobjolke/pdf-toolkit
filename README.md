@@ -5,9 +5,11 @@ Small Python CLI toolkit for two PDF page operations, each with an automatic tim
 - `pdf-swap-pages.bat <pdf>` — swap the two pages of a 2-page PDF, overwriting the original.
 - `pdf-delete-page.bat <page> <pdf>` — delete page `<page>` (1-based), overwriting the original.
 - `pdf-delete-pages.bat <start> <end> <pdf>` — delete pages `<start>`..`<end>` (1-based, inclusive), overwriting the original.
+- `pdf-rotate-page.bat <page> <degrees> <pdf>` — rotate page `<page>` (1-based) clockwise by `<degrees>` (`90` = right, `180` = flip, `270` = left), overwriting the original.
+- `pdf-move-page.bat <from> <to> <pdf>` — move page `<from>` to 1-based position `<to>`, overwriting the original.
 - `pdf-merge-folder.bat <folder>` — merge every supported file (`.pdf`, `.jpg`, `.jpeg`, `.png`) in `<folder>` into `<folder>\merged.pdf`. Files are added in alphabetical order (case-insensitive). Subfolders are ignored. If `merged.pdf` already exists in the folder, it is backed up first.
-- `pdft.bat` — interactive wizard that prompts for the operation (swap / delete single / delete range / merge folder / open GUI viewer) and its arguments. The PDF prompt has Tab-completion against `*.pdf` files in the current directory; the folder prompt has Tab-completion against subdirectories (powered by `prompt_toolkit`).
-- `pdft_gui.bat [pdf]` — GUI viewer (PySide6) that renders the PDF page by page, with a **command palette** (`Ctrl+Shift+P`) for every action: page operations, zoom, navigation, full-text + field search, recent-document history, rename, and in-place text editing. Optionally pass a PDF path to open on startup.
+- `pdft.bat` — interactive wizard that prompts for the operation (swap / delete single / delete range / rotate / move / merge folder / open GUI viewer) and its arguments. The PDF prompt has Tab-completion against `*.pdf` files in the current directory; the folder prompt has Tab-completion against subdirectories (powered by `prompt_toolkit`).
+- `pdft_gui.bat [pdf]` — GUI viewer (PySide6) that renders the PDF page by page, with a **command palette** (`Ctrl+Shift+P`) for every action: page operations (rotate, move, delete, swap), zoom, navigation, full-text + field search, recent-document history, rename, and in-place text editing. Edits go to a temporary working copy and reach the original only when you **Save** (`Ctrl+S`); closing with unsaved changes prompts first. Press **F1** for the shortcut list. Optionally pass a PDF path to open on startup.
 
 Every run first copies the original to `backup/YYYYMMDD-HHMM-<filename>.pdf`. The `backup/` directory is resolved relative to your current working directory, so when you run the tool from `C:\Users\me\Documents` the backup lands in `C:\Users\me\Documents\backup\`. Override with the `PDF_TOOLKIT_BACKUP_DIR` environment variable. The backup is created **before** validation, so if validation fails (e.g. swap on a 3-page PDF) the original is untouched but a backup still exists.
 
@@ -79,7 +81,16 @@ The palette and direct shortcuts cover:
 | `Page Down` / `Page Up` | Next / previous page |
 | `Home` / `End` | First / last page |
 | `Ctrl++` / `Ctrl+-` / `Ctrl+0` | Zoom in / out / 100% |
+| `Ctrl+↑` / `Ctrl+↓` | Zoom in / out 10% |
 | `↑` / `↓` at the page edge | Previous / next page |
+
+Full key map: [docs/KEYBOARD_SHORTCUTS.md](docs/KEYBOARD_SHORTCUTS.md).
+
+A footer **status bar** shows the current mode (left) and page `current/total`
+(centre); it stays visible even with the toolbars hidden. See
+[docs/STATUS_BAR.md](docs/STATUS_BAR.md). The palette window itself is tunable
+(size, font, opacity, borderless) — see the *Appearance settings* section of
+[docs/COMMAND_PALETTE.md](docs/COMMAND_PALETTE.md).
 
 Every page operation writes a backup first (same `backup/YYYYMMDD-HHMM-<name>.pdf`
 format) and surfaces validation errors in a dialog.
