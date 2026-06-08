@@ -91,6 +91,19 @@ def test_window_geometry_restored_on_construct(qapp: object, tmp_path: Path) -> 
     assert win.height() == 480
 
 
+def test_offscreen_geometry_pulled_back_on_screen(qapp: object, tmp_path: Path) -> None:
+    # Saved position points at a monitor that no longer exists (display changed):
+    # the window must be relocated onto a connected screen, not left invisible.
+    from PySide6.QtGui import QGuiApplication
+
+    settings = _settings(tmp_path)
+    WindowGeometryStore(settings.window_file).save(
+        WindowGeometry(x=99999, y=99999, width=640, height=480)
+    )
+    win = MainWindow(settings)
+    assert QGuiApplication.screenAt(win.frameGeometry().center()) is not None
+
+
 def test_close_event_persists_geometry(qapp: object, tmp_path: Path) -> None:
     settings = _settings(tmp_path)
     win = MainWindow(settings)
