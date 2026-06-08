@@ -8,10 +8,11 @@ reader never sees a half-written PDF. This mirrors
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 from pypdf import PdfWriter
+
+from app.io.fs import replace_atomic
 
 _TMP_SUFFIX = ".tmp"
 
@@ -21,4 +22,4 @@ def write_pdf_atomic(source: Path, writer: PdfWriter) -> None:
     tmp = source.with_suffix(source.suffix + _TMP_SUFFIX)
     with tmp.open("wb") as fh:
         writer.write(fh)
-    os.replace(tmp, source)
+    replace_atomic(tmp, source)

@@ -9,12 +9,12 @@ PDF is overwritten atomically (tmp + ``os.replace``), matching the other ops.
 from __future__ import annotations
 
 import logging
-import os
 from collections.abc import Sequence
 from pathlib import Path
 
 import fitz  # PyMuPDF
 
+from app.io.fs import replace_atomic
 from app.pdf.fonts import FontRequest, ResolvedFont, resolve_font
 from app.pdf.image_overlay import draw_image
 from app.pdf.image_spec import ImageFieldSpec
@@ -97,7 +97,7 @@ def apply_overlay(
     finally:
         doc.close()
 
-    os.replace(tmp, target)
+    replace_atomic(tmp, target)
 
 
 def _require_page(page_index: int, total: int) -> None:

@@ -19,6 +19,7 @@ from pathlib import Path
 from app.config.settings import Settings
 from app.gui import strings
 from app.gui.operations import OpResult, back_up
+from app.io.fs import clear_readonly, replace_atomic
 from app.pdf.sidecar import sidecar_path
 
 log = logging.getLogger("pdf_toolkit")
@@ -44,9 +45,13 @@ class WorkingDocument:
         tmp_dir = Path(tempfile.mkdtemp(prefix="pdftk-"))
         working = tmp_dir / original.name
         shutil.copy2(original, working)
+        # ``copy2`` carries over a read-only attribute the source may have (common
+        # for email/download PDFs); strip it so in-place edits can replace it.
+        clear_readonly(working)
         original_sidecar = sidecar_path(original)
         if original_sidecar.is_file():
             shutil.copy2(original_sidecar, sidecar_path(working))
+            clear_readonly(sidecar_path(working))
         self._original = original
         self._working = working
         self._dirty = False
@@ -115,7 +120,7 @@ class WorkingDocument:
         """Copy ``src`` onto ``dst`` atomically (tmp sibling + ``os.replace``)."""
         tmp = dst.with_suffix(dst.suffix + _TMP_SUFFIX)
         shutil.copy2(src, tmp)
-        os.replace(tmp, dst)
+        replace_atomic(tmp, dst)
 
     @staticmethod
     def _remove_quietly(path: Path) -> None:

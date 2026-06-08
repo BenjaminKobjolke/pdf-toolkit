@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import stat
 from pathlib import Path
 
 import pytest
@@ -80,6 +82,24 @@ def test_move_to_last_follows_page_and_defers(
 
     window.save_changes()
     assert page_sizes_of(pdf) == [(20, 20), (30, 30), (10, 10)]
+
+
+def test_rotate_and_save_readonly_pdf(
+    window: MainWindow, settings: Settings, make_pdf: MakePdf
+) -> None:
+    # PDFs from email attachments / downloads commonly carry the read-only
+    # attribute. The working copy inherits it; without clearing it, the atomic
+    # os.replace fails with WinError 5 on Windows.
+    pdf = make_pdf([(100, 200), (300, 400)])
+    os.chmod(pdf, stat.S_IREAD)
+    window.open_pdf(pdf)
+
+    window.rotate_actions.rotate_right()
+    window.save_changes()
+
+    assert not window._working_doc.is_dirty()
+    assert _rotations(pdf) == [90, 0]
+    assert list(window._working_doc.working().parent.glob("*.tmp")) == []
 
 
 def test_discard_path_leaves_original_unchanged(window: MainWindow, make_pdf: MakePdf) -> None:
