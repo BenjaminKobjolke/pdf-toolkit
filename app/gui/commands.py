@@ -44,6 +44,7 @@ MOVE_PREV = "move_prev"
 MOVE_FIRST = "move_first"
 MOVE_LAST = "move_last"
 SAVE = "save"
+PRINT = "print"
 SHOW_SHORTCUTS = "show_shortcuts"
 RENAME_FILE = "rename_file"
 TOGGLE_MENU = "toggle_menu"
@@ -122,6 +123,7 @@ def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
         Command(OPEN, strings.CMD_OPEN, lambda: window.open_pdf()),
         Command(OPEN_HISTORY, strings.CMD_OPEN_HISTORY, window.open_from_history),
         Command(SAVE, strings.CMD_SAVE, window.save_changes, has_doc),
+        Command(PRINT, strings.CMD_PRINT, window.print_actions.print_document, has_doc),
         Command(RENAME_FILE, strings.CMD_RENAME_FILE, window.rename_file, has_doc),
         Command(CLOSE_DOC, strings.CMD_CLOSE_DOC, window.close_document, has_doc),
         Command(EXIT, strings.CMD_EXIT, window.exit_app),

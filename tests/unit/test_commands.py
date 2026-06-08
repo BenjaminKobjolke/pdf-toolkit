@@ -38,6 +38,7 @@ _ALL_IDS = {
     commands.MOVE_FIRST,
     commands.MOVE_LAST,
     commands.SAVE,
+    commands.PRINT,
     commands.SHOW_SHORTCUTS,
     commands.RENAME_FILE,
     commands.TOGGLE_MENU,
@@ -112,6 +113,7 @@ def test_doc_commands_disabled_without_document(window: MainWindow) -> None:
     registry = commands.build_commands(window)
     assert commands.find(registry, commands.ZOOM_IN).is_enabled() is False
     assert commands.find(registry, commands.NEXT_PAGE).is_enabled() is False
+    assert commands.find(registry, commands.PRINT).is_enabled() is False
     # Always-available commands stay enabled.
     assert commands.find(registry, commands.OPEN).is_enabled() is True
     assert commands.find(registry, commands.EXIT).is_enabled() is True

@@ -45,6 +45,7 @@ from app.gui.page_view import PageView
 from app.gui.palette_actions import PaletteActions
 from app.gui.palette_controller import PaletteController
 from app.gui.placement import PlacementController
+from app.gui.print_actions import PrintActions
 from app.gui.remembered_settings import RememberedSettingsController
 from app.gui.rotate_actions import RotateActions
 from app.gui.save_controller import SaveController
@@ -163,6 +164,7 @@ def _build_operations(window: MainWindow) -> None:
     )
     window._rotate_actions = RotateActions(window._deferred)
     window._move_actions = MoveActions(window._deferred)
+    window._print_actions = PrintActions(window, window._working_doc.working)
 
 
 def _lay_out(window: MainWindow) -> None:

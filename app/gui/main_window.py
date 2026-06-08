@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     from app.gui.palette_actions import PaletteActions
     from app.gui.palette_controller import PaletteController
     from app.gui.placement import PlacementController
+    from app.gui.print_actions import PrintActions
     from app.gui.remembered_settings import RememberedSettingsController
     from app.gui.rotate_actions import RotateActions
     from app.gui.save_controller import SaveController
@@ -82,6 +83,7 @@ class MainWindow(QMainWindow):
     _page_actions: PageActions
     _rotate_actions: RotateActions
     _move_actions: MoveActions
+    _print_actions: PrintActions
     _registry: list[Command]
     _document_actions: DocumentActions
     _palette_actions: PaletteActions
@@ -139,6 +141,10 @@ class MainWindow(QMainWindow):
     @property
     def move_actions(self) -> MoveActions:
         return self._move_actions
+
+    @property
+    def print_actions(self) -> PrintActions:
+        return self._print_actions
 
     @property
     def palette_controller(self) -> PaletteController:
