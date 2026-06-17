@@ -40,6 +40,8 @@ _ALL_IDS = {
     commands.SAVE,
     commands.PRINT,
     commands.SHOW_SHORTCUTS,
+    commands.COMMAND_PALETTE,
+    commands.CONFIGURE_SHORTCUTS,
     commands.RENAME_FILE,
     commands.TOGGLE_MENU,
     commands.TOGGLE_TOOLBAR,

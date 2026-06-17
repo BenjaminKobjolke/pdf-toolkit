@@ -46,6 +46,8 @@ MOVE_LAST = "move_last"
 SAVE = "save"
 PRINT = "print"
 SHOW_SHORTCUTS = "show_shortcuts"
+COMMAND_PALETTE = "command_palette"
+CONFIGURE_SHORTCUTS = "configure_shortcuts"
 RENAME_FILE = "rename_file"
 TOGGLE_MENU = "toggle_menu"
 TOGGLE_TOOLBAR = "toggle_toolbar"
@@ -188,6 +190,8 @@ def _view_commands(window: MainWindow) -> list[Command]:
     outline = window.outline_controller
     zoom = window.zoom_settings_controller
     return [
+        Command(COMMAND_PALETTE, strings.CMD_COMMAND_PALETTE, window.open_command_palette),
+        Command(CONFIGURE_SHORTCUTS, strings.CMD_CONFIGURE_SHORTCUTS, window.configure_shortcuts),
         Command(TOGGLE_MENU, strings.CMD_TOGGLE_MENU, window.toggle_menu_bar),
         Command(TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
         Command(TOGGLE_STATUSBAR, strings.CMD_TOGGLE_STATUSBAR, window.toggle_statusbar),

@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from PySide6.QtGui import QCloseEvent
 
     from app.config.command_history import CommandHistoryStore
+    from app.config.key_bindings import KeyBindingStore, KeyMap
     from app.config.recent_files import RecentFilesStore
     from app.config.settings import Settings
     from app.config.ui_state import UiStateStore
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
     from app.gui.field_actions import FieldActions
     from app.gui.image_actions import ImageActions
     from app.gui.image_controller import ImageController
+    from app.gui.keybinding_actions import KeybindingActions
     from app.gui.mode_status_bar import ModeStatusBar
     from app.gui.move_actions import MoveActions
     from app.gui.operations import GuiOperationRunner, OpResult
@@ -43,6 +45,7 @@ if TYPE_CHECKING:
     from app.gui.rotate_actions import RotateActions
     from app.gui.save_controller import SaveController
     from app.gui.search_actions import SearchActions
+    from app.gui.shortcut_installer import ShortcutInstaller
     from app.gui.window_geometry_controller import WindowGeometryController
     from app.gui.working_document import WorkingDocument
     from app.gui.zoom_settings_controller import ZoomSettingsController
@@ -87,6 +90,10 @@ class MainWindow(QMainWindow):
     _registry: list[Command]
     _document_actions: DocumentActions
     _palette_actions: PaletteActions
+    _key_bindings: KeyBindingStore
+    _keymap: KeyMap
+    _shortcut_installer: ShortcutInstaller
+    _keybinding_actions: KeybindingActions
     _chrome: ChromeController
 
     def __init__(self, settings: Settings) -> None:
@@ -219,6 +226,19 @@ class MainWindow(QMainWindow):
 
     def show_keyboard_shortcuts(self) -> None:
         self._palette_actions.show_shortcuts()
+
+    def configure_shortcuts(self) -> None:
+        """Open the searchable command list for binding/clearing shortcuts."""
+        self._keybinding_actions.open_config()
+
+    def current_keymap(self) -> KeyMap:
+        """Return the effective keymap (used by the palette to show chords)."""
+        return self._keymap
+
+    def apply_keymap(self, keymap: KeyMap) -> None:
+        """Adopt ``keymap`` as effective and rebuild the live shortcuts."""
+        self._keymap = keymap
+        self._shortcut_installer.reinstall(keymap)
 
     def toggle_edit_mode(self) -> None:
         self._edit_bar.toggle_edit_mode()

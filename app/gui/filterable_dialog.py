@@ -72,9 +72,15 @@ class FilterableListDialog(QDialog):
             if key == Qt.Key.Key_Up:
                 self.move_selection(-1)
                 return True
+            if key == Qt.Key.Key_Delete and self._on_delete_key():
+                return True
         return super().eventFilter(watched, event)
 
     # --- hooks subclasses implement / override ------------------------------
+
+    def _on_delete_key(self) -> bool:
+        """Handle a Del keypress in the filter box (default: not handled)."""
+        return False
 
     def _on_row_changed(self) -> None:
         """Called when the highlighted row changes (default: nothing)."""

@@ -82,7 +82,8 @@ missing or corrupt file just means no commands are floated yet.
 | **Delete selected field** | Remove the selected text field(s) (edit mode only). |
 | **Export to PDF (text + images)** | Flatten the placed overlay into the document (deferred until save). |
 | **Delete saved text fields for this document** | Delete this PDF's saved fields and its JSON sidecar. |
-| **Remembered settings…** | Reset stored preferences (placement, image choice, palette, outline, …) individually or all. |
+| **Configure keyboard shortcuts…** | Bind, rebind, or clear a command's keyboard shortcut (see `CONFIGURE_SHORTCUTS.md`). |
+| **Remembered settings…** | Reset stored preferences (placement, image choice, palette, outline, keyboard shortcuts, …) individually or all. |
 | **Search PDF text…** | Live full-text search of the document (see below). |
 | **Search text fields…** | Live search of your placed text fields (see below). |
 | **Clear search highlights** | Remove the gold match highlights (shown only while highlights exist). |
@@ -150,6 +151,10 @@ Common commands also have direct keys, so you do not have to open the palette:
 
 Zoom level persists as you change pages. **Zoom to fit** is available from the
 palette. The full key + mouse map lives in `KEYBOARD_SHORTCUTS.md`.
+
+These keys are the built-in defaults — each command's current chord is shown
+right-aligned in the palette, and all of them can be rebound, added, or cleared
+via **Configure keyboard shortcuts…** (see `CONFIGURE_SHORTCUTS.md`).
 
 ## Appearance settings
 

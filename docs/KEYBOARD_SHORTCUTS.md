@@ -1,10 +1,14 @@
 # Keyboard and Mouse Controls
 
 The GUI viewer (`pdft-gui`) is keyboard-first. Common actions have direct keys;
-everything else is reachable through the command palette. The keys below are
-registered in `app/gui/window_input.py` (`_SHORTCUTS` + `_PALETTE_CHORD`); mouse
-gestures live in `_MOUSE_CONTROLS`. Press **F1** in the viewer to see this list
-in a searchable dialog.
+everything else is reachable through the command palette. The keys below are the
+**built-in defaults** (registered in `app/gui/window_input.py` — `_SHORTCUTS` +
+`_PALETTE_CHORD`); mouse gestures live in `_MOUSE_CONTROLS`. Press **F1** in the
+viewer to see the current list in a searchable dialog.
+
+Every shortcut here can be **changed, added, or removed** at runtime — see
+`CONFIGURE_SHORTCUTS.md`. The command palette shows each command's current chord
+right-aligned.
 
 ## Palette & search
 

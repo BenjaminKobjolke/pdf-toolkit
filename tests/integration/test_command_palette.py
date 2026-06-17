@@ -85,7 +85,9 @@ def test_close_document_resets_state(window: MainWindow, make_pdf: MakePdf) -> N
 def test_palette_entries_float_recent_and_bold_top(window: MainWindow) -> None:
     window._command_history.add(commands.OPEN_HISTORY)
     window._command_history.add(commands.OPEN)  # most-recent
-    entries = build_palette_entries(window._registry, window._command_history.load())
+    entries = build_palette_entries(
+        window._registry, window._command_history.load(), window.current_keymap()
+    )
 
     # Most-recent first, then the next-recent.
     assert entries[0].payload.command_id == commands.OPEN

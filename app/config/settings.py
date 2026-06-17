@@ -18,6 +18,7 @@ ENV_WINDOW_FILE = "PDF_TOOLKIT_WINDOW_FILE"
 ENV_IMAGE_CHOICE_FILE = "PDF_TOOLKIT_IMAGE_CHOICE_FILE"
 ENV_OUTLINE_FILE = "PDF_TOOLKIT_OUTLINE_FILE"
 ENV_ZOOM_FILE = "PDF_TOOLKIT_ZOOM_FILE"
+ENV_KEY_BINDINGS_FILE = "PDF_TOOLKIT_KEY_BINDINGS_FILE"
 
 DEFAULT_BACKUP_DIR = "backup"
 DEFAULT_LOG_LEVEL = "INFO"
@@ -59,6 +60,10 @@ def _default_zoom_file() -> Path:
     return Path.home() / ".pdf-toolkit" / "zoom.json"
 
 
+def _default_key_bindings_file() -> Path:
+    return Path.home() / ".pdf-toolkit" / "keybindings.json"
+
+
 def _path_from_env(env_var: str, default_fn: Callable[[], Path]) -> Path:
     """Return the env-var path if set, otherwise the computed default."""
     value = os.getenv(env_var)
@@ -78,6 +83,7 @@ class Settings:
     image_choice_file: Path = field(default_factory=_default_image_choice_file)
     outline_file: Path = field(default_factory=_default_outline_file)
     zoom_file: Path = field(default_factory=_default_zoom_file)
+    key_bindings_file: Path = field(default_factory=_default_key_bindings_file)
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -95,4 +101,5 @@ class Settings:
             image_choice_file=_path_from_env(ENV_IMAGE_CHOICE_FILE, _default_image_choice_file),
             outline_file=_path_from_env(ENV_OUTLINE_FILE, _default_outline_file),
             zoom_file=_path_from_env(ENV_ZOOM_FILE, _default_zoom_file),
+            key_bindings_file=_path_from_env(ENV_KEY_BINDINGS_FILE, _default_key_bindings_file),
         )

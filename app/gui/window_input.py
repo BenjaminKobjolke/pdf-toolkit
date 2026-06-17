@@ -10,12 +10,12 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
-from PySide6.QtGui import QKeySequence, QShortcut
-
 from app.gui import commands, strings
 from app.gui.commands import Command
+from app.gui.shortcut_installer import ShortcutInstaller, TriggerFactory
 
 if TYPE_CHECKING:
+    from app.config.key_bindings import DefaultPair, KeyMap
     from app.gui.main_window import MainWindow
 
 # Direct keyboard shortcuts -> command id. The palette has its own chord below.
@@ -58,16 +58,30 @@ _MOUSE_CONTROLS: tuple[tuple[str, str], ...] = (
 )
 
 
-def shortcut_pairs(registry: list[Command]) -> list[tuple[str, str]]:
+def default_shortcut_pairs() -> list[DefaultPair]:
+    """The built-in ``(chord, command_id)`` bindings, including the palette chord.
+
+    Single source of the defaults: the static :data:`_SHORTCUTS` table plus the
+    palette chord (now a normal, rebindable command). These are passed into
+    :func:`app.config.key_bindings.merge_keymap`; the chord literal lives only in
+    :data:`_PALETTE_CHORD`.
+    """
+    return [*_SHORTCUTS, (_PALETTE_CHORD, commands.COMMAND_PALETTE)]
+
+
+def shortcut_pairs(registry: list[Command], keymap: KeyMap) -> list[tuple[str, str]]:
     """Return ``(chord/gesture, title)`` rows for the controls dialog.
 
-    Single source for the controls dialog: keyboard titles are resolved through
-    the same registry the shortcuts trigger so they never drift; mouse gestures
-    are appended from the static :data:`_MOUSE_CONTROLS` table.
+    Single source for the controls dialog: rows are derived from the *effective*
+    keymap (so user changes show) and titles resolved through the registry the
+    shortcuts trigger; mouse gestures are appended from :data:`_MOUSE_CONTROLS`.
     """
-    pairs = [(_PALETTE_CHORD, strings.ACTION_COMMAND_PALETTE)]
-    for chord, command_id in _SHORTCUTS:
-        pairs.append((chord, commands.find(registry, command_id).title))
+    pairs: list[tuple[str, str]] = []
+    for chord, command_id in keymap.bindings:
+        try:
+            pairs.append((chord, commands.find(registry, command_id).title))
+        except KeyError:
+            continue
     pairs.extend(_MOUSE_CONTROLS)
     return pairs
 
@@ -115,16 +129,32 @@ def build_file_menu(window: MainWindow) -> None:
     menu.addAction(strings.ACTION_QUIT, window.close)
 
 
-def install_shortcuts(window: MainWindow, registry: list[Command]) -> None:
-    """Register the palette chord and every direct shortcut on ``window``."""
-    QShortcut(QKeySequence(_PALETTE_CHORD), window, window.open_command_palette)
-    for chord, command_id in _SHORTCUTS:
-        command = commands.find(registry, command_id)
-        if command_id in _ZOOM_SCALE_FACTORS:
-            trigger = _zoom_or_scale(window, command, _ZOOM_SCALE_FACTORS[command_id])
-        else:
-            trigger = _guarded(command)
-        QShortcut(QKeySequence(chord), window, trigger)
+def install_shortcuts(
+    window: MainWindow, registry: list[Command], keymap: KeyMap
+) -> ShortcutInstaller:
+    """Build a :class:`ShortcutInstaller`, install ``keymap``, and return it.
+
+    Returned so the window can hand it to the shortcut-config flow for live
+    reinstalls; the actual ``QShortcut`` creation lives only in the installer.
+    """
+    installer = ShortcutInstaller(window, registry, _make_trigger_factory(window))
+    installer.reinstall(keymap)
+    return installer
+
+
+def _make_trigger_factory(window: MainWindow) -> TriggerFactory:
+    """Return a factory mapping a command to its shortcut trigger.
+
+    Preserves the zoom-or-scale behaviour for the zoom commands; every other
+    command gets the plain enabled-guard trigger.
+    """
+
+    def factory(command: Command) -> Callable[[], None]:
+        if command.command_id in _ZOOM_SCALE_FACTORS:
+            return _zoom_or_scale(window, command, _ZOOM_SCALE_FACTORS[command.command_id])
+        return _guarded(command)
+
+    return factory
 
 
 def _guarded(command: Command) -> Callable[[], None]:

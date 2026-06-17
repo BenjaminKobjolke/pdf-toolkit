@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from PySide6.QtWidgets import QWidget
 
 from app.config.command_history import CommandHistoryStore
+from app.config.key_bindings import KeyMap
 from app.gui import strings
 from app.gui.commands import Command
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
@@ -22,19 +25,24 @@ class PaletteActions:
         registry: list[Command],
         palette: PaletteController,
         history: CommandHistoryStore,
+        keymap_provider: Callable[[], KeyMap],
     ) -> None:
         self._parent = parent
         self._registry = registry
         self._palette = palette
         self._history = history
+        self._keymap_provider = keymap_provider
 
     def open_commands(self) -> None:
         """Show commands with recently-run entries floated to the top."""
-        entries = build_palette_entries(self._registry, self._history.load())
+        entries = build_palette_entries(
+            self._registry, self._history.load(), self._keymap_provider()
+        )
         dialog = FilterListDialog(
             entries,
             placeholder=strings.PALETTE_PLACEHOLDER,
             title=strings.PALETTE_TITLE,
+            show_shortcuts=True,
             parent=self._parent,
         )
         self._palette.apply_to(dialog, self._parent.size())
@@ -47,7 +55,7 @@ class PaletteActions:
         """Show a searchable, read-only list of every keyboard shortcut."""
         entries = [
             ListEntry(title=strings.SHORTCUT_ROW_FMT.format(chord=chord, title=title))
-            for chord, title in shortcut_pairs(self._registry)
+            for chord, title in shortcut_pairs(self._registry, self._keymap_provider())
         ]
         dialog = FilterListDialog(
             entries,

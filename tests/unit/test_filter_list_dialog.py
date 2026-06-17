@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from PySide6.QtCore import Qt
+
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 
 
@@ -127,6 +129,25 @@ def test_provider_reruns_per_keystroke(qapp: object) -> None:
     dialog.set_filter("a")
     dialog.set_filter("ab")
     assert calls == ["a", "ab"]
+
+
+def test_shortcut_carried_on_item_role_when_shown(qapp: object) -> None:
+    entries = [ListEntry(title="Exit", shortcut="Alt+W")]
+    dialog = FilterListDialog(entries, show_shortcuts=True)
+    assert dialog._list.item(0).data(Qt.ItemDataRole.UserRole) == "Alt+W"
+
+
+def test_delete_key_invokes_on_delete_with_current_entry(qapp: object) -> None:
+    deleted: list[str] = []
+    entries = [ListEntry(title="Exit", payload="exit")]
+    dialog = FilterListDialog(entries, on_delete=lambda entry: deleted.append(entry.payload))
+    assert dialog._on_delete_key() is True
+    assert deleted == ["exit"]
+
+
+def test_delete_key_noop_without_callback(qapp: object) -> None:
+    dialog = FilterListDialog([ListEntry(title="Exit")])
+    assert dialog._on_delete_key() is False
 
 
 def test_provider_accept_returns_payload(qapp: object) -> None:

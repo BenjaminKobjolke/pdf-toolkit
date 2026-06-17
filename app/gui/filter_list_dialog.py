@@ -12,9 +12,19 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from PySide6.QtWidgets import QListWidgetItem, QWidget
+from PySide6.QtCore import QModelIndex, QPersistentModelIndex, Qt
+from PySide6.QtGui import QPalette
+from PySide6.QtWidgets import (
+    QListWidgetItem,
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
+    QWidget,
+)
 
 from app.gui.filterable_dialog import FilterableListDialog
+
+_CHORD_ROLE = Qt.ItemDataRole.UserRole
+_CHORD_MARGIN = 8
 
 
 def _matches(haystack: str, tokens: list[str]) -> bool:
@@ -35,6 +45,27 @@ class ListEntry:
     enabled: bool = True
     payload: Any = None
     bold: bool = False
+    shortcut: str = ""
+
+
+class ShortcutItemDelegate(QStyledItemDelegate):
+    """Paints the row title (default) then its chord right-aligned and dimmed."""
+
+    def paint(
+        self,
+        painter: Any,
+        option: QStyleOptionViewItem,
+        index: QModelIndex | QPersistentModelIndex,
+    ) -> None:
+        super().paint(painter, option, index)
+        chord = index.data(_CHORD_ROLE)
+        if not chord:
+            return
+        painter.save()
+        painter.setPen(option.palette.color(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text))
+        rect = option.rect.adjusted(0, 0, -_CHORD_MARGIN, 0)
+        painter.drawText(rect, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, chord)
+        painter.restore()
 
 
 class FilterListDialog(FilterableListDialog):
@@ -53,12 +84,17 @@ class FilterListDialog(FilterableListDialog):
         title: str = "",
         provider: Callable[[str], list[ListEntry]] | None = None,
         min_chars: int = 0,
+        show_shortcuts: bool = False,
+        on_delete: Callable[[ListEntry], None] | None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(placeholder=placeholder, title=title, parent=parent)
         self._entries = [entry for entry in entries if entry.enabled]
         self._provider = provider
         self._min_chars = min_chars
+        self._on_delete = on_delete
+        if show_shortcuts:
+            self._list.setItemDelegate(ShortcutItemDelegate(self._list))
         self._visible: list[ListEntry] = []
         self._chosen: ListEntry | None = None
         self._finish_layout()
@@ -90,6 +126,16 @@ class FilterListDialog(FilterableListDialog):
         if self._chosen is not None:
             self.accept()
 
+    def _on_delete_key(self) -> bool:
+        """Route Del to the ``on_delete`` callback for the highlighted entry."""
+        if self._on_delete is None:
+            return False
+        entry = self.current_entry()
+        if entry is None:
+            return False
+        self._on_delete(entry)
+        return True
+
     # --- internals ----------------------------------------------------------
 
     def _apply_filter(self, text: str) -> None:
@@ -102,6 +148,8 @@ class FilterListDialog(FilterableListDialog):
                 font = item.font()
                 font.setBold(True)
                 item.setFont(font)
+            if entry.shortcut:
+                item.setData(_CHORD_ROLE, entry.shortcut)
             self._list.addItem(item)
         if self._visible:
             self._list.setCurrentRow(0)

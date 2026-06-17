@@ -15,6 +15,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 from app.config.command_history import CommandHistoryStore
 from app.config.file_backed_store import FileBackedStore
 from app.config.image_choice_settings import ImageChoiceStore
+from app.config.key_bindings import KeyBindingStore, effective_keymap
 from app.config.outline_settings import OutlineSettingsStore
 from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
@@ -34,6 +35,7 @@ from app.gui.export_actions import ExportActions
 from app.gui.field_actions import FieldActions
 from app.gui.image_actions import ImageActions
 from app.gui.image_controller import ImageController
+from app.gui.keybinding_actions import KeybindingActions
 from app.gui.mode_status_bar import ModeStatusBar
 from app.gui.move_actions import MoveActions
 from app.gui.operations import GuiOperationRunner
@@ -51,7 +53,12 @@ from app.gui.rotate_actions import RotateActions
 from app.gui.save_controller import SaveController
 from app.gui.search_actions import SearchActions
 from app.gui.window_geometry_controller import WindowGeometryController
-from app.gui.window_input import build_file_menu, install_control_signals, install_shortcuts
+from app.gui.window_input import (
+    build_file_menu,
+    default_shortcut_pairs,
+    install_control_signals,
+    install_shortcuts,
+)
 from app.gui.working_document import WorkingDocument
 from app.gui.zoom_settings_controller import ZoomSettingsController
 
@@ -189,11 +196,23 @@ def _finish(window: MainWindow, settings: Settings) -> None:
         window.open_pdf,
         window._report,
     )
+    defaults = default_shortcut_pairs()
+    window._key_bindings = KeyBindingStore(settings.key_bindings_file)
+    window._keymap = effective_keymap(window._key_bindings, defaults)
     window._palette_actions = PaletteActions(
-        window, window._registry, window._palette, window._command_history
+        window, window._registry, window._palette, window._command_history, window.current_keymap
     )
     build_file_menu(window)
-    install_shortcuts(window, window._registry)
+    window._shortcut_installer = install_shortcuts(window, window._registry, window._keymap)
+    window._keybinding_actions = KeybindingActions(
+        window,
+        window._registry,
+        window._palette,
+        window._key_bindings,
+        defaults,
+        window.apply_keymap,
+        window._report,
+    )
     window._chrome = ChromeController(
         window.menuBar(), window._bar, window._edit_bar, window._mode_bar, window._ui_state
     )
@@ -213,4 +232,5 @@ def _remembered_stores(window: MainWindow, settings: Settings) -> list[FileBacke
         ImageChoiceStore(settings.image_choice_file),
         OutlineSettingsStore(settings.outline_file),
         ZoomSettingsStore(settings.zoom_file),
+        KeyBindingStore(settings.key_bindings_file),
     ]
