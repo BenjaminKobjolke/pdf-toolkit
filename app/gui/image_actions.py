@@ -12,10 +12,10 @@ from collections.abc import Callable
 from pathlib import Path
 
 from PySide6.QtCore import QPointF
-from PySide6.QtWidgets import QFileDialog, QInputDialog, QMessageBox, QWidget
+from PySide6.QtWidgets import QFileDialog, QWidget
 
 from app.config.image_choice_settings import CHOICE_COPY, CHOICE_REFERENCE, ImageChoiceStore
-from app.gui import strings
+from app.gui import confirm_dialog, number_input_dialog, strings
 from app.gui.image_controller import ImageController
 from app.gui.operations import OpResult
 from app.gui.placement import PlacementController
@@ -71,16 +71,15 @@ class ImageActions:
         if scale is None:
             self._report(OpResult(True, strings.MSG_NO_IMAGE_SELECTED))
             return
-        value, ok = QInputDialog.getDouble(
+        value = number_input_dialog.prompt_float(
             self._parent,
             strings.DIALOG_IMAGE_SCALE_TITLE,
             strings.PROMPT_IMAGE_SCALE,
             scale,
             _MIN_SCALE,
             _MAX_SCALE,
-            2,
         )
-        if ok:
+        if value is not None:
             self._images.set_selected_scale(value)
 
     def delete(self) -> None:
@@ -103,19 +102,19 @@ class ImageActions:
     def _ask_copy(self, src: Path) -> bool | None:
         """Yes -> copy into assets, No -> reference, None -> cancelled."""
         default = (
-            QMessageBox.StandardButton.No
+            confirm_dialog.DialogResult.SECONDARY
             if self._choice_store.load() == CHOICE_REFERENCE
-            else QMessageBox.StandardButton.Yes
+            else confirm_dialog.DialogResult.PRIMARY
         )
-        choice = QMessageBox.question(
+        choice = confirm_dialog.confirm(
             self._parent,
             strings.CONFIRM_IMAGE_COPY_TITLE,
             strings.CONFIRM_IMAGE_COPY_TEXT,
-            QMessageBox.StandardButton.Yes
-            | QMessageBox.StandardButton.No
-            | QMessageBox.StandardButton.Cancel,
-            default,
+            primary=strings.BTN_YES,
+            secondary=strings.BTN_NO,
+            cancel=strings.BTN_CANCEL,
+            default=default,
         )
-        if choice == QMessageBox.StandardButton.Cancel:
+        if choice is confirm_dialog.DialogResult.CANCEL:
             return None
-        return choice == QMessageBox.StandardButton.Yes
+        return choice is confirm_dialog.DialogResult.PRIMARY

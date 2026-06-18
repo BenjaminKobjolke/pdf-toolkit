@@ -12,9 +12,10 @@ from __future__ import annotations
 
 from PySide6.QtCore import QKeyCombination, Qt
 from PySide6.QtGui import QKeyEvent, QKeySequence
-from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from app.gui import strings
+from app.gui.base_dialog import BaseDialog
 
 _MODIFIER_KEYS = frozenset(
     {
@@ -38,7 +39,7 @@ def chord_from_event(modifiers: Qt.KeyboardModifier, key: Qt.Key) -> str | None:
     return text or None
 
 
-class KeyCaptureDialog(QDialog):
+class KeyCaptureDialog(BaseDialog):
     """Capture one chord for ``command_title``; ``chosen_chord`` holds the result."""
 
     def __init__(self, command_title: str, parent: QWidget | None = None) -> None:

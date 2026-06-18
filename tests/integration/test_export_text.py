@@ -10,8 +10,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from PySide6.QtWidgets import QGraphicsItem, QMessageBox
+from PySide6.QtWidgets import QGraphicsItem
 
+from app.gui import confirm_dialog
+from app.gui.confirm_dialog import DialogResult
 from app.gui.export_actions import ExportActions
 from app.gui.main_window import MainWindow
 from app.pdf.sidecar import sidecar_path
@@ -20,11 +22,10 @@ from tests.conftest import MakePdf
 _MOVABLE = QGraphicsItem.GraphicsItemFlag.ItemIsMovable
 
 
-def _answer(monkeypatch: pytest.MonkeyPatch, button: object) -> None:
-    """Make every QMessageBox.question return ``button`` and silence popups."""
-    monkeypatch.setattr(QMessageBox, "question", lambda *a, **k: button)
-    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: QMessageBox.StandardButton.Ok)
-    monkeypatch.setattr(QMessageBox, "critical", lambda *a, **k: QMessageBox.StandardButton.Ok)
+def _answer(monkeypatch: pytest.MonkeyPatch, result: DialogResult) -> None:
+    """Make every confirm() return ``result`` and silence alert popups."""
+    monkeypatch.setattr(confirm_dialog, "confirm", lambda *a, **k: result)
+    monkeypatch.setattr(confirm_dialog, "show_message", lambda *a, **k: None)
 
 
 def _open_with_one_field(window: MainWindow, pdf: Path) -> None:
@@ -37,7 +38,7 @@ def _open_with_one_field(window: MainWindow, pdf: Path) -> None:
 def test_export_overwrite_saves_to_original_and_drops_json(
     window: MainWindow, make_pdf: MakePdf, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    _answer(monkeypatch, QMessageBox.StandardButton.Yes)
+    _answer(monkeypatch, DialogResult.PRIMARY)
     pdf = make_pdf([(300, 400)])
     original_bytes = pdf.read_bytes()
     _open_with_one_field(window, pdf)
@@ -55,7 +56,7 @@ def test_export_overwrite_saves_to_original_and_drops_json(
 def test_export_new_file_keeps_original_editable(
     window: MainWindow, make_pdf: MakePdf, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    _answer(monkeypatch, QMessageBox.StandardButton.No)
+    _answer(monkeypatch, DialogResult.SECONDARY)
     monkeypatch.setattr(ExportActions, "_prompt_export_name", lambda self, default: "out.pdf")
     pdf = make_pdf([(300, 400)])
     original_bytes = pdf.read_bytes()
@@ -76,7 +77,7 @@ def test_export_new_file_keeps_original_editable(
 def test_export_cancel_does_nothing(
     window: MainWindow, make_pdf: MakePdf, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    _answer(monkeypatch, QMessageBox.StandardButton.Cancel)
+    _answer(monkeypatch, DialogResult.CANCEL)
     pdf = make_pdf([(300, 400)])
     original_bytes = pdf.read_bytes()
     _open_with_one_field(window, pdf)
@@ -93,8 +94,8 @@ def test_export_with_no_fields_reports_nothing(
 ) -> None:
     asked: list[int] = []
     informed: list[str] = []
-    monkeypatch.setattr(QMessageBox, "question", lambda *a, **k: asked.append(1))
-    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: informed.append(a[2]))
+    monkeypatch.setattr(confirm_dialog, "confirm", lambda *a, **k: asked.append(1))
+    monkeypatch.setattr(confirm_dialog, "show_message", lambda *a, **k: informed.append(a[2]))
     pdf = make_pdf([(300, 400)])
     original_bytes = pdf.read_bytes()
     window.open_pdf(pdf)  # no fields placed

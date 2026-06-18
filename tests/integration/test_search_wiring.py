@@ -57,14 +57,14 @@ def test_clear_highlights_command(
 def test_active_field_font_size_command(
     window: MainWindow, make_pdf: MakePdf, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from PySide6.QtWidgets import QInputDialog
+    from app.gui import number_input_dialog
 
     window.open_pdf(make_pdf([(300, 400)]))
     window.toggle_edit_mode()  # edit mode on
     window.controller.add_field()
     window.page_view.text_items()[0].setSelected(True)
 
-    monkeypatch.setattr(QInputDialog, "getDouble", lambda *a, **k: (42.0, True))
+    monkeypatch.setattr(number_input_dialog, "prompt_float", lambda *a, **k: 42.0)
     _run(window, commands.FIELD_FONT_SIZE)
 
     assert window.page_view.selected_text_item().font_pixel_size() == 42.0  # type: ignore[union-attr]

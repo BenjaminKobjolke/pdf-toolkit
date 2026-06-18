@@ -11,9 +11,9 @@ from __future__ import annotations
 from dataclasses import replace
 
 from PySide6.QtGui import QFontDatabase
-from PySide6.QtWidgets import QInputDialog, QWidget
+from PySide6.QtWidgets import QWidget
 
-from app.gui import strings
+from app.gui import number_input_dialog, strings
 from app.gui.color_picker_dialog import ColorPickerDialog
 from app.gui.edit_controller import EditController
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
@@ -46,7 +46,7 @@ class FieldActions:
         style = self._controller.selected_style()
         if style is None:
             return
-        size, ok = QInputDialog.getDouble(
+        size = number_input_dialog.prompt_float(
             self._parent,
             strings.DIALOG_FIELD_SIZE_TITLE,
             strings.PROMPT_FIELD_SIZE,
@@ -54,7 +54,7 @@ class FieldActions:
             1,
             400,
         )
-        if ok:
+        if size is not None:
             self._controller.apply_style(replace(style, font_size=size))
 
     def scale_font(self, factor: float) -> None:

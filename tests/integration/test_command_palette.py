@@ -14,7 +14,7 @@ from app.gui.palette_entries import build_palette_entries
 from app.pdf.image_spec import SidecarDocument
 from app.pdf.sidecar import save_sidecar, sidecar_path
 from app.pdf.text_spec import TextFieldSpec
-from tests.conftest import MakePdf, gui_settings
+from tests.conftest import MakePdf, gui_settings, silence_dialogs
 
 
 def _settings(tmp_path: Path) -> Settings:
@@ -59,13 +59,10 @@ def test_palette_last_page_command_navigates(window: MainWindow, make_pdf: MakeP
 def test_delete_saved_fields_command_removes_sidecar(
     window: MainWindow, make_pdf: MakePdf, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from PySide6.QtWidgets import QMessageBox
-
     pdf = make_pdf([(200, 300)])
     save_sidecar(pdf, SidecarDocument(fields=(_spec(),)))
     window.open_pdf(pdf)
-    monkeypatch.setattr(QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes)
-    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: QMessageBox.StandardButton.Ok)
+    silence_dialogs(monkeypatch)
 
     window.delete_saved_text_fields()
 

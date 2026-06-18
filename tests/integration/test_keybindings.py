@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import pytest
 from PySide6.QtGui import QKeySequence
-from PySide6.QtWidgets import QMessageBox
 
 from app.config.key_bindings import assign, merge_keymap, remove_command
-from app.gui import commands, keybinding_actions, strings
+from app.gui import commands, confirm_dialog, keybinding_actions, strings
 from app.gui.commands import Command
 from app.gui.main_window import MainWindow
 from app.gui.window_input import default_shortcut_pairs
@@ -81,7 +80,7 @@ def test_configure_actions_bind_flow(window: MainWindow, monkeypatch: pytest.Mon
             return "Alt+W"
 
     monkeypatch.setattr(keybinding_actions, "KeyCaptureDialog", FakeCapture)
-    monkeypatch.setattr(QMessageBox, "information", staticmethod(lambda *a, **k: None))
+    monkeypatch.setattr(confirm_dialog, "show_message", staticmethod(lambda *a, **k: None))
 
     exit_command = commands.find(window._registry, commands.EXIT)
     window._keybinding_actions._bind(exit_command)
@@ -94,9 +93,11 @@ def test_configure_actions_bind_flow(window: MainWindow, monkeypatch: pytest.Mon
 
 
 def test_configure_actions_clear_flow(window: MainWindow, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(QMessageBox, "information", staticmethod(lambda *a, **k: None))
+    monkeypatch.setattr(confirm_dialog, "show_message", staticmethod(lambda *a, **k: None))
     monkeypatch.setattr(
-        QMessageBox, "question", staticmethod(lambda *a, **k: QMessageBox.StandardButton.Yes)
+        confirm_dialog,
+        "confirm",
+        staticmethod(lambda *a, **k: confirm_dialog.DialogResult.PRIMARY),
     )
     save_command: Command = commands.find(window._registry, commands.SAVE)
     from app.gui.filter_list_dialog import ListEntry

@@ -9,7 +9,7 @@ from dataclasses import replace
 from typing import Any
 
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QDialog, QInputDialog, QWidget
+from PySide6.QtWidgets import QDialog, QWidget
 
 from app.config.palette_settings import (
     FONT_PT_MAX,
@@ -22,7 +22,7 @@ from app.config.palette_settings import (
     WIDTH_PCT_MIN,
     PaletteSettingsStore,
 )
-from app.gui import strings
+from app.gui import dialog_appearance, number_input_dialog, strings
 from app.gui.palette_appearance import apply_appearance
 
 
@@ -33,6 +33,7 @@ class PaletteController:
         self._parent = parent
         self._store = store
         self._settings = store.load()
+        dialog_appearance.set_active(self._settings)
 
     def apply_to(self, dialog: QDialog, window_size: QSize) -> None:
         """Size/style/flag ``dialog`` from the current settings before it shows."""
@@ -67,7 +68,7 @@ class PaletteController:
         than ``0``, so the spinner shows a real number.
         """
         current = self._settings.font_pt or max(self._parent.font().pointSize(), FONT_PT_MIN + 1)
-        value, ok = QInputDialog.getInt(
+        value = number_input_dialog.prompt_int(
             self._parent,
             strings.DIALOG_PALETTE_FONT_TITLE,
             strings.PROMPT_PALETTE_FONT,
@@ -75,7 +76,7 @@ class PaletteController:
             FONT_PT_MIN,
             FONT_PT_MAX,
         )
-        if ok:
+        if value is not None:
             self._save(font_pt=value)
 
     def set_opacity(self) -> None:
@@ -97,10 +98,11 @@ class PaletteController:
     def _edit_int(self, field_name: str, title: str, prompt: str, low: int, high: int) -> None:
         """Prompt for one bounded integer field, then persist it."""
         current = int(getattr(self._settings, field_name))
-        value, ok = QInputDialog.getInt(self._parent, title, prompt, current, low, high)
-        if ok:
+        value = number_input_dialog.prompt_int(self._parent, title, prompt, current, low, high)
+        if value is not None:
             self._save(**{field_name: value})
 
     def _save(self, **changes: Any) -> None:
         self._settings = replace(self._settings, **changes)
         self._store.save(self._settings)
+        dialog_appearance.set_active(self._settings)

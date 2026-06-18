@@ -49,14 +49,14 @@ def window(qapp: object, tmp_path: Path) -> MainWindow:
 def test_rename_moves_pdf_and_sidecar(
     window: MainWindow, make_pdf: MakePdf, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from PySide6.QtWidgets import QInputDialog, QMessageBox
+    from app.gui import confirm_dialog, text_prompt_dialog
 
     pdf = make_pdf([(200, 300)], name="before.pdf")
     save_sidecar(pdf, SidecarDocument(fields=(_spec(),)))
     window.open_pdf(pdf)
 
-    monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("after.pdf", True))
-    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
+    monkeypatch.setattr(text_prompt_dialog, "prompt_text", lambda *a, **k: "after.pdf")
+    monkeypatch.setattr(confirm_dialog, "show_message", lambda *a, **k: None)
     window.rename_file()
 
     target = pdf.with_name("after.pdf")
@@ -69,12 +69,12 @@ def test_rename_moves_pdf_and_sidecar(
 def test_rename_appends_extension_when_missing(
     window: MainWindow, make_pdf: MakePdf, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from PySide6.QtWidgets import QInputDialog, QMessageBox
+    from app.gui import confirm_dialog, text_prompt_dialog
 
     pdf = make_pdf([(200, 300)], name="before.pdf")
     window.open_pdf(pdf)
-    monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("renamed", True))
-    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
+    monkeypatch.setattr(text_prompt_dialog, "prompt_text", lambda *a, **k: "renamed")
+    monkeypatch.setattr(confirm_dialog, "show_message", lambda *a, **k: None)
     window.rename_file()
     assert pdf.with_name("renamed.pdf").is_file()
 

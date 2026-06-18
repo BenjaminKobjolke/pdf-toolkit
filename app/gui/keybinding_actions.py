@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from PySide6.QtWidgets import QMessageBox, QWidget
+from PySide6.QtWidgets import QWidget
 
 from app.config.key_bindings import (
     DefaultPair,
@@ -23,7 +23,7 @@ from app.config.key_bindings import (
     merge_keymap,
     remove_command,
 )
-from app.gui import commands, strings
+from app.gui import commands, confirm_dialog, strings
 from app.gui.commands import Command
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.key_capture_dialog import KeyCaptureDialog
@@ -130,8 +130,10 @@ class KeybindingActions:
         )
 
     def _confirm(self, title: str, text: str) -> bool:
-        answer = QMessageBox.question(self._parent, title, text)
-        return answer == QMessageBox.StandardButton.Yes
+        choice = confirm_dialog.confirm(
+            self._parent, title, text, primary=strings.BTN_YES, secondary=strings.BTN_NO
+        )
+        return choice is confirm_dialog.DialogResult.PRIMARY
 
     def _title_for(self, command_id: str) -> str:
         try:

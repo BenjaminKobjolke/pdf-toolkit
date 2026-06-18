@@ -10,7 +10,6 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
-    QDialog,
     QDialogButtonBox,
     QLabel,
     QPlainTextEdit,
@@ -19,9 +18,10 @@ from PySide6.QtWidgets import (
 )
 
 from app.gui import strings
+from app.gui.base_dialog import BaseDialog
 
 
-class TextInputDialog(QDialog):
+class TextInputDialog(BaseDialog):
     """Edit multi-line text; submit with Ctrl+Enter."""
 
     def __init__(

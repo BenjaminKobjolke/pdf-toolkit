@@ -250,6 +250,14 @@ CONFIRM_UNSAVED_TEXT = "Save changes to the original file before closing?"
 DIALOG_ERROR_TITLE = "Operation failed"
 DIALOG_SUCCESS_TITLE = "Done"
 
+# Shared dialog button labels (custom confirm / alert / input dialogs)
+BTN_OK = "OK"
+BTN_CANCEL = "Cancel"
+BTN_YES = "Yes"
+BTN_NO = "No"
+BTN_SAVE = "Save"
+BTN_DISCARD = "Discard"
+
 LABEL_NO_DOC = "No PDF open"
 LABEL_PAGE_FMT = "Page {current} / {total}"
 

@@ -5,9 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from PySide6.QtWidgets import QFileDialog, QMainWindow, QMessageBox
+from PySide6.QtWidgets import QFileDialog, QMainWindow
 
-from app.gui import overlay_selection, strings
+from app.gui import confirm_dialog, overlay_selection, strings
 from app.gui.window_builder import assemble
 
 if TYPE_CHECKING:
@@ -290,9 +290,9 @@ class MainWindow(QMainWindow):
     def toggle_fullscreen(self) -> None:
         """Flip fullscreen for the current session (not remembered across runs)."""
         if self.isFullScreen():
-            self.showNormal()
+            self._geometry.exit_fullscreen()
         else:
-            self.showFullScreen()
+            self._geometry.enter_fullscreen()
 
     def closeEvent(self, event: QCloseEvent) -> None:
         """Confirm unsaved changes, then persist UI + window state before closing."""
@@ -312,14 +312,17 @@ class MainWindow(QMainWindow):
         try:
             self._controller.on_document_loaded(path)
         except ValueError as err:
-            QMessageBox.warning(
+            confirm_dialog.show_message(
                 self,
                 strings.DIALOG_ERROR_TITLE,
                 strings.MSG_SIDECAR_LOAD_FAILED_FMT.format(error=err),
+                confirm_dialog.Severity.WARNING,
             )
 
     def _report(self, result: OpResult) -> None:
         if result.ok:
-            QMessageBox.information(self, strings.DIALOG_SUCCESS_TITLE, result.message)
+            confirm_dialog.show_message(self, strings.DIALOG_SUCCESS_TITLE, result.message)
         else:
-            QMessageBox.critical(self, strings.DIALOG_ERROR_TITLE, result.message)
+            confirm_dialog.show_message(
+                self, strings.DIALOG_ERROR_TITLE, result.message, confirm_dialog.Severity.ERROR
+            )

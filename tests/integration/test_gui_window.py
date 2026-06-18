@@ -5,12 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from PySide6.QtWidgets import QMessageBox
 
 from app.config.settings import Settings
 from app.config.window_geometry import WindowGeometry, WindowGeometryStore
+from app.gui import confirm_dialog
 from app.gui.main_window import MainWindow
-from tests.conftest import MakePdf, PageSizesOf, gui_settings
+from tests.conftest import MakePdf, PageSizesOf, gui_settings, silence_dialogs
 
 
 def _settings(tmp_path: Path) -> Settings:
@@ -30,8 +30,7 @@ def test_delete_current_page_shrinks_document(
 ) -> None:
     pdf = make_pdf([(100, 200), (300, 400), (120, 120)])
     window.open_pdf(pdf)
-    monkeypatch.setattr(QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes)
-    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: QMessageBox.StandardButton.Ok)
+    silence_dialogs(monkeypatch)
 
     window.page_actions.delete_current_page()
 
@@ -52,7 +51,7 @@ def test_swap_pages_through_window(
 ) -> None:
     pdf = make_pdf([(100, 200), (300, 400)])
     window.open_pdf(pdf)
-    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: QMessageBox.StandardButton.Ok)
+    monkeypatch.setattr(confirm_dialog, "show_message", lambda *a, **k: None)
 
     window.page_actions.swap()
 
@@ -72,7 +71,7 @@ def test_invalid_swap_reports_error_and_keeps_file(
     window.open_pdf(pdf)
     captured: list[str] = []
     monkeypatch.setattr(
-        QMessageBox, "critical", lambda parent, title, msg, *a, **k: captured.append(msg)
+        confirm_dialog, "show_message", lambda parent, title, msg, *a, **k: captured.append(msg)
     )
 
     window.page_actions.swap()
@@ -134,3 +133,22 @@ def test_toggle_fullscreen_is_session_only(qapp: object, tmp_path: Path) -> None
     assert win.isFullScreen() is True
     win.toggle_fullscreen()
     assert win.isFullScreen() is False
+
+
+def test_leaving_fullscreen_restores_pre_fullscreen_size(qapp: object, tmp_path: Path) -> None:
+    # Exercise the controller's snapshot/restore directly: the offscreen platform
+    # won't actually grow the window on showFullScreen(), so simulate the OS
+    # resizing it while fullscreen and confirm exit restores the entry rect — the
+    # bug was exit losing the pre-fullscreen size.
+    settings = _settings(tmp_path)
+    win = MainWindow(settings)
+    win.resize(640, 480)
+    win.show()
+    before = (win.width(), win.height())
+
+    win._geometry.enter_fullscreen()
+    win.resize(1920, 1080)  # stand in for the OS resizing the window to the screen
+    win._geometry.exit_fullscreen()
+
+    assert win.isFullScreen() is False
+    assert (win.width(), win.height()) == before

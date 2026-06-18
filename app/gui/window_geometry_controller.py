@@ -8,7 +8,7 @@ fullscreen still reopens windowed at the right place.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QRect
+from PySide6.QtCore import QByteArray, QRect
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QMainWindow
 
@@ -44,6 +44,22 @@ class WindowGeometryController:
     def __init__(self, window: QMainWindow, store: WindowGeometryStore) -> None:
         self._window = window
         self._store = store
+        self._fullscreen_snapshot: QByteArray | None = None
+
+    def enter_fullscreen(self) -> None:
+        """Snapshot the windowed rect, then go fullscreen.
+
+        Qt's implicit showNormal() restore is unreliable on Windows when the
+        geometry was set programmatically, so we capture and restore it ourselves.
+        """
+        self._fullscreen_snapshot = self._window.saveGeometry()
+        self._window.showFullScreen()
+
+    def exit_fullscreen(self) -> None:
+        """Leave fullscreen, restoring the rect captured by enter_fullscreen()."""
+        self._window.showNormal()  # clear the fullscreen flag first
+        if self._fullscreen_snapshot is not None:
+            self._window.restoreGeometry(self._fullscreen_snapshot)
 
     def restore(self) -> None:
         """Apply the saved position/size, or fall back to the default size."""

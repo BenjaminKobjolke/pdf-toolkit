@@ -1,5 +1,9 @@
 # Custom Widgets
 
+> For the dialog **system** these sit on — the shared base, appearance inheritance,
+> and the confirm / input / alert family — see `CUSTOM_UI.md`. This file covers the
+> keyboard-first **list** dialogs in detail.
+
 The GUI viewer ships a small family of **keyboard-first dialogs** that share the
 same look and interaction: a filter box on top, a list below, and
 Up/Down/Enter/Esc navigation. They live in `app/gui/` and are reused across the

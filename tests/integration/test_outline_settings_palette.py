@@ -28,9 +28,9 @@ def test_outline_commands_registered(window: MainWindow) -> None:
 def test_set_width_persists_and_updates_holder(
     window: MainWindow, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from PySide6.QtWidgets import QInputDialog
+    from app.gui import number_input_dialog
 
-    monkeypatch.setattr(QInputDialog, "getInt", lambda *a, **k: (7, True))
+    monkeypatch.setattr(number_input_dialog, "prompt_int", lambda *a, **k: 7)
     commands.find(window._registry, commands.OUTLINE_WIDTH).run()
 
     # Live holder reflects the change immediately.

@@ -10,9 +10,9 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from PySide6.QtWidgets import QMessageBox, QWidget
+from PySide6.QtWidgets import QWidget
 
-from app.gui import strings
+from app.gui import confirm_dialog, strings
 from app.gui.mode_status_bar import ModeStatusBar
 from app.gui.operations import OpResult
 from app.gui.working_document import WorkingDocument
@@ -55,18 +55,17 @@ class SaveController:
         """Prompt to save pending changes. Return False to abort the caller."""
         if not self._doc.is_dirty():
             return True
-        choice = QMessageBox.question(
+        choice = confirm_dialog.confirm(
             self._parent,
             strings.CONFIRM_UNSAVED_TITLE,
             strings.CONFIRM_UNSAVED_TEXT,
-            QMessageBox.StandardButton.Save
-            | QMessageBox.StandardButton.Discard
-            | QMessageBox.StandardButton.Cancel,
-            QMessageBox.StandardButton.Save,
+            primary=strings.BTN_SAVE,
+            secondary=strings.BTN_DISCARD,
+            cancel=strings.BTN_CANCEL,
         )
-        if choice == QMessageBox.StandardButton.Cancel:
+        if choice is confirm_dialog.DialogResult.CANCEL:
             return False
-        if choice == QMessageBox.StandardButton.Save:
+        if choice is confirm_dialog.DialogResult.PRIMARY:
             self._flush()
             result = self._doc.save()
             if not result.ok:

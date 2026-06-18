@@ -12,7 +12,7 @@ from collections.abc import Callable
 from dataclasses import replace
 from typing import Any
 
-from PySide6.QtWidgets import QInputDialog, QWidget
+from PySide6.QtWidgets import QWidget
 
 from app.config.outline_settings import (
     WIDTH_PX_MAX,
@@ -20,7 +20,7 @@ from app.config.outline_settings import (
     OutlineLineStyle,
     OutlineSettingsStore,
 )
-from app.gui import strings
+from app.gui import number_input_dialog, strings
 from app.gui.color_picker_dialog import ColorPickerDialog
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.outline_style import OutlineStyle
@@ -53,7 +53,7 @@ class OutlineController:
 
     def set_width(self) -> None:
         """Prompt for the outline stroke width in pixels."""
-        value, ok = QInputDialog.getInt(
+        value = number_input_dialog.prompt_int(
             self._parent,
             strings.DIALOG_OUTLINE_WIDTH_TITLE,
             strings.PROMPT_OUTLINE_WIDTH,
@@ -61,7 +61,7 @@ class OutlineController:
             WIDTH_PX_MIN,
             WIDTH_PX_MAX,
         )
-        if ok:
+        if value is not None:
             self._save(width_px=value)
 
     def set_style(self) -> None:

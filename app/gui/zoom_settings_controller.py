@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from PySide6.QtWidgets import QInputDialog, QWidget
+from PySide6.QtWidgets import QWidget
 
 from app.config.zoom_settings import (
     ZOOM_PCT_MAX,
@@ -19,7 +19,7 @@ from app.config.zoom_settings import (
     ZoomSettings,
     ZoomSettingsStore,
 )
-from app.gui import strings
+from app.gui import number_input_dialog, strings
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 
 if TYPE_CHECKING:
@@ -63,7 +63,7 @@ class ZoomSettingsController:
     # --- internals ----------------------------------------------------------
 
     def _prompt_custom(self) -> ZoomSettings | None:
-        value, ok = QInputDialog.getInt(
+        value = number_input_dialog.prompt_int(
             self._parent,
             strings.DIALOG_DEFAULT_ZOOM_TITLE,
             strings.PROMPT_DEFAULT_ZOOM_PCT,
@@ -71,7 +71,7 @@ class ZoomSettingsController:
             ZOOM_PCT_MIN,
             ZOOM_PCT_MAX,
         )
-        return ZoomSettings(fit=False, percent=value) if ok else None
+        return ZoomSettings(fit=False, percent=value) if value is not None else None
 
     def _save(self, settings: ZoomSettings) -> None:
         self._settings = settings

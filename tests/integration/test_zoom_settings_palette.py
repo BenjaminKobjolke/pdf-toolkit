@@ -70,13 +70,13 @@ def test_pick_fit_persists(
 def test_pick_custom_prompts_for_percent(
     window: MainWindow, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from PySide6.QtWidgets import QInputDialog
+    from app.gui import number_input_dialog
 
     class _Dialog(_FakeDialog):
         pick_title = strings.ZOOM_CUSTOM_LABEL
 
     monkeypatch.setattr("app.gui.zoom_settings_controller.FilterListDialog", _Dialog)
-    monkeypatch.setattr(QInputDialog, "getInt", lambda *a, **k: (175, True))
+    monkeypatch.setattr(number_input_dialog, "prompt_int", lambda *a, **k: 175)
     commands.find(window._registry, commands.ZOOM_SET_DEFAULT).run()
 
     assert ZoomSettingsStore(gui_settings(tmp_path).zoom_file).load() == ZoomSettings(

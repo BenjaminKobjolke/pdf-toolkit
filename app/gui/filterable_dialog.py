@@ -12,10 +12,12 @@ from typing import cast
 
 from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtGui import QKeyEvent
-from PySide6.QtWidgets import QDialog, QLineEdit, QListWidget, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLineEdit, QListWidget, QVBoxLayout, QWidget
+
+from app.gui.base_dialog import BaseDialog
 
 
-class FilterableListDialog(QDialog):
+class FilterableListDialog(BaseDialog):
     """Filter box + list with shared Up/Down/Enter/Esc navigation."""
 
     def __init__(

@@ -27,6 +27,21 @@ def qapp() -> Iterator[object]:
     yield app
 
 
+def silence_dialogs(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Auto-dismiss the custom confirm/alert dialogs so headless tests don't block.
+
+    Confirmations resolve to the primary button (Yes/Save) and alerts become no-ops.
+    Tests that need a specific confirm result (e.g. Yes/No/Cancel) or that inspect an
+    alert's text should patch ``app.gui.confirm_dialog`` themselves instead.
+    """
+    from app.gui import confirm_dialog
+
+    monkeypatch.setattr(confirm_dialog, "show_message", lambda *a, **k: None)
+    monkeypatch.setattr(
+        confirm_dialog, "confirm", lambda *a, **k: confirm_dialog.DialogResult.PRIMARY
+    )
+
+
 def gui_settings(tmp_path: Path) -> Settings:
     """Settings with every store path under ``tmp_path`` so GUI tests stay hermetic."""
     from app.config.settings import Settings

@@ -9,7 +9,7 @@ from pypdf import PdfReader
 
 from app.config.settings import Settings
 from app.gui.main_window import MainWindow
-from tests.conftest import MakePdf, PageSizesOf
+from tests.conftest import MakePdf, PageSizesOf, silence_dialogs
 
 
 @pytest.fixture
@@ -25,11 +25,7 @@ def settings(tmp_path: Path) -> Settings:
 
 @pytest.fixture
 def window(qapp: object, settings: Settings, monkeypatch: pytest.MonkeyPatch) -> MainWindow:
-    from PySide6.QtWidgets import QMessageBox
-
-    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: QMessageBox.StandardButton.Ok)
-    monkeypatch.setattr(QMessageBox, "critical", lambda *a, **k: QMessageBox.StandardButton.Ok)
-    monkeypatch.setattr(QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Save)
+    silence_dialogs(monkeypatch)
     return MainWindow(settings)
 
 

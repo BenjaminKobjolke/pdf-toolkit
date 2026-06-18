@@ -11,9 +11,9 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtWidgets import QFileDialog, QInputDialog, QMessageBox, QWidget
+from PySide6.QtWidgets import QFileDialog, QWidget
 
-from app.gui import strings
+from app.gui import confirm_dialog, number_input_dialog, strings
 from app.gui.deferred_ops import DeferredOps
 from app.gui.operations import GuiOperationRunner, OpResult
 from app.gui.page_view import PageView
@@ -52,12 +52,14 @@ class PageActions:
             return
         page = self._page_view.current_page_one_based()
         total = self._page_view.total_pages()
-        confirm = QMessageBox.question(
+        choice = confirm_dialog.confirm(
             self._parent,
             strings.CONFIRM_TITLE,
             strings.CONFIRM_DELETE_PAGE_FMT.format(page=page, total=total),
+            primary=strings.BTN_YES,
+            secondary=strings.BTN_NO,
         )
-        if confirm != QMessageBox.StandardButton.Yes:
+        if choice is not confirm_dialog.DialogResult.PRIMARY:
             return
         self._deferred.run(lambda p: delete_page(p, page))
 
@@ -65,15 +67,15 @@ class PageActions:
         if self._deferred.working() is None:
             return
         total = self._page_view.total_pages()
-        start, ok = QInputDialog.getInt(
+        start = number_input_dialog.prompt_int(
             self._parent, strings.DIALOG_RANGE_TITLE, strings.PROMPT_RANGE_START, 1, 1, total
         )
-        if not ok:
+        if start is None:
             return
-        end, ok = QInputDialog.getInt(
+        end = number_input_dialog.prompt_int(
             self._parent, strings.DIALOG_RANGE_TITLE, strings.PROMPT_RANGE_END, start, start, total
         )
-        if not ok:
+        if end is None:
             return
         self._deferred.run(lambda p: delete_page_range(p, start, end))
 

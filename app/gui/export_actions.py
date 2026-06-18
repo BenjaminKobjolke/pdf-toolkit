@@ -15,9 +15,9 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtWidgets import QInputDialog, QLineEdit, QMessageBox, QWidget
+from PySide6.QtWidgets import QWidget
 
-from app.gui import strings
+from app.gui import confirm_dialog, strings, text_prompt_dialog
 from app.gui.edit_controller import EditController
 from app.gui.operations import OpResult
 from app.gui.page_view import PageView
@@ -53,18 +53,17 @@ class ExportActions:
         if not self._controller.has_overlay():
             self._report(OpResult(True, strings.MSG_NO_TEXT_TO_EXPORT))
             return
-        choice = QMessageBox.question(
+        choice = confirm_dialog.confirm(
             self._parent,
             strings.CONFIRM_EXPORT_TITLE,
             strings.CONFIRM_EXPORT_OVERWRITE,
-            QMessageBox.StandardButton.Yes
-            | QMessageBox.StandardButton.No
-            | QMessageBox.StandardButton.Cancel,
-            QMessageBox.StandardButton.Yes,
+            primary=strings.BTN_YES,
+            secondary=strings.BTN_NO,
+            cancel=strings.BTN_CANCEL,
         )
-        if choice == QMessageBox.StandardButton.Yes:
+        if choice is confirm_dialog.DialogResult.PRIMARY:
             self._overwrite(working)
-        elif choice == QMessageBox.StandardButton.No:
+        elif choice is confirm_dialog.DialogResult.SECONDARY:
             self._new_file(working, source)
         # Cancel: leave the fields in place and do nothing.
 
@@ -90,15 +89,10 @@ class ExportActions:
 
     def _prompt_export_name(self, default: str) -> str | None:
         """Ask for the new file name, pre-filled with ``default`` and caret at the end."""
-        dialog = QInputDialog(self._parent)
-        dialog.setWindowTitle(strings.DIALOG_EXPORT_NAME_TITLE)
-        dialog.setLabelText(strings.PROMPT_EXPORT_NAME)
-        dialog.setTextValue(default)
-        edit = dialog.findChild(QLineEdit)
-        if edit is not None:
-            edit.deselect()
-            edit.end(False)
-        if not dialog.exec():
-            return None
-        value = dialog.textValue().strip()
-        return value or None
+        return text_prompt_dialog.prompt_text(
+            self._parent,
+            strings.DIALOG_EXPORT_NAME_TITLE,
+            strings.PROMPT_EXPORT_NAME,
+            default,
+            select_all=False,
+        )
