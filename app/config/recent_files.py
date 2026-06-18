@@ -9,21 +9,25 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from app.config.file_backed_store import FileBackedStore
-from app.io.json_store import read_versioned_dict, write_versioned
+from app.config.record_store import RecordStore
+from app.storage.backend import StorageBackend
 
 MAX_RECENT = 100
 RECENT_VERSION = 1
+RECENT_KEY = "recent"
 
 
-class RecentFilesStore(FileBackedStore):
-    """Reads and writes the recent-documents list at a fixed JSON path."""
+class RecentFilesStore(RecordStore):
+    """Reads and writes the recent-documents list via the storage backend."""
 
     LABEL = "Recent documents list"
 
+    def __init__(self, backend: StorageBackend) -> None:
+        super().__init__(backend, RECENT_KEY)
+
     def load(self) -> list[Path]:
         """Return the stored paths, most-recent first; ``[]`` if absent/corrupt."""
-        raw = read_versioned_dict(self._path, RECENT_VERSION)
+        raw = self._backend.get_versioned(self._key, RECENT_VERSION)
         if raw is None:
             return []
         paths = raw.get("paths", [])
@@ -42,4 +46,4 @@ class RecentFilesStore(FileBackedStore):
         self._write([])
 
     def _write(self, paths: list[Path]) -> None:
-        write_versioned(self._path, RECENT_VERSION, {"paths": [str(p) for p in paths]})
+        self._backend.set_versioned(self._key, RECENT_VERSION, {"paths": [str(p) for p in paths]})

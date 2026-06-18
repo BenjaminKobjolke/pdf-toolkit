@@ -6,20 +6,14 @@ from pathlib import Path
 
 import pytest
 
-from app.config.settings import Settings
 from app.gui import commands
 from app.gui.main_window import MainWindow
-from tests.conftest import MakePdf, MakeSearchablePdf
+from tests.conftest import MakePdf, MakeSearchablePdf, gui_settings
 
 
 @pytest.fixture
 def window(qapp: object, tmp_path: Path) -> MainWindow:
-    settings = Settings(
-        backup_dir=tmp_path / "backup",
-        log_level="INFO",
-        recent_file=tmp_path / "recent.json",
-    )
-    return MainWindow(settings)
+    return MainWindow(gui_settings(tmp_path))
 
 
 def _run(window: MainWindow, command_id: str) -> None:

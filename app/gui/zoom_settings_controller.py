@@ -41,6 +41,10 @@ class ZoomSettingsController:
         self._settings = store.load()
         page_view.set_default_zoom(self._settings.fit, self._settings.percent)
 
+    def current(self) -> ZoomSettings:
+        """Return the global default zoom (fallback when no per-document zoom)."""
+        return self._settings
+
     def set_default_zoom(self) -> None:
         """Pick Fit / a preset / a custom percentage, then persist and apply it."""
         entries = [ListEntry(title=strings.ZOOM_FIT_LABEL, payload=ZoomSettings(fit=True))]

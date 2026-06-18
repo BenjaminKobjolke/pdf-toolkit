@@ -11,6 +11,7 @@ from app.config.placement_settings import PlacementStore
 from app.gui.mode_status_bar import ModeStatusBar
 from app.gui.page_view import PageView
 from app.gui.placement import PlacementController, PlacementMode
+from app.storage.sqlite_backend import SqliteBackend
 
 
 def _controller(tmp_path: Path) -> PlacementController:
@@ -18,7 +19,7 @@ def _controller(tmp_path: Path) -> PlacementController:
         None,  # parent unused for the non-dialog paths exercised here
         PageView(),
         ModeStatusBar(),
-        PlacementStore(tmp_path / "placement.json"),
+        PlacementStore(SqliteBackend(tmp_path / "db.sqlite")),
     )
 
 

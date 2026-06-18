@@ -12,7 +12,8 @@ from app.gui import commands, strings
 from app.gui.filter_list_dialog import ListEntry
 from app.gui.main_window import MainWindow
 from app.gui.zoom_controller import _MODE_FIT, _ZOOM_ACTUAL
-from tests.conftest import MakePdf, gui_settings
+from app.storage.factory import make_backend
+from tests.conftest import MakePdf, gui_backend, gui_settings
 
 
 @pytest.fixture
@@ -49,7 +50,7 @@ def test_pick_preset_persists_and_applies(
     monkeypatch.setattr("app.gui.zoom_settings_controller.FilterListDialog", _Dialog)
     commands.find(window._registry, commands.ZOOM_SET_DEFAULT).run()
 
-    stored = ZoomSettingsStore(gui_settings(tmp_path).zoom_file).load()
+    stored = ZoomSettingsStore(gui_backend(tmp_path)).load()
     assert stored == ZoomSettings(fit=False, percent=50)
     # Default pushed into the live view (no doc open → scaled factor set directly).
     assert window.page_view.zoom() == pytest.approx(0.5 * _ZOOM_ACTUAL)
@@ -64,7 +65,7 @@ def test_pick_fit_persists(
     monkeypatch.setattr("app.gui.zoom_settings_controller.FilterListDialog", _Dialog)
     commands.find(window._registry, commands.ZOOM_SET_DEFAULT).run()
 
-    assert ZoomSettingsStore(gui_settings(tmp_path).zoom_file).load() == ZoomSettings(fit=True)
+    assert ZoomSettingsStore(gui_backend(tmp_path)).load() == ZoomSettings(fit=True)
 
 
 def test_pick_custom_prompts_for_percent(
@@ -79,9 +80,7 @@ def test_pick_custom_prompts_for_percent(
     monkeypatch.setattr(number_input_dialog, "prompt_int", lambda *a, **k: 175)
     commands.find(window._registry, commands.ZOOM_SET_DEFAULT).run()
 
-    assert ZoomSettingsStore(gui_settings(tmp_path).zoom_file).load() == ZoomSettings(
-        fit=False, percent=175
-    )
+    assert ZoomSettingsStore(gui_backend(tmp_path)).load() == ZoomSettings(fit=False, percent=175)
 
 
 def test_store_in_remembered_list(window: MainWindow) -> None:
@@ -91,14 +90,14 @@ def test_store_in_remembered_list(window: MainWindow) -> None:
 
 def test_startup_applies_persisted_default(qapp: object, tmp_path: Path) -> None:
     settings = gui_settings(tmp_path)
-    ZoomSettingsStore(settings.zoom_file).save(ZoomSettings(fit=False, percent=50))
+    ZoomSettingsStore(make_backend(settings.database_url)).save(ZoomSettings(fit=False, percent=50))
     window = MainWindow(settings)
     assert window.page_view.zoom() == pytest.approx(0.5 * _ZOOM_ACTUAL)
 
 
 def test_startup_fit_default_sets_fit_mode(qapp: object, tmp_path: Path) -> None:
     settings = gui_settings(tmp_path)
-    ZoomSettingsStore(settings.zoom_file).save(ZoomSettings(fit=True))
+    ZoomSettingsStore(make_backend(settings.database_url)).save(ZoomSettings(fit=True))
     window = MainWindow(settings)
     assert window.page_view._zoom_ctl._mode == _MODE_FIT
 

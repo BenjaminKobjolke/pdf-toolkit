@@ -62,6 +62,8 @@ OUTLINE_WIDTH = "outline_width"
 OUTLINE_STYLE = "outline_style"
 OUTLINE_COLOR = "outline_color"
 ZOOM_SET_DEFAULT = "zoom_set_default"
+DOC_ZOOM_REMEMBER = "doc_zoom_remember"
+DOC_PAGE_REMEMBER = "doc_page_remember"
 EDIT_MODE = "edit_mode"
 SELECT_NEXT = "select_next"
 SELECT_PREV = "select_prev"
@@ -205,6 +207,8 @@ def _view_commands(window: MainWindow) -> list[Command]:
         Command(OUTLINE_STYLE, strings.CMD_OUTLINE_STYLE, outline.set_style),
         Command(OUTLINE_COLOR, strings.CMD_OUTLINE_COLOR, outline.set_color),
         Command(ZOOM_SET_DEFAULT, strings.CMD_SET_DEFAULT_ZOOM, zoom.set_default_zoom),
+        Command(DOC_ZOOM_REMEMBER, strings.CMD_REMEMBER_DOC_ZOOM, window.remember_document_zoom),
+        Command(DOC_PAGE_REMEMBER, strings.CMD_REMEMBER_DOC_PAGE, window.remember_document_page),
         Command(
             REMEMBERED_SETTINGS,
             strings.CMD_REMEMBERED_SETTINGS,

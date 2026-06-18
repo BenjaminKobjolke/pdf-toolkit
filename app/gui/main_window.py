@@ -8,165 +8,29 @@ from typing import TYPE_CHECKING
 from PySide6.QtWidgets import QFileDialog, QMainWindow
 
 from app.gui import confirm_dialog, overlay_selection, strings
+from app.gui.main_window_accessors import CollaboratorAccessors
 from app.gui.window_builder import assemble
 
 if TYPE_CHECKING:
     from PySide6.QtGui import QCloseEvent
 
-    from app.config.command_history import CommandHistoryStore
-    from app.config.key_bindings import KeyBindingStore, KeyMap
-    from app.config.recent_files import RecentFilesStore
+    from app.config.key_bindings import KeyMap
     from app.config.settings import Settings
-    from app.config.ui_state import UiStateStore
-    from app.gui.chrome import ChromeController
-    from app.gui.commands import Command
-    from app.gui.controls import OperationBar
-    from app.gui.deferred_ops import DeferredOps
-    from app.gui.document_actions import DocumentActions
-    from app.gui.edit_bar import EditBar
-    from app.gui.edit_controller import EditController
-    from app.gui.export_actions import ExportActions
-    from app.gui.field_actions import FieldActions
-    from app.gui.image_actions import ImageActions
-    from app.gui.image_controller import ImageController
-    from app.gui.keybinding_actions import KeybindingActions
-    from app.gui.mode_status_bar import ModeStatusBar
-    from app.gui.move_actions import MoveActions
-    from app.gui.operations import GuiOperationRunner, OpResult
-    from app.gui.outline_controller import OutlineController
-    from app.gui.overlay_actions import OverlayActions
-    from app.gui.page_actions import PageActions
-    from app.gui.page_view import PageView
-    from app.gui.palette_actions import PaletteActions
-    from app.gui.palette_controller import PaletteController
-    from app.gui.placement import PlacementController
-    from app.gui.print_actions import PrintActions
-    from app.gui.remembered_settings import RememberedSettingsController
-    from app.gui.rotate_actions import RotateActions
-    from app.gui.save_controller import SaveController
-    from app.gui.search_actions import SearchActions
-    from app.gui.shortcut_installer import ShortcutInstaller
-    from app.gui.window_geometry_controller import WindowGeometryController
-    from app.gui.working_document import WorkingDocument
-    from app.gui.zoom_settings_controller import ZoomSettingsController
+    from app.gui.operations import OpResult
 
 
-class MainWindow(QMainWindow):
+class MainWindow(CollaboratorAccessors, QMainWindow):
     """Viewer window; delegates page rendering and op execution to collaborators.
 
-    The collaborators below are constructed and assigned by
-    :func:`app.gui.window_builder.assemble`; they are declared here so the public
-    API (and the type checker) can see them.
+    The collaborators are constructed and assigned by
+    :func:`app.gui.window_builder.assemble`; they are declared (with their
+    read-only accessors) on :class:`CollaboratorAccessors`.
     """
-
-    _runner: GuiOperationRunner
-    _recent: RecentFilesStore
-    _ui_state: UiStateStore
-    _palette: PaletteController
-    _outline: OutlineController
-    _command_history: CommandHistoryStore
-    _geometry: WindowGeometryController
-    _working_doc: WorkingDocument
-    _page_view: PageView
-    _zoom_settings: ZoomSettingsController
-    _bar: OperationBar
-    _edit_bar: EditBar
-    _mode_bar: ModeStatusBar
-    _save: SaveController
-    _controller: EditController
-    _images: ImageController
-    _placement: PlacementController
-    _field_actions: FieldActions
-    _image_actions: ImageActions
-    _overlay_actions: OverlayActions
-    _remembered: RememberedSettingsController
-    _export: ExportActions
-    _search_actions: SearchActions
-    _deferred: DeferredOps
-    _page_actions: PageActions
-    _rotate_actions: RotateActions
-    _move_actions: MoveActions
-    _print_actions: PrintActions
-    _registry: list[Command]
-    _document_actions: DocumentActions
-    _palette_actions: PaletteActions
-    _key_bindings: KeyBindingStore
-    _keymap: KeyMap
-    _shortcut_installer: ShortcutInstaller
-    _keybinding_actions: KeybindingActions
-    _chrome: ChromeController
 
     def __init__(self, settings: Settings) -> None:
         super().__init__()
         self._source: Path | None = None
         assemble(self, settings)
-
-    @property
-    def page_view(self) -> PageView:
-        return self._page_view
-
-    @property
-    def controller(self) -> EditController:
-        return self._controller
-
-    @property
-    def images(self) -> ImageController:
-        return self._images
-
-    @property
-    def operation_bar(self) -> OperationBar:
-        return self._bar
-
-    @property
-    def edit_bar(self) -> EditBar:
-        return self._edit_bar
-
-    @property
-    def mode_bar(self) -> ModeStatusBar:
-        return self._mode_bar
-
-    @property
-    def field_actions(self) -> FieldActions:
-        return self._field_actions
-
-    @property
-    def image_actions(self) -> ImageActions:
-        return self._image_actions
-
-    @property
-    def search_actions(self) -> SearchActions:
-        return self._search_actions
-
-    @property
-    def page_actions(self) -> PageActions:
-        return self._page_actions
-
-    @property
-    def rotate_actions(self) -> RotateActions:
-        return self._rotate_actions
-
-    @property
-    def move_actions(self) -> MoveActions:
-        return self._move_actions
-
-    @property
-    def print_actions(self) -> PrintActions:
-        return self._print_actions
-
-    @property
-    def palette_controller(self) -> PaletteController:
-        return self._palette
-
-    @property
-    def outline_controller(self) -> OutlineController:
-        return self._outline
-
-    @property
-    def zoom_settings_controller(self) -> ZoomSettingsController:
-        return self._zoom_settings
-
-    def has_document(self) -> bool:
-        return self._source is not None
 
     def open_pdf(self, path: Path | None = None) -> None:
         """Open ``path`` (or prompt for one) into a working copy and show page 1."""
@@ -179,6 +43,8 @@ class MainWindow(QMainWindow):
             if not chosen:
                 return
             path = Path(chosen)
+        # Capture the outgoing document's view state before switching away.
+        self._doc_memories.capture(self._source)
         self._source = path
         working = self._working_doc.open(path)
         # Asset paths resolve against the original PDF's directory, not the temp
@@ -191,6 +57,8 @@ class MainWindow(QMainWindow):
         # is keyed to the working copy, seeded from the original on open.
         self._load_text_fields(working)
         self._page_view.load(working)
+        # Restore the remembered zoom/page for this document (independent dimensions).
+        self._doc_memories.apply_for(path)
         self._bar.set_enabled_for_doc(True)
         self._mode_bar.set_dirty(False)
         self._recent.add(path)
@@ -203,6 +71,7 @@ class MainWindow(QMainWindow):
         """Offer to save pending changes, then return to the empty viewer state."""
         if not self._save.confirm_unsaved():
             return
+        self._doc_memories.capture(self._source)
         self._working_doc.close()
         self._page_view.reset()
         self._bar.set_enabled_for_doc(False)
@@ -265,6 +134,14 @@ class MainWindow(QMainWindow):
         """Show the remembered-settings picker to reset stored preferences."""
         self._remembered.open()
 
+    def remember_document_zoom(self) -> None:
+        """Open the per-document zoom remember/auto/forget menu."""
+        self._doc_zoom.open_menu()
+
+    def remember_document_page(self) -> None:
+        """Open the per-document page remember/auto/forget menu."""
+        self._doc_page.open_menu()
+
     def export_text(self) -> None:
         """Flatten placed overlay: overwrite the original or write a new file."""
         self._export.export()
@@ -299,9 +176,11 @@ class MainWindow(QMainWindow):
         if not self._save.confirm_unsaved():
             event.ignore()
             return
+        self._doc_memories.capture(self._source)
         self._working_doc.close()
         self._chrome.save()
         self._geometry.save()
+        self._backend.close()
         super().closeEvent(event)
 
     def _original_dir(self) -> Path | None:

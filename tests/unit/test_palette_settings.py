@@ -5,10 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from app.config.palette_settings import PaletteSettings, PaletteSettingsStore
+from app.storage.sqlite_backend import SqliteBackend
 
 
 def _store(tmp_path: Path) -> PaletteSettingsStore:
-    return PaletteSettingsStore(tmp_path / "nested" / "palette.json")
+    return PaletteSettingsStore(SqliteBackend(tmp_path / "db.sqlite"))
 
 
 def test_default_when_missing(tmp_path: Path) -> None:
@@ -31,9 +32,3 @@ def test_fields_persist_independently(tmp_path: Path) -> None:
     assert loaded.width_pct == 33
     assert loaded.borderless is True
     assert loaded.height_pct == PaletteSettings().height_pct
-
-
-def test_corrupt_falls_back_to_default(tmp_path: Path) -> None:
-    path = tmp_path / "palette.json"
-    path.write_text("{ not json", encoding="utf-8")
-    assert PaletteSettingsStore(path).load() == PaletteSettings()

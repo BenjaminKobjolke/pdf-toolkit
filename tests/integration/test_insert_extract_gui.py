@@ -9,18 +9,12 @@ from pypdf import PdfReader
 
 from app.config.settings import Settings
 from app.gui.main_window import MainWindow
-from tests.conftest import MakePdf, PageSizesOf, silence_dialogs
+from tests.conftest import MakePdf, PageSizesOf, gui_settings, silence_dialogs
 
 
 @pytest.fixture
 def settings(tmp_path: Path) -> Settings:
-    return Settings(
-        backup_dir=tmp_path / "backup",
-        log_level="INFO",
-        recent_file=tmp_path / "recent.json",
-        ui_state_file=tmp_path / "ui_state.json",
-        palette_file=tmp_path / "palette.json",
-    )
+    return gui_settings(tmp_path)
 
 
 @pytest.fixture

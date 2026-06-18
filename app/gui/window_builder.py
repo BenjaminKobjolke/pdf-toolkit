@@ -13,13 +13,15 @@ from typing import TYPE_CHECKING
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from app.config.command_history import CommandHistoryStore
-from app.config.file_backed_store import FileBackedStore
+from app.config.document_page import DocumentPageStore
+from app.config.document_zoom import DocumentZoomStore
 from app.config.image_choice_settings import ImageChoiceStore
 from app.config.key_bindings import KeyBindingStore, effective_keymap
 from app.config.outline_settings import OutlineSettingsStore
 from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
 from app.config.recent_files import RecentFilesStore
+from app.config.record_store import RecordStore
 from app.config.settings import Settings
 from app.config.ui_state import UiStateStore
 from app.config.window_geometry import WindowGeometryStore
@@ -29,6 +31,11 @@ from app.gui.chrome import ChromeController
 from app.gui.controls import OperationBar
 from app.gui.deferred_ops import DeferredOps
 from app.gui.document_actions import DocumentActions
+from app.gui.document_memory_controller import (
+    DocumentMemoryController,
+    DocumentMemoryGroup,
+    MemoryStrings,
+)
 from app.gui.edit_bar import EditBar
 from app.gui.edit_controller import EditController
 from app.gui.export_actions import ExportActions
@@ -61,6 +68,7 @@ from app.gui.window_input import (
 )
 from app.gui.working_document import WorkingDocument
 from app.gui.zoom_settings_controller import ZoomSettingsController
+from app.storage.factory import make_backend
 
 if TYPE_CHECKING:
     from app.gui.main_window import MainWindow
@@ -77,22 +85,24 @@ def assemble(window: MainWindow, settings: Settings) -> None:
 
 
 def _build_core(window: MainWindow, settings: Settings) -> None:
+    window._backend = make_backend(settings.database_url)
+    backend = window._backend
     window._runner = GuiOperationRunner(settings)
-    window._recent = RecentFilesStore(settings.recent_file)
-    window._ui_state = UiStateStore(settings.ui_state_file)
-    window._palette = PaletteController(window, PaletteSettingsStore(settings.palette_file))
-    window._command_history = CommandHistoryStore(settings.command_history_file)
-    window._geometry = WindowGeometryController(window, WindowGeometryStore(settings.window_file))
+    window._recent = RecentFilesStore(backend)
+    window._ui_state = UiStateStore(backend)
+    window._palette = PaletteController(window, PaletteSettingsStore(backend))
+    window._command_history = CommandHistoryStore(backend)
+    window._geometry = WindowGeometryController(window, WindowGeometryStore(backend))
     window._working_doc = WorkingDocument(settings)
     window._page_view = PageView()
     window._zoom_settings = ZoomSettingsController(
-        window, ZoomSettingsStore(settings.zoom_file), window._page_view
+        window, ZoomSettingsStore(backend), window._page_view
     )
     outline_holder = OutlineStyle()
     set_active(outline_holder)
     window._outline = OutlineController(
         window,
-        OutlineSettingsStore(settings.outline_file),
+        OutlineSettingsStore(backend),
         outline_holder,
         lambda: window._page_view.graphics_scene().update(),
     )
@@ -115,14 +125,14 @@ def _build_overlay(window: MainWindow, settings: Settings) -> None:
     )
     window._controller.attach_images(window._images)
     window._placement = PlacementController(
-        window, window._page_view, window._mode_bar, PlacementStore(settings.placement_file)
+        window, window._page_view, window._mode_bar, PlacementStore(window._backend)
     )
     window._field_actions = FieldActions(window, window._page_view, window._controller)
     window._image_actions = ImageActions(
         window,
         window._images,
         window._placement,
-        ImageChoiceStore(settings.image_choice_file),
+        ImageChoiceStore(window._backend),
         window._original_dir,
         window._report,
     )
@@ -133,9 +143,40 @@ def _build_overlay(window: MainWindow, settings: Settings) -> None:
         window._image_actions,
         window.has_document,
     )
+    _build_document_memory(window)
     window._remembered = RememberedSettingsController(
         window, _remembered_stores(window, settings), window._report
     )
+
+
+def _build_document_memory(window: MainWindow) -> None:
+    """Construct the per-document zoom and page memory controllers."""
+    pv = window._page_view
+
+    def apply_global_zoom() -> None:
+        default = window._zoom_settings.current()
+        pv.set_default_zoom(default.fit, default.percent)
+
+    window._doc_zoom = DocumentMemoryController(
+        window,
+        DocumentZoomStore(window._backend),
+        lambda: window._source,
+        pv.current_zoom,
+        lambda zoom: pv.set_default_zoom(zoom.fit, zoom.percent),
+        window._report,
+        MemoryStrings.for_noun(strings.DOC_MEM_NOUN_ZOOM),
+        fallback=apply_global_zoom,
+    )
+    window._doc_page = DocumentMemoryController(
+        window,
+        DocumentPageStore(window._backend),
+        lambda: window._source,
+        pv.current_page_index,
+        pv.go_to_page,
+        window._report,
+        MemoryStrings.for_noun(strings.DOC_MEM_NOUN_PAGE),
+    )
+    window._doc_memories = DocumentMemoryGroup([window._doc_zoom, window._doc_page])
 
 
 def _build_operations(window: MainWindow) -> None:
@@ -197,7 +238,7 @@ def _finish(window: MainWindow, settings: Settings) -> None:
         window._report,
     )
     defaults = default_shortcut_pairs()
-    window._key_bindings = KeyBindingStore(settings.key_bindings_file)
+    window._key_bindings = KeyBindingStore(window._backend)
     window._keymap = effective_keymap(window._key_bindings, defaults)
     window._palette_actions = PaletteActions(
         window, window._registry, window._palette, window._command_history, window.current_keymap
@@ -220,17 +261,20 @@ def _finish(window: MainWindow, settings: Settings) -> None:
     window._geometry.restore()
 
 
-def _remembered_stores(window: MainWindow, settings: Settings) -> list[FileBackedStore]:
-    """The file-backed stores offered by the Remembered-settings command."""
+def _remembered_stores(window: MainWindow, settings: Settings) -> list[RecordStore]:
+    """The remembered-setting stores offered by the Remembered-settings command."""
+    backend = window._backend
     return [
         window._recent,
         window._ui_state,
-        PaletteSettingsStore(settings.palette_file),
+        PaletteSettingsStore(backend),
         window._command_history,
-        PlacementStore(settings.placement_file),
-        WindowGeometryStore(settings.window_file),
-        ImageChoiceStore(settings.image_choice_file),
-        OutlineSettingsStore(settings.outline_file),
-        ZoomSettingsStore(settings.zoom_file),
-        KeyBindingStore(settings.key_bindings_file),
+        PlacementStore(backend),
+        WindowGeometryStore(backend),
+        ImageChoiceStore(backend),
+        OutlineSettingsStore(backend),
+        ZoomSettingsStore(backend),
+        KeyBindingStore(backend),
+        DocumentZoomStore(backend),
+        DocumentPageStore(backend),
     ]

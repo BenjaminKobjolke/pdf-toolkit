@@ -7,21 +7,15 @@ from pathlib import Path
 import pytest
 
 from app.config.key_bindings import merge_keymap
-from app.config.settings import Settings
 from app.gui import commands, strings
 from app.gui.main_window import MainWindow
 from app.gui.window_input import default_shortcut_pairs, shortcut_pairs
+from tests.conftest import gui_settings
 
 
 @pytest.fixture
 def window(qapp: object, tmp_path: Path) -> MainWindow:
-    settings = Settings(
-        backup_dir=tmp_path / "backup",
-        log_level="INFO",
-        recent_file=tmp_path / "recent.json",
-        key_bindings_file=tmp_path / "keybindings.json",
-    )
-    return MainWindow(settings)
+    return MainWindow(gui_settings(tmp_path))
 
 
 def _pairs(window: MainWindow) -> list[tuple[str, str]]:

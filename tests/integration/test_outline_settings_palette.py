@@ -10,7 +10,8 @@ from app.config.outline_settings import OutlineLineStyle, OutlineSettings, Outli
 from app.gui import commands
 from app.gui.main_window import MainWindow
 from app.gui.outline_style import active
-from tests.conftest import gui_settings
+from app.storage.factory import make_backend
+from tests.conftest import gui_backend, gui_settings
 
 
 @pytest.fixture
@@ -36,7 +37,7 @@ def test_set_width_persists_and_updates_holder(
     # Live holder reflects the change immediately.
     assert active().settings().width_px == 7
     # Persisted to disk and survives a fresh store load.
-    assert OutlineSettingsStore(gui_settings(tmp_path).outline_file).load().width_px == 7
+    assert OutlineSettingsStore(gui_backend(tmp_path)).load().width_px == 7
 
 
 def test_set_style_persists(
@@ -57,7 +58,7 @@ def test_set_style_persists(
     monkeypatch.setattr("app.gui.outline_controller.FilterListDialog", _FakeDialog)
     commands.find(window._registry, commands.OUTLINE_STYLE).run()
 
-    stored = OutlineSettingsStore(gui_settings(tmp_path).outline_file).load()
+    stored = OutlineSettingsStore(gui_backend(tmp_path)).load()
     assert stored.style is OutlineLineStyle.SOLID
 
 
@@ -78,7 +79,7 @@ def test_set_color_persists(
     commands.find(window._registry, commands.OUTLINE_COLOR).run()
 
     assert active().settings().color == "#123456"
-    stored = OutlineSettingsStore(gui_settings(tmp_path).outline_file).load()
+    stored = OutlineSettingsStore(gui_backend(tmp_path)).load()
     assert stored.color == "#123456"
 
 
@@ -89,7 +90,7 @@ def test_outline_store_in_remembered_list(window: MainWindow) -> None:
 
 def test_holder_loads_persisted_on_startup(qapp: object, tmp_path: Path) -> None:
     settings = gui_settings(tmp_path)
-    OutlineSettingsStore(settings.outline_file).save(
+    OutlineSettingsStore(make_backend(settings.database_url)).save(
         OutlineSettings(width_px=9, style=OutlineLineStyle.SOLID, color="#0000FF")
     )
     MainWindow(settings)

@@ -14,6 +14,7 @@ from collections.abc import Callable
 from PySide6.QtGui import QTransform
 from PySide6.QtWidgets import QGraphicsPixmapItem, QGraphicsView
 
+from app.config.zoom_settings import ZoomSettings
 from app.gui import render
 
 _ZOOM_IN_FACTOR = 1.1  # zoom in 10%
@@ -48,6 +49,10 @@ class ZoomController:
     def percent(self) -> int:
         """Current zoom as a user-facing percentage (100 = true PDF size)."""
         return round(self._zoom / _ZOOM_ACTUAL * 100)
+
+    def current_default(self) -> ZoomSettings:
+        """Current zoom expressed as a remembered default (fit vs. percentage)."""
+        return ZoomSettings(fit=self._mode == _MODE_FIT, percent=self.percent())
 
     def actual(self) -> None:
         """Show the page at true PDF size (100%); stays 100% on page changes."""

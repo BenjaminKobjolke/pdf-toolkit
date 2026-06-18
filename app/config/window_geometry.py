@@ -10,10 +10,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.config.file_backed_store import FileBackedStore
-from app.io.json_store import read_versioned_dict, write_versioned
+from app.config.record_store import RecordStore
+from app.storage.backend import StorageBackend
 
 WINDOW_GEOMETRY_VERSION = 1
+WINDOW_GEOMETRY_KEY = "window"
 
 
 @dataclass(frozen=True)
@@ -26,14 +27,17 @@ class WindowGeometry:
     height: int
 
 
-class WindowGeometryStore(FileBackedStore):
-    """Reads and writes :class:`WindowGeometry` at a fixed JSON path."""
+class WindowGeometryStore(RecordStore):
+    """Reads and writes :class:`WindowGeometry` via the storage backend."""
 
     LABEL = "Window position and size"
 
+    def __init__(self, backend: StorageBackend) -> None:
+        super().__init__(backend, WINDOW_GEOMETRY_KEY)
+
     def load(self) -> WindowGeometry | None:
         """Return the stored geometry, or ``None`` if absent/corrupt/incomplete."""
-        raw = read_versioned_dict(self._path, WINDOW_GEOMETRY_VERSION)
+        raw = self._backend.get_versioned(self._key, WINDOW_GEOMETRY_VERSION)
         if raw is None:
             return None
         try:
@@ -47,8 +51,8 @@ class WindowGeometryStore(FileBackedStore):
             return None
 
     def save(self, geom: WindowGeometry) -> None:
-        write_versioned(
-            self._path,
+        self._backend.set_versioned(
+            self._key,
             WINDOW_GEOMETRY_VERSION,
             {"x": geom.x, "y": geom.y, "width": geom.width, "height": geom.height},
         )

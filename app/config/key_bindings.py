@@ -13,10 +13,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.config.file_backed_store import FileBackedStore
-from app.io.json_store import read_versioned_dict, write_versioned
+from app.config.record_store import RecordStore
+from app.storage.backend import StorageBackend
 
 KEY_BINDINGS_VERSION = 1
+KEY_BINDINGS_KEY = "key_bindings"
 
 # A (chord, command_id) default binding pair, as produced by the GUI defaults.
 DefaultPair = tuple[str, str]
@@ -96,14 +97,17 @@ def _upsert(
     return (*kept, KeyOverride(chord, command_id))
 
 
-class KeyBindingStore(FileBackedStore):
-    """Reads and writes the chord-keyed override list at a fixed JSON path."""
+class KeyBindingStore(RecordStore):
+    """Reads and writes the chord-keyed override list via the storage backend."""
 
     LABEL = "Keyboard shortcuts"
 
+    def __init__(self, backend: StorageBackend) -> None:
+        super().__init__(backend, KEY_BINDINGS_KEY)
+
     def load(self) -> tuple[KeyOverride, ...]:
         """Return the stored overrides; ``()`` if absent/corrupt."""
-        raw = read_versioned_dict(self._path, KEY_BINDINGS_VERSION)
+        raw = self._backend.get_versioned(self._key, KEY_BINDINGS_VERSION)
         if raw is None:
             return ()
         items = raw.get("overrides", [])
@@ -118,7 +122,7 @@ class KeyBindingStore(FileBackedStore):
                 for override in overrides
             ]
         }
-        write_versioned(self._path, KEY_BINDINGS_VERSION, payload)
+        self._backend.set_versioned(self._key, KEY_BINDINGS_VERSION, payload)
 
 
 def _parse_override(item: object) -> KeyOverride | None:

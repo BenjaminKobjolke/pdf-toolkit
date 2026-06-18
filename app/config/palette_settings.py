@@ -9,10 +9,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.config.file_backed_store import FileBackedStore
-from app.io.json_store import read_versioned_dict, write_versioned
+from app.config.record_store import RecordStore
+from app.storage.backend import StorageBackend
 
 PALETTE_SETTINGS_VERSION = 1
+PALETTE_KEY = "palette"
 
 # Bounds — single source of truth shared by the edit prompts (MainWindow) and the
 # applier clamp (palette_appearance), so the two can never drift apart.
@@ -33,14 +34,17 @@ class PaletteSettings:
     opacity_pct: int = 100
 
 
-class PaletteSettingsStore(FileBackedStore):
-    """Reads and writes :class:`PaletteSettings` at a fixed JSON path."""
+class PaletteSettingsStore(RecordStore):
+    """Reads and writes :class:`PaletteSettings` via the storage backend."""
 
     LABEL = "Command-palette appearance"
 
+    def __init__(self, backend: StorageBackend) -> None:
+        super().__init__(backend, PALETTE_KEY)
+
     def load(self) -> PaletteSettings:
         """Return the stored settings, or defaults if absent/corrupt."""
-        raw = read_versioned_dict(self._path, PALETTE_SETTINGS_VERSION)
+        raw = self._backend.get_versioned(self._key, PALETTE_SETTINGS_VERSION)
         if raw is None:
             return PaletteSettings()
         default = PaletteSettings()
@@ -53,8 +57,8 @@ class PaletteSettingsStore(FileBackedStore):
         )
 
     def save(self, settings: PaletteSettings) -> None:
-        write_versioned(
-            self._path,
+        self._backend.set_versioned(
+            self._key,
             PALETTE_SETTINGS_VERSION,
             {
                 "width_pct": settings.width_pct,

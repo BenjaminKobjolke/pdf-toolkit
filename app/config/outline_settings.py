@@ -11,10 +11,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
-from app.config.file_backed_store import FileBackedStore
-from app.io.json_store import read_versioned_dict, write_versioned
+from app.config.record_store import RecordStore
+from app.storage.backend import StorageBackend
 
 OUTLINE_SETTINGS_VERSION = 1
+OUTLINE_KEY = "outline"
 
 # Stroke-width bounds — single source of truth shared by the edit prompt
 # (OutlineController) and any clamp, so the two can never drift apart.
@@ -45,14 +46,17 @@ class OutlineSettings:
     color: str = "#FF0000"  # "#rrggbb"
 
 
-class OutlineSettingsStore(FileBackedStore):
-    """Reads and writes :class:`OutlineSettings` at a fixed JSON path."""
+class OutlineSettingsStore(RecordStore):
+    """Reads and writes :class:`OutlineSettings` via the storage backend."""
 
     LABEL = "Field outline appearance"
 
+    def __init__(self, backend: StorageBackend) -> None:
+        super().__init__(backend, OUTLINE_KEY)
+
     def load(self) -> OutlineSettings:
         """Return the stored settings, or defaults if absent/corrupt."""
-        raw = read_versioned_dict(self._path, OUTLINE_SETTINGS_VERSION)
+        raw = self._backend.get_versioned(self._key, OUTLINE_SETTINGS_VERSION)
         if raw is None:
             return OutlineSettings()
         default = OutlineSettings()
@@ -63,8 +67,8 @@ class OutlineSettingsStore(FileBackedStore):
         )
 
     def save(self, settings: OutlineSettings) -> None:
-        write_versioned(
-            self._path,
+        self._backend.set_versioned(
+            self._key,
             OUTLINE_SETTINGS_VERSION,
             {
                 "width_px": settings.width_px,

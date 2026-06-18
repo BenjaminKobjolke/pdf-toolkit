@@ -43,23 +43,25 @@ def silence_dialogs(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def gui_settings(tmp_path: Path) -> Settings:
-    """Settings with every store path under ``tmp_path`` so GUI tests stay hermetic."""
+    """Settings pointing at a per-test SQLite DB so GUI tests stay hermetic."""
     from app.config.settings import Settings
 
     return Settings(
         backup_dir=tmp_path / "backup",
         log_level="INFO",
-        recent_file=tmp_path / "recent.json",
-        ui_state_file=tmp_path / "ui_state.json",
-        palette_file=tmp_path / "palette.json",
-        command_history_file=tmp_path / "command_history.json",
-        placement_file=tmp_path / "placement.json",
-        window_file=tmp_path / "window.json",
-        image_choice_file=tmp_path / "image_choice.json",
-        outline_file=tmp_path / "outline.json",
-        zoom_file=tmp_path / "zoom.json",
-        key_bindings_file=tmp_path / "keybindings.json",
+        database_url=f"sqlite:///{tmp_path / 'pdf-toolkit.db'}",
     )
+
+
+def gui_backend(tmp_path: Path) -> object:
+    """A storage backend on the same per-test DB the window uses.
+
+    Tests that assert what a controller persisted open this to read the DB the
+    window wrote to (deterministic from ``tmp_path``).
+    """
+    from app.storage.factory import make_backend
+
+    return make_backend(gui_settings(tmp_path).database_url)
 
 
 @pytest.fixture

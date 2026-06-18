@@ -8,11 +8,12 @@ never blocks the palette.
 
 from __future__ import annotations
 
-from app.config.file_backed_store import FileBackedStore
-from app.io.json_store import read_versioned_dict, write_versioned
+from app.config.record_store import RecordStore
+from app.storage.backend import StorageBackend
 
 MAX_HISTORY = 50
 COMMAND_HISTORY_VERSION = 1
+COMMAND_HISTORY_KEY = "command_history"
 
 
 def order_ids(all_ids: list[str], mru: list[str]) -> list[str]:
@@ -29,14 +30,17 @@ def order_ids(all_ids: list[str], mru: list[str]) -> list[str]:
     return [*leading, *trailing]
 
 
-class CommandHistoryStore(FileBackedStore):
-    """Reads and writes the command-usage history at a fixed JSON path."""
+class CommandHistoryStore(RecordStore):
+    """Reads and writes the command-usage history via the storage backend."""
 
     LABEL = "Command palette usage history"
 
+    def __init__(self, backend: StorageBackend) -> None:
+        super().__init__(backend, COMMAND_HISTORY_KEY)
+
     def load(self) -> list[str]:
         """Return the stored command ids, most-recent first; ``[]`` if absent/corrupt."""
-        raw = read_versioned_dict(self._path, COMMAND_HISTORY_VERSION)
+        raw = self._backend.get_versioned(self._key, COMMAND_HISTORY_VERSION)
         if raw is None:
             return []
         ids = raw.get("ids", [])
@@ -51,4 +55,4 @@ class CommandHistoryStore(FileBackedStore):
         self._write(ordered)
 
     def _write(self, ids: list[str]) -> None:
-        write_versioned(self._path, COMMAND_HISTORY_VERSION, {"ids": ids})
+        self._backend.set_versioned(self._key, COMMAND_HISTORY_VERSION, {"ids": ids})

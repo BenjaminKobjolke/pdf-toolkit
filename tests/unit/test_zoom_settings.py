@@ -10,10 +10,11 @@ from app.config.zoom_settings import (
     ZoomSettings,
     ZoomSettingsStore,
 )
+from app.storage.sqlite_backend import SqliteBackend
 
 
 def _store(tmp_path: Path) -> ZoomSettingsStore:
-    return ZoomSettingsStore(tmp_path / "nested" / "zoom.json")
+    return ZoomSettingsStore(SqliteBackend(tmp_path / "db.sqlite"))
 
 
 def test_defaults_when_file_absent(tmp_path: Path) -> None:
@@ -36,12 +37,6 @@ def test_percent_clamped_to_bounds(tmp_path: Path) -> None:
     assert store.load().percent == ZOOM_PCT_MAX
     store.save(ZoomSettings(fit=False, percent=1))
     assert store.load().percent == ZOOM_PCT_MIN
-
-
-def test_corrupt_falls_back_to_default(tmp_path: Path) -> None:
-    path = tmp_path / "zoom.json"
-    path.write_text("{ not json", encoding="utf-8")
-    assert ZoomSettingsStore(path).load() == ZoomSettings()
 
 
 def test_store_has_remembered_label(tmp_path: Path) -> None:

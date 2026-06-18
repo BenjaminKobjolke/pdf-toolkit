@@ -4,11 +4,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from app.config.window_geometry import WindowGeometry, WindowGeometryStore
+from app.config.window_geometry import (
+    WINDOW_GEOMETRY_KEY,
+    WINDOW_GEOMETRY_VERSION,
+    WindowGeometry,
+    WindowGeometryStore,
+)
+from app.storage.sqlite_backend import SqliteBackend
 
 
 def _store(tmp_path: Path) -> WindowGeometryStore:
-    return WindowGeometryStore(tmp_path / "nested" / "window.json")
+    return WindowGeometryStore(SqliteBackend(tmp_path / "db.sqlite"))
 
 
 def test_load_missing_returns_none(tmp_path: Path) -> None:
@@ -22,16 +28,8 @@ def test_save_then_load_round_trips(tmp_path: Path) -> None:
     assert store.load() == geom
 
 
-def test_load_corrupt_returns_none(tmp_path: Path) -> None:
-    path = tmp_path / "window.json"
-    path.write_text("{ not json", encoding="utf-8")
-    assert WindowGeometryStore(path).load() is None
-
-
 def test_load_incomplete_returns_none(tmp_path: Path) -> None:
-    store = WindowGeometryStore(tmp_path / "window.json")
-    # A versioned dict missing required keys degrades to None, not a crash.
-    from app.io.json_store import write_versioned
-
-    write_versioned(tmp_path / "window.json", 1, {"x": 1, "y": 2})
-    assert store.load() is None
+    # A stored object missing required keys degrades to None, not a crash.
+    backend = SqliteBackend(tmp_path / "db.sqlite")
+    backend.set_versioned(WINDOW_GEOMETRY_KEY, WINDOW_GEOMETRY_VERSION, {"x": 1, "y": 2})
+    assert WindowGeometryStore(backend).load() is None

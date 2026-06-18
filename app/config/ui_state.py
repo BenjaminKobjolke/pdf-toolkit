@@ -8,10 +8,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.config.file_backed_store import FileBackedStore
-from app.io.json_store import read_versioned_dict, write_versioned
+from app.config.record_store import RecordStore
+from app.storage.backend import StorageBackend
 
 UI_STATE_VERSION = 1
+UI_STATE_KEY = "ui_state"
 
 
 @dataclass(frozen=True)
@@ -23,14 +24,17 @@ class UiState:
     statusbar_visible: bool = True
 
 
-class UiStateStore(FileBackedStore):
-    """Reads and writes :class:`UiState` at a fixed JSON path."""
+class UiStateStore(RecordStore):
+    """Reads and writes :class:`UiState` via the storage backend."""
 
     LABEL = "Window chrome preferences"
 
+    def __init__(self, backend: StorageBackend) -> None:
+        super().__init__(backend, UI_STATE_KEY)
+
     def load(self) -> UiState:
         """Return the stored state, or defaults if absent/corrupt."""
-        raw = read_versioned_dict(self._path, UI_STATE_VERSION)
+        raw = self._backend.get_versioned(self._key, UI_STATE_VERSION)
         if raw is None:
             return UiState()
         return UiState(
@@ -40,8 +44,8 @@ class UiStateStore(FileBackedStore):
         )
 
     def save(self, state: UiState) -> None:
-        write_versioned(
-            self._path,
+        self._backend.set_versioned(
+            self._key,
             UI_STATE_VERSION,
             {
                 "menu_visible": state.menu_visible,

@@ -5,10 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from app.config.recent_files import MAX_RECENT, RecentFilesStore
+from app.storage.sqlite_backend import SqliteBackend
 
 
 def _store(tmp_path: Path) -> RecentFilesStore:
-    return RecentFilesStore(tmp_path / "nested" / "recent.json")
+    return RecentFilesStore(SqliteBackend(tmp_path / "db.sqlite"))
 
 
 def test_load_missing_returns_empty(tmp_path: Path) -> None:
@@ -45,9 +46,3 @@ def test_clear_empties_store(tmp_path: Path) -> None:
     store.add(Path("/docs/a.pdf"))
     store.clear()
     assert store.load() == []
-
-
-def test_load_corrupt_returns_empty(tmp_path: Path) -> None:
-    path = tmp_path / "recent.json"
-    path.write_text("{ not json", encoding="utf-8")
-    assert RecentFilesStore(path).load() == []

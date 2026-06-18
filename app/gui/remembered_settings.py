@@ -1,7 +1,7 @@
 """The "Remembered settings" command: reset stored preferences.
 
-Lists every :class:`FileBackedStore` by its ``label`` (self-describing — no
-hardcoded table) plus a "clear all" entry, and resets the chosen one (or all).
+Lists every :class:`RecordStore` by its ``label`` (self-describing — no hardcoded
+table) plus a "clear all" entry, and resets the chosen one (or all).
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from collections.abc import Callable, Sequence
 
 from PySide6.QtWidgets import QWidget
 
-from app.config.file_backed_store import FileBackedStore
+from app.config.record_store import RecordStore
 from app.gui import strings
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.operations import OpResult
@@ -22,7 +22,7 @@ class RememberedSettingsController:
     def __init__(
         self,
         parent: QWidget | None,
-        stores: Sequence[FileBackedStore],
+        stores: Sequence[RecordStore],
         report: Callable[[OpResult], None],
     ) -> None:
         self._parent = parent

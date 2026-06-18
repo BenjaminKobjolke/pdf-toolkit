@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
     QGraphicsView,
 )
 
+from app.config.zoom_settings import ZoomSettings
 from app.gui import strings
 from app.gui.image_item import ImageItem
 from app.gui.item_layer import ItemLayer
@@ -133,6 +134,10 @@ class PageView(QGraphicsView):
     def zoom(self) -> float:
         """Return the current scene-to-view scale factor."""
         return self._zoom_ctl.zoom()
+
+    def current_zoom(self) -> ZoomSettings:
+        """Return the current zoom as a remembered default (fit vs. percentage)."""
+        return self._zoom_ctl.current_default()
 
     def zoom_actual(self) -> None:
         self._zoom_ctl.actual()

@@ -10,6 +10,7 @@ from app.config.settings import Settings
 from app.config.window_geometry import WindowGeometry, WindowGeometryStore
 from app.gui import confirm_dialog
 from app.gui.main_window import MainWindow
+from app.storage.factory import make_backend
 from tests.conftest import MakePdf, PageSizesOf, gui_settings, silence_dialogs
 
 
@@ -82,7 +83,7 @@ def test_invalid_swap_reports_error_and_keeps_file(
 
 def test_window_geometry_restored_on_construct(qapp: object, tmp_path: Path) -> None:
     settings = _settings(tmp_path)
-    WindowGeometryStore(settings.window_file).save(
+    WindowGeometryStore(make_backend(settings.database_url)).save(
         WindowGeometry(x=120, y=90, width=640, height=480)
     )
     win = MainWindow(settings)
@@ -96,7 +97,7 @@ def test_offscreen_geometry_pulled_back_on_screen(qapp: object, tmp_path: Path) 
     from PySide6.QtGui import QGuiApplication
 
     settings = _settings(tmp_path)
-    WindowGeometryStore(settings.window_file).save(
+    WindowGeometryStore(make_backend(settings.database_url)).save(
         WindowGeometry(x=99999, y=99999, width=640, height=480)
     )
     win = MainWindow(settings)
@@ -108,7 +109,7 @@ def test_close_event_persists_geometry(qapp: object, tmp_path: Path) -> None:
     win = MainWindow(settings)
     win.resize(700, 500)
     win.close()
-    geom = WindowGeometryStore(settings.window_file).load()
+    geom = WindowGeometryStore(make_backend(settings.database_url)).load()
     assert geom is not None
     assert (geom.width, geom.height) == (700, 500)
 

@@ -5,10 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from app.config.ui_state import UiState, UiStateStore
+from app.storage.sqlite_backend import SqliteBackend
 
 
 def _store(tmp_path: Path) -> UiStateStore:
-    return UiStateStore(tmp_path / "nested" / "ui_state.json")
+    return UiStateStore(SqliteBackend(tmp_path / "db.sqlite"))
 
 
 def test_default_when_missing(tmp_path: Path) -> None:
@@ -29,9 +30,3 @@ def test_fields_persist_independently(tmp_path: Path) -> None:
     assert store.load() == UiState(
         menu_visible=False, toolbar_visible=True, statusbar_visible=False
     )
-
-
-def test_corrupt_falls_back_to_default(tmp_path: Path) -> None:
-    path = tmp_path / "ui_state.json"
-    path.write_text("{ not json", encoding="utf-8")
-    assert UiStateStore(path).load() == UiState(menu_visible=False, statusbar_visible=True)

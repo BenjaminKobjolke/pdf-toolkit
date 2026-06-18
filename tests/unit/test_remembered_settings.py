@@ -7,14 +7,15 @@ from typing import Any
 
 import pytest
 
-from app.config.file_backed_store import FileBackedStore
+from app.config.record_store import RecordStore
 from app.gui.operations import OpResult
 from app.gui.remembered_settings import RememberedSettingsController
+from app.storage.sqlite_backend import SqliteBackend
 
 
-def _store(path: Path, label: str) -> FileBackedStore:
-    path.write_text("{}", encoding="utf-8")
-    store = FileBackedStore(path)
+def _store(backend: SqliteBackend, key: str, label: str) -> RecordStore:
+    backend.set_versioned(key, 1, {"x": 1})
+    store = RecordStore(backend, key)
     store.LABEL = label
     return store
 
@@ -36,22 +37,24 @@ def _patch_dialog(monkeypatch: pytest.MonkeyPatch, pick: int) -> None:
 
 
 def test_reset_one_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    a = _store(tmp_path / "a.json", "A")
-    b = _store(tmp_path / "b.json", "B")
+    backend = SqliteBackend(tmp_path / "db.sqlite")
+    a = _store(backend, "a", "A")
+    b = _store(backend, "b", "B")
     _patch_dialog(monkeypatch, 0)  # first store
     reports: list[OpResult] = []
     RememberedSettingsController(None, [a, b], reports.append).open()
-    assert not (tmp_path / "a.json").exists()
-    assert (tmp_path / "b.json").exists()
+    assert backend.get_versioned("a", 1) is None
+    assert backend.get_versioned("b", 1) is not None
     assert reports[0].ok
 
 
 def test_clear_all(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    a = _store(tmp_path / "a.json", "A")
-    b = _store(tmp_path / "b.json", "B")
+    backend = SqliteBackend(tmp_path / "db.sqlite")
+    a = _store(backend, "a", "A")
+    b = _store(backend, "b", "B")
     _patch_dialog(monkeypatch, -1)  # the appended "clear all" entry
     reports: list[OpResult] = []
     RememberedSettingsController(None, [a, b], reports.append).open()
-    assert not (tmp_path / "a.json").exists()
-    assert not (tmp_path / "b.json").exists()
+    assert backend.get_versioned("a", 1) is None
+    assert backend.get_versioned("b", 1) is None
     assert reports[0].ok

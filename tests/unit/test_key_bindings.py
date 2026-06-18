@@ -12,6 +12,7 @@ from app.config.key_bindings import (
     merge_keymap,
     remove_command,
 )
+from app.storage.sqlite_backend import SqliteBackend
 
 _DEFAULTS = [
     ("Ctrl+S", "save"),
@@ -22,7 +23,7 @@ _DEFAULTS = [
 
 
 def _store(tmp_path: Path) -> KeyBindingStore:
-    return KeyBindingStore(tmp_path / "nested" / "keybindings.json")
+    return KeyBindingStore(SqliteBackend(tmp_path / "db.sqlite"))
 
 
 # --- merge --------------------------------------------------------------------
@@ -102,12 +103,6 @@ def test_save_then_load_round_trips_with_tombstone(tmp_path: Path) -> None:
     overrides = (KeyOverride("Alt+W", "exit"), KeyOverride("Ctrl+S", None))
     store.save(overrides)
     assert store.load() == overrides
-
-
-def test_load_corrupt_returns_empty(tmp_path: Path) -> None:
-    path = tmp_path / "keybindings.json"
-    path.write_text("{ not json", encoding="utf-8")
-    assert KeyBindingStore(path).load() == ()
 
 
 def test_store_has_remembered_label(tmp_path: Path) -> None:

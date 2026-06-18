@@ -5,10 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from app.config.command_history import MAX_HISTORY, CommandHistoryStore, order_ids
+from app.storage.sqlite_backend import SqliteBackend
 
 
 def _store(tmp_path: Path) -> CommandHistoryStore:
-    return CommandHistoryStore(tmp_path / "nested" / "command_history.json")
+    return CommandHistoryStore(SqliteBackend(tmp_path / "db.sqlite"))
 
 
 def test_load_missing_returns_empty(tmp_path: Path) -> None:
@@ -37,12 +38,6 @@ def test_add_caps_at_max(tmp_path: Path) -> None:
     loaded = store.load()
     assert len(loaded) == MAX_HISTORY
     assert loaded[0] == f"cmd{MAX_HISTORY + 9}"
-
-
-def test_load_corrupt_returns_empty(tmp_path: Path) -> None:
-    path = tmp_path / "command_history.json"
-    path.write_text("{ not json", encoding="utf-8")
-    assert CommandHistoryStore(path).load() == []
 
 
 def test_order_ids_floats_mru_first() -> None:

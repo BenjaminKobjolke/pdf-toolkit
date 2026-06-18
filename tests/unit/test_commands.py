@@ -6,10 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from app.config.settings import Settings
 from app.gui import commands
 from app.gui.main_window import MainWindow
-from tests.conftest import MakePdf
+from tests.conftest import MakePdf, gui_settings
 
 _ALL_IDS = {
     commands.OPEN,
@@ -78,17 +77,14 @@ _ALL_IDS = {
     commands.OUTLINE_STYLE,
     commands.OUTLINE_COLOR,
     commands.ZOOM_SET_DEFAULT,
+    commands.DOC_ZOOM_REMEMBER,
+    commands.DOC_PAGE_REMEMBER,
 }
 
 
 @pytest.fixture
 def window(qapp: object, tmp_path: Path) -> MainWindow:
-    settings = Settings(
-        backup_dir=tmp_path / "backup",
-        log_level="INFO",
-        recent_file=tmp_path / "recent.json",
-    )
-    return MainWindow(settings)
+    return MainWindow(gui_settings(tmp_path))
 
 
 def test_registry_covers_all_commands(window: MainWindow) -> None:
