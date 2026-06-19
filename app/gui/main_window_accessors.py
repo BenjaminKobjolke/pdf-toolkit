@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from app.gui.chrome import ChromeController
     from app.gui.commands import Command
     from app.gui.controls import OperationBar
+    from app.gui.default_app_actions import DefaultAppActions
     from app.gui.deferred_ops import DeferredOps
     from app.gui.document_actions import DocumentActions
     from app.gui.document_memory_controller import (
@@ -90,6 +91,7 @@ class CollaboratorAccessors:
     _rotate_actions: RotateActions
     _move_actions: MoveActions
     _print_actions: PrintActions
+    _default_app_actions: DefaultAppActions
     _registry: list[Command]
     _document_actions: DocumentActions
     _palette_actions: PaletteActions
@@ -151,6 +153,10 @@ class CollaboratorAccessors:
     @property
     def print_actions(self) -> PrintActions:
         return self._print_actions
+
+    @property
+    def default_app_actions(self) -> DefaultAppActions:
+        return self._default_app_actions
 
     @property
     def palette_controller(self) -> PaletteController:

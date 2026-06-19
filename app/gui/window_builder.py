@@ -29,6 +29,7 @@ from app.config.zoom_settings import ZoomSettingsStore
 from app.gui import commands, strings
 from app.gui.chrome import ChromeController
 from app.gui.controls import OperationBar
+from app.gui.default_app_actions import DefaultAppActions
 from app.gui.deferred_ops import DeferredOps
 from app.gui.document_actions import DocumentActions
 from app.gui.document_memory_controller import (
@@ -213,6 +214,7 @@ def _build_operations(window: MainWindow) -> None:
     window._rotate_actions = RotateActions(window._deferred)
     window._move_actions = MoveActions(window._deferred)
     window._print_actions = PrintActions(window, window._working_doc.working)
+    window._default_app_actions = DefaultAppActions(window)
 
 
 def _lay_out(window: MainWindow) -> None:

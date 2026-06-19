@@ -83,6 +83,8 @@ missing or corrupt file just means no commands are floated yet.
 | **Export to PDF (text + images)** | Flatten the placed overlay into the document (deferred until save). |
 | **Delete saved text fields for this document** | Delete this PDF's saved fields and its JSON sidecar. |
 | **Configure keyboard shortcuts…** | Bind, rebind, or clear a command's keyboard shortcut (see `CONFIGURE_SHORTCUTS.md`). |
+| **Set as default PDF viewer…** | Register the viewer as a Windows PDF handler, then open Default Apps (Windows only; see `DEFAULT_PDF_VIEWER.md`). |
+| **Remove as PDF handler** | Undo the PDF-handler registration (Windows only; see `DEFAULT_PDF_VIEWER.md`). |
 | **Remembered settings…** | Reset stored preferences (placement, image choice, palette, outline, keyboard shortcuts, …) individually or all. |
 | **Search PDF text…** | Live full-text search of the document (see below). |
 | **Search text fields…** | Live search of your placed text fields (see below). |

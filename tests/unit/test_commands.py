@@ -80,6 +80,8 @@ _ALL_IDS = {
     commands.ZOOM_SET_DEFAULT,
     commands.DOC_ZOOM_REMEMBER,
     commands.DOC_PAGE_REMEMBER,
+    commands.SET_DEFAULT_PDF_VIEWER,
+    commands.REMOVE_PDF_HANDLER,
 }
 
 

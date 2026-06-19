@@ -12,7 +12,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from app.gui import release_strings, strings
+from app.gui import default_app_strings, release_strings, strings
+from app.os_integration import pdf_association
 
 if TYPE_CHECKING:
     from app.gui.main_window import MainWindow
@@ -49,6 +50,8 @@ SHOW_SHORTCUTS = "show_shortcuts"
 RELEASE_NOTES = "release_notes"
 COMMAND_PALETTE = "command_palette"
 CONFIGURE_SHORTCUTS = "configure_shortcuts"
+SET_DEFAULT_PDF_VIEWER = "set_default_pdf_viewer"
+REMOVE_PDF_HANDLER = "remove_pdf_handler"
 RENAME_FILE = "rename_file"
 TOGGLE_MENU = "toggle_menu"
 TOGGLE_TOOLBAR = "toggle_toolbar"
@@ -196,6 +199,18 @@ def _view_commands(window: MainWindow) -> list[Command]:
     return [
         Command(COMMAND_PALETTE, strings.CMD_COMMAND_PALETTE, window.open_command_palette),
         Command(CONFIGURE_SHORTCUTS, strings.CMD_CONFIGURE_SHORTCUTS, window.configure_shortcuts),
+        Command(
+            SET_DEFAULT_PDF_VIEWER,
+            default_app_strings.CMD_SET_DEFAULT_PDF_VIEWER,
+            window.default_app_actions.set_as_default_pdf_viewer,
+            pdf_association.is_supported,
+        ),
+        Command(
+            REMOVE_PDF_HANDLER,
+            default_app_strings.CMD_REMOVE_PDF_HANDLER,
+            window.default_app_actions.remove_pdf_handler,
+            pdf_association.is_supported,
+        ),
         Command(TOGGLE_MENU, strings.CMD_TOGGLE_MENU, window.toggle_menu_bar),
         Command(TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
         Command(TOGGLE_STATUSBAR, strings.CMD_TOGGLE_STATUSBAR, window.toggle_statusbar),
