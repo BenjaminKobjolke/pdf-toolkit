@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Prva izdaja",
+  "notes": [
+    "Pregledovalnik PDF, zasnovan za uporabo s tipkovnico, z ukazno paleto (Ctrl+Shift+P), ki omogoča dostop do vseh dejanj",
+    "Orodja za strani: zamenjaj, izbriši, zavrti, premakni, vstavi, izvleci in združi celotno mapo v en PDF",
+    "Način urejanja: dodaj in oblikuj besedilna polja ter prekrivne slike, nato jih izvozi v dokument",
+    "Išči po besedilu strani in poljih obrazca, z označevanjem najdenega",
+    "Povečava z ostrim izrisom, sprotnim prikazom odstotka povečave in shranjenimi privzetimi nastavitvami za posamezen dokument",
+    "Tiskaj dokumente in poljubno ponovno nastavi katerokoli tipkovno bližnjico",
+    "Zaslon »Kaj je novega«, da lahko kadarkoli nadoknadiš spremembe",
+    "Vsaka operacija na straneh najprej ustvari varnostno kopijo z časovnim žigom, zato je izvirnik varen"
+  ]
+}

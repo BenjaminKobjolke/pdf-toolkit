@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "First release",
+  "notes": [
+    "Keyboard-first PDF viewer with a command palette (Ctrl+Shift+P) that reaches every action",
+    "Page tools: swap, delete, rotate, move, insert, extract, and merge a whole folder into one PDF",
+    "Edit mode: add and style text fields and image overlays, then export them into the document",
+    "Search both page text and form fields, with highlighting",
+    "Zoom with sharp rendering, a live zoom percentage, and remembered per-document defaults",
+    "Print documents and rebind any keyboard shortcut to your liking",
+    "A What's New screen so you can catch up on changes any time",
+    "Every page operation writes a timestamped backup first, so your original is safe"
+  ]
+}

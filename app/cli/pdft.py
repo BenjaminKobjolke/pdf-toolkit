@@ -182,6 +182,21 @@ def _handle_launch_gui(settings: Settings) -> int:
     return gui_main([])
 
 
+def _handle_release_notes(settings: Settings) -> int:
+    from app.release.notes_loader import load_release_notes
+
+    notes = load_release_notes()
+    if not notes:
+        console.line("No release notes yet.")
+        return EXIT_OK
+    for note in notes:
+        console.line(f"{note.title}  —  {note.label}  ({note.date})")
+        for line in note.notes:
+            console.line(f"  • {line}")
+        console.line("")
+    return EXIT_OK
+
+
 # The "Edit text" feature (place/style/export text fields) is interactive-only
 # and lives inside the GUI viewer; it is reached via "Open GUI viewer" below, so
 # it needs no separate WizardOption of its own.
@@ -195,6 +210,7 @@ WIZARD_OPTIONS: tuple[WizardOption, ...] = (
     WizardOption("Extract page to new file", _handle_extract),
     WizardOption("Merge folder (PDFs + images) -> merged.pdf", _handle_merge_folder),
     WizardOption("Open GUI viewer", _handle_launch_gui),
+    WizardOption("Show release notes", _handle_release_notes),
 )
 
 

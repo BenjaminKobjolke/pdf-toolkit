@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Prvé vydanie",
+  "notes": [
+    "PDF prehliadač zameraný na ovládanie z klávesnice s paletou príkazov (Ctrl+Shift+P), ktorá sprístupní každú akciu",
+    "Nástroje pre strany: prehodiť, odstrániť, otočiť, presunúť, vložiť, extrahovať a zlúčiť celý priečinok do jedného PDF",
+    "Režim úprav: pridávajte a upravujte štýl textových polí a prekrytí obrázkov, potom ich exportujte do dokumentu",
+    "Vyhľadávajte v texte strán aj vo formulárových poliach so zvýraznením",
+    "Približovanie s ostrým vykresľovaním, živým zobrazením percenta priblíženia a zapamätanými predvolenými hodnotami pre každý dokument",
+    "Tlačte dokumenty a podľa potreby si premapujte akúkoľvek klávesovú skratku",
+    "Obrazovka „Čo je nové“, aby ste si kedykoľvek mohli doplniť prehľad o zmenách",
+    "Každá operácia so stranami najprv vytvorí zálohu s časovou pečiatkou, takže váš originál je v bezpečí"
+  ]
+}

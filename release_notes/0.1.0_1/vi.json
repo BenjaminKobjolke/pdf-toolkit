@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Bản phát hành đầu tiên",
+  "notes": [
+    "Trình xem PDF ưu tiên bàn phím với bảng lệnh (Ctrl+Shift+P) cho phép truy cập mọi thao tác",
+    "Công cụ trang: hoán đổi, xóa, xoay, di chuyển, chèn, trích xuất và gộp cả một thư mục thành một PDF",
+    "Chế độ chỉnh sửa: thêm và tạo kiểu cho các trường văn bản và lớp phủ hình ảnh, sau đó xuất chúng vào tài liệu",
+    "Tìm kiếm cả văn bản trên trang và các trường biểu mẫu, có tô sáng",
+    "Thu phóng với hiển thị sắc nét, phần trăm thu phóng trực tiếp và ghi nhớ mặc định theo từng tài liệu",
+    "In tài liệu và gán lại bất kỳ phím tắt nào theo ý bạn",
+    "Màn hình \"Có gì mới\" để bạn có thể cập nhật các thay đổi bất cứ lúc nào",
+    "Mọi thao tác trên trang đều tạo một bản sao lưu có dấu thời gian trước, để bản gốc của bạn luôn an toàn"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Pirmā versija",
+  "notes": [
+    "PDF skatītājs ar tastatūras vadību un komandu paleti (Ctrl+Shift+P), kas nodrošina piekļuvi katrai darbībai",
+    "Lapu rīki: apmainīt vietām, dzēst, pagriezt, pārvietot, ievietot, izvilkt un apvienot visu mapi vienā PDF",
+    "Rediģēšanas režīms: pievienot un noformēt teksta laukus un attēlu pārklājumus, pēc tam eksportēt tos dokumentā",
+    "Meklēšana gan lapas tekstā, gan veidlapu laukos, ar izcelšanu",
+    "Tālummaiņa ar asu attēlošanu, reāllaika tālummaiņas procentu rādījumu un saglabātiem noklusējumiem katram dokumentam",
+    "Drukājiet dokumentus un pārdefinējiet jebkuru tastatūras saīsni pēc saviem ieskatiem",
+    "Ekrāns “Kas jauns”, lai jebkurā brīdī varētu sekot līdzi izmaiņām",
+    "Katra lapas darbība vispirms izveido dublējumu ar laika zīmogu, lai jūsu oriģināls būtu drošībā"
+  ]
+}

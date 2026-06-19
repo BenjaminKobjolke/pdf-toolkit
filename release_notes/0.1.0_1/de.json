@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Erste Veröffentlichung",
+  "notes": [
+    "Tastaturorientierter PDF-Viewer mit einer Befehls-Palette (Strg+Umschalt+P), die jede Aktion erreicht",
+    "Seitentools: tauschen, löschen, drehen, verschieben, einfügen, extrahieren und einen ganzen Ordner zu einer PDF zusammenführen",
+    "Bearbeitungsmodus: Textfelder und Bild-Overlays hinzufügen und gestalten, dann in das Dokument exportieren",
+    "Suche sowohl im Seitentext als auch in Formularfeldern, mit Hervorhebung",
+    "Zoomen mit scharfer Darstellung, einer Live-Zoom-Prozentanzeige und gespeicherten dokumentbezogenen Standardwerten",
+    "Dokumente drucken und jede Tastenkombination nach Wunsch neu belegen",
+    "Ein „Was ist neu“-Bildschirm, damit du Änderungen jederzeit nachholen kannst",
+    "Jede Seitenoperation erstellt zuerst ein Backup mit Zeitstempel, damit dein Original sicher ist"
+  ]
+}

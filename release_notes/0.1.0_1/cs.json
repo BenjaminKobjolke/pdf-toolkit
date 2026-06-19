@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "První vydání",
+  "notes": [
+    "Prohlížeč PDF ovládaný primárně klávesnicí s paletou příkazů (Ctrl+Shift+P), která zpřístupní každou akci",
+    "Nástroje pro práci se stránkami: prohodit, smazat, otočit, přesunout, vložit, extrahovat a sloučit celou složku do jednoho PDF",
+    "Režim úprav: přidávejte a stylujte textová pole a překryvy obrázků a poté je exportujte do dokumentu",
+    "Vyhledávání v textu stránek i ve formulářových polích se zvýrazněním",
+    "Přiblížení s ostrým vykreslováním, živě zobrazovaným procentem přiblížení a zapamatovanými výchozími hodnotami pro každý dokument",
+    "Tisk dokumentů a možnost přenastavit libovolnou klávesovou zkratku podle vašich představ",
+    "Obrazovka „Co je nového“, abyste si kdykoli mohli projít změny",
+    "Každá operace se stránkou nejprve vytvoří zálohu s časovým razítkem, takže váš originál je v bezpečí"
+  ]
+}

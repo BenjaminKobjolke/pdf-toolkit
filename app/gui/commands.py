@@ -12,7 +12,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from app.gui import strings
+from app.gui import release_strings, strings
 
 if TYPE_CHECKING:
     from app.gui.main_window import MainWindow
@@ -46,6 +46,7 @@ MOVE_LAST = "move_last"
 SAVE = "save"
 PRINT = "print"
 SHOW_SHORTCUTS = "show_shortcuts"
+RELEASE_NOTES = "release_notes"
 COMMAND_PALETTE = "command_palette"
 CONFIGURE_SHORTCUTS = "configure_shortcuts"
 RENAME_FILE = "rename_file"
@@ -132,6 +133,7 @@ def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
         Command(CLOSE_DOC, strings.CMD_CLOSE_DOC, window.close_document, has_doc),
         Command(EXIT, strings.CMD_EXIT, window.exit_app),
         Command(SHOW_SHORTCUTS, strings.CMD_SHOW_SHORTCUTS, window.show_keyboard_shortcuts),
+        Command(RELEASE_NOTES, release_strings.CMD_RELEASE_NOTES, window.show_release_notes),
     ]
 
 

@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Első kiadás",
+  "notes": [
+    "Billentyűzet-központú PDF-megjelenítő parancspalettával (Ctrl+Shift+P), amellyel minden művelet elérhető",
+    "Oldaleszközök: csere, törlés, forgatás, áthelyezés, beszúrás, kivágás, valamint egy teljes mappa egyesítése egyetlen PDF-be",
+    "Szerkesztő mód: szövegmezők és képfedvények hozzáadása és stílusozása, majd exportálás a dokumentumba",
+    "Keresés az oldalszövegben és az űrlapmezőkben is, kiemeléssel",
+    "Nagyítás éles megjelenítéssel, élő nagyítási százalékkal, és dokumentumonként megjegyzett alapértelmezésekkel",
+    "Dokumentumok nyomtatása, és bármely billentyűparancs tetszés szerinti átkötése",
+    "„Újdonságok” képernyő, hogy bármikor felzárkózhass a változásokkal",
+    "Minden oldal-művelet először időbélyeges biztonsági mentést készít, így az eredeti dokumentumod biztonságban van"
+  ]
+}

@@ -1,12 +1,24 @@
 # -*- mode: python ; coding: utf-8 -*-
-# PyInstaller spec: builds dist/pdft-gui.exe (onefile, windowed).
+# PyInstaller spec: builds dist/FastPDFToolkit.exe (onefile, windowed).
 # Build via tools/build_exe.bat. PySide6 + pymupdf bundle through built-in hooks.
+
+from PyInstaller.utils.hooks import copy_metadata
+
+# release_notes/ + build_version.txt travel inside the exe so the in-app
+# Release Notes view works from a standalone build; copy_metadata bundles the
+# package dist-info so importlib.metadata can read the version when frozen.
+datas = [
+    ('assets/icon.ico', 'assets'),
+    ('release_notes', 'release_notes'),
+    ('build_version.txt', '.'),
+]
+datas += copy_metadata('pdf-toolkit')
 
 a = Analysis(
     ['app/cli/gui.py'],
     pathex=['.'],  # project root so `import app...` resolves
     binaries=[],
-    datas=[('assets/icon.ico', 'assets')],
+    datas=datas,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -23,7 +35,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='pdft-gui',
+    name='FastPDFToolkit',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

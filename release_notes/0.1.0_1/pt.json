@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Primeiro lançamento",
+  "notes": [
+    "Visualizador de PDF pensado para usar principalmente com o teclado, com uma paleta de comandos (Ctrl+Shift+P) que dá acesso a todas as ações",
+    "Ferramentas de página: trocar, eliminar, rodar, mover, inserir, extrair e fundir uma pasta inteira num único PDF",
+    "Modo de edição: adicionar e estilizar campos de texto e sobreposições de imagem e, em seguida, exportá-los para o documento",
+    "Pesquisar tanto o texto das páginas como os campos de formulário, com realce",
+    "Zoom com renderização nítida, uma percentagem de zoom em tempo real e predefinições por documento memorizadas",
+    "Imprimir documentos e reatribuir qualquer atalho de teclado ao seu gosto",
+    "Um ecrã de \"Novidades\" para poder acompanhar as alterações a qualquer momento",
+    "Cada operação de página cria primeiro uma cópia de segurança com marca temporal, para que o original fique protegido"
+  ]
+}

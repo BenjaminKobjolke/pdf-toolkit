@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Prima versiune",
+  "notes": [
+    "Vizualizator PDF axat pe tastatură, cu o paletă de comenzi (Ctrl+Shift+P) care oferă acces la orice acțiune",
+    "Instrumente pentru pagini: interschimbare, ștergere, rotire, mutare, inserare, extragere și îmbinarea unui întreg folder într-un singur PDF",
+    "Mod de editare: adăugați și stilizați câmpuri de text și suprapuneri de imagini, apoi exportați-le în document",
+    "Căutați atât textul din pagini, cât și câmpurile de formular, cu evidențiere",
+    "Zoom cu randare clară, un procent de zoom în timp real și valori implicite pe document memorate",
+    "Tipăriți documente și reasociați orice scurtătură de tastatură după preferințe",
+    "Un ecran „Noutăți” ca să puteți vedea oricând schimbările",
+    "Fiecare operațiune asupra paginilor creează mai întâi o copie de siguranță cu marcaj temporal, astfel încât originalul rămâne în siguranță"
+  ]
+}

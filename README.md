@@ -140,9 +140,9 @@ Build a self-contained GUI executable with PyInstaller:
 tools\build_exe.bat
 ```
 
-This produces `dist\pdft-gui.exe` — a single onefile, windowed (no console)
+This produces `dist\FastPDFToolkit.exe` — a single onefile, windowed (no console)
 executable that bundles Python, PySide6, and pymupdf. It takes an optional PDF
-path argument, so `dist\pdft-gui.exe C:\path\to\file.pdf` opens that PDF, and you
+path argument, so `dist\FastPDFToolkit.exe C:\path\to\file.pdf` opens that PDF, and you
 can point Windows' *Open with → Choose another app* at it.
 
 Notes:
@@ -155,6 +155,16 @@ Notes:
   [docs/APP_ICON.md](docs/APP_ICON.md) for the PNG → `.ico` workflow.
 - Requires the dev dependencies (`install.bat` / `uv sync --all-extras` installs
   PyInstaller).
+
+### Release notes
+
+View **what's new** in the app via **File → Release notes…** (or the command
+palette / the `pdft` wizard's *Show release notes*). Notes are bundled into the
+exe and shown newest-first with Older/Newer navigation. The release is identified
+by `<version>_<build>` (`pyproject.toml` + `build_version.txt`). To cut a release —
+bump the build (`tools\build_increment.bat`), write `release_notes/<label>/en.json`,
+translate, then `tools\build_release.bat` — see
+[docs/CREATE_NEW_RELEASE.md](docs/CREATE_NEW_RELEASE.md).
 
 ## Install globally
 

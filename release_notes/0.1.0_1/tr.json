@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "İlk sürüm",
+  "notes": [
+    "Komut paleti (Ctrl+Shift+P) ile her eyleme ulaşan, klavye odaklı PDF görüntüleyici",
+    "Sayfa araçları: yer değiştir, sil, döndür, taşı, ekle, çıkar ve bir klasörün tamamını tek bir PDF’te birleştir",
+    "Düzenleme modu: metin alanları ve görsel katmanları ekleyip biçimlendirin, ardından bunları belgeye aktarın",
+    "Vurgulamayla birlikte hem sayfa metninde hem de form alanlarında arama yapın",
+    "Keskin görüntüleme, canlı yakınlaştırma yüzdesi ve belge başına hatırlanan varsayılanlarla yakınlaştırın",
+    "Belgeleri yazdırın ve dilediğiniz klavye kısayolunu yeniden atayın",
+    "Değişiklikleri istediğiniz zaman takip edebilmeniz için bir Yenilikler ekranı",
+    "Her sayfa işlemi önce zaman damgalı bir yedek yazar; böylece orijinaliniz güvende kalır"
+  ]
+}

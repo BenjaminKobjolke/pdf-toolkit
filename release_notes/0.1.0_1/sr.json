@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Prvo izdanje",
+  "notes": [
+    "PDF preglednik prvenstveno za rad tastaturom sa paletom komandi (Ctrl+Shift+P) koja omogućava pristup svakoj radnji",
+    "Alati za stranice: zameni, obriši, rotiraj, premesti, ubaci, izdvoji i spoji celu fasciklu u jedan PDF",
+    "Režim uređivanja: dodaj i stilizuj tekstualna polja i preklopne slike, zatim ih izvezi u dokument",
+    "Pretražuj i tekst stranica i polja formulara, uz isticanje rezultata",
+    "Zumiranje sa oštrim renderovanjem, prikazom procenta zumiranja uživo i podrazumevanim vrednostima po dokumentu koje se pamte",
+    "Štampaj dokumente i ponovo veži bilo koju prečicu na tastaturi po svojoj meri",
+    "Ekran „Šta je novo“ kako bi u svakom trenutku mogao/la da ispratiš promene",
+    "Svaka operacija nad stranicama prvo pravi rezervnu kopiju sa vremenskim žigom, tako da je original bezbedan"
+  ]
+}

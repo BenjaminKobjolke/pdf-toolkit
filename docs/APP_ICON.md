@@ -1,6 +1,6 @@
 # Application Icon
 
-The GUI window (title-bar / Windows taskbar) and the compiled `dist/pdft-gui.exe`
+The GUI window (title-bar / Windows taskbar) and the compiled `dist/FastPDFToolkit.exe`
 both use a single icon, derived from one source PNG.
 
 ## Pipeline
@@ -44,7 +44,7 @@ that same `.ico` at runtime. So the PNG is converted once and reused for both.
    ```bat
    tools\build_exe.bat
    ```
-   In Explorer, `dist\pdft-gui.exe` shows the embedded icon; launching it shows the
+   In Explorer, `dist\FastPDFToolkit.exe` shows the embedded icon; launching it shows the
    window/taskbar icon (confirms the bundled `.ico` resolves via `sys._MEIPASS`).
 
 ## Notes

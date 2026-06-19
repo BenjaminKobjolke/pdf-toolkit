@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-WINDOW_TITLE = "pdf-toolkit viewer"
+WINDOW_TITLE = "FastPDFToolkit"
+WINDOW_TITLE_OPEN_FMT = "FastPDFToolkit - {path}"
 
 MENU_FILE = "&File"
 ACTION_OPEN = "Open PDF…"

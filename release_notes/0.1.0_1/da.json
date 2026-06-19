@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Første udgivelse",
+  "notes": [
+    "Tastatur-først PDF-fremviser med en kommandopalet (Ctrl+Skift+P), der giver adgang til enhver handling",
+    "Sideværktøjer: ombyt, slet, rotér, flyt, indsæt, udtræk og flet en hel mappe til én PDF",
+    "Redigeringstilstand: tilføj og formatér tekstfelter og billedoverlejringer, og eksportér dem derefter ind i dokumentet",
+    "Søg i både sidetekst og formularfelter, med fremhævning",
+    "Zoom med skarp gengivelse, en live zoomprocent og gemte standarder pr. dokument",
+    "Udskriv dokumenter og tilpas enhver tastaturgenvej, som du vil",
+    "En Hvad er nyt-skærm, så du kan følge med i ændringer når som helst",
+    "Hver sidehandling opretter først en tidsstemplet sikkerhedskopi, så din original er i sikkerhed"
+  ]
+}

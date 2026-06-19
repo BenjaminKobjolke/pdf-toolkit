@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Eerste release",
+  "notes": [
+    "PDF-viewer met toetsenbordbediening en een opdrachtenpalet (Ctrl+Shift+P) waarmee je elke actie bereikt",
+    "Paginatools: omwisselen, verwijderen, draaien, verplaatsen, invoegen, extraheren en een hele map samenvoegen tot één PDF",
+    "Bewerkmodus: tekstvelden en afbeeldingslagen toevoegen en opmaken, en ze vervolgens exporteren naar het document",
+    "Zoek in zowel paginatekst als formuliervelden, met markering",
+    "Zoomen met scherpe weergave, een live zoompercentage en onthouden standaardinstellingen per document",
+    "Documenten afdrukken en elke sneltoets naar wens opnieuw toewijzen",
+    "Een 'Wat is er nieuw'-scherm zodat je wijzigingen op elk moment kunt bijhouden",
+    "Elke paginabewerking maakt eerst een back-up met tijdstempel, zodat je origineel veilig is"
+  ]
+}

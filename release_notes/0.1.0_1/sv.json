@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Första utgåvan",
+  "notes": [
+    "Tangentbordsfokuserad PDF-visare med en kommandopalett (Ctrl+Shift+P) som når varje åtgärd",
+    "Sidverktyg: byt plats, ta bort, rotera, flytta, infoga, extrahera och slå ihop en hel mapp till en PDF",
+    "Redigeringsläge: lägg till och formge textfält och bildöverlägg och exportera dem sedan till dokumentet",
+    "Sök i både sidtext och formulärfält, med markering",
+    "Zooma med skarp rendering, en live-zoomprocent och sparade standardvärden per dokument",
+    "Skriv ut dokument och bind om valfri tangentbordsgenväg efter eget tycke",
+    "En Vad är nytt-skärm så att du kan ta igen ändringar när som helst",
+    "Varje sidåtgärd skapar först en tidsstämplad säkerhetskopia, så att ditt original är säkert"
+  ]
+}

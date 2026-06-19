@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
-from app.gui import commands, strings
+from app.gui import commands, release_strings, strings
 from app.gui.commands import Command
 from app.gui.shortcut_installer import ShortcutInstaller, TriggerFactory
 
@@ -125,6 +125,8 @@ def build_file_menu(window: MainWindow) -> None:
     menu.addAction(strings.ACTION_COMMAND_PALETTE, window.open_command_palette)
     menu.addAction(strings.ACTION_OPEN, lambda: window.open_pdf())
     menu.addAction(strings.ACTION_OPEN_HISTORY, window.open_from_history)
+    menu.addSeparator()
+    menu.addAction(release_strings.ACTION_RELEASE_NOTES, window.show_release_notes)
     menu.addSeparator()
     menu.addAction(strings.ACTION_QUIT, window.close)
 

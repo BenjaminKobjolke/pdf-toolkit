@@ -39,6 +39,7 @@ _ALL_IDS = {
     commands.SAVE,
     commands.PRINT,
     commands.SHOW_SHORTCUTS,
+    commands.RELEASE_NOTES,
     commands.COMMAND_PALETTE,
     commands.CONFIGURE_SHORTCUTS,
     commands.RENAME_FILE,

@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Prima versione",
+  "notes": [
+    "Visualizzatore PDF incentrato sulla tastiera con una palette di comandi (Ctrl+Shift+P) che consente di accedere a ogni azione",
+    "Strumenti pagina: scambia, elimina, ruota, sposta, inserisci, estrai e unisci un’intera cartella in un unico PDF",
+    "Modalità di modifica: aggiungi e personalizza campi di testo e sovrapposizioni di immagini, quindi esportali nel documento",
+    "Cerca sia il testo della pagina sia i campi dei moduli, con evidenziazione",
+    "Zoom con rendering nitido, percentuale di zoom in tempo reale e impostazioni predefinite per documento memorizzate",
+    "Stampa i documenti e rimappa qualsiasi scorciatoia da tastiera come preferisci",
+    "Una schermata \"Novità\" così puoi recuperare le modifiche in qualsiasi momento",
+    "Ogni operazione sulla pagina crea prima un backup con timestamp, così l’originale è al sicuro"
+  ]
+}

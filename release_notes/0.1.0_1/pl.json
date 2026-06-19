@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Pierwsze wydanie",
+  "notes": [
+    "Przeglądarka PDF stawiająca na obsługę klawiaturą, z paletą poleceń (Ctrl+Shift+P) zapewniającą dostęp do każdej akcji",
+    "Narzędzia stron: zamienianie miejscami, usuwanie, obracanie, przenoszenie, wstawianie, wyodrębnianie oraz scalanie całego folderu w jeden plik PDF",
+    "Tryb edycji: dodawanie i stylowanie pól tekstowych oraz nakładek obrazów, a następnie eksportowanie ich do dokumentu",
+    "Wyszukiwanie zarówno tekstu na stronach, jak i pól formularzy, z podświetlaniem wyników",
+    "Powiększanie z ostrym renderowaniem, podglądem bieżącego procentu powiększenia oraz zapamiętywanymi domyślnymi ustawieniami dla każdego dokumentu",
+    "Drukowanie dokumentów i możliwość przypisania dowolnego skrótu klawiszowego według własnych preferencji",
+    "Ekran „Co nowego”, aby w każdej chwili nadrobić zmiany",
+    "Każda operacja na stronach najpierw zapisuje kopię zapasową z oznaczeniem czasu, dzięki czemu oryginał pozostaje bezpieczny"
+  ]
+}

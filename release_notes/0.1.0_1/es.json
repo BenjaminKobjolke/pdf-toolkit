@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Primer lanzamiento",
+  "notes": [
+    "Visor de PDF pensado para el teclado, con una paleta de comandos (Ctrl+Shift+P) que da acceso a todas las acciones",
+    "Herramientas de página: intercambiar, eliminar, girar, mover, insertar, extraer y combinar una carpeta entera en un único PDF",
+    "Modo de edición: añadir y dar estilo a campos de texto y superposiciones de imágenes, y luego exportarlos al documento",
+    "Busca tanto el texto de las páginas como los campos de formulario, con resaltado",
+    "Zoom con renderizado nítido, un porcentaje de zoom en vivo y valores predeterminados por documento recordados",
+    "Imprime documentos y reasigna cualquier atajo de teclado a tu gusto",
+    "Una pantalla de «Novedades» para ponerte al día de los cambios en cualquier momento",
+    "Cada operación sobre páginas crea primero una copia de seguridad con marca de tiempo, para que tu original esté a salvo"
+  ]
+}

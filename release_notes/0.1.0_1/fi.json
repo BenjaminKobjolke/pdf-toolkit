@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Ensimmäinen julkaisu",
+  "notes": [
+    "Näppäimistö edellä -suunniteltu PDF-katselin, jossa on komentopaletti (Ctrl+Shift+P), jolla pääset jokaiseen toimintoon",
+    "Sivutyökalut: vaihda, poista, kierrä, siirrä, lisää, poimi ja yhdistä kokonainen kansio yhdeksi PDF:ksi",
+    "Muokkaustila: lisää ja muotoile tekstikenttiä ja kuvapeitteitä ja vie ne sitten asiakirjaan",
+    "Hae sekä sivun tekstistä että lomakekentistä korostuksella",
+    "Zoomaa terävällä renderöinnillä, reaaliaikaisella zoomausprosentilla ja asiakirjakohtaisesti muistetuilla oletuksilla",
+    "Tulosta asiakirjoja ja määritä mikä tahansa pikanäppäin uudelleen mielesi mukaan",
+    "Mikä uutta -näkymä, jotta voit pysyä muutoksissa mukana milloin tahansa",
+    "Jokainen sivutoiminto tekee ensin aikaleimatun varmuuskopion, joten alkuperäisesi on turvassa"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Pirmasis leidimas",
+  "notes": [
+    "PDF peržiūros programa, orientuota į darbą klaviatūra, su komandų palete (Ctrl+Shift+P), pasiekiančia kiekvieną veiksmą",
+    "Puslapių įrankiai: sukeisti vietomis, ištrinti, pasukti, perkelti, įterpti, ištraukti ir sujungti visą aplanką į vieną PDF",
+    "Redagavimo režimas: pridėkite ir stilizuokite teksto laukus bei vaizdų perdangas, tada eksportuokite jas į dokumentą",
+    "Ieškokite tiek puslapio tekste, tiek formos laukuose, su paryškinimu",
+    "Mastelio keitimas su aštriu atvaizdavimu, tiesiogiai rodoma mastelio procentine reikšme ir įsimenamais numatytaisiais nustatymais kiekvienam dokumentui",
+    "Spausdinkite dokumentus ir priskirkite bet kurį sparčiųjų klavišų derinį pagal savo poreikius",
+    "Ekranas „Kas naujo“, kad bet kada galėtumėte peržiūrėti pakeitimus",
+    "Kiekviena puslapių operacija pirmiausia sukuria atsarginę kopiją su laiko žyma, todėl jūsų originalas yra saugus"
+  ]
+}

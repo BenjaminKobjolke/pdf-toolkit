@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Première version",
+  "notes": [
+    "Visionneuse PDF axée sur le clavier avec une palette de commandes (Ctrl+Shift+P) donnant accès à toutes les actions",
+    "Outils de page : permuter, supprimer, faire pivoter, déplacer, insérer, extraire et fusionner tout un dossier en un seul PDF",
+    "Mode d’édition : ajouter et mettre en forme des champs de texte et des superpositions d’images, puis les exporter dans le document",
+    "Rechercher à la fois dans le texte des pages et dans les champs de formulaire, avec surlignage",
+    "Zoom avec un rendu net, un pourcentage de zoom en temps réel et des valeurs par défaut mémorisées par document",
+    "Imprimer des documents et réattribuer n’importe quel raccourci clavier selon vos préférences",
+    "Un écran « Quoi de neuf » pour suivre les changements à tout moment",
+    "Chaque opération sur les pages crée d’abord une sauvegarde horodatée, afin que votre original soit en sécurité"
+  ]
+}

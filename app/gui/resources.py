@@ -13,6 +13,8 @@ from pathlib import Path
 
 from PySide6.QtGui import QIcon
 
+from app.release.schema import RELEASE_NOTES_DIRNAME
+
 logger = logging.getLogger(__name__)
 
 ICON_FILE = "icon.ico"
@@ -25,6 +27,16 @@ def _base_dir() -> Path:
     if meipass is not None:
         return Path(meipass)
     return Path(__file__).resolve().parents[2]
+
+
+def bundled_root() -> Path:
+    """Frozen-aware project/bundle root (MEIPASS when frozen, repo root in dev)."""
+    return _base_dir()
+
+
+def release_notes_dir() -> Path:
+    """Absolute path to the bundled ``release_notes/`` folder."""
+    return _base_dir() / RELEASE_NOTES_DIRNAME
 
 
 def asset_path(name: str) -> Path:

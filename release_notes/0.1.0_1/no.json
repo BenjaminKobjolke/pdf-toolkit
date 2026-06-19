@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Første utgivelse",
+  "notes": [
+    "Tastatur-først PDF-viser med en kommandopalett (Ctrl+Shift+P) som gir tilgang til alle handlinger",
+    "Sideverktøy: bytt, slett, roter, flytt, sett inn, trekk ut og slå sammen en hel mappe til én PDF",
+    "Redigeringsmodus: legg til og formater tekstfelt og bildeoverlegg, og eksporter dem deretter inn i dokumentet",
+    "Søk i både sidetekst og skjemafelt, med utheving",
+    "Zoom med skarp gjengivelse, en levende zoomprosent og lagrede standardverdier per dokument",
+    "Skriv ut dokumenter og ombind hvilken som helst tastatursnarvei slik du vil",
+    "En «Hva er nytt»-skjerm slik at du kan få med deg endringer når som helst",
+    "Hver sideoperasjon skriver først en tidsstemplet sikkerhetskopi, slik at originalen din er trygg"
+  ]
+}

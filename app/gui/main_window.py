@@ -62,7 +62,7 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
         self._bar.set_enabled_for_doc(True)
         self._mode_bar.set_dirty(False)
         self._recent.add(path)
-        self.setWindowTitle(f"{strings.WINDOW_TITLE} — {path.name}")
+        self.setWindowTitle(strings.WINDOW_TITLE_OPEN_FMT.format(path=path))
 
     def open_from_history(self) -> None:
         self._document_actions.open_from_history()
@@ -95,6 +95,13 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
 
     def show_keyboard_shortcuts(self) -> None:
         self._palette_actions.show_shortcuts()
+
+    def show_release_notes(self) -> None:
+        """Open the release-notes browser (newest first, Older/Newer navigation)."""
+        from app.gui.release_notes_dialog import ReleaseNotesDialog
+        from app.release.notes_loader import load_release_notes
+
+        ReleaseNotesDialog(load_release_notes(), self).exec()
 
     def configure_shortcuts(self) -> None:
         """Open the searchable command list for binding/clearing shortcuts."""

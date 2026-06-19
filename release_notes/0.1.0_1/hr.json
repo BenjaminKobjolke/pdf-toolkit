@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Prvo izdanje",
+  "notes": [
+    "PDF preglednik prvenstveno za tipkovnicu s paletom naredbi (Ctrl+Shift+P) koja omogućuje pristup svakoj radnji",
+    "Alati za stranice: zamijeni, izbriši, okreni, premjesti, umetni, izdvoji i spoji cijelu mapu u jedan PDF",
+    "Način uređivanja: dodajte i stilizirajte tekstualna polja i slojeve slika, zatim ih izvezite u dokument",
+    "Pretražujte i tekst stranica i polja obrasca, uz isticanje",
+    "Zumiranje s oštrim prikazom, prikazom postotka zumiranja uživo i zapamćenim zadanim postavkama po dokumentu",
+    "Ispisujte dokumente i ponovno vežite bilo koji tipkovnički prečac po želji",
+    "Zaslon \"Što je novo\" kako biste u bilo kojem trenutku mogli pratiti promjene",
+    "Svaka radnja nad stranicama prvo zapisuje sigurnosnu kopiju s vremenskom oznakom, tako da je vaš izvornik siguran"
+  ]
+}

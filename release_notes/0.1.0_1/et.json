@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "date": "2026-06-19",
+  "title": "Esimene väljalase",
+  "notes": [
+    "Klaviatuurikeskne PDF-vaatur koos käsupaletiga (Ctrl+Shift+P), mis annab ligipääsu igale toimingule",
+    "Lehetööriistad: vaheta, kustuta, pööra, liiguta, lisa, eralda ja ühenda terve kaust üheks PDF-iks",
+    "Redigeerimisrežiim: lisa ja kujunda tekstivälju ning pildikihte, seejärel ekspordi need dokumenti",
+    "Otsi nii leheteksti kui ka vormivälju, koos esiletõstmisega",
+    "Suumimine terava renderdusega, reaalajas suumiprotsendiga ja dokumendipõhiste vaikimisi seadistuste meeldejätmisega",
+    "Prindi dokumente ja seo mis tahes klaviatuuriotsetee endale sobivaks ümber",
+    "„Mis on uut“ ekraan, et saaksid muudatustega igal ajal kursis olla",
+    "Iga lehetoiming kirjutab esmalt ajatempliga varukoopia, nii et originaal on kaitstud"
+  ]
+}

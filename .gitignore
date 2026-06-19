@@ -11,6 +11,7 @@ __pycache__/
 build/
 develop-eggs/
 dist/
+/release/
 downloads/
 eggs/
 .eggs/
@@ -22,6 +23,9 @@ var/
 wheels/
 share/python-wheels/
 *.egg-info/
+
+# Local FTP publish credentials (release-tool) — holds plaintext password, never commit
+tools/publish_settings.ini
 .installed.cfg
 *.egg
 MANIFEST
