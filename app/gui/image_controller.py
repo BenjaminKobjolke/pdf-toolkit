@@ -15,10 +15,9 @@ from pathlib import Path
 from PySide6.QtCore import QPointF
 
 from app.gui import image_style
+from app.gui.overlay_selection import place_new_item
 from app.gui.page_item_store import PageItemStore
 from app.gui.page_view import PageView
-
-_NEW_IMAGE_POS = (40.0, 40.0)
 
 
 class ImageController:
@@ -68,16 +67,9 @@ class ImageController:
         if not self._edit_mode or self._base_dir is None:
             return
         item = image_style.build_item(load_from, path_str, absolute)
-        if anchor is None:
-            item.setPos(*_NEW_IMAGE_POS)
-        elif centered:
-            center = item.boundingRect().center()
-            item.setPos(anchor.x() - center.x(), anchor.y() - center.y())
-        else:
-            item.setPos(anchor)
-        self._page_view.add_image_item(item)
-        self._page_view.graphics_scene().clearSelection()
-        item.setSelected(True)
+        place_new_item(
+            self._page_view, item, anchor, centered=centered, add=self._page_view.add_image_item
+        )
         self._schedule()
 
     def delete_selected(self) -> None:
@@ -128,3 +120,4 @@ class ImageController:
             item = image_style.spec_to_item(spec, self._base_dir)
             item.set_editable(self._edit_mode)
             self._page_view.add_image_item(item)
+            item.setZValue(spec.z)  # re-assert: ItemLayer.add forces the layer default

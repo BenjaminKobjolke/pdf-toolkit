@@ -1,7 +1,7 @@
 """Typed value objects describing text fields placed on a PDF.
 
 Pure data: no Qt, no fitz. These cross every module boundary (GUI <-> sidecar
-<-> overlay export) so colours are JSON-friendly hex strings, not Qt types.
+<-> overlay export) so colors are JSON-friendly hex strings, not Qt types.
 """
 
 from __future__ import annotations
@@ -25,6 +25,7 @@ class TextFieldSpec:
     bg_color: str | None  # "#rrggbb" or None (transparent)
     bold: bool = False
     italic: bool = False
+    z: float = 0.0  # stacking order across all overlay elements (higher = front)
 
 
 @dataclass(frozen=True)

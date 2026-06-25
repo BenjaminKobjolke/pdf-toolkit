@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from app.gui import commands
+from app.gui import commands, overlay_commands
 from app.gui.main_window import MainWindow
 from tests.conftest import MakePdf, gui_settings
 
@@ -82,6 +82,15 @@ _ALL_IDS = {
     commands.DOC_PAGE_REMEMBER,
     commands.SET_DEFAULT_PDF_VIEWER,
     commands.REMOVE_PDF_HANDLER,
+    overlay_commands.ADD_RECT,
+    overlay_commands.RECT_FILL_COLOR,
+    overlay_commands.RECT_WIDTH,
+    overlay_commands.RECT_HEIGHT,
+    overlay_commands.RECT_DELETE,
+    overlay_commands.LAYER_FORWARD,
+    overlay_commands.LAYER_BACKWARD,
+    overlay_commands.LAYER_TO_FRONT,
+    overlay_commands.LAYER_TO_BACK,
 }
 
 

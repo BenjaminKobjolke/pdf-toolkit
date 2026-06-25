@@ -27,6 +27,7 @@ def item_to_spec(item: ImageItem, page_index: int) -> ImageFieldSpec:
         path=item.path_str(),
         absolute=item.is_absolute(),
         opacity=item.opacity_value(),
+        z=item.zValue(),
     )
 
 
@@ -36,6 +37,7 @@ def spec_to_item(spec: ImageFieldSpec, base_dir: Path) -> ImageItem:
     factor = spec.width / pixmap.width() if pixmap.width() else 1.0
     item = build_item(resolved, spec.path, spec.absolute, spec.opacity, factor)
     item.setPos(spec.x, spec.y)
+    item.setZValue(spec.z)
     return item
 
 

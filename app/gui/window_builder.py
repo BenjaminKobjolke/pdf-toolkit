@@ -44,6 +44,7 @@ from app.gui.field_actions import FieldActions
 from app.gui.image_actions import ImageActions
 from app.gui.image_controller import ImageController
 from app.gui.keybinding_actions import KeybindingActions
+from app.gui.layer_actions import LayerActions
 from app.gui.mode_status_bar import ModeStatusBar
 from app.gui.move_actions import MoveActions
 from app.gui.operations import GuiOperationRunner
@@ -56,6 +57,8 @@ from app.gui.palette_actions import PaletteActions
 from app.gui.palette_controller import PaletteController
 from app.gui.placement import PlacementController
 from app.gui.print_actions import PrintActions
+from app.gui.rect_actions import RectActions
+from app.gui.rect_controller import RectController
 from app.gui.remembered_settings import RememberedSettingsController
 from app.gui.rotate_actions import RotateActions
 from app.gui.save_controller import SaveController
@@ -125,6 +128,10 @@ def _build_overlay(window: MainWindow, settings: Settings) -> None:
         window._page_view, window._controller.store, window._controller.schedule_autosave
     )
     window._controller.attach_images(window._images)
+    window._rects = RectController(
+        window._page_view, window._controller.store, window._controller.schedule_autosave
+    )
+    window._controller.attach_rects(window._rects)
     window._placement = PlacementController(
         window, window._page_view, window._mode_bar, PlacementStore(window._backend)
     )
@@ -137,11 +144,14 @@ def _build_overlay(window: MainWindow, settings: Settings) -> None:
         window._original_dir,
         window._report,
     )
+    window._rect_actions = RectActions(window, window._page_view, window._rects)
+    window._layer_actions = LayerActions(window._page_view, window._controller)
     window._overlay_actions = OverlayActions(
         window._edit_bar,
         window._controller,
         window._placement,
         window._image_actions,
+        window._rects,
         window.has_document,
     )
     _build_document_memory(window)

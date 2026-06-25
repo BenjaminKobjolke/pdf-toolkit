@@ -1,7 +1,7 @@
 """A movable, inline-editable text field for the page scene.
 
 Pure view object: it knows how to draw itself (including an optional background
-fill) and expose its font/colour state, but holds no PDF or persistence logic.
+fill) and expose its font/color state, but holds no PDF or persistence logic.
 """
 
 from __future__ import annotations

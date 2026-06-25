@@ -1,9 +1,9 @@
 """Keyboard-first editing of the currently selected text field.
 
 Each method prompts with a keyboard-navigable dialog and applies the change
-through the :class:`EditController`, reusing the existing style bridge. Colour
+through the :class:`EditController`, reusing the existing style bridge. Color
 uses the custom :class:`ColorPickerDialog`; a small most-recently-used list is
-kept so the last colours are one keystroke away.
+kept so the last colors are one keystroke away.
 """
 
 from __future__ import annotations
@@ -116,7 +116,7 @@ class FieldActions:
         )
         if dialog.exec() and (chosen := dialog.chosen()) is not None:
             if chosen != ColorPickerDialog.TRANSPARENT:
-                self._remember_color(chosen)  # only real colours are recent-listed
+                self._remember_color(chosen)  # only real colors are recent-listed
             return chosen
         return None
 

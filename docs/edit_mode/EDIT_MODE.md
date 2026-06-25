@@ -1,12 +1,14 @@
 # Edit Mode
 
-Edit mode lets you place **text fields** and **images** onto a PDF page, adjust
-them, and bake them permanently into the file. This page is the overview; the
-details live in two companion docs:
+Edit mode lets you place **text fields**, **images**, and **rectangles** onto a
+PDF page, adjust them, and bake them permanently into the file. This page is the
+overview; the details live in companion docs:
 
 - [TEXT_EDITING.md](TEXT_EDITING.md) — placing and styling text fields.
 - [IMAGE_EDITING.md](IMAGE_EDITING.md) — placing, scaling, and storing images
   (e.g. a transparent `signature.png`).
+- [RECTANGLES.md](RECTANGLES.md) — placing and styling filled rectangles.
+- [LAYERING.md](LAYERING.md) — controlling which element sits in front.
 
 ## Opening the viewer
 
@@ -21,7 +23,8 @@ Or start the wizard (`pdft.bat`), choose **Open GUI viewer**, then
 
 Editing is a toggle. Click **Edit mode** in the toolbar (or run **Toggle edit
 mode** from the command palette) to reveal the styling controls and the **Add
-field**, **Add image**, **Delete field**, and **Export** buttons.
+field**, **Add image**, **Add rectangle**, **Delete field**, and **Export**
+buttons.
 
 Existing fields and images are **always shown** on the page, whether or not edit
 mode is on. Edit mode only controls whether you can move, edit, scale, add, or
@@ -38,9 +41,12 @@ bar reads **Edit Mode** while it is on, otherwise **Regular Mode** (see
   turn edit mode on first).
 - With something selected, **arrow keys** move it `10 px` at a time (`1 px` with
   **Shift**); **Delete** / **Backspace** removes it.
+- Reorder the stacking of the selected element with **Ctrl+]** / **Ctrl+[** (move
+  forward / backward) and **Ctrl+Shift+]** / **Ctrl+Shift+[** (bring to front /
+  send to back). See [LAYERING.md](LAYERING.md).
 - The selected element is marked with a configurable **outline** (default 2px
-  dashed red). Tune its width, type (dashed / solid), and colour from the command
-  palette — **Outline: width / type / colour…** — and the choice is remembered
+  dashed red). Tune its width, type (dashed / solid), and color from the command
+  palette — **Outline: width / type / color…** — and the choice is remembered
   across sessions. See the *Selected-element outline* section of
   `../COMMAND_PALETTE.md`.
 
@@ -62,16 +68,19 @@ Autosave is debounced and writes to the **working copy's** sidecar; the original
 **Save**. When you open a PDF with a matching `.json` sidecar, its fields and
 images load automatically.
 
-The sidecar is **version 2**: it stores text fields and images together (older
-version-1 sidecars with text only still load). A malformed sidecar is reported
-when the PDF is opened and otherwise ignored. See each companion doc for the
-exact per-element fields.
+The sidecar is **version 3**: it stores text fields, images, and rectangles
+together, each with a stacking order (`z`). Older sidecars still load — version 1
+(text only) and version 2 (text + images, no rectangles); they are upgraded on the
+next save, keeping their original look (images above text). A malformed sidecar is
+reported when the PDF is opened and otherwise ignored. See each companion doc for
+the exact per-element fields.
 
 ## Exporting onto the PDF
 
 Click **Export** (or run **Export to PDF (text + images)** from the palette) to
-**flatten** all fields and images into the document — positions and sizes shown
-in the viewer map 1:1 onto the result, and PNG transparency is preserved.
+**flatten** all fields, images, and rectangles into the document — positions and
+sizes shown in the viewer map 1:1 onto the result, elements are drawn in their
+on-screen stacking order, and PNG transparency is preserved.
 
 Exporting **commits straight to disk** (unlike the deferred layout edits) and
 asks how:

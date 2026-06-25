@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import pytest
 from PySide6.QtGui import QKeySequence
+from PySide6.QtWidgets import QMenu
 
-from app.config.key_bindings import assign, merge_keymap, remove_command
+from app.config.key_bindings import KeyOverride, assign, merge_keymap, remove_command
 from app.gui import commands, confirm_dialog, keybinding_actions, strings
 from app.gui.commands import Command
 from app.gui.main_window import MainWindow
@@ -20,7 +21,7 @@ def _installed_chords(window: MainWindow) -> list[str]:
     return [shortcut.key().toString() for shortcut in window._shortcut_installer.shortcuts()]
 
 
-def _apply(window: MainWindow, overrides: tuple) -> None:
+def _apply(window: MainWindow, overrides: tuple[KeyOverride, ...]) -> None:
     window._key_bindings.save(overrides)
     window.apply_keymap(merge_keymap(default_shortcut_pairs(), overrides))
 
@@ -60,12 +61,11 @@ def test_palette_chord_is_a_binding_but_menu_stays_reachable(window: MainWindow)
             window._key_bindings.load(), default_shortcut_pairs(), commands.COMMAND_PALETTE
         ),
     )
-    titles = [
-        action.text()
-        for menu_action in window.menuBar().actions()
-        if menu_action.menu()
-        for action in menu_action.menu().actions()
-    ]
+    titles: list[str] = []
+    for menu_action in window.menuBar().actions():
+        menu = menu_action.menu()
+        if isinstance(menu, QMenu):
+            titles.extend(action.text() for action in menu.actions())
     assert strings.ACTION_COMMAND_PALETTE in titles
 
 

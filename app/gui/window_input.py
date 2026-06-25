@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
-from app.gui import commands, release_strings, strings
+from app.gui import commands, overlay_commands, release_strings, strings
 from app.gui.commands import Command
 from app.gui.shortcut_installer import ShortcutInstaller, TriggerFactory
 
@@ -37,6 +37,10 @@ _SHORTCUTS: tuple[tuple[str, str], ...] = (
     ("Ctrl+R", commands.ROTATE_RIGHT),
     ("Ctrl+Shift+R", commands.ROTATE_LEFT),
     ("F1", commands.SHOW_SHORTCUTS),
+    ("Ctrl+]", overlay_commands.LAYER_FORWARD),
+    ("Ctrl+[", overlay_commands.LAYER_BACKWARD),
+    ("Ctrl+Shift+]", overlay_commands.LAYER_TO_FRONT),
+    ("Ctrl+Shift+[", overlay_commands.LAYER_TO_BACK),
 )
 _PALETTE_CHORD = "Ctrl+Shift+P"
 
@@ -105,9 +109,11 @@ def install_control_signals(window: MainWindow) -> None:
     edit = window.edit_bar
     edit.edit_mode_toggled.connect(window.controller.set_edit_mode)
     edit.edit_mode_toggled.connect(window.images.set_edit_mode)
+    edit.edit_mode_toggled.connect(window.rects.set_edit_mode)
     edit.edit_mode_toggled.connect(window.mode_bar.set_edit_mode)
     edit.add_field_requested.connect(window.add_text_field)
     edit.add_image_requested.connect(window.add_image)
+    edit.add_rect_requested.connect(window.add_rect)
     edit.delete_field_requested.connect(window.controller.delete_selected)
     edit.style_changed.connect(window.controller.apply_style)
     edit.export_text_requested.connect(window.export_text)

@@ -1,12 +1,11 @@
 """Owns the overlay editing model: per-page specs, autosave, and export.
 
-The view (:class:`PageView`) holds only the items currently on screen; this
-controller plus the shared :class:`PageItemStore` are the source of truth across
-pages. It owns the text-field items directly and delegates image items to an
-:class:`ImageController`, but it is the single persistence owner: one autosave
-timer writes both kinds to the JSON sidecar, and one flatten bakes both onto the
-PDF. ``_source`` is the working-copy path; ``_base_dir`` is the original PDF's
-directory, against which relative (assets) image paths resolve.
+This controller plus the shared :class:`PageItemStore` are the source of truth
+across pages (the view holds only on-screen items). It owns text fields directly,
+delegates images/rects to satellite controllers, and is the single persistence
+owner: one autosave timer writes every kind to the JSON sidecar; one flatten bakes
+them onto the PDF. ``_source`` is the working copy; ``_base_dir`` is the original
+PDF's directory (where relative asset paths resolve).
 """
 
 from __future__ import annotations
@@ -23,8 +22,10 @@ from PySide6.QtCore import QPointF, QTimer
 from app.gui import strings, text_style
 from app.gui.image_controller import ImageController
 from app.gui.operations import OpResult
+from app.gui.overlay_selection import place_new_item
 from app.gui.page_item_store import PageItemStore
 from app.gui.page_view import PageView
+from app.gui.rect_controller import RectController
 from app.gui.text_item import TextFieldItem
 from app.gui.text_style import TextStyle
 from app.pdf.sidecar import load_sidecar, save_sidecar, sidecar_path
@@ -33,7 +34,6 @@ from app.pdf.text_overlay import apply_overlay
 log = logging.getLogger("pdf_toolkit")
 
 _AUTOSAVE_MS = 400
-_NEW_FIELD_POS = (40.0, 40.0)
 
 
 @dataclass(frozen=True)
@@ -54,7 +54,8 @@ class EditController:
         self._source: Path | None = None
         self._base_dir: Path | None = None
         self._store = PageItemStore()
-        self._images: ImageController | None = None
+        # Satellites (images, rects) share this store + timer; driven generically.
+        self._satellites: list[ImageController | RectController] = []
         self._edit_mode = False
         self._style = text_style.DEFAULT_STYLE
 
@@ -77,7 +78,11 @@ class EditController:
 
     def attach_images(self, images: ImageController) -> None:
         """Register the image controller this controller persists alongside text."""
-        self._images = images
+        self._satellites.append(images)
+
+    def attach_rects(self, rects: RectController) -> None:
+        """Register the rect controller this controller persists alongside text."""
+        self._satellites.append(rects)
 
     def set_base_dir(self, base_dir: Path) -> None:
         """Set the original PDF's directory (asset paths + flatten resolve here)."""
@@ -97,8 +102,8 @@ class EditController:
         """
         self._edit_mode = False
         self._store.clear()
-        if self._images is not None:
-            self._images.reset_edit_mode()
+        for satellite in self._satellites:
+            satellite.reset_edit_mode()
         try:
             doc = load_sidecar(pdf)
         finally:
@@ -114,27 +119,18 @@ class EditController:
             item.set_editable(on)
 
     def add_field(self, anchor: QPointF | None = None, *, centered: bool = False) -> None:
-        """Add a new text field to the current page (edit mode only).
+        """Add a new text field (edit mode only).
 
-        ``anchor`` is a scene-pixel point: ``None`` keeps the legacy top-left
-        default; otherwise the field's top-left is placed at ``anchor``, or the
-        field is centred on ``anchor`` when ``centered`` is set.
+        ``anchor`` (scene px): ``None`` = top-left default; else placed at — or
+        centred on, when ``centered`` — ``anchor``.
         """
         if not self._edit_mode or self._source is None:
             return
         item = TextFieldItem()
         text_style.apply_style(item, self._style)
-        if anchor is None:
-            item.setPos(*_NEW_FIELD_POS)
-        elif centered:
-            center = item.boundingRect().center()
-            item.setPos(anchor.x() - center.x(), anchor.y() - center.y())
-        else:
-            item.setPos(anchor)
-        self._page_view.add_text_item(item)
-        # Select the fresh field so it is the active target right after creation.
-        self._page_view.graphics_scene().clearSelection()
-        item.setSelected(True)
+        place_new_item(
+            self._page_view, item, anchor, centered=centered, add=self._page_view.add_text_item
+        )
         self._schedule_autosave()
 
     def delete_selected(self) -> None:
@@ -161,8 +157,7 @@ class EditController:
         needle = query.strip().casefold()
         if not needle:
             return []
-        # Harvest the current page so unsaved edits are searchable too.
-        self._harvest_page(self._page_view.current_page_index())
+        self._harvest_page(self._page_view.current_page_index())  # include unsaved edits
         hits: list[FieldHit] = []
         pages = sorted({field.page_index for field in self._store.all_fields()})
         for page_index in pages:
@@ -188,7 +183,6 @@ class EditController:
         return text_style.item_to_style(item) if item is not None else None
 
     def set_selected_text(self, text: str) -> None:
-        """Replace the selected field's text."""
         item = self._page_view.selected_text_item()
         if item is not None:
             item.setPlainText(text)
@@ -196,15 +190,7 @@ class EditController:
 
     def clear_saved_fields(self) -> None:
         """Delete this document's saved overlay content and its sidecar file."""
-        self._timer.stop()
-        self._store.clear()
-        self._page_view.clear_text_items()
-        if self._images is not None:
-            self._images.clear()
-        if self._source is not None:
-            with contextlib.suppress(FileNotFoundError):
-                os.remove(sidecar_path(self._source))
-            self._mark_dirty()
+        self._drop_overlay(mark_dirty=True)
 
     def flush(self) -> None:
         """Persist any pending edits immediately (e.g. before closing a doc)."""
@@ -216,15 +202,21 @@ class EditController:
         error = self._flatten(target)
         if error is not None:
             return OpResult(False, error)
+        self._drop_overlay()
+        return OpResult(True, strings.MSG_TEXT_EMBEDDED)
+
+    def _drop_overlay(self, *, mark_dirty: bool = False) -> None:
+        """Stop autosave, clear every live + stored item, and remove the sidecar."""
         self._timer.stop()
         self._store.clear()
         self._page_view.clear_text_items()
-        if self._images is not None:
-            self._images.clear()
+        for satellite in self._satellites:
+            satellite.clear()
         if self._source is not None:
             with contextlib.suppress(FileNotFoundError):
                 os.remove(sidecar_path(self._source))
-        return OpResult(True, strings.MSG_TEXT_EMBEDDED)
+            if mark_dirty:
+                self._mark_dirty()
 
     def has_overlay(self) -> bool:
         """Return whether any page has a text field or image (incl. unsaved)."""
@@ -243,7 +235,7 @@ class EditController:
         doc = self._store.document()
         base = self._base_dir or source.parent
         try:
-            apply_overlay(source, doc.fields, doc.images, base_dir=base, output=output)
+            apply_overlay(source, doc.fields, doc.images, doc.rects, base_dir=base, output=output)
         except (ValueError, OSError) as err:
             log.error("%s", err)
             return str(err)
@@ -264,11 +256,10 @@ class EditController:
             [text_style.item_to_spec(item, index) for item in self._page_view.text_items()],
         )
 
-    def _harvest_all(self) -> None:
-        """Harvest the current page for both kinds before save/flatten."""
+    def _harvest_all(self) -> None:  # current page, every kind, before save/flatten
         self._harvest_page(self._page_view.current_page_index())
-        if self._images is not None:
-            self._images.harvest_current()
+        for satellite in self._satellites:
+            satellite.harvest_current()
 
     def _restore_page(self, index: int) -> None:
         self._page_view.clear_text_items()
@@ -276,6 +267,7 @@ class EditController:
             item = text_style.spec_to_item(spec)
             item.set_editable(self._edit_mode)
             self._page_view.add_text_item(item)
+            item.setZValue(spec.z)  # re-assert: ItemLayer.add forces the layer default
 
     def _current_document_is_empty(self) -> bool:
         self._harvest_all()
@@ -291,8 +283,7 @@ class EditController:
             return
         self._harvest_all()
         if self._store.is_empty():
-            # Nothing to persist: never create an empty sidecar, and drop a stale
-            # one (e.g. the user deleted every previously-saved item).
+            # Never create an empty sidecar; drop a stale one if all items are gone.
             with contextlib.suppress(FileNotFoundError):
                 os.remove(sidecar_path(self._source))
             return

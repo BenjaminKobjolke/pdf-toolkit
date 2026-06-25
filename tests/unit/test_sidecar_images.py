@@ -31,7 +31,7 @@ def test_writes_current_version(tmp_path: Path) -> None:
     pdf = tmp_path / "doc.pdf"
     save_sidecar(pdf, SidecarDocument(images=(_image(),)))
     raw = json.loads(sidecar_path(pdf).read_text(encoding="utf-8"))
-    assert raw["version"] == SIDECAR_VERSION == 2
+    assert raw["version"] == SIDECAR_VERSION == 3
 
 
 def test_v1_sidecar_loads_with_no_images(tmp_path: Path) -> None:

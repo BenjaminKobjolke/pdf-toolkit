@@ -13,6 +13,7 @@ from pypdf import PdfReader, PdfWriter
 
 if TYPE_CHECKING:
     from app.config.settings import Settings
+    from app.storage.backend import StorageBackend
 
 # Qt must run headless in tests; set before any QApplication is constructed.
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -53,7 +54,7 @@ def gui_settings(tmp_path: Path) -> Settings:
     )
 
 
-def gui_backend(tmp_path: Path) -> object:
+def gui_backend(tmp_path: Path) -> StorageBackend:
     """A storage backend on the same per-test DB the window uses.
 
     Tests that assert what a controller persisted open this to read the DB the

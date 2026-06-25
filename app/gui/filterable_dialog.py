@@ -3,7 +3,7 @@
 Owns the common chrome and interaction — a filter line edit above a list, with
 Up/Down to move the selection, Enter to accept, Esc to cancel. Subclasses supply
 the rows (``_apply_filter``) and what acceptance returns (``accept_current``);
-the colour picker also slots a preview swatch between the two widgets.
+the color picker also slots a preview swatch between the two widgets.
 """
 
 from __future__ import annotations

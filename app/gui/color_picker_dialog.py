@@ -1,6 +1,6 @@
-"""A keyboard-first colour picker.
+"""A keyboard-first color picker.
 
-Type a hex (``#ff8800``) or a colour name (``white``), or pick from the
+Type a hex (``#ff8800``) or a color name (``white``), or pick from the
 recently-used list and a curated set of common names. A live swatch previews the
 current value. Returns a normalised ``#rrggbb`` string. No mouse required.
 """
@@ -13,7 +13,7 @@ from PySide6.QtWidgets import QLabel, QWidget
 from app.gui import strings
 from app.gui.filterable_dialog import FilterableListDialog
 
-# Curated common colours offered in the list (any valid Qt name still works when
+# Curated common colors offered in the list (any valid Qt name still works when
 # typed). Ordered roughly by usefulness.
 COMMON_COLORS: tuple[str, ...] = (
     "black",
@@ -50,7 +50,7 @@ def _normalize(text: str) -> str | None:
 
 
 class ColorPickerDialog(FilterableListDialog):
-    """Filterable colour list with a typed hex/name override and live preview."""
+    """Filterable color list with a typed hex/name override and live preview."""
 
     #: Sentinel returned by :meth:`chosen` when the user picks "transparent"
     #: (only offered when ``allow_transparent`` is set). Distinct from ``None``,
@@ -92,7 +92,7 @@ class ColorPickerDialog(FilterableListDialog):
         return self._visible[row][1]
 
     def preview_hex(self) -> str | None:
-        """The colour the swatch currently shows (typed value, else row)."""
+        """The color the swatch currently shows (typed value, else row)."""
         typed = _normalize(self._filter.text())
         if typed is not None:
             return typed
@@ -116,7 +116,7 @@ class ColorPickerDialog(FilterableListDialog):
     # --- internals ----------------------------------------------------------
 
     def _typed_value(self) -> str | None:
-        """Interpret the filter text as transparent (if allowed) or a colour."""
+        """Interpret the filter text as transparent (if allowed) or a color."""
         text = self._filter.text()
         if self._allow_transparent and text.strip().casefold() in _TRANSPARENT_WORDS:
             return self.TRANSPARENT

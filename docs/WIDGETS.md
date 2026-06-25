@@ -7,20 +7,20 @@
 The GUI viewer ships a small family of **keyboard-first dialogs** that share the
 same look and interaction: a filter box on top, a list below, and
 Up/Down/Enter/Esc navigation. They live in `app/gui/` and are reused across the
-command palette, search, history, font selection, and colour selection.
+command palette, search, history, font selection, and color selection.
 
 | Widget | File | Used for |
 |--------|------|----------|
 | `FilterListDialog` | `filter_list_dialog.py` | Command palette, history, font picker, live search |
-| `ColorPickerDialog` | `color_picker_dialog.py` | Text + background colour |
+| `ColorPickerDialog` | `color_picker_dialog.py` | Text + background color |
 | `TextInputDialog` | `text_input_dialog.py` | Multi-line field text (Ctrl+Enter to apply) |
 
 Shared keys: **Up/Down** move (wrapping), **Enter** accept, **Esc** cancel.
 
-## Colour picker (`ColorPickerDialog`)
+## Color picker (`ColorPickerDialog`)
 
 A keyboard-first replacement for Qt's mouse-oriented `QColorDialog`. Used by the
-**Field: text colour…** and **Field: background colour…** commands.
+**Field: text color…** and **Field: background color…** commands.
 
 ### Layout
 
@@ -41,10 +41,10 @@ A keyboard-first replacement for Qt's mouse-oriented `QColorDialog`. Used by the
 
 ### Behaviour
 
-- **Type a value.** Enter a hex (`#ff8800`) or any Qt colour name (`white`,
+- **Type a value.** Enter a hex (`#ff8800`) or any Qt color name (`white`,
   `black`, `red`, …) in the box. Anything `QColor` accepts is valid.
-- **Live preview.** The swatch recolours as you type or move through the list.
-- **Recents first.** The most recently used colours appear at the top, followed
+- **Live preview.** The swatch recolors as you type or move through the list.
+- **Recents first.** The most recently used colors appear at the top, followed
   by a curated set of common names (`COMMON_COLORS`).
 - **Filter.** Typing also narrows the list (substring match on name or hex), so
   `00` or `gray` jumps straight to matches.
@@ -67,10 +67,10 @@ fill", the second means "leave unchanged".
 Constructed with `allow_transparent=True`, the picker lists a **transparent**
 entry first (and accepts the typed words `transparent` / `none`). Choosing it
 returns the `TRANSPARENT` sentinel; the field's background is then cleared
-(`bg_color = None`), i.e. no fill is drawn behind the text. Text colour uses
-`allow_transparent=False`, so it always yields a concrete colour.
+(`bg_color = None`), i.e. no fill is drawn behind the text. Text color uses
+`allow_transparent=False`, so it always yields a concrete color.
 
-Recently-used tracking ignores the transparent sentinel — only real colours are
+Recently-used tracking ignores the transparent sentinel — only real colors are
 remembered.
 
 ## Filter list dialog (`FilterListDialog`)

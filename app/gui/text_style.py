@@ -82,6 +82,7 @@ def item_to_spec(item: TextFieldItem, page_index: int) -> TextFieldSpec:
         bg_color=color_to_hex(bg) if bg is not None else None,
         bold=item.is_bold(),
         italic=item.is_italic(),
+        z=item.zValue(),
     )
 
 
@@ -94,4 +95,5 @@ def spec_to_item(spec: TextFieldSpec) -> TextFieldItem:
     item.set_text_color(hex_to_color(spec.color))
     item.set_bg_color(hex_to_color(spec.bg_color) if spec.bg_color is not None else None)
     item.setPos(spec.x, spec.y)
+    item.setZValue(spec.z)
     return item

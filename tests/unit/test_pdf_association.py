@@ -6,7 +6,9 @@ touched; the tests assert which keys/values would be written.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
+from typing import Literal
 
 import pytest
 
@@ -23,7 +25,7 @@ class _FakeKey:
     def __enter__(self) -> _FakeKey:
         return self
 
-    def __exit__(self, *_args: object) -> bool:
+    def __exit__(self, *_args: object) -> Literal[False]:
         return False
 
 
@@ -70,8 +72,8 @@ def fake_winreg(monkeypatch: pytest.MonkeyPatch) -> FakeWinreg:
     """Replace the module's ``winreg`` with a recording fake; force Windows."""
     fake = FakeWinreg()
     monkeypatch.setattr(pdf_association, "winreg", fake)
-    monkeypatch.setattr(pdf_association.sys, "platform", "win32")
-    monkeypatch.setattr(pdf_association.sys, "frozen", False, raising=False)
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.setattr(sys, "frozen", False, raising=False)
     return fake
 
 
@@ -82,21 +84,21 @@ def _with_vbs(tmp_path: Path) -> Path:
 
 
 def test_is_supported_tracks_platform(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(pdf_association.sys, "platform", "win32")
+    monkeypatch.setattr(sys, "platform", "win32")
     assert pdf_association.is_supported() is True
-    monkeypatch.setattr(pdf_association.sys, "platform", "linux")
+    monkeypatch.setattr(sys, "platform", "linux")
     assert pdf_association.is_supported() is False
 
 
 def test_launch_command_dev_points_at_vbs(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setattr(pdf_association.sys, "frozen", False, raising=False)
+    monkeypatch.setattr(sys, "frozen", False, raising=False)
     vbs = tmp_path / pdf_association.LAUNCHER_VBS
     assert pdf_association.launch_command(tmp_path) == f'wscript.exe "{vbs}" "%1"'
 
 
 def test_launch_command_frozen_points_at_exe(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(pdf_association.sys, "frozen", True, raising=False)
-    monkeypatch.setattr(pdf_association.sys, "executable", r"C:\apps\FastPDFToolkit.exe")
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(sys, "executable", r"C:\apps\FastPDFToolkit.exe")
     assert pdf_association.launch_command() == r'"C:\apps\FastPDFToolkit.exe" "%1"'
 
 
@@ -160,7 +162,7 @@ def test_register_non_windows_touches_nothing(
 ) -> None:
     fake = FakeWinreg()
     monkeypatch.setattr(pdf_association, "winreg", fake)
-    monkeypatch.setattr(pdf_association.sys, "platform", "linux")
+    monkeypatch.setattr(sys, "platform", "linux")
     result = pdf_association.register_pdf_viewer(_with_vbs(tmp_path))
     assert result == RegistrationResult(
         ok=False,
@@ -184,7 +186,7 @@ def test_unregister_deletes_keys_and_value(fake_winreg: FakeWinreg) -> None:
 def test_unregister_non_windows_touches_nothing(monkeypatch: pytest.MonkeyPatch) -> None:
     fake = FakeWinreg()
     monkeypatch.setattr(pdf_association, "winreg", fake)
-    monkeypatch.setattr(pdf_association.sys, "platform", "linux")
+    monkeypatch.setattr(sys, "platform", "linux")
     result = pdf_association.unregister_pdf_viewer()
     assert result.ok is False
     assert result.is_windows is False

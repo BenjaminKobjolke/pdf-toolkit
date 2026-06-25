@@ -11,6 +11,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from app.pdf.image_spec import ImageFieldSpec, SidecarDocument
+from app.pdf.rect_spec import RectFieldSpec
 from app.pdf.text_spec import TextFieldSpec
 
 
@@ -20,6 +21,7 @@ class PageItemStore:
     def __init__(self) -> None:
         self._fields_by_page: dict[int, list[TextFieldSpec]] = {}
         self._images_by_page: dict[int, list[ImageFieldSpec]] = {}
+        self._rects_by_page: dict[int, list[RectFieldSpec]] = {}
 
     def load(self, doc: SidecarDocument) -> None:
         """Replace all content with ``doc``, distributing it by page index."""
@@ -28,10 +30,13 @@ class PageItemStore:
             self._fields_by_page.setdefault(field.page_index, []).append(field)
         for image in doc.images:
             self._images_by_page.setdefault(image.page_index, []).append(image)
+        for rect in doc.rects:
+            self._rects_by_page.setdefault(rect.page_index, []).append(rect)
 
     def clear(self) -> None:
         self._fields_by_page = {}
         self._images_by_page = {}
+        self._rects_by_page = {}
 
     def set_fields(self, page_index: int, specs: Sequence[TextFieldSpec]) -> None:
         self._fields_by_page[page_index] = list(specs)
@@ -39,11 +44,17 @@ class PageItemStore:
     def set_images(self, page_index: int, specs: Sequence[ImageFieldSpec]) -> None:
         self._images_by_page[page_index] = list(specs)
 
+    def set_rects(self, page_index: int, specs: Sequence[RectFieldSpec]) -> None:
+        self._rects_by_page[page_index] = list(specs)
+
     def fields_on(self, page_index: int) -> list[TextFieldSpec]:
         return self._fields_by_page.get(page_index, [])
 
     def images_on(self, page_index: int) -> list[ImageFieldSpec]:
         return self._images_by_page.get(page_index, [])
+
+    def rects_on(self, page_index: int) -> list[RectFieldSpec]:
+        return self._rects_by_page.get(page_index, [])
 
     def all_fields(self) -> tuple[TextFieldSpec, ...]:
         ordered: list[TextFieldSpec] = []
@@ -57,8 +68,16 @@ class PageItemStore:
             ordered.extend(self._images_by_page[index])
         return tuple(ordered)
 
+    def all_rects(self) -> tuple[RectFieldSpec, ...]:
+        ordered: list[RectFieldSpec] = []
+        for index in sorted(self._rects_by_page):
+            ordered.extend(self._rects_by_page[index])
+        return tuple(ordered)
+
     def document(self) -> SidecarDocument:
-        return SidecarDocument(fields=self.all_fields(), images=self.all_images())
+        return SidecarDocument(
+            fields=self.all_fields(), images=self.all_images(), rects=self.all_rects()
+        )
 
     def is_empty(self) -> bool:
-        return not self.all_fields() and not self.all_images()
+        return not self.all_fields() and not self.all_images() and not self.all_rects()

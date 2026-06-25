@@ -8,7 +8,7 @@ export — all shared with images.
 
 Click **Add field** (or **Add text field** in the palette). A placement chooser
 asks where the field lands — top-left, page centre, view centre, or a custom
-click. A new field appears using the current font/size/colour settings.
+click. A new field appears using the current font/size/color settings.
 
 ## Edit the text
 
@@ -31,12 +31,12 @@ become the defaults for the next field you add):
 - **Font** — any font installed on your system.
 - **Size** — point/pixel size of the text.
 - **B** / **I** — bold and italic toggles.
-- **Text colour…** — a colour picker for the glyph colour.
+- **Text color…** — a color picker for the glyph color.
 - **Background** — a toggle; off means a transparent background (default). Turn it
-  on to pick a fill colour drawn behind the text.
+  on to pick a fill color drawn behind the text.
 
 All of these are also available from the palette (**Field: font size…**,
-**Field: font family…**, **Field: text colour…**, **Field: background colour…**,
+**Field: font family…**, **Field: text color…**, **Field: background color…**,
 **Field: toggle bold / italic**) when a field is selected.
 
 ## Delete
@@ -47,7 +47,8 @@ selected (not while typing inside it).
 ## What the sidecar stores
 
 Per text field: page index, position and size, the text, font family/size, text
-colour, background colour (or `null` for transparent), and the bold/italic flags.
+color, background color (or `null` for transparent), the bold/italic flags, and
+the stacking order (`z`).
 
 ## Fonts
 

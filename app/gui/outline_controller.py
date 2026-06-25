@@ -80,7 +80,7 @@ class OutlineController:
             self._save(style=chosen.payload)
 
     def set_color(self) -> None:
-        """Pick the outline colour via the shared colour dialog."""
+        """Pick the outline color via the shared color dialog."""
         dialog = ColorPickerDialog(
             recent=self._recent_colors,
             title=strings.DIALOG_OUTLINE_COLOR_TITLE,

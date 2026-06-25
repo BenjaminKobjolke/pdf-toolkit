@@ -15,16 +15,17 @@ from pathlib import Path
 import fitz  # PyMuPDF
 
 from app.io.fs import replace_atomic
+from app.pdf.colors import hex_to_rgbf as _hex_to_rgbf
 from app.pdf.fonts import FontRequest, ResolvedFont, resolve_font
 from app.pdf.image_overlay import draw_image
 from app.pdf.image_spec import ImageFieldSpec
+from app.pdf.rect_overlay import draw_rect
+from app.pdf.rect_spec import RectFieldSpec
 from app.pdf.text_spec import TextFieldSpec
 
 log = logging.getLogger("pdf_toolkit")
 
 _TMP_SUFFIX = ".pdf.tmp"
-_RGB_MAX = 255.0
-_HEX_LENGTH = 7  # "#rrggbb"
 EMBEDDED_SUFFIX = "_text-embedded"
 
 
@@ -64,17 +65,19 @@ def apply_overlay(
     source: Path,
     fields: Sequence[TextFieldSpec],
     images: Sequence[ImageFieldSpec],
+    rects: Sequence[RectFieldSpec] = (),
     *,
     base_dir: Path,
     output: Path | None = None,
 ) -> None:
-    """Draw ``fields`` and ``images`` onto ``source`` in a single pass.
+    """Draw ``fields``, ``images``, and ``rects`` onto ``source`` in one pass.
 
-    ``output`` defaults to ``source`` (overwrite in place). Image paths resolve
-    against ``base_dir`` (the original PDF's directory). The write is atomic (tmp
-    + ``os.replace``). Raises ``ValueError`` if the PDF is encrypted, a field or
-    image targets a missing page, a colour is malformed, text cannot be fitted,
-    or an image file is missing.
+    All elements are drawn back-to-front by their ``z`` (stable on ties), so the
+    flattened PDF matches the on-screen stacking. ``output`` defaults to
+    ``source`` (overwrite in place). Image paths resolve against ``base_dir`` (the
+    original PDF's directory). The write is atomic (tmp + ``os.replace``). Raises
+    ``ValueError`` if the PDF is encrypted, any element targets a missing page, a
+    color is malformed, text cannot be fitted, or an image file is missing.
     """
     from app.gui import render  # local import: avoid a Qt dependency at import time
 
@@ -85,12 +88,15 @@ def apply_overlay(
         if doc.is_encrypted:
             raise ValueError(f"PDF is encrypted: {source}")
         total = int(doc.page_count)
-        for field in fields:
-            _require_page(field.page_index, total)
-            _draw_field(doc.load_page(field.page_index), field, zoom)
-        for image in images:
-            _require_page(image.page_index, total)
-            draw_image(doc.load_page(image.page_index), image, zoom, base_dir)
+        for element in _ordered_by_z(fields, images, rects):
+            _require_page(element.page_index, total)
+            page = doc.load_page(element.page_index)
+            if isinstance(element, TextFieldSpec):
+                _draw_field(page, element, zoom)
+            elif isinstance(element, ImageFieldSpec):
+                draw_image(page, element, zoom, base_dir)
+            else:
+                draw_rect(page, element, zoom)
 
         tmp = target.with_suffix(_TMP_SUFFIX)
         doc.save(str(tmp), garbage=4, deflate=True)
@@ -98,6 +104,16 @@ def apply_overlay(
         doc.close()
 
     replace_atomic(tmp, target)
+
+
+def _ordered_by_z(
+    fields: Sequence[TextFieldSpec],
+    images: Sequence[ImageFieldSpec],
+    rects: Sequence[RectFieldSpec],
+) -> list[TextFieldSpec | ImageFieldSpec | RectFieldSpec]:
+    """Merge every element into one back-to-front list, stable on equal ``z``."""
+    elements: list[TextFieldSpec | ImageFieldSpec | RectFieldSpec] = [*fields, *images, *rects]
+    return sorted(elements, key=lambda element: element.z)
 
 
 def _require_page(page_index: int, total: int) -> None:
@@ -140,15 +156,3 @@ def _load_font(resolved: ResolvedFont) -> fitz.Font:
     if resolved.fontfile is not None:
         return fitz.Font(fontfile=str(resolved.fontfile))
     return fitz.Font(fontname=resolved.fontname)
-
-
-def _hex_to_rgbf(value: str) -> tuple[float, float, float]:
-    if len(value) != _HEX_LENGTH or not value.startswith("#"):
-        raise ValueError(f"colour must be '#rrggbb', got {value!r}")
-    try:
-        r = int(value[1:3], 16)
-        g = int(value[3:5], 16)
-        b = int(value[5:7], 16)
-    except ValueError as err:
-        raise ValueError(f"invalid colour {value!r}: {err}") from err
-    return (r / _RGB_MAX, g / _RGB_MAX, b / _RGB_MAX)

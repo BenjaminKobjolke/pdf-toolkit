@@ -107,10 +107,10 @@ Predicate = Callable[[], bool]
 
 def build_commands(window: MainWindow) -> list[Command]:
     """Assemble the full registry from the per-concern command groups."""
+    from app.gui import overlay_commands  # local import breaks the import cycle
+
     has_doc = window.has_document
     has_highlights = window.page_view.has_highlights
-    has_field: Predicate = lambda: window.page_view.selected_text_item() is not None  # noqa: E731
-    has_image: Predicate = lambda: window.page_view.selected_image_item() is not None  # noqa: E731
     return [
         *_document_commands(window, has_doc),
         *_navigation_commands(window, has_doc),
@@ -121,8 +121,10 @@ def build_commands(window: MainWindow) -> list[Command]:
         *_view_commands(window),
         *_edit_commands(window, has_doc),
         *_search_commands(window, has_doc, has_highlights),
-        *_field_commands(window, has_field),
-        *_image_commands(window, has_image),
+        *overlay_commands.field_commands(window),
+        *overlay_commands.image_commands(window),
+        *overlay_commands.rectangle_commands(window, has_doc),
+        *overlay_commands.layer_commands(window),
     ]
 
 
@@ -253,15 +255,6 @@ def _edit_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     ]
 
 
-def _image_commands(window: MainWindow, has_image: Predicate) -> list[Command]:
-    """Commands shown only while an image is selected."""
-    images = window.image_actions
-    return [
-        Command(IMAGE_SCALE, strings.CMD_IMAGE_SCALE, images.change_scale, has_image),
-        Command(IMAGE_DELETE, strings.CMD_IMAGE_DELETE, images.delete, has_image),
-    ]
-
-
 def _search_commands(
     window: MainWindow, has_doc: Predicate, has_highlights: Predicate
 ) -> list[Command]:
@@ -272,25 +265,6 @@ def _search_commands(
         Command(
             CLEAR_HIGHLIGHTS, strings.CMD_CLEAR_HIGHLIGHTS, search.clear_highlights, has_highlights
         ),
-    ]
-
-
-def _field_commands(window: MainWindow, has_field: Predicate) -> list[Command]:
-    """Commands shown only while a text field is selected."""
-    fields = window.field_actions
-    return [
-        Command(FIELD_CHANGE_TEXT, strings.CMD_FIELD_CHANGE_TEXT, fields.change_text, has_field),
-        Command(FIELD_FONT_SIZE, strings.CMD_FIELD_FONT_SIZE, fields.change_size, has_field),
-        Command(FIELD_FONT_FAMILY, strings.CMD_FIELD_FONT_FAMILY, fields.change_font, has_field),
-        Command(
-            FIELD_TEXT_COLOR, strings.CMD_FIELD_TEXT_COLOR, fields.change_text_color, has_field
-        ),
-        Command(FIELD_BG_COLOR, strings.CMD_FIELD_BG_COLOR, fields.change_bg_color, has_field),
-        Command(FIELD_TOGGLE_BOLD, strings.CMD_FIELD_TOGGLE_BOLD, fields.toggle_bold, has_field),
-        Command(
-            FIELD_TOGGLE_ITALIC, strings.CMD_FIELD_TOGGLE_ITALIC, fields.toggle_italic, has_field
-        ),
-        Command(FIELD_DELETE, strings.CMD_FIELD_DELETE, fields.delete, has_field),
     ]
 
 

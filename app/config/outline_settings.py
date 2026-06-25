@@ -1,7 +1,7 @@
 """Persisted, cross-session appearance for the selected-item outline.
 
 Tunes the rectangle drawn around the selected text field / image in edit mode:
-its stroke width, line type (dashed / solid), and colour. Stored as JSON next to
+its stroke width, line type (dashed / solid), and color. Stored as JSON next to
 the other config stores, using the same versioned-dict pattern as
 :mod:`app.config.palette_settings`.
 """

@@ -75,17 +75,17 @@ The palette and direct shortcuts cover:
 - **Edit mode (text + images)** — toggle edit mode to place text fields and
   images (e.g. a transparent `signature.png`). When a field is selected the
   palette exposes its options (change text, font size/family, text + background
-  colour, bold/italic, delete); a selected image can be moved, scaled (corner
+  color, bold/italic, delete); a selected image can be moved, scaled (corner
   handles, palette, or **+**/**-**, aspect locked), and deleted. Images are
   copied into an `assets/` folder next to the PDF or referenced in place. **Tab**
   / **Shift+Tab** cycle the editable elements. The **selected element's outline**
-  (width, dashed/solid, colour) is configurable from the palette — **Outline:
-  width / type / colour…** — and remembered across sessions (default 2px dashed
+  (width, dashed/solid, color) is configurable from the palette — **Outline:
+  width / type / color…** — and remembered across sessions (default 2px dashed
   red). See
   [docs/edit_mode/EDIT_MODE.md](docs/edit_mode/EDIT_MODE.md) (overview, links to
   [TEXT_EDITING.md](docs/edit_mode/TEXT_EDITING.md) and
   [IMAGE_EDITING.md](docs/edit_mode/IMAGE_EDITING.md)) and
-  [docs/WIDGETS.md](docs/WIDGETS.md) (custom colour picker — type a hex or name,
+  [docs/WIDGETS.md](docs/WIDGETS.md) (custom color picker — type a hex or name,
   pick transparent, recents + live preview).
 
 #### Keyboard and mouse controls
@@ -109,7 +109,7 @@ A footer **status bar** shows the current mode (left) and page `current/total`
 (centre); shown by default and hideable via **Toggle status bar** (remembered).
 See [docs/STATUS_BAR.md](docs/STATUS_BAR.md). The palette window itself is tunable
 (size, font, opacity, borderless), as is the selected-element outline (width,
-type, colour) — see the *Appearance settings* section of
+type, color) — see the *Appearance settings* section of
 [docs/COMMAND_PALETTE.md](docs/COMMAND_PALETTE.md).
 
 Every page operation writes a backup first (same `backup/YYYYMMDD-HHMM-<name>.pdf`
@@ -244,4 +244,4 @@ Environment variables (optional):
 - `PDF_TOOLKIT_WINDOW_FILE` — remembered window position/size (default `~/.pdf-toolkit/window.json`).
 - `PDF_TOOLKIT_PALETTE_FILE` — command-palette appearance (size/font/opacity/borderless) (default `~/.pdf-toolkit/palette.json`).
 - `PDF_TOOLKIT_IMAGE_CHOICE_FILE` — last image copy/reference choice (default `~/.pdf-toolkit/image_choice.json`).
-- `PDF_TOOLKIT_OUTLINE_FILE` — selected-element outline appearance (width/type/colour) (default `~/.pdf-toolkit/outline.json`).
+- `PDF_TOOLKIT_OUTLINE_FILE` — selected-element outline appearance (width/type/color) (default `~/.pdf-toolkit/outline.json`).

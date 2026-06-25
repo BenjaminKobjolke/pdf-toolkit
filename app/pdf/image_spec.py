@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from app.pdf.rect_spec import RectFieldSpec
 from app.pdf.text_spec import TextFieldSpec
 
 
@@ -31,14 +32,16 @@ class ImageFieldSpec:
     path: str  # "assets/<name>" (relative) or an absolute path
     absolute: bool
     opacity: float = 1.0
+    z: float = 0.0  # stacking order across all overlay elements (higher = front)
 
 
 @dataclass(frozen=True)
 class SidecarDocument:
-    """All overlay content for one PDF: text fields and images, across pages."""
+    """All overlay content for one PDF: text fields, images, and rects, by page."""
 
     fields: tuple[TextFieldSpec, ...] = ()
     images: tuple[ImageFieldSpec, ...] = ()
+    rects: tuple[RectFieldSpec, ...] = ()
 
     def fields_on_page(self, page_index: int) -> tuple[TextFieldSpec, ...]:
         """Return the text fields placed on ``page_index`` (0-based)."""
@@ -48,6 +51,10 @@ class SidecarDocument:
         """Return the images placed on ``page_index`` (0-based)."""
         return tuple(image for image in self.images if image.page_index == page_index)
 
+    def rects_on_page(self, page_index: int) -> tuple[RectFieldSpec, ...]:
+        """Return the rectangles placed on ``page_index`` (0-based)."""
+        return tuple(rect for rect in self.rects if rect.page_index == page_index)
+
     def is_empty(self) -> bool:
         """Return whether there is no overlay content at all."""
-        return not self.fields and not self.images
+        return not self.fields and not self.images and not self.rects

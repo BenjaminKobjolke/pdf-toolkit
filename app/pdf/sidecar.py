@@ -4,23 +4,28 @@ The sidecar lives next to the PDF as ``<stem>.json``. Only the typed
 :class:`SidecarDocument` crosses this module's boundary; raw dicts stay private.
 Writes are atomic (tmp + ``os.replace``), matching the core PDF ops.
 
-Version history: v1 held only ``fields``; v2 adds ``images``. v1 files still load
-(with no images) and are silently upgraded to v2 on the next save.
+Version history: v1 held only ``fields``; v2 adds ``images``; v3 adds ``rects``
+and a per-element ``z`` stacking order. Older files still load and are silently
+upgraded on the next save. Pre-v3 files have no ``z``, so one is assigned on load
+that preserves the old fixed stacking (all fields below all images below rects).
 """
 
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
 from app.io.json_store import write_json_atomic
 from app.pdf.image_spec import ImageFieldSpec, SidecarDocument
+from app.pdf.rect_spec import RectFieldSpec
 from app.pdf.text_spec import TextFieldSpec
 
 SIDECAR_SUFFIX = ".json"
-SIDECAR_VERSION = 2
-_SUPPORTED_VERSIONS = (1, 2)
+SIDECAR_VERSION = 3
+_SUPPORTED_VERSIONS = (1, 2, 3)
+_FIRST_Z_VERSION = 3
 
 
 def sidecar_path(pdf: Path) -> Path:
@@ -49,17 +54,50 @@ def load_sidecar(pdf: Path) -> SidecarDocument:
     if raw.get("version") not in _SUPPORTED_VERSIONS:
         raise ValueError(f"unsupported sidecar version in {path}: {raw.get('version')!r}")
 
+    version = raw.get("version")
     fields_raw = raw.get("fields", [])
     if not isinstance(fields_raw, list):
         raise ValueError(f"sidecar {path} 'fields' must be a list")
     images_raw = raw.get("images", [])
     if not isinstance(images_raw, list):
         raise ValueError(f"sidecar {path} 'images' must be a list")
+    rects_raw = raw.get("rects", [])
+    if not isinstance(rects_raw, list):
+        raise ValueError(f"sidecar {path} 'rects' must be a list")
 
-    return SidecarDocument(
-        fields=tuple(_field_from_dict(item) for item in fields_raw),
-        images=tuple(_image_from_dict(item) for item in images_raw),
-    )
+    fields = tuple(_field_from_dict(item) for item in fields_raw)
+    images = tuple(_image_from_dict(item) for item in images_raw)
+    rects = tuple(_rect_from_dict(item) for item in rects_raw)
+    if version is not None and version < _FIRST_Z_VERSION:
+        fields, images, rects = _assign_legacy_z(fields, images, rects)
+    return SidecarDocument(fields=fields, images=images, rects=rects)
+
+
+def _assign_legacy_z(
+    fields: tuple[TextFieldSpec, ...],
+    images: tuple[ImageFieldSpec, ...],
+    rects: tuple[RectFieldSpec, ...],
+) -> tuple[tuple[TextFieldSpec, ...], tuple[ImageFieldSpec, ...], tuple[RectFieldSpec, ...]]:
+    """Stamp a stacking order onto pre-v3 content (no ``z``).
+
+    Old files drew all fields, then all images on top (rects did not exist). One
+    rising counter across fields -> images -> rects reproduces that order; cross-
+    page values are irrelevant since export filters by page.
+    """
+    counter = 0
+    new_fields = []
+    for field in fields:
+        new_fields.append(replace(field, z=float(counter)))
+        counter += 1
+    new_images = []
+    for image in images:
+        new_images.append(replace(image, z=float(counter)))
+        counter += 1
+    new_rects = []
+    for rect in rects:
+        new_rects.append(replace(rect, z=float(counter)))
+        counter += 1
+    return tuple(new_fields), tuple(new_images), tuple(new_rects)
 
 
 def save_sidecar(pdf: Path, doc: SidecarDocument) -> None:
@@ -68,6 +106,7 @@ def save_sidecar(pdf: Path, doc: SidecarDocument) -> None:
         "version": SIDECAR_VERSION,
         "fields": [_field_to_dict(field) for field in doc.fields],
         "images": [_image_to_dict(image) for image in doc.images],
+        "rects": [_rect_to_dict(rect) for rect in doc.rects],
     }
     write_json_atomic(sidecar_path(pdf), payload)
 
@@ -86,6 +125,7 @@ def _field_to_dict(field: TextFieldSpec) -> dict[str, Any]:
         "bg_color": field.bg_color,
         "bold": field.bold,
         "italic": field.italic,
+        "z": field.z,
     }
 
 
@@ -106,6 +146,7 @@ def _field_from_dict(item: Any) -> TextFieldSpec:
             bg_color=_as_opt_str(item, "bg_color"),
             bold=_as_bool(item, "bold"),
             italic=_as_bool(item, "italic"),
+            z=_as_float_default(item, "z", 0.0),
         )
     except KeyError as err:
         raise ValueError(f"text field missing key: {err}") from err
@@ -121,6 +162,7 @@ def _image_to_dict(image: ImageFieldSpec) -> dict[str, Any]:
         "path": image.path,
         "absolute": image.absolute,
         "opacity": image.opacity,
+        "z": image.z,
     }
 
 
@@ -137,9 +179,39 @@ def _image_from_dict(item: Any) -> ImageFieldSpec:
             path=_as_str(item, "path"),
             absolute=_as_bool(item, "absolute"),
             opacity=_as_float_default(item, "opacity", 1.0),
+            z=_as_float_default(item, "z", 0.0),
         )
     except KeyError as err:
         raise ValueError(f"image missing key: {err}") from err
+
+
+def _rect_to_dict(rect: RectFieldSpec) -> dict[str, Any]:
+    return {
+        "page_index": rect.page_index,
+        "x": rect.x,
+        "y": rect.y,
+        "width": rect.width,
+        "height": rect.height,
+        "color": rect.color,
+        "z": rect.z,
+    }
+
+
+def _rect_from_dict(item: Any) -> RectFieldSpec:
+    if not isinstance(item, dict):
+        raise ValueError(f"rect must be a JSON object, got {type(item).__name__}")
+    try:
+        return RectFieldSpec(
+            page_index=_as_int(item, "page_index"),
+            x=_as_float(item, "x"),
+            y=_as_float(item, "y"),
+            width=_as_float(item, "width"),
+            height=_as_float(item, "height"),
+            color=_as_str(item, "color"),
+            z=_as_float_default(item, "z", 0.0),
+        )
+    except KeyError as err:
+        raise ValueError(f"rect missing key: {err}") from err
 
 
 def _require(item: dict[str, Any], key: str) -> Any:

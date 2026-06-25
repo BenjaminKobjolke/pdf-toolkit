@@ -59,7 +59,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Palette: toggle borderless** | Show/hide the palette window frame. |
 | **Outline: width…** | Stroke width (px) of the selected-element outline (see *Appearance settings*). |
 | **Outline: type…** | Line type of the outline — Dashed or Solid. |
-| **Outline: colour…** | Colour of the outline (keyboard-first picker). |
+| **Outline: color…** | Color of the outline (keyboard-first picker). |
 | **Exit** | Close the viewer. |
 | **Show keyboard and mouse controls** | Open a searchable, read-only list of every key + mouse gesture (also **F1**). |
 | **Previous page** / **Next page** | Step one page back / forward. |
@@ -98,8 +98,8 @@ When a text field is **selected**, these extra commands appear in the palette
 | **Field: change text…** | Edit the selected field's text. |
 | **Field: font size…** | Type a new point/pixel size. |
 | **Field: font family…** | Searchable list of installed fonts. |
-| **Field: text colour…** | Keyboard-first colour picker (see below). |
-| **Field: background colour…** | Same picker for the field's fill. |
+| **Field: text color…** | Keyboard-first color picker (see below). |
+| **Field: background color…** | Same picker for the field's fill. |
 | **Field: toggle bold** / **toggle italic** | Flip the style. |
 | **Field: delete** | Remove the selected field. |
 
@@ -190,7 +190,7 @@ mode is also tunable from the palette and remembered across sessions:
 |---------|-------|--------|
 | **Outline: width…** | 1–12 px | Stroke width of the outline (zoom-independent). |
 | **Outline: type…** | Dashed / Solid | Line style of the outline. |
-| **Outline: colour…** | any colour | Outline colour (same picker as the field colours). |
+| **Outline: color…** | any color | Outline color (same picker as the field colors). |
 
 Settings persist in `~/.pdf-toolkit/outline.json` (override:
 `PDF_TOOLKIT_OUTLINE_FILE`). A missing or corrupt file falls back to the default
@@ -209,14 +209,14 @@ every keystroke. Navigate with the arrow keys, **Enter** to act, **Esc** to clos
   editor. Selecting a result jumps to that page and **selects** the field (edit
   mode turns on) — its field commands then appear in the palette.
 
-## Colour picker
+## Color picker
 
-The colour commands open a keyboard-first picker:
+The color commands open a keyboard-first picker:
 
-- Type a **hex** value (`#ff8800`) or a **colour name** (`white`, `black`, `red`,
+- Type a **hex** value (`#ff8800`) or a **color name** (`white`, `black`, `red`,
   …) in the box.
 - A **preview swatch** updates live as you type or move through the list.
-- Recently used colours appear at the top, followed by common names.
+- Recently used colors appear at the top, followed by common names.
 - **Enter** accepts the typed value or the highlighted row; **Esc** cancels.
 
 No new dependency — the picker is the same searchable dialog used elsewhere.

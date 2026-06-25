@@ -127,6 +127,10 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
         """Add an image, entering edit mode first if needed (palette/button)."""
         self._overlay_actions.add_image()
 
+    def add_rect(self) -> None:
+        """Add a rectangle, entering edit mode first if needed (palette/button)."""
+        self._overlay_actions.add_rect()
+
     def select_next_editable(self) -> None:
         """Select the next editable element on the page (enters edit mode first)."""
         self._overlay_actions.ensure_edit_mode()

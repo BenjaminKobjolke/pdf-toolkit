@@ -33,14 +33,16 @@ from app.gui.item_layer import ItemLayer
 from app.gui.page_highlights import PageHighlights
 from app.gui.page_input import PageInputController
 from app.gui.page_navigator import PageNavigator
+from app.gui.page_overlay_items import OverlayItemsMixin
+from app.gui.rect_item import RectItem
 from app.gui.render_quality import RenderQualityController
 from app.gui.text_item import TextFieldItem
 from app.gui.zoom_controller import ZoomController
 
-_OVERLAY_Z = 1.0  # text fields and images sit above the page (0)
+_OVERLAY_Z = 1.0  # default; per-item z (set from each spec) drives real stacking
 
 
-class PageView(QGraphicsView):
+class PageView(OverlayItemsMixin, QGraphicsView):
     """Renders the current page of an open PDF and tracks the page index."""
 
     page_changed = Signal(int, int)  # (current 1-based, total)
@@ -67,6 +69,7 @@ class PageView(QGraphicsView):
         self._placeholder = self._scene.addText(strings.LABEL_NO_DOC)
         self._text_layer: ItemLayer[TextFieldItem] = ItemLayer(self._scene, _OVERLAY_Z)
         self._image_layer: ItemLayer[ImageItem] = ItemLayer(self._scene, _OVERLAY_Z)
+        self._rect_layer: ItemLayer[RectItem] = ItemLayer(self._scene, _OVERLAY_Z)
         self._highlights = PageHighlights(self._scene)
         self._nav = PageNavigator(self._show, self.page_will_change)
         # Re-render the page sharper as zoom changes; never moves overlay coords.
@@ -89,6 +92,7 @@ class PageView(QGraphicsView):
         """Clear the open document and show the no-doc placeholder."""
         self.clear_text_items()
         self.clear_image_items()
+        self.clear_rect_items()
         self.clear_highlights()
         self._pixmap_item.setPixmap(QPixmap())
         self._placeholder.setVisible(True)
@@ -199,42 +203,6 @@ class PageView(QGraphicsView):
     def begin_custom_placement(self, on_done: Callable[[QPointF | None], None]) -> None:
         """Show a draggable crosshair; call ``on_done`` with the chosen point or None."""
         self._input.begin_placement(on_done)
-
-    # --- text items ---------------------------------------------------------
-
-    def add_text_item(self, item: TextFieldItem) -> None:
-        self._text_layer.add(item)
-
-    def text_items(self) -> tuple[TextFieldItem, ...]:
-        return self._text_layer.items()
-
-    def selected_text_item(self) -> TextFieldItem | None:
-        """Return the first selected field on the current page, if any."""
-        return self._text_layer.selected()
-
-    def remove_text_item(self, item: TextFieldItem) -> None:
-        self._text_layer.remove(item)
-
-    def clear_text_items(self) -> None:
-        self._text_layer.clear()
-
-    # --- image items --------------------------------------------------------
-
-    def add_image_item(self, item: ImageItem) -> None:
-        self._image_layer.add(item)
-
-    def image_items(self) -> tuple[ImageItem, ...]:
-        return self._image_layer.items()
-
-    def selected_image_item(self) -> ImageItem | None:
-        """Return the first selected image on the current page, if any."""
-        return self._image_layer.selected()
-
-    def remove_image_item(self, item: ImageItem) -> None:
-        self._image_layer.remove(item)
-
-    def clear_image_items(self) -> None:
-        self._image_layer.clear()
 
     def event(self, event: QEvent) -> bool:
         # Intercept Tab/Backtab before Qt's focus traversal swallows them, so they

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import pytest
 
 from app.gui import commands, default_app_actions
@@ -25,9 +27,7 @@ def _capture_messages(monkeypatch: pytest.MonkeyPatch) -> list[tuple[str, str, S
 def _capture_startfile(monkeypatch: pytest.MonkeyPatch) -> list[str]:
     """Patch os.startfile in the action module; return the recorded URIs."""
     opened: list[str] = []
-    monkeypatch.setattr(
-        default_app_actions.os, "startfile", lambda uri: opened.append(uri), raising=False
-    )
+    monkeypatch.setattr(os, "startfile", lambda uri: opened.append(uri), raising=False)
     return opened
 
 
@@ -64,9 +64,12 @@ def test_set_default_success_opens_settings(
 ) -> None:
     monkeypatch.setattr(pdf_association, "is_supported", lambda: True)
     calls: list[str] = []
-    monkeypatch.setattr(
-        pdf_association, "register_pdf_viewer", lambda *a, **k: calls.append("reg") or _result(True)
-    )
+
+    def register_pdf_viewer() -> RegistrationResult:
+        calls.append("reg")
+        return _result(True)
+
+    monkeypatch.setattr(pdf_association, "register_pdf_viewer", register_pdf_viewer)
     opened = _capture_startfile(monkeypatch)
     shown = _capture_messages(monkeypatch)
 

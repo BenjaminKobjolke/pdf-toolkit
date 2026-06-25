@@ -89,7 +89,9 @@ def test_rotate_and_save_readonly_pdf(
 
     assert not window._working_doc.is_dirty()
     assert _rotations(pdf) == [90, 0]
-    assert list(window._working_doc.working().parent.glob("*.tmp")) == []
+    working = window._working_doc.working()
+    assert working is not None
+    assert list(working.parent.glob("*.tmp")) == []
 
 
 def test_discard_path_leaves_original_unchanged(window: MainWindow, make_pdf: MakePdf) -> None:

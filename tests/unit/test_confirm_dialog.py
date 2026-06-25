@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import pytest
-from PySide6.QtWidgets import QDialogButtonBox
+from PySide6.QtWidgets import QDialogButtonBox, QPushButton
 
 from app.gui import confirm_dialog
 from app.gui.confirm_dialog import ConfirmDialog, DialogResult, Severity, show_message
@@ -59,7 +59,7 @@ def test_default_button_is_marked(qapp: object) -> None:
     )
     box = dialog.findChild(QDialogButtonBox)
     assert box is not None
-    marked = {b.text() for b in box.buttons() if b.isDefault()}
+    marked = {b.text() for b in box.buttons() if isinstance(b, QPushButton) and b.isDefault()}
     assert marked == {"No"}
 
 

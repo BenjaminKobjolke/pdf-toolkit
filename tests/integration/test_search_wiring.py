@@ -84,7 +84,7 @@ def test_field_bg_transparent_sets_none(
     item.set_bg_color(QColor("#ff0000"))
     item.setSelected(True)
 
-    # Pick "transparent" in the colour dialog.
+    # Pick "transparent" in the color dialog.
     monkeypatch.setattr(ColorPickerDialog, "exec", lambda self: 1)
     monkeypatch.setattr(ColorPickerDialog, "chosen", lambda self: ColorPickerDialog.TRANSPARENT)
     _run(window, commands.FIELD_BG_COLOR)

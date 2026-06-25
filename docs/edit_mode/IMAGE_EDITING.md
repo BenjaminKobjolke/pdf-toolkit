@@ -55,8 +55,8 @@ PDF, so a transparent-background signature stays transparent.
 ## What the sidecar stores
 
 Per image: page index, position and on-page size, the path (`assets/<name>` when
-copied, or an absolute path when referenced), whether the path is absolute, and
-the opacity.
+copied, or an absolute path when referenced), whether the path is absolute, the
+opacity, and the stacking order (`z`).
 
 ## Asset folder layout
 

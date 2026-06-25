@@ -1,4 +1,4 @@
-"""Unit tests for the keyboard-first colour picker."""
+"""Unit tests for the keyboard-first color picker."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ def test_typed_name_is_accepted_as_hex(qapp: object) -> None:
 
 def test_invalid_text_yields_no_choice(qapp: object) -> None:
     dialog = ColorPickerDialog()
-    dialog.set_query("notacolour")
+    dialog.set_query("notacolor")
     dialog.accept_current()
     assert dialog.chosen() is None
 
@@ -71,7 +71,7 @@ def test_typed_transparent_word_accepted(qapp: object) -> None:
 
 
 def test_transparent_sentinel_not_returned_when_not_allowed(qapp: object) -> None:
-    # Qt parses the word "transparent" as a valid colour, so it normalises to a
+    # Qt parses the word "transparent" as a valid color, so it normalises to a
     # hex; the important guarantee is that the TRANSPARENT sentinel is not used.
     dialog = ColorPickerDialog()
     dialog.set_query("transparent")

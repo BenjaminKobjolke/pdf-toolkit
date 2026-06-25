@@ -8,14 +8,18 @@ constant on-screen size at any zoom.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Any, Protocol, cast
 
 from PySide6.QtCore import QPointF, Qt
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import QGraphicsItem, QGraphicsRectItem, QGraphicsSceneMouseEvent
 
-if TYPE_CHECKING:
-    from app.gui.image_item import ImageItem
+
+class Resizable(Protocol):
+    """A scene item whose corner can be dragged to ``scene_pt`` (a ``QGraphicsItem``)."""
+
+    def resize_from_handle(self, corner: str, scene_pt: Any) -> None: ...
+
 
 HANDLE_SIZE = 9.0
 _HALF = HANDLE_SIZE / 2.0
@@ -35,11 +39,12 @@ def is_bottom(corner: str) -> bool:
 
 
 class ResizeHandleItem(QGraphicsRectItem):
-    """One corner grab handle; drags resize its parent :class:`ImageItem`."""
+    """One corner grab handle; drags resize its parent (image or rect)."""
 
-    def __init__(self, image: ImageItem, corner: str) -> None:
-        super().__init__(-_HALF, -_HALF, HANDLE_SIZE, HANDLE_SIZE, parent=image)
-        self._image = image
+    def __init__(self, owner: Resizable, corner: str) -> None:
+        parent = cast(QGraphicsItem, owner)
+        super().__init__(-_HALF, -_HALF, HANDLE_SIZE, HANDLE_SIZE, parent=parent)
+        self._owner = owner
         self._corner = corner
         self.setBrush(QBrush(QColor(_HANDLE_COLOR)))
         self.setPen(QColor("#ffffff"))
@@ -55,7 +60,7 @@ class ResizeHandleItem(QGraphicsRectItem):
         event.accept()  # swallow so the parent image does not start moving
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-        self._image.resize_from_handle(self._corner, event.scenePos())
+        self._owner.resize_from_handle(self._corner, event.scenePos())
         event.accept()
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:

@@ -1,7 +1,7 @@
 # Custom Dialog UI
 
 Every small window in the GUI viewer — confirmations, value prompts, alerts, the
-command palette, search, colour and font pickers — is a **custom keyboard-first
+command palette, search, color and font pickers — is a **custom keyboard-first
 dialog**, not a bare Qt default. They share one base, so they look the same and all
 honour the user's command-palette appearance (font size, opacity, frameless chrome).
 
@@ -105,7 +105,7 @@ at creation, so there is no flicker, even with `borderless` on.
 | Dialog | File | Base | Used for |
 |--------|------|------|----------|
 | `FilterListDialog` | `filter_list_dialog.py` | `FilterableListDialog` | Command palette, history, font picker, live search, zoom/outline/placement pickers |
-| `ColorPickerDialog` | `color_picker_dialog.py` | `FilterableListDialog` | Text + background + outline colour |
+| `ColorPickerDialog` | `color_picker_dialog.py` | `FilterableListDialog` | Text + background + outline color |
 | `TextInputDialog` | `text_input_dialog.py` | `BaseDialog` | Multi-line field text (Ctrl+Enter applies) |
 | `KeyCaptureDialog` | `key_capture_dialog.py` | `BaseDialog` | Capturing one shortcut chord |
 | `ConfirmDialog` | `confirm_dialog.py` | `FormDialog` | Yes/No and Save/Discard/Cancel confirmations; single-OK alerts |

@@ -34,6 +34,7 @@ if TYPE_CHECKING:
     from app.gui.image_actions import ImageActions
     from app.gui.image_controller import ImageController
     from app.gui.keybinding_actions import KeybindingActions
+    from app.gui.layer_actions import LayerActions
     from app.gui.mode_status_bar import ModeStatusBar
     from app.gui.move_actions import MoveActions
     from app.gui.operations import GuiOperationRunner
@@ -45,6 +46,8 @@ if TYPE_CHECKING:
     from app.gui.palette_controller import PaletteController
     from app.gui.placement import PlacementController
     from app.gui.print_actions import PrintActions
+    from app.gui.rect_actions import RectActions
+    from app.gui.rect_controller import RectController
     from app.gui.remembered_settings import RememberedSettingsController
     from app.gui.rotate_actions import RotateActions
     from app.gui.save_controller import SaveController
@@ -76,9 +79,12 @@ class CollaboratorAccessors:
     _save: SaveController
     _controller: EditController
     _images: ImageController
+    _rects: RectController
     _placement: PlacementController
     _field_actions: FieldActions
     _image_actions: ImageActions
+    _rect_actions: RectActions
+    _layer_actions: LayerActions
     _overlay_actions: OverlayActions
     _doc_zoom: DocumentMemoryController[Any]
     _doc_page: DocumentMemoryController[Any]
@@ -115,6 +121,10 @@ class CollaboratorAccessors:
         return self._images
 
     @property
+    def rects(self) -> RectController:
+        return self._rects
+
+    @property
     def operation_bar(self) -> OperationBar:
         return self._bar
 
@@ -133,6 +143,14 @@ class CollaboratorAccessors:
     @property
     def image_actions(self) -> ImageActions:
         return self._image_actions
+
+    @property
+    def rect_actions(self) -> RectActions:
+        return self._rect_actions
+
+    @property
+    def layer_actions(self) -> LayerActions:
+        return self._layer_actions
 
     @property
     def search_actions(self) -> SearchActions:

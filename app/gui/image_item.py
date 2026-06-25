@@ -12,23 +12,16 @@ from typing import Any
 
 from PySide6.QtCore import QPointF, Qt
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import (
-    QGraphicsItem,
-    QGraphicsPixmapItem,
-    QStyle,
-    QStyleOptionGraphicsItem,
-    QWidget,
-)
+from PySide6.QtWidgets import QGraphicsItem, QGraphicsPixmapItem
 
-from app.gui import outline_style
-from app.gui.gui_items import set_item_editable
 from app.gui.image_resize import CORNERS, ResizeHandleItem, anchor_point, top_left_for
+from app.gui.resizable_item import ResizableItemMixin
 
 _MIN_SCALE = 0.05
 _MAX_SCALE = 50.0
 
 
-class ImageItem(QGraphicsPixmapItem):
+class ImageItem(ResizableItemMixin, QGraphicsPixmapItem):
     """Drag to move, drag a corner to scale; keeps its aspect ratio."""
 
     def __init__(
@@ -117,38 +110,7 @@ class ImageItem(QGraphicsPixmapItem):
         self.setPos(top_left_for(corner, anchor, new_w, new_h))
         self.set_scale_factor(factor)
 
-    # --- editability --------------------------------------------------------
-
-    def set_editable(self, on: bool) -> None:
-        """Toggle move/scale interaction; the image stays visible either way."""
-        self._editable = on
-        set_item_editable(self, on)
-        self._set_handles_visible(on and self.isSelected())
-
-    def itemChange(self, change: Any, value: Any) -> Any:
-        if change == QGraphicsItem.GraphicsItemChange.ItemSelectedHasChanged:
-            self._set_handles_visible(self._editable and bool(value))
-        return super().itemChange(change, value)
-
-    def paint(
-        self,
-        painter: Any,
-        option: QStyleOptionGraphicsItem,
-        widget: QWidget | None = None,
-    ) -> None:
-        # Suppress Qt's faint default selection marquee and draw our own
-        # configurable outline instead (see app.gui.outline_style).
-        selected = bool(option.state & QStyle.StateFlag.State_Selected)
-        option.state &= ~QStyle.StateFlag.State_Selected
-        super().paint(painter, option, widget)  # type: ignore[arg-type]
-        if selected:
-            outline_style.active().draw(painter, self.boundingRect())
-
-    # --- internals ----------------------------------------------------------
-
-    def _set_handles_visible(self, visible: bool) -> None:
-        for handle in self._handles:
-            handle.setVisible(visible)
+    # --- internals (selection/handles come from ResizableItemMixin) ----------
 
     def _reposition_handles(self) -> None:
         width = self.current_width()

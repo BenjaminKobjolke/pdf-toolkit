@@ -40,7 +40,7 @@ command in the palette (pick one to reset, or "clear all").
 | Last overlay placement choice | last text/image placement mode |
 | Window position and size | where the viewer reopens |
 | Image add: copy-vs-reference choice | last image-add choice |
-| Field outline appearance | selection outline width / style / colour |
+| Field outline appearance | selection outline width / style / color |
 | Default zoom | fit-to-window vs. a fixed percentage on open |
 | Keyboard shortcuts | custom chord bindings |
 
