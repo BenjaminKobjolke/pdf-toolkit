@@ -2,7 +2,7 @@
 
 These rules merge the project's required common rules and Python rules. They apply to every change in this repository.
 
-Source rules: `D:\GIT\BenjaminKobjolke\claude-code\coding-rules` (`COMMON_RULES.md` + `PYTHON_RULES.md`). Re-run `/coding-rules:add-or-update` to resync.
+Source rules: `D:\GIT\BenjaminKobjolke\claude-code\coding-rules` (`COMMON_RULES.md` + `AI_RULES.md` + `PYTHON_RULES.md`). Re-run `/coding-rules:add-or-update` to resync. Jinja2/localization rules omitted — this project has no web layer.
 
 ---
 
@@ -68,6 +68,14 @@ Project name, description, install, usage, dependencies.
 
 Extract shared logic into helpers or base abstractions. Use constants for repeated values.
 
+### Derive, Don't Duplicate — One Value Owns the Derivation
+
+When one value strictly determines another (true functional dependency), pass only the determinant and derive the rest — never thread both side-by-side through call sites. The richer type owns the relationship via a pure, cheap, exhaustive `match`/getter. Don't force a derivation when the relationship is many-to-many or genuinely independent.
+
+### Keep It Simple (KISS)
+
+Simplest solution that works. YAGNI — no interface with one impl, no factory for one product, no config for a constant. Boring over clever. Deletion over addition.
+
 ### Reusable Tooling
 
 Before building project-specific infrastructure scripts (audits, codemods, build helpers, lint checks), check the matching language's `*_setup_files/` folder in the coding-rules repo for an existing equivalent. If you build a new one, prove it on real data, copy it back into `*_setup_files/tools/`, and document it in that language's `*_RULES.md` so the next project picks it up.
@@ -80,9 +88,21 @@ Before adding any new package, confirm the version with the user.
 
 Centralized error handler. Use structured logging (not `print`). Log at appropriate levels with context.
 
+### Centralized Logger — Single Off Switch
+
+Route all logging through one logger class (`AppLogger` / `app_logger.py`). Never call `print`/`logging.getLogger(...)` at call sites. Callers pass a level; the logger decides emission from central config. Built-in output appears in exactly one file — the logger impl. One toggle disables/level-filters/redirects all logging.
+
+### Comments Explain Why, Not What
+
+Comment intent and non-obvious reasoning, not a restatement of code. Document why a workaround exists, a constraint not visible locally. Prefer self-documenting code. Delete stale comments.
+
 ### Input Validation at Boundaries
 
 Validate at API/user/file/external boundaries. Fail fast with clear messages.
+
+### No Hardcoded Environment Values
+
+Never hardcode paths, hostnames, IPs, ports, base URLs in code. Read from central config with a committed `.example` template. Distinct from secrets — this is about portability.
 
 ### Maximum File Length — 300 Lines
 
@@ -123,6 +143,14 @@ When behavior depends on which fields a class has, the class declares those fiel
 - `ruff format --check`
 - `mypy`
 
+### GUI Framework
+
+Desktop GUI uses **PySide6** (Qt for Python). Install the latest — don't pin old. (`app/gui/` is the desktop layer.)
+
+### Database
+
+If a DB is needed, use SQLAlchemy ORM — not raw SQL. (Settings backend is sqlite-based.)
+
 ### Type Hints
 
 All public functions/classes/methods: typed parameters + return types. Avoid `Any` unless at a boundary.
@@ -153,13 +181,47 @@ Use Pydantic at API boundaries (not used in this CLI-only project).
 
 ### Structured Logging
 
-Use the `logging` module (configured once, centrally). Never `print()`.
+Route all logging through `AppLogger` (`app_logger.py`) wrapping `logging`/`structlog`. Feature code calls `AppLogger`, never `logging.getLogger(...)` or `print()`.
+
+### Self-Describing Classes
+
+Implement via Protocol/ABC (`get_searchable_fields()`) for simple cases, or dataclass field metadata for declarative per-field control.
+
+---
+
+## AI Workflow Rules (always apply)
+
+Language-independent; run each step as the named skill, don't reimplement.
+
+### Feature / Change Workflow
+
+After the user approves a plan:
+
+```
+plan approved
+  → /plan:dry            check approved plan for DRY/consolidation BEFORE code
+  → /plan:dry-checked    reload + review the DRY-adjusted plan
+  → /convention:check    scan for existing patterns/components to reuse
+  ─────────────────────  DRY GATE — must clear to proceed
+  → restate Definition-of-Done aloud
+  → implement
+  → /dry:check           post-implementation DRY audit
+  → /verify:after-change run tests + code analysis
+```
+
+**DRY gate** (precondition for implementing — restate aloud when you start): `/plan:dry` ran and adjusted the plan; `/plan:dry-checked` confirmed it; `/convention:check` found utilities to reuse. If mid-implementation you'd add a helper/type/pattern the gate would catch, stop and re-clear it.
+
+**Definition of Done** — state in chat before the first edit: Scope (what changes / what doesn't); Reuse (existing fn/component + path); DRY gate cleared; `/dry:check` clean; `/verify:after-change` green.
+
+### Bug-Fix Workflow
+
+Shorter (no plan-DRY phase): `bugs:fix → /verify:after-change`.
 
 ---
 
 ## Project-Specific Notes
 
-- This project is a pure CLI — no Jinja2 templates, no localization, no DB, no async.
+- CLI + PySide6 desktop GUI (`app/gui/`). Settings persist in a sqlite backend. No Jinja2, no localization, no web layer.
 - All PDF I/O goes through `pypdf`.
 - The single error boundary for the CLI layer is `app/cli/_common.run_with_backup`.
 - Backup format is locked: `backup/YYYYMMDD-HHMM-<filename>.pdf`.
