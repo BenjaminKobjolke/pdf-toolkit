@@ -112,6 +112,9 @@ class PageInputController:
         key = Qt.Key(event.key())
         if self._placement is not None:
             return self._key_in_placement(event, key)
+        if key == Qt.Key.Key_Escape and self._view.has_highlights():
+            self._view.clear_highlights()
+            return True
         if key in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace) and self._can_edit_selection():
             self._view.delete_requested.emit()
             return True

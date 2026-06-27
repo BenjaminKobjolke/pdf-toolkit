@@ -27,6 +27,21 @@ log = logging.getLogger("pdf_toolkit")
 _TMP_SUFFIX = ".tmp"
 
 
+def save_copy(working_pdf: Path, dest_pdf: Path) -> None:
+    """Copy the working PDF (and its sidecar, if any) to ``dest_pdf``.
+
+    Used by Save-As: the open document's edits already live in the working copy,
+    so a plain copy produces a standalone file that reopens fully editable.
+    """
+    shutil.copy2(working_pdf, dest_pdf)
+    clear_readonly(dest_pdf)
+    working_sidecar = sidecar_path(working_pdf)
+    if working_sidecar.is_file():
+        dest_sidecar = sidecar_path(dest_pdf)
+        shutil.copy2(working_sidecar, dest_sidecar)
+        clear_readonly(dest_sidecar)
+
+
 class WorkingDocument:
     """The temp PDF + sidecar pair backing the open document, with a dirty flag."""
 

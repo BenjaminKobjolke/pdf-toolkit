@@ -17,7 +17,9 @@ below).
 
 - **Left — mode label.** Reads `Regular Mode` or `Edit Mode`, driven by the
   same `edit_mode_toggled` signal that switches the editor and toolbar, so it
-  always reflects the real mode.
+  always reflects the real mode. In **Select mode** it instead shows the live
+  key hints (`set_hint`), switching to a `-- VISUAL --` variant once a selection
+  is started (see `SELECT_MODE.md`).
 - **Centre — page indicator.** Shows `current/total` (e.g. `5/7`). It updates on
   every page change via the `page_changed` signal from `PageView`, and is blank
   when no document is open.

@@ -36,7 +36,7 @@ def test_insert_is_deferred_and_follows_page(
     make_pdf: MakePdf,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from PySide6.QtWidgets import QFileDialog
+    from app.gui import file_dialogs
 
     pdf = make_pdf([(10, 10), (20, 20), (30, 30)], name="doc.pdf")
     insert = make_pdf([(99, 99)], name="ins.pdf")
@@ -44,7 +44,7 @@ def test_insert_is_deferred_and_follows_page(
     window.open_pdf(pdf)
     window.page_view.go_to_page(1)  # current page = 2 (1-based)
 
-    monkeypatch.setattr(QFileDialog, "getOpenFileName", lambda *a, **k: (str(insert), ""))
+    monkeypatch.setattr(file_dialogs, "prompt_open_file", lambda *a, **k: insert)
     window.page_actions.insert_pages()
 
     working = window._working_doc.working()
@@ -66,7 +66,7 @@ def test_extract_writes_new_file_and_leaves_original(
     monkeypatch: pytest.MonkeyPatch,
     page_sizes_of: PageSizesOf,
 ) -> None:
-    from PySide6.QtWidgets import QFileDialog
+    from app.gui import file_dialogs
 
     pdf = make_pdf([(10, 10), (20, 20), (30, 30)], name="doc.pdf")
     original_bytes = pdf.read_bytes()
@@ -74,7 +74,7 @@ def test_extract_writes_new_file_and_leaves_original(
     window.open_pdf(pdf)
     window.page_view.go_to_page(2)  # current page = 3
 
-    monkeypatch.setattr(QFileDialog, "getSaveFileName", lambda *a, **k: (str(out), ""))
+    monkeypatch.setattr(file_dialogs, "prompt_save_file", lambda *a, **k: out)
     window.page_actions.extract_current_page()
 
     assert page_sizes_of(out) == [(30, 30)]

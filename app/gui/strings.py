@@ -20,6 +20,12 @@ SHORTCUTS_TITLE = "Keyboard and mouse controls"
 SHORTCUTS_PLACEHOLDER = "Filter controls…"
 SHORTCUT_ROW_FMT = "{chord}  —  {title}"
 
+# F1 chooser: pick which controls to view/edit
+CHOOSE_KEYBOARD_LABEL = "Keyboard shortcuts…"
+CHOOSE_MOUSE_LABEL = "Mouse controls"
+MOUSE_CONTROLS_TITLE = "Mouse controls"
+MOUSE_CONTROLS_PLACEHOLDER = "Filter controls…"
+
 # Mouse controls (shown in the controls dialog; not bound to commands)
 MOUSE_WHEEL = "Wheel"
 MOUSE_WHEEL_DESC = "Scroll page · flip at edge"
@@ -129,7 +135,6 @@ DIALOG_FIELD_SIZE_TITLE = "Field font size"
 PROMPT_FIELD_SIZE = "Size (px):"
 
 # Image overlay
-FILE_FILTER_IMAGE = "Images (*.png *.jpg *.jpeg)"
 DIALOG_ADD_IMAGE_TITLE = "Choose image to place"
 CONFIRM_IMAGE_COPY_TITLE = "Add image"
 CONFIRM_IMAGE_COPY_TEXT = (
@@ -254,8 +259,6 @@ EDIT_DEFAULT_TEXT = "Text"
 DIALOG_TEXT_COLOR_TITLE = "Choose text color"
 DIALOG_BG_COLOR_TITLE = "Choose background color"
 
-FILE_FILTER_PDF = "PDF files (*.pdf)"
-FILE_FILTER_INSERT = "PDF or image (*.pdf *.jpg *.jpeg *.png)"
 DIALOG_OPEN_TITLE = "Open PDF"
 DIALOG_INSERT_TITLE = "Choose PDF or image to insert"
 DIALOG_EXTRACT_TITLE = "Extract current page to file"

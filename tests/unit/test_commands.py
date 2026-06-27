@@ -37,6 +37,11 @@ _ALL_IDS = {
     commands.MOVE_FIRST,
     commands.MOVE_LAST,
     commands.SAVE,
+    commands.SAVE_AS,
+    commands.COPY_FILE_PATH,
+    commands.COPY_FILE_NAME,
+    commands.COPY_PAGE_TEXT,
+    commands.OPEN_FOLDER,
     commands.PRINT,
     commands.SHOW_SHORTCUTS,
     commands.RELEASE_NOTES,
@@ -48,6 +53,7 @@ _ALL_IDS = {
     commands.TOGGLE_STATUSBAR,
     commands.TOGGLE_FULLSCREEN,
     commands.EDIT_MODE,
+    commands.SELECT_MODE,
     commands.SELECT_NEXT,
     commands.SELECT_PREV,
     commands.ADD_FIELD,
@@ -124,6 +130,9 @@ def test_doc_commands_disabled_without_document(window: MainWindow) -> None:
     assert commands.find(registry, commands.ZOOM_IN).is_enabled() is False
     assert commands.find(registry, commands.NEXT_PAGE).is_enabled() is False
     assert commands.find(registry, commands.PRINT).is_enabled() is False
+    assert commands.find(registry, commands.SAVE_AS).is_enabled() is False
+    assert commands.find(registry, commands.COPY_FILE_PATH).is_enabled() is False
+    assert commands.find(registry, commands.OPEN_FOLDER).is_enabled() is False
     # Always-available commands stay enabled.
     assert commands.find(registry, commands.OPEN).is_enabled() is True
     assert commands.find(registry, commands.EXIT).is_enabled() is True

@@ -41,6 +41,7 @@ from app.gui.edit_bar import EditBar
 from app.gui.edit_controller import EditController
 from app.gui.export_actions import ExportActions
 from app.gui.field_actions import FieldActions
+from app.gui.file_actions import FileActions
 from app.gui.image_actions import ImageActions
 from app.gui.image_controller import ImageController
 from app.gui.keybinding_actions import KeybindingActions
@@ -63,6 +64,7 @@ from app.gui.remembered_settings import RememberedSettingsController
 from app.gui.rotate_actions import RotateActions
 from app.gui.save_controller import SaveController
 from app.gui.search_actions import SearchActions
+from app.gui.select_controller import SelectController
 from app.gui.window_geometry_controller import WindowGeometryController
 from app.gui.window_input import (
     build_file_menu,
@@ -146,6 +148,9 @@ def _build_overlay(window: MainWindow, settings: Settings) -> None:
     )
     window._rect_actions = RectActions(window, window._page_view, window._rects)
     window._layer_actions = LayerActions(window._page_view, window._controller)
+    window._select = SelectController(window._page_view, window._mode_bar, window.exit_edit_mode)
+    window._page_view.set_key_interceptor(window._select.handle_key)
+    window._page_view.set_click_handler(window._select.handle_click)
     window._overlay_actions = OverlayActions(
         window._edit_bar,
         window._controller,
@@ -225,6 +230,9 @@ def _build_operations(window: MainWindow) -> None:
     window._move_actions = MoveActions(window._deferred)
     window._print_actions = PrintActions(window, window._working_doc.working)
     window._default_app_actions = DefaultAppActions(window)
+    window._file_actions = FileActions(
+        window, lambda: window._source, window._report, window._page_view.current_page_index
+    )
 
 
 def _lay_out(window: MainWindow) -> None:
@@ -239,7 +247,6 @@ def _lay_out(window: MainWindow) -> None:
 
 def _finish(window: MainWindow, settings: Settings) -> None:
     window.setWindowTitle(strings.WINDOW_TITLE)
-    window._registry = commands.build_commands(window)
     window._document_actions = DocumentActions(
         window,
         window._recent,
@@ -249,11 +256,17 @@ def _finish(window: MainWindow, settings: Settings) -> None:
         window.open_pdf,
         window._report,
     )
+    window._registry = commands.build_commands(window)
     defaults = default_shortcut_pairs()
     window._key_bindings = KeyBindingStore(window._backend)
     window._keymap = effective_keymap(window._key_bindings, defaults)
     window._palette_actions = PaletteActions(
-        window, window._registry, window._palette, window._command_history, window.current_keymap
+        window,
+        window._registry,
+        window._palette,
+        window._command_history,
+        window.current_keymap,
+        window.configure_shortcuts,
     )
     build_file_menu(window)
     window._shortcut_installer = install_shortcuts(window, window._registry, window._keymap)

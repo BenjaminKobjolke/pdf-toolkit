@@ -4,7 +4,9 @@ The GUI viewer (`pdft-gui`) is keyboard-first. Common actions have direct keys;
 everything else is reachable through the command palette. The keys below are the
 **built-in defaults** (registered in `app/gui/window_input.py` — `_SHORTCUTS` +
 `_PALETTE_CHORD`); mouse gestures live in `_MOUSE_CONTROLS`. Press **F1** in the
-viewer to see the current list in a searchable dialog.
+viewer to open a chooser: **Keyboard shortcuts…** opens the editable dialog
+(Enter binds a chord, **Del deletes the selected shortcut** after a yes/no
+confirm), and **Mouse controls** opens the read-only list of wheel gestures.
 
 Every shortcut here can be **changed, added, or removed** at runtime — see
 `CONFIGURE_SHORTCUTS.md`. The command palette shows each command's current chord
@@ -15,10 +17,15 @@ right-aligned.
 | Key | Action |
 |-----|--------|
 | **Ctrl+Shift+P** | Open the command palette |
-| **F1** | Show keyboard and mouse controls |
+| **F1** | Choose keyboard shortcuts (editable) or mouse controls |
 | **Ctrl+F** | Search PDF text |
 | **Ctrl+Shift+F** | Search text fields |
 | **Ctrl+Shift+H** | Clear search highlights |
+| **Esc** | Clear the active search highlight (when not in select mode) |
+
+After a **Search PDF text** match, opening **select mode** (`Ctrl+Shift+S`) starts
+its cursor on the matched word. **Copy all text from current page** (palette) copies
+the whole page to the clipboard. See `SELECT_MODE.md`.
 
 ## Page edits & saving
 
@@ -66,6 +73,39 @@ These act on the page overlay while edit mode is on; see
 | **Ctrl+↑** / **Ctrl+↓** | Selected text field: font size · selected image: scale · else: zoom page |
 | **Enter** | Edit the selected text field |
 | **Delete** / **Backspace** | Delete the selected element |
+
+## Select mode (vim-style text copy)
+
+Read-only mode for copying the PDF's own text with the keyboard. Toggle it, then
+hop word to word, select with **v**, and copy with **y**. Full reference:
+`SELECT_MODE.md`.
+
+| Key | Action |
+|-----|--------|
+| **Ctrl+Shift+S** | Toggle text select mode |
+| **h** / **l** / **←** / **→** (or **b** / **w**) | Previous / next word |
+| **j** / **k** / **↓** / **↑** | Down / up one line |
+| **0** / **$** | First / last word of the line |
+| **gg** / **G** | First / last word of the page |
+| **v** | Start / cancel a visual selection |
+| **y** | Copy the selection (or current word) to the clipboard |
+| **Esc** / **q** | Leave select mode |
+
+## File browser (open / save / folder)
+
+Choosing a file or folder (open, insert, add image, save-as, extract, merge)
+opens a custom keyboard-first browser instead of the OS dialog. Full reference:
+`FILE_BROWSER.md`.
+
+| Key | Action |
+|-----|--------|
+| **j** / **k** / **↓** / **↑** | Move down / up one entry |
+| **gg** / **G** | First / last entry |
+| **l** / **→** / **Enter** | Enter folder, or pick the file |
+| **h** / **←** / **Alt+↑** (or the `..` row) | Up one level (drive list at a drive root) |
+| **/** | Type-ahead filter |
+| **Tab** | (save) jump to the filename field |
+| **Esc** / **q** | Cancel |
 
 ## Mouse
 

@@ -12,10 +12,16 @@ from collections.abc import Callable
 from pathlib import Path
 
 from PySide6.QtCore import QPointF
-from PySide6.QtWidgets import QFileDialog, QWidget
+from PySide6.QtWidgets import QWidget
 
 from app.config.image_choice_settings import CHOICE_COPY, CHOICE_REFERENCE, ImageChoiceStore
-from app.gui import confirm_dialog, number_input_dialog, strings
+from app.gui import (
+    confirm_dialog,
+    file_browser_strings,
+    file_dialogs,
+    number_input_dialog,
+    strings,
+)
 from app.gui.image_controller import ImageController
 from app.gui.operations import OpResult
 from app.gui.placement import PlacementController
@@ -49,12 +55,15 @@ class ImageActions:
         base_dir = self._base_dir()
         if base_dir is None:
             return
-        chosen, _ = QFileDialog.getOpenFileName(
-            self._parent, strings.DIALOG_ADD_IMAGE_TITLE, "", strings.FILE_FILTER_IMAGE
+        chosen = file_dialogs.prompt_open_file(
+            self._parent,
+            strings.DIALOG_ADD_IMAGE_TITLE,
+            file_browser_strings.FILTER_IMAGE,
+            base_dir,
         )
-        if not chosen:
+        if chosen is None:
             return
-        src = Path(chosen)
+        src = chosen
         meta = self._resolve_meta(src, base_dir)
         if meta is None:
             return  # cancelled the copy/reference prompt

@@ -13,7 +13,7 @@ from app.gui.commands import Command
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.palette_controller import PaletteController
 from app.gui.palette_entries import build_palette_entries
-from app.gui.window_input import shortcut_pairs
+from app.gui.window_input import mouse_control_pairs
 
 
 class PaletteActions:
@@ -26,12 +26,14 @@ class PaletteActions:
         palette: PaletteController,
         history: CommandHistoryStore,
         keymap_provider: Callable[[], KeyMap],
+        open_keyboard_config: Callable[[], None],
     ) -> None:
         self._parent = parent
         self._registry = registry
         self._palette = palette
         self._history = history
         self._keymap_provider = keymap_provider
+        self._open_keyboard_config = open_keyboard_config
 
     def open_commands(self) -> None:
         """Show commands with recently-run entries floated to the top."""
@@ -52,15 +54,34 @@ class PaletteActions:
             command.run()
 
     def show_shortcuts(self) -> None:
-        """Show a searchable, read-only list of every keyboard shortcut."""
+        """F1: choose between editing keyboard shortcuts or viewing mouse controls."""
+        dialog = FilterListDialog(
+            self._chooser_entries(),
+            placeholder=strings.SHORTCUTS_PLACEHOLDER,
+            title=strings.SHORTCUTS_TITLE,
+            parent=self._parent,
+        )
+        self._palette.apply_to(dialog, self._parent.size())
+        if dialog.exec() and (chosen := dialog.chosen()) is not None:
+            chosen.payload()
+
+    def _chooser_entries(self) -> list[ListEntry]:
+        """The two F1 rows; each payload is the zero-arg action to run when chosen."""
+        return [
+            ListEntry(title=strings.CHOOSE_KEYBOARD_LABEL, payload=self._open_keyboard_config),
+            ListEntry(title=strings.CHOOSE_MOUSE_LABEL, payload=self._show_mouse_controls),
+        ]
+
+    def _show_mouse_controls(self) -> None:
+        """Show the read-only list of mouse-wheel gestures."""
         entries = [
-            ListEntry(title=strings.SHORTCUT_ROW_FMT.format(chord=chord, title=title))
-            for chord, title in shortcut_pairs(self._registry, self._keymap_provider())
+            ListEntry(title=strings.SHORTCUT_ROW_FMT.format(chord=gesture, title=desc))
+            for gesture, desc in mouse_control_pairs()
         ]
         dialog = FilterListDialog(
             entries,
-            placeholder=strings.SHORTCUTS_PLACEHOLDER,
-            title=strings.SHORTCUTS_TITLE,
+            placeholder=strings.MOUSE_CONTROLS_PLACEHOLDER,
+            title=strings.MOUSE_CONTROLS_TITLE,
             parent=self._parent,
         )
         self._palette.apply_to(dialog, self._parent.size())

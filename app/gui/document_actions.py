@@ -8,7 +8,14 @@ from pathlib import Path
 from PySide6.QtWidgets import QWidget
 
 from app.config.recent_files import RecentFilesStore
-from app.gui import confirm_dialog, strings, text_prompt_dialog
+from app.gui import (
+    confirm_dialog,
+    file_browser_strings,
+    file_dialogs,
+    file_strings,
+    strings,
+    text_prompt_dialog,
+)
 from app.gui.edit_controller import EditController
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.operations import OpResult
@@ -69,6 +76,21 @@ class DocumentActions:
         )
         if choice is confirm_dialog.DialogResult.PRIMARY:
             self._controller.clear_saved_fields()
+
+    def save_as(self) -> None:
+        """Write the open document to a chosen new file and switch to it."""
+        source = self._source()
+        if source is None:
+            return
+        dest = file_dialogs.prompt_save_file(
+            self._parent, file_strings.DIALOG_SAVE_AS_TITLE, source, file_browser_strings.FILTER_PDF
+        )
+        if dest is None:
+            return
+        result = self._save.save_as(dest)
+        self._report(result)
+        if result.ok:
+            self._open_pdf(dest)
 
     def rename_file(self) -> None:
         """Rename the open PDF and its sidecar, then reopen under the new name."""

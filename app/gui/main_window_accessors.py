@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from app.gui.edit_controller import EditController
     from app.gui.export_actions import ExportActions
     from app.gui.field_actions import FieldActions
+    from app.gui.file_actions import FileActions
     from app.gui.image_actions import ImageActions
     from app.gui.image_controller import ImageController
     from app.gui.keybinding_actions import KeybindingActions
@@ -52,6 +53,7 @@ if TYPE_CHECKING:
     from app.gui.rotate_actions import RotateActions
     from app.gui.save_controller import SaveController
     from app.gui.search_actions import SearchActions
+    from app.gui.select_controller import SelectController
     from app.gui.shortcut_installer import ShortcutInstaller
     from app.gui.window_geometry_controller import WindowGeometryController
     from app.gui.working_document import WorkingDocument
@@ -80,6 +82,7 @@ class CollaboratorAccessors:
     _controller: EditController
     _images: ImageController
     _rects: RectController
+    _select: SelectController
     _placement: PlacementController
     _field_actions: FieldActions
     _image_actions: ImageActions
@@ -98,6 +101,7 @@ class CollaboratorAccessors:
     _move_actions: MoveActions
     _print_actions: PrintActions
     _default_app_actions: DefaultAppActions
+    _file_actions: FileActions
     _registry: list[Command]
     _document_actions: DocumentActions
     _palette_actions: PaletteActions
@@ -123,6 +127,10 @@ class CollaboratorAccessors:
     @property
     def rects(self) -> RectController:
         return self._rects
+
+    @property
+    def select_controller(self) -> SelectController:
+        return self._select
 
     @property
     def operation_bar(self) -> OperationBar:
@@ -175,6 +183,14 @@ class CollaboratorAccessors:
     @property
     def default_app_actions(self) -> DefaultAppActions:
         return self._default_app_actions
+
+    @property
+    def document_actions(self) -> DocumentActions:
+        return self._document_actions
+
+    @property
+    def file_actions(self) -> FileActions:
+        return self._file_actions
 
     @property
     def palette_controller(self) -> PaletteController:

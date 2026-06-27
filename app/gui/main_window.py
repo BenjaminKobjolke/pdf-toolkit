@@ -5,9 +5,15 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from PySide6.QtWidgets import QFileDialog, QMainWindow
+from PySide6.QtWidgets import QMainWindow
 
-from app.gui import confirm_dialog, overlay_selection, strings
+from app.gui import (
+    confirm_dialog,
+    file_browser_strings,
+    file_dialogs,
+    overlay_selection,
+    strings,
+)
 from app.gui.main_window_accessors import CollaboratorAccessors
 from app.gui.window_builder import assemble
 
@@ -37,12 +43,15 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
         if not self._save.confirm_unsaved():
             return
         if path is None:
-            chosen, _ = QFileDialog.getOpenFileName(
-                self, strings.DIALOG_OPEN_TITLE, "", strings.FILE_FILTER_PDF
+            chosen = file_dialogs.prompt_open_file(
+                self,
+                strings.DIALOG_OPEN_TITLE,
+                file_browser_strings.FILTER_PDF,
+                self._source.parent if self._source else None,
             )
-            if not chosen:
+            if chosen is None:
                 return
-            path = Path(chosen)
+            path = chosen
         # Capture the outgoing document's view state before switching away.
         self._doc_memories.capture(self._source)
         self._source = path
@@ -118,6 +127,15 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
 
     def toggle_edit_mode(self) -> None:
         self._edit_bar.toggle_edit_mode()
+
+    def exit_edit_mode(self) -> None:
+        """Leave edit mode if active (used when entering the mutually-exclusive select mode)."""
+        if self._edit_bar.is_edit_mode():
+            self._edit_bar.toggle_edit_mode()
+
+    def toggle_select_mode(self) -> None:
+        """Enter/leave vim-style text select mode."""
+        self._select.toggle()
 
     def add_text_field(self) -> None:
         """Add a text field, entering edit mode first if needed (palette/button)."""

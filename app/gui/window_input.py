@@ -34,6 +34,7 @@ _SHORTCUTS: tuple[tuple[str, str], ...] = (
     ("Ctrl+Shift+F", commands.SEARCH_FIELDS),
     ("Ctrl+Shift+H", commands.CLEAR_HIGHLIGHTS),
     ("Ctrl+S", commands.SAVE),
+    ("Ctrl+Shift+S", commands.SELECT_MODE),
     ("Ctrl+R", commands.ROTATE_RIGHT),
     ("Ctrl+Shift+R", commands.ROTATE_LEFT),
     ("F1", commands.SHOW_SHORTCUTS),
@@ -73,21 +74,9 @@ def default_shortcut_pairs() -> list[DefaultPair]:
     return [*_SHORTCUTS, (_PALETTE_CHORD, commands.COMMAND_PALETTE)]
 
 
-def shortcut_pairs(registry: list[Command], keymap: KeyMap) -> list[tuple[str, str]]:
-    """Return ``(chord/gesture, title)`` rows for the controls dialog.
-
-    Single source for the controls dialog: rows are derived from the *effective*
-    keymap (so user changes show) and titles resolved through the registry the
-    shortcuts trigger; mouse gestures are appended from :data:`_MOUSE_CONTROLS`.
-    """
-    pairs: list[tuple[str, str]] = []
-    for chord, command_id in keymap.bindings:
-        try:
-            pairs.append((chord, commands.find(registry, command_id).title))
-        except KeyError:
-            continue
-    pairs.extend(_MOUSE_CONTROLS)
-    return pairs
+def mouse_control_pairs() -> list[tuple[str, str]]:
+    """The ``(gesture, description)`` rows for the read-only mouse-controls list."""
+    return list(_MOUSE_CONTROLS)
 
 
 def install_control_signals(window: MainWindow) -> None:
@@ -111,6 +100,7 @@ def install_control_signals(window: MainWindow) -> None:
     edit.edit_mode_toggled.connect(window.images.set_edit_mode)
     edit.edit_mode_toggled.connect(window.rects.set_edit_mode)
     edit.edit_mode_toggled.connect(window.mode_bar.set_edit_mode)
+    edit.edit_mode_toggled.connect(window.select_controller.on_edit_mode_toggled)
     edit.add_field_requested.connect(window.add_text_field)
     edit.add_image_requested.connect(window.add_image)
     edit.add_rect_requested.connect(window.add_rect)

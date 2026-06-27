@@ -59,8 +59,8 @@ across restarts. Full reference:
 The palette and direct shortcuts cover:
 
 - **Document** — Open, **Open from recent / history…** (last 100 PDFs),
-  **Rename file…** (renames the PDF and its text-field sidecar together), Close,
-  Exit.
+  **Rename file…** (renames the PDF and its text-field sidecar together),
+  **Copy all text from current page** (to the clipboard), Close, Exit.
 - **Pages** — Previous/Next, **First/Last**, Swap 2 pages, Delete current page,
   Delete range…, **Insert pages (PDF or image)…** (after the current page),
   **Extract current page to file…**, Merge folder…
@@ -87,6 +87,18 @@ The palette and direct shortcuts cover:
   [IMAGE_EDITING.md](docs/edit_mode/IMAGE_EDITING.md)) and
   [docs/WIDGETS.md](docs/WIDGETS.md) (custom color picker — type a hex or name,
   pick transparent, recents + live preview).
+- **Select mode (vim-style text copy)** — `Ctrl+Shift+S` enters a read-only mode
+  that navigates the PDF's own text by keyboard: `h`/`j`/`k`/`l` (or arrow keys;
+  plus `w`/`b`,
+  `0`/`$`, `gg`/`G`) move a word cursor, `v` starts a visual selection, `y` copies
+  it to the clipboard, `Esc`/`q` exits. Mutually exclusive with edit mode. The
+  cursor **starts on the current search match** (after `Ctrl+F`) or wherever you
+  **click**; `Esc` outside select mode clears the search highlight. See
+  [docs/SELECT_MODE.md](docs/SELECT_MODE.md).
+- **File browser (vim-style)** — opening, saving, and folder-picking use a custom
+  keyboard-first browser instead of the OS dialog: `j`/`k` move, `l`/`Enter` enter
+  a folder or pick a file, `h`/`Alt+↑`/`..` go up (drive list at a drive root), `/`
+  filters. See [docs/FILE_BROWSER.md](docs/FILE_BROWSER.md).
 
 #### Keyboard and mouse controls
 
@@ -95,6 +107,7 @@ The palette and direct shortcuts cover:
 | `Ctrl+Shift+P` | Command palette |
 | `Ctrl+F` / `Ctrl+Shift+F` | Search PDF text / text fields |
 | `Ctrl+Shift+H` | Clear search highlights |
+| `Ctrl+Shift+S` | Toggle text select mode (vim-style copy) |
 | `Page Down` / `Page Up` | Next / previous page |
 | `Home` / `End` | First / last page |
 | `Ctrl++` / `Ctrl+-` / `Ctrl+0` | Zoom in / out / 100% |

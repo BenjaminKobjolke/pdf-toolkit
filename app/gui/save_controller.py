@@ -9,13 +9,14 @@ ownership so it can render and mutate the working copy.
 from __future__ import annotations
 
 from collections.abc import Callable
+from pathlib import Path
 
 from PySide6.QtWidgets import QWidget
 
-from app.gui import confirm_dialog, strings
+from app.gui import confirm_dialog, file_strings, strings
 from app.gui.mode_status_bar import ModeStatusBar
 from app.gui.operations import OpResult
-from app.gui.working_document import WorkingDocument
+from app.gui.working_document import WorkingDocument, save_copy
 
 
 class SaveController:
@@ -50,6 +51,24 @@ class SaveController:
         if result.ok:
             self._mode_bar.set_dirty(False)
         self._report(result)
+
+    def save_as(self, dest: Path) -> OpResult:
+        """Write the working copy (with pending edits) to ``dest`` as a new file.
+
+        The original is left untouched; the in-progress edits move to ``dest``,
+        so the working copy is discarded and the dirty marker cleared.
+        """
+        self._flush()
+        working = self._doc.working()
+        if working is None:
+            return OpResult(False, strings.MSG_NO_DOCUMENT)
+        try:
+            save_copy(working, dest)
+        except OSError as err:
+            return OpResult(False, str(err))
+        self._doc.discard()
+        self._mode_bar.set_dirty(False)
+        return OpResult(True, file_strings.MSG_SAVED_AS_FMT.format(name=dest.name))
 
     def confirm_unsaved(self) -> bool:
         """Prompt to save pending changes. Return False to abort the caller."""

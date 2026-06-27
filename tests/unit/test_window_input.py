@@ -1,39 +1,22 @@
-"""Keyboard + mouse control listing for the controls dialog (offscreen Qt)."""
+"""Mouse-control listing and default shortcut pairs (offscreen Qt)."""
 
 from __future__ import annotations
 
-from pathlib import Path
-
-import pytest
-
-from app.config.key_bindings import merge_keymap
 from app.gui import commands, strings
-from app.gui.main_window import MainWindow
-from app.gui.window_input import default_shortcut_pairs, shortcut_pairs
-from tests.conftest import gui_settings
+from app.gui.window_input import default_shortcut_pairs, mouse_control_pairs
 
 
-@pytest.fixture
-def window(qapp: object, tmp_path: Path) -> MainWindow:
-    return MainWindow(gui_settings(tmp_path))
-
-
-def _pairs(window: MainWindow) -> list[tuple[str, str]]:
-    keymap = merge_keymap(default_shortcut_pairs(), ())
-    return shortcut_pairs(commands.build_commands(window), keymap)
-
-
-def test_pairs_include_mouse_wheel_controls(window: MainWindow) -> None:
-    chords = {chord for chord, _ in _pairs(window)}
+def test_mouse_control_pairs_list_the_wheel_gestures() -> None:
+    chords = {chord for chord, _ in mouse_control_pairs()}
     assert strings.MOUSE_WHEEL in chords
     assert strings.MOUSE_SHIFT_WHEEL in chords
     assert strings.MOUSE_CTRL_WHEEL in chords
 
 
-def test_pairs_keep_keyboard_shortcuts(window: MainWindow) -> None:
-    chords = {chord for chord, _ in _pairs(window)}
-    assert "PgDown" in chords
-    assert "F1" in chords
+def test_mouse_control_pairs_exclude_keyboard_shortcuts() -> None:
+    chords = {chord for chord, _ in mouse_control_pairs()}
+    assert "PgDown" not in chords
+    assert "F1" not in chords
 
 
 def test_default_pairs_include_palette_chord() -> None:

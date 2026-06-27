@@ -36,6 +36,7 @@ from app.gui.page_navigator import PageNavigator
 from app.gui.page_overlay_items import OverlayItemsMixin
 from app.gui.rect_item import RectItem
 from app.gui.render_quality import RenderQualityController
+from app.gui.selection_highlights import SelectionHighlights
 from app.gui.text_item import TextFieldItem
 from app.gui.zoom_controller import ZoomController
 
@@ -71,6 +72,13 @@ class PageView(OverlayItemsMixin, QGraphicsView):
         self._image_layer: ItemLayer[ImageItem] = ItemLayer(self._scene, _OVERLAY_Z)
         self._rect_layer: ItemLayer[RectItem] = ItemLayer(self._scene, _OVERLAY_Z)
         self._highlights = PageHighlights(self._scene)
+        self._selection = SelectionHighlights(self._scene)
+        # Consulted before the input controller; set by the select-mode controller
+        # so vim-style keys intercept navigation/edit keys while that mode is on.
+        self._key_interceptor: Callable[[QKeyEvent], bool] | None = None
+        # Consulted before default click handling so select mode can place its
+        # word cursor with the mouse; returns True when it consumes the click.
+        self._click_handler: Callable[[QPointF], bool] | None = None
         self._nav = PageNavigator(self._show, self.page_will_change)
         # Re-render the page sharper as zoom changes; never moves overlay coords.
         self._render_ctl = RenderQualityController(self, self._pixmap_item)
@@ -132,6 +140,24 @@ class PageView(OverlayItemsMixin, QGraphicsView):
 
     def highlight_items(self) -> tuple[QGraphicsRectItem, ...]:
         return self._highlights.items()
+
+    def highlight_rects_points(self) -> list[tuple[float, float, float, float]]:
+        """Return the current search-match rects in PDF points (empty when none)."""
+        return self._highlights.rects_points()
+
+    # --- text-selection overlay (vim-style select mode) ---------------------
+
+    def selection_highlights(self) -> SelectionHighlights:
+        """Expose the select-mode overlay so the controller can draw on it."""
+        return self._selection
+
+    def set_key_interceptor(self, interceptor: Callable[[QKeyEvent], bool] | None) -> None:
+        """Install a hook consulted before the input controller for key presses."""
+        self._key_interceptor = interceptor
+
+    def set_click_handler(self, handler: Callable[[QPointF], bool] | None) -> None:
+        """Install a hook consulted before default click handling (select mode)."""
+        self._click_handler = handler
 
     # --- zoom (delegated to ZoomController) ---------------------------------
 
@@ -217,6 +243,9 @@ class PageView(OverlayItemsMixin, QGraphicsView):
         return super().event(event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
+        if self._key_interceptor is not None and self._key_interceptor(event):
+            event.accept()
+            return
         if self._input.key_press(event):
             event.accept()
             return
@@ -231,6 +260,11 @@ class PageView(OverlayItemsMixin, QGraphicsView):
     def mousePressEvent(self, event: QMouseEvent) -> None:
         if self._input.placement_active():
             self._input.mouse_press(self.mapToScene(event.position().toPoint()))
+            event.accept()
+            return
+        if self._click_handler is not None and self._click_handler(
+            self.mapToScene(event.position().toPoint())
+        ):
             event.accept()
             return
         super().mousePressEvent(event)
@@ -257,6 +291,7 @@ class PageView(OverlayItemsMixin, QGraphicsView):
             return
         # Highlights belong to the page they were drawn on; drop them on render.
         self.clear_highlights()
+        self._selection.clear()
         self._placeholder.setVisible(False)
         self._render_ctl.render_now()
         self._scene.setSceneRect(self._pixmap_item.boundingRect())

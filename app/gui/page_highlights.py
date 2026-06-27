@@ -23,10 +23,12 @@ class PageHighlights:
     def __init__(self, scene: QGraphicsScene) -> None:
         self._scene = scene
         self._items: list[QGraphicsRectItem] = []
+        self._rects_pts: list[tuple[float, float, float, float]] = []
 
     def set(self, rects_pts: list[tuple[float, float, float, float]]) -> None:
         """Draw gold outlines for the given match rects (in PDF points)."""
         self.clear()
+        self._rects_pts = list(rects_pts)
         pen = QPen(QColor(_HIGHLIGHT_COLOR))
         pen.setWidth(2)
         z = render.DEFAULT_ZOOM
@@ -39,6 +41,11 @@ class PageHighlights:
         for item in self._items:
             self._scene.removeItem(item)
         self._items.clear()
+        self._rects_pts.clear()
+
+    def rects_points(self) -> list[tuple[float, float, float, float]]:
+        """Return the current match rects in PDF points (empty when cleared)."""
+        return list(self._rects_pts)
 
     def has(self) -> bool:
         return bool(self._items)

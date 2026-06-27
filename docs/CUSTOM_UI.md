@@ -7,8 +7,9 @@ honour the user's command-palette appearance (font size, opacity, frameless chro
 
 This replaced the stock `QMessageBox` (delete-page confirm, unsaved-changes, errors)
 and `QInputDialog` (palette font size, image scale, rename, zoom) windows, which
-ignored the palette font and looked out of place. Native `QFileDialog` is intentionally
-kept — OS file browsing stays native.
+ignored the palette font and looked out of place. The native `QFileDialog` is also
+gone — file open / save / folder picking now uses a custom keyboard-first browser
+(`FileBrowserDialog`); see `FILE_BROWSER.md`.
 
 `docs/WIDGETS.md` documents the keyboard-first **list** dialogs in detail (filter box +
 list). This file documents the **system underneath them** and the confirm / input / alert
@@ -108,6 +109,7 @@ at creation, so there is no flicker, even with `borderless` on.
 | `ColorPickerDialog` | `color_picker_dialog.py` | `FilterableListDialog` | Text + background + outline color |
 | `TextInputDialog` | `text_input_dialog.py` | `BaseDialog` | Multi-line field text (Ctrl+Enter applies) |
 | `KeyCaptureDialog` | `key_capture_dialog.py` | `BaseDialog` | Capturing one shortcut chord |
+| `FileBrowserDialog` | `file_browser_dialog.py` | `BaseDialog` | Open / save / folder picking (vim-style) — see `FILE_BROWSER.md` |
 | `ConfirmDialog` | `confirm_dialog.py` | `FormDialog` | Yes/No and Save/Discard/Cancel confirmations; single-OK alerts |
 | `NumberInputDialog` | `number_input_dialog.py` | `FormDialog` | Integer / decimal prompts |
 | `TextPromptDialog` | `text_prompt_dialog.py` | `FormDialog` | Single-line text prompts |

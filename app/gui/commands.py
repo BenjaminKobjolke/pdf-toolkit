@@ -12,7 +12,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from app.gui import default_app_strings, release_strings, strings
+from app.gui import default_app_strings, file_strings, release_strings, select_strings, strings
 from app.os_integration import pdf_association
 
 if TYPE_CHECKING:
@@ -45,6 +45,11 @@ MOVE_PREV = "move_prev"
 MOVE_FIRST = "move_first"
 MOVE_LAST = "move_last"
 SAVE = "save"
+SAVE_AS = "save_as"
+COPY_FILE_PATH = "copy_file_path"
+COPY_FILE_NAME = "copy_file_name"
+COPY_PAGE_TEXT = "copy_page_text"
+OPEN_FOLDER = "open_folder"
 PRINT = "print"
 SHOW_SHORTCUTS = "show_shortcuts"
 RELEASE_NOTES = "release_notes"
@@ -69,6 +74,7 @@ ZOOM_SET_DEFAULT = "zoom_set_default"
 DOC_ZOOM_REMEMBER = "doc_zoom_remember"
 DOC_PAGE_REMEMBER = "doc_page_remember"
 EDIT_MODE = "edit_mode"
+SELECT_MODE = "select_mode"
 SELECT_NEXT = "select_next"
 SELECT_PREV = "select_prev"
 ADD_FIELD = "add_field"
@@ -133,6 +139,22 @@ def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
         Command(OPEN, strings.CMD_OPEN, lambda: window.open_pdf()),
         Command(OPEN_HISTORY, strings.CMD_OPEN_HISTORY, window.open_from_history),
         Command(SAVE, strings.CMD_SAVE, window.save_changes, has_doc),
+        Command(SAVE_AS, file_strings.CMD_SAVE_AS, window.document_actions.save_as, has_doc),
+        Command(
+            COPY_FILE_PATH, file_strings.CMD_COPY_FILE_PATH, window.file_actions.copy_path, has_doc
+        ),
+        Command(
+            COPY_FILE_NAME, file_strings.CMD_COPY_FILE_NAME, window.file_actions.copy_name, has_doc
+        ),
+        Command(
+            COPY_PAGE_TEXT,
+            file_strings.CMD_COPY_PAGE_TEXT,
+            window.file_actions.copy_page_text,
+            has_doc,
+        ),
+        Command(
+            OPEN_FOLDER, file_strings.CMD_OPEN_FOLDER, window.file_actions.open_folder, has_doc
+        ),
         Command(PRINT, strings.CMD_PRINT, window.print_actions.print_document, has_doc),
         Command(RENAME_FILE, strings.CMD_RENAME_FILE, window.rename_file, has_doc),
         Command(CLOSE_DOC, strings.CMD_CLOSE_DOC, window.close_document, has_doc),
@@ -240,6 +262,7 @@ def _edit_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     controller = window.controller
     return [
         Command(EDIT_MODE, strings.CMD_EDIT_MODE, window.toggle_edit_mode, has_doc),
+        Command(SELECT_MODE, select_strings.CMD_SELECT_MODE, window.toggle_select_mode, has_doc),
         Command(SELECT_NEXT, strings.CMD_SELECT_NEXT, window.select_next_editable, has_doc),
         Command(SELECT_PREV, strings.CMD_SELECT_PREV, window.select_previous_editable, has_doc),
         Command(ADD_FIELD, strings.CMD_ADD_FIELD, window.add_text_field, has_doc),
