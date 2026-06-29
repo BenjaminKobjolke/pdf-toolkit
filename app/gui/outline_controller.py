@@ -20,14 +20,14 @@ from app.config.outline_settings import (
     OutlineLineStyle,
     OutlineSettingsStore,
 )
-from app.gui import number_input_dialog, strings
+from app.gui import number_input_dialog, settings_strings
 from app.gui.color_picker_dialog import ColorPickerDialog
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.outline_style import OutlineStyle
 
 _STYLE_LABELS: dict[OutlineLineStyle, str] = {
-    OutlineLineStyle.DASHED: strings.OUTLINE_STYLE_DASHED,
-    OutlineLineStyle.SOLID: strings.OUTLINE_STYLE_SOLID,
+    OutlineLineStyle.DASHED: settings_strings.OUTLINE_STYLE_DASHED,
+    OutlineLineStyle.SOLID: settings_strings.OUTLINE_STYLE_SOLID,
 }
 
 
@@ -55,8 +55,8 @@ class OutlineController:
         """Prompt for the outline stroke width in pixels."""
         value = number_input_dialog.prompt_int(
             self._parent,
-            strings.DIALOG_OUTLINE_WIDTH_TITLE,
-            strings.PROMPT_OUTLINE_WIDTH,
+            settings_strings.DIALOG_OUTLINE_WIDTH_TITLE,
+            settings_strings.PROMPT_OUTLINE_WIDTH,
             self._settings.width_px,
             WIDTH_PX_MIN,
             WIDTH_PX_MAX,
@@ -72,8 +72,8 @@ class OutlineController:
         ]
         dialog = FilterListDialog(
             entries,
-            placeholder=strings.OUTLINE_STYLE_PLACEHOLDER,
-            title=strings.DIALOG_OUTLINE_STYLE_TITLE,
+            placeholder=settings_strings.OUTLINE_STYLE_PLACEHOLDER,
+            title=settings_strings.DIALOG_OUTLINE_STYLE_TITLE,
             parent=self._parent,
         )
         if dialog.exec() and (chosen := dialog.chosen()) is not None:
@@ -83,7 +83,7 @@ class OutlineController:
         """Pick the outline color via the shared color dialog."""
         dialog = ColorPickerDialog(
             recent=self._recent_colors,
-            title=strings.DIALOG_OUTLINE_COLOR_TITLE,
+            title=settings_strings.DIALOG_OUTLINE_COLOR_TITLE,
             parent=self._parent,
         )
         if dialog.exec() and (chosen := dialog.chosen()) is not None:

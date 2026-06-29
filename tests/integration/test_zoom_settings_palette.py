@@ -8,7 +8,7 @@ import pytest
 from PySide6.QtGui import QResizeEvent
 
 from app.config.zoom_settings import ZoomSettings, ZoomSettingsStore
-from app.gui import commands, strings
+from app.gui import commands, settings_strings
 from app.gui.filter_list_dialog import ListEntry
 from app.gui.main_window import MainWindow
 from app.gui.zoom_controller import _MODE_FIT, _ZOOM_ACTUAL
@@ -45,7 +45,7 @@ def test_pick_preset_persists_and_applies(
     window: MainWindow, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     class _Dialog(_FakeDialog):
-        pick_title = strings.ZOOM_PERCENT_FMT.format(n=50)
+        pick_title = settings_strings.ZOOM_PERCENT_FMT.format(n=50)
 
     monkeypatch.setattr("app.gui.zoom_settings_controller.FilterListDialog", _Dialog)
     commands.find(window._registry, commands.ZOOM_SET_DEFAULT).run()
@@ -60,7 +60,7 @@ def test_pick_fit_persists(
     window: MainWindow, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     class _Dialog(_FakeDialog):
-        pick_title = strings.ZOOM_FIT_LABEL
+        pick_title = settings_strings.ZOOM_FIT_LABEL
 
     monkeypatch.setattr("app.gui.zoom_settings_controller.FilterListDialog", _Dialog)
     commands.find(window._registry, commands.ZOOM_SET_DEFAULT).run()
@@ -74,7 +74,7 @@ def test_pick_custom_prompts_for_percent(
     from app.gui import number_input_dialog
 
     class _Dialog(_FakeDialog):
-        pick_title = strings.ZOOM_CUSTOM_LABEL
+        pick_title = settings_strings.ZOOM_CUSTOM_LABEL
 
     monkeypatch.setattr("app.gui.zoom_settings_controller.FilterListDialog", _Dialog)
     monkeypatch.setattr(number_input_dialog, "prompt_int", lambda *a, **k: 175)

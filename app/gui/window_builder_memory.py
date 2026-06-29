@@ -1,0 +1,80 @@
+"""Per-document memory and remembered-settings wiring for the main window.
+
+Extracted from :mod:`app.gui.window_builder` to keep that wiring module under the
+300-line cap. Both helpers take the window (and ``settings`` where needed) and set
+attributes on it exactly as the inline versions did.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from app.config.document_page import DocumentPageStore
+from app.config.document_zoom import DocumentZoomStore
+from app.config.image_choice_settings import ImageChoiceStore
+from app.config.key_bindings import KeyBindingStore
+from app.config.outline_settings import OutlineSettingsStore
+from app.config.palette_settings import PaletteSettingsStore
+from app.config.placement_settings import PlacementStore
+from app.config.record_store import RecordStore
+from app.config.settings import Settings
+from app.config.window_geometry import WindowGeometryStore
+from app.config.zoom_settings import ZoomSettingsStore
+from app.gui import settings_strings
+from app.gui.document_memory_controller import (
+    DocumentMemoryController,
+    DocumentMemoryGroup,
+    MemoryStrings,
+)
+
+if TYPE_CHECKING:
+    from app.gui.main_window import MainWindow
+
+
+def build_document_memory(window: MainWindow) -> None:
+    """Construct the per-document zoom and page memory controllers."""
+    pv = window._page_view
+
+    def apply_global_zoom() -> None:
+        default = window._zoom_settings.current()
+        pv.set_default_zoom(default.fit, default.percent)
+
+    window._doc_zoom = DocumentMemoryController(
+        window,
+        DocumentZoomStore(window._backend),
+        lambda: window._source,
+        pv.current_zoom,
+        lambda zoom: pv.set_default_zoom(zoom.fit, zoom.percent),
+        window._report,
+        MemoryStrings.for_noun(settings_strings.DOC_MEM_NOUN_ZOOM),
+        fallback=apply_global_zoom,
+    )
+    window._doc_page = DocumentMemoryController(
+        window,
+        DocumentPageStore(window._backend),
+        lambda: window._source,
+        pv.current_page_index,
+        pv.go_to_page,
+        window._report,
+        MemoryStrings.for_noun(settings_strings.DOC_MEM_NOUN_PAGE),
+    )
+    window._doc_memories = DocumentMemoryGroup([window._doc_zoom, window._doc_page])
+
+
+def remembered_stores(window: MainWindow, settings: Settings) -> list[RecordStore]:
+    """The remembered-setting stores offered by the Remembered-settings command."""
+    backend = window._backend
+    return [
+        window._recent,
+        window._ui_state,
+        PaletteSettingsStore(backend),
+        window._command_history,
+        PlacementStore(backend),
+        WindowGeometryStore(backend),
+        ImageChoiceStore(backend),
+        OutlineSettingsStore(backend),
+        ZoomSettingsStore(backend),
+        KeyBindingStore(backend),
+        DocumentZoomStore(backend),
+        DocumentPageStore(backend),
+    ]

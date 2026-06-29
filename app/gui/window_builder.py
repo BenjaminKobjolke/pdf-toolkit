@@ -13,15 +13,12 @@ from typing import TYPE_CHECKING
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from app.config.command_history import CommandHistoryStore
-from app.config.document_page import DocumentPageStore
-from app.config.document_zoom import DocumentZoomStore
 from app.config.image_choice_settings import ImageChoiceStore
 from app.config.key_bindings import KeyBindingStore, effective_keymap
 from app.config.outline_settings import OutlineSettingsStore
 from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
 from app.config.recent_files import RecentFilesStore
-from app.config.record_store import RecordStore
 from app.config.settings import Settings
 from app.config.ui_state import UiStateStore
 from app.config.window_geometry import WindowGeometryStore
@@ -32,11 +29,6 @@ from app.gui.controls import OperationBar
 from app.gui.default_app_actions import DefaultAppActions
 from app.gui.deferred_ops import DeferredOps
 from app.gui.document_actions import DocumentActions
-from app.gui.document_memory_controller import (
-    DocumentMemoryController,
-    DocumentMemoryGroup,
-    MemoryStrings,
-)
 from app.gui.edit_bar import EditBar
 from app.gui.edit_controller import EditController
 from app.gui.export_actions import ExportActions
@@ -65,6 +57,7 @@ from app.gui.rotate_actions import RotateActions
 from app.gui.save_controller import SaveController
 from app.gui.search_actions import SearchActions
 from app.gui.select_controller import SelectController
+from app.gui.window_builder_memory import build_document_memory, remembered_stores
 from app.gui.window_geometry_controller import WindowGeometryController
 from app.gui.window_input import (
     build_file_menu,
@@ -159,40 +152,10 @@ def _build_overlay(window: MainWindow, settings: Settings) -> None:
         window._rects,
         window.has_document,
     )
-    _build_document_memory(window)
+    build_document_memory(window)
     window._remembered = RememberedSettingsController(
-        window, _remembered_stores(window, settings), window._report
+        window, remembered_stores(window, settings), window._report
     )
-
-
-def _build_document_memory(window: MainWindow) -> None:
-    """Construct the per-document zoom and page memory controllers."""
-    pv = window._page_view
-
-    def apply_global_zoom() -> None:
-        default = window._zoom_settings.current()
-        pv.set_default_zoom(default.fit, default.percent)
-
-    window._doc_zoom = DocumentMemoryController(
-        window,
-        DocumentZoomStore(window._backend),
-        lambda: window._source,
-        pv.current_zoom,
-        lambda zoom: pv.set_default_zoom(zoom.fit, zoom.percent),
-        window._report,
-        MemoryStrings.for_noun(strings.DOC_MEM_NOUN_ZOOM),
-        fallback=apply_global_zoom,
-    )
-    window._doc_page = DocumentMemoryController(
-        window,
-        DocumentPageStore(window._backend),
-        lambda: window._source,
-        pv.current_page_index,
-        pv.go_to_page,
-        window._report,
-        MemoryStrings.for_noun(strings.DOC_MEM_NOUN_PAGE),
-    )
-    window._doc_memories = DocumentMemoryGroup([window._doc_zoom, window._doc_page])
 
 
 def _build_operations(window: MainWindow) -> None:
@@ -284,22 +247,3 @@ def _finish(window: MainWindow, settings: Settings) -> None:
     )
     window._chrome.apply_saved()
     window._geometry.restore()
-
-
-def _remembered_stores(window: MainWindow, settings: Settings) -> list[RecordStore]:
-    """The remembered-setting stores offered by the Remembered-settings command."""
-    backend = window._backend
-    return [
-        window._recent,
-        window._ui_state,
-        PaletteSettingsStore(backend),
-        window._command_history,
-        PlacementStore(backend),
-        WindowGeometryStore(backend),
-        ImageChoiceStore(backend),
-        OutlineSettingsStore(backend),
-        ZoomSettingsStore(backend),
-        KeyBindingStore(backend),
-        DocumentZoomStore(backend),
-        DocumentPageStore(backend),
-    ]

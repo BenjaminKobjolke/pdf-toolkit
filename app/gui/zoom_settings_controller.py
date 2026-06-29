@@ -19,7 +19,7 @@ from app.config.zoom_settings import (
     ZoomSettings,
     ZoomSettingsStore,
 )
-from app.gui import number_input_dialog, strings
+from app.gui import number_input_dialog, settings_strings
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 
 if TYPE_CHECKING:
@@ -47,15 +47,15 @@ class ZoomSettingsController:
 
     def set_default_zoom(self) -> None:
         """Pick Fit / a preset / a custom percentage, then persist and apply it."""
-        entries = [ListEntry(title=strings.ZOOM_FIT_LABEL, payload=ZoomSettings(fit=True))]
+        entries = [ListEntry(title=settings_strings.ZOOM_FIT_LABEL, payload=ZoomSettings(fit=True))]
         for pct in _PRESETS:
-            title = strings.ZOOM_PERCENT_FMT.format(n=pct)
+            title = settings_strings.ZOOM_PERCENT_FMT.format(n=pct)
             entries.append(ListEntry(title=title, payload=ZoomSettings(fit=False, percent=pct)))
-        entries.append(ListEntry(title=strings.ZOOM_CUSTOM_LABEL, payload=_CUSTOM))
+        entries.append(ListEntry(title=settings_strings.ZOOM_CUSTOM_LABEL, payload=_CUSTOM))
         dialog = FilterListDialog(
             entries,
-            placeholder=strings.ZOOM_PLACEHOLDER,
-            title=strings.DIALOG_DEFAULT_ZOOM_TITLE,
+            placeholder=settings_strings.ZOOM_PLACEHOLDER,
+            title=settings_strings.DIALOG_DEFAULT_ZOOM_TITLE,
             parent=self._parent,
         )
         if not dialog.exec() or (chosen := dialog.chosen()) is None:
@@ -69,8 +69,8 @@ class ZoomSettingsController:
     def _prompt_custom(self) -> ZoomSettings | None:
         value = number_input_dialog.prompt_int(
             self._parent,
-            strings.DIALOG_DEFAULT_ZOOM_TITLE,
-            strings.PROMPT_DEFAULT_ZOOM_PCT,
+            settings_strings.DIALOG_DEFAULT_ZOOM_TITLE,
+            settings_strings.PROMPT_DEFAULT_ZOOM_PCT,
             self._settings.percent,
             ZOOM_PCT_MIN,
             ZOOM_PCT_MAX,

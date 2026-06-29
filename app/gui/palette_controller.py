@@ -22,7 +22,7 @@ from app.config.palette_settings import (
     WIDTH_PCT_MIN,
     PaletteSettingsStore,
 )
-from app.gui import dialog_appearance, number_input_dialog, strings
+from app.gui import dialog_appearance, number_input_dialog, settings_strings
 from app.gui.palette_appearance import apply_appearance
 
 
@@ -45,8 +45,8 @@ class PaletteController:
         """Prompt for the palette width as a percentage of the window."""
         self._edit_int(
             "width_pct",
-            strings.DIALOG_PALETTE_WIDTH_TITLE,
-            strings.PROMPT_PALETTE_WIDTH,
+            settings_strings.DIALOG_PALETTE_WIDTH_TITLE,
+            settings_strings.PROMPT_PALETTE_WIDTH,
             WIDTH_PCT_MIN,
             WIDTH_PCT_MAX,
         )
@@ -55,8 +55,8 @@ class PaletteController:
         """Prompt for the palette height as a percentage of the window."""
         self._edit_int(
             "height_pct",
-            strings.DIALOG_PALETTE_HEIGHT_TITLE,
-            strings.PROMPT_PALETTE_HEIGHT,
+            settings_strings.DIALOG_PALETTE_HEIGHT_TITLE,
+            settings_strings.PROMPT_PALETTE_HEIGHT,
             HEIGHT_PCT_MIN,
             HEIGHT_PCT_MAX,
         )
@@ -70,8 +70,8 @@ class PaletteController:
         current = self._settings.font_pt or max(self._parent.font().pointSize(), FONT_PT_MIN + 1)
         value = number_input_dialog.prompt_int(
             self._parent,
-            strings.DIALOG_PALETTE_FONT_TITLE,
-            strings.PROMPT_PALETTE_FONT,
+            settings_strings.DIALOG_PALETTE_FONT_TITLE,
+            settings_strings.PROMPT_PALETTE_FONT,
             current,
             FONT_PT_MIN,
             FONT_PT_MAX,
@@ -83,8 +83,8 @@ class PaletteController:
         """Prompt for the palette opacity as a percentage."""
         self._edit_int(
             "opacity_pct",
-            strings.DIALOG_PALETTE_OPACITY_TITLE,
-            strings.PROMPT_PALETTE_OPACITY,
+            settings_strings.DIALOG_PALETTE_OPACITY_TITLE,
+            settings_strings.PROMPT_PALETTE_OPACITY,
             OPACITY_PCT_MIN,
             OPACITY_PCT_MAX,
         )

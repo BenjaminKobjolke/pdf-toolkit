@@ -17,7 +17,7 @@ from typing import Any, Generic, TypeVar
 from PySide6.QtWidgets import QWidget
 
 from app.config.per_document_store import PerDocumentStore
-from app.gui import strings
+from app.gui import settings_strings
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.operations import OpResult
 
@@ -52,19 +52,19 @@ class MemoryStrings:
     def for_noun(cls, noun: str) -> MemoryStrings:
         """Build the strings for a dimension named ``noun`` (e.g. "zoom")."""
         return cls(
-            menu_title=strings.DOC_MEM_MENU_TITLE_FMT.format(noun=noun),
-            placeholder=strings.DOC_MEM_PLACEHOLDER,
-            remember=strings.DOC_MEM_REMEMBER_FMT.format(noun=noun),
-            auto_on=strings.DOC_MEM_AUTO_ON_FMT.format(noun=noun),
-            auto_off=strings.DOC_MEM_AUTO_OFF_FMT.format(noun=noun),
-            forget=strings.DOC_MEM_FORGET_FMT.format(noun=noun),
-            forget_all=strings.DOC_MEM_FORGET_ALL_FMT.format(noun=noun),
-            msg_remembered=strings.DOC_MEM_MSG_REMEMBERED_FMT.format(noun=noun),
-            msg_forgot=strings.DOC_MEM_MSG_FORGOT_FMT.format(noun=noun),
-            msg_forgot_all=strings.DOC_MEM_MSG_FORGOT_ALL_FMT.format(noun=noun),
-            msg_auto_on=strings.DOC_MEM_MSG_AUTO_ON_FMT.format(noun=noun),
-            msg_auto_off=strings.DOC_MEM_MSG_AUTO_OFF_FMT.format(noun=noun),
-            msg_no_doc=strings.DOC_MEM_MSG_NO_DOC,
+            menu_title=settings_strings.DOC_MEM_MENU_TITLE_FMT.format(noun=noun),
+            placeholder=settings_strings.DOC_MEM_PLACEHOLDER,
+            remember=settings_strings.DOC_MEM_REMEMBER_FMT.format(noun=noun),
+            auto_on=settings_strings.DOC_MEM_AUTO_ON_FMT.format(noun=noun),
+            auto_off=settings_strings.DOC_MEM_AUTO_OFF_FMT.format(noun=noun),
+            forget=settings_strings.DOC_MEM_FORGET_FMT.format(noun=noun),
+            forget_all=settings_strings.DOC_MEM_FORGET_ALL_FMT.format(noun=noun),
+            msg_remembered=settings_strings.DOC_MEM_MSG_REMEMBERED_FMT.format(noun=noun),
+            msg_forgot=settings_strings.DOC_MEM_MSG_FORGOT_FMT.format(noun=noun),
+            msg_forgot_all=settings_strings.DOC_MEM_MSG_FORGOT_ALL_FMT.format(noun=noun),
+            msg_auto_on=settings_strings.DOC_MEM_MSG_AUTO_ON_FMT.format(noun=noun),
+            msg_auto_off=settings_strings.DOC_MEM_MSG_AUTO_OFF_FMT.format(noun=noun),
+            msg_no_doc=settings_strings.DOC_MEM_MSG_NO_DOC,
         )
 
 
