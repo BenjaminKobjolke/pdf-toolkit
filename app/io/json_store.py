@@ -9,13 +9,11 @@ read/write guard the config stores share.
 from __future__ import annotations
 
 import json
-import logging
 from pathlib import Path
 from typing import Any
 
 from app.io.fs import replace_atomic
-
-log = logging.getLogger("pdf_toolkit")
+from app.logging_setup import log
 
 _TMP_SUFFIX = ".tmp"
 

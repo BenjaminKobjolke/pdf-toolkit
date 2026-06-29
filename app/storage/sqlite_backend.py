@@ -9,12 +9,11 @@ so writes need no temp-file dance. All SQLite-specific SQL (``?`` placeholders,
 from __future__ import annotations
 
 import json
-import logging
 import sqlite3
 from pathlib import Path
 from typing import Any
 
-log = logging.getLogger("pdf_toolkit")
+from app.logging_setup import log
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS settings (

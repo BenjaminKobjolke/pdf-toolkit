@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import argparse
-import logging
 import sys
 from pathlib import Path
 
 from app.cli._common import EXIT_FAILURE, EXIT_OK, EXIT_USAGE
 from app.cli.console import console
 from app.config.settings import Settings
-from app.logging_setup import configure_logging
+from app.logging_setup import configure_logging, log
 
 DEFAULT_TARGET = Path(r"C:\cmdtools")
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -20,8 +19,6 @@ BAT_FILES: tuple[tuple[str, str], ...] = (
     ("pdft.bat", "app.cli.pdft"),
     ("pdft_gui.bat", "app.cli.gui"),
 )
-
-log = logging.getLogger("pdf_toolkit")
 
 
 class InstallError(Exception):

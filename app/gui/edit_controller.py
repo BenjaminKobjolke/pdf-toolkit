@@ -11,7 +11,6 @@ PDF's directory (where relative asset paths resolve).
 from __future__ import annotations
 
 import contextlib
-import logging
 import os
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -28,10 +27,9 @@ from app.gui.page_view import PageView
 from app.gui.rect_controller import RectController
 from app.gui.text_item import TextFieldItem
 from app.gui.text_style import TextStyle
+from app.logging_setup import log
 from app.pdf.sidecar import load_sidecar, save_sidecar, sidecar_path
 from app.pdf.text_overlay import apply_overlay
-
-log = logging.getLogger("pdf_toolkit")
 
 _AUTOSAVE_MS = 400
 

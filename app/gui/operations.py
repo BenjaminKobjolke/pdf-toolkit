@@ -7,17 +7,15 @@ reusable unit — :func:`app.pdf.backup.create_backup` — is shared, not duplic
 
 from __future__ import annotations
 
-import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
 from app.config.settings import Settings
 from app.gui import strings
+from app.logging_setup import log
 from app.pdf.backup import create_backup
 from app.pdf.merger import MERGED_FILENAME, find_existing_merged
-
-log = logging.getLogger("pdf_toolkit")
 
 
 @dataclass(frozen=True)

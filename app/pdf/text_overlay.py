@@ -8,7 +8,6 @@ PDF is overwritten atomically (tmp + ``os.replace``), matching the other ops.
 
 from __future__ import annotations
 
-import logging
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -22,8 +21,6 @@ from app.pdf.image_spec import ImageFieldSpec
 from app.pdf.rect_overlay import draw_rect
 from app.pdf.rect_spec import RectFieldSpec
 from app.pdf.text_spec import TextFieldSpec
-
-log = logging.getLogger("pdf_toolkit")
 
 _TMP_SUFFIX = ".pdf.tmp"
 EMBEDDED_SUFFIX = "_text-embedded"

@@ -7,16 +7,14 @@ settings page and tell the user how to finish. See ``app.os_integration``.
 
 from __future__ import annotations
 
-import logging
 import os
 
 from PySide6.QtWidgets import QWidget
 
 from app.gui import default_app_strings as ds
 from app.gui.confirm_dialog import Severity, show_message
+from app.logging_setup import log
 from app.os_integration import pdf_association
-
-log = logging.getLogger("pdf_toolkit")
 
 _DEFAULT_APPS_URI = "ms-settings:defaultapps"
 

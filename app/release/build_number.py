@@ -8,13 +8,11 @@ runtime via :mod:`app.release.release_info`.
 
 from __future__ import annotations
 
-import logging
 import sys
 from pathlib import Path
 
+from app.logging_setup import log
 from app.release.schema import BUILD_FILE_NAME
-
-logger = logging.getLogger(__name__)
 
 # Counter = last shipped build; 0 = nothing shipped yet (bump-first, ship-next).
 _DEFAULT_BUILD = 0
@@ -35,7 +33,7 @@ def read_build(path: Path | None = None) -> int:
     try:
         return int(raw)
     except ValueError:
-        logger.warning("Invalid build number %r in %s; using %d", raw, target, _DEFAULT_BUILD)
+        log.warning("Invalid build number %r in %s; using %d", raw, target, _DEFAULT_BUILD)
         return _DEFAULT_BUILD
 
 

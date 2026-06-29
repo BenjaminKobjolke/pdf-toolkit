@@ -20,17 +20,17 @@ bundled and ``_MEIPASS`` is a volatile temp dir).
 from __future__ import annotations
 
 import contextlib
-import logging
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+
+from app.logging_setup import log
 
 try:  # Real on Windows; absent elsewhere — guarded by is_supported().
     import winreg
 except ImportError:  # pragma: no cover - non-Windows import path
     winreg = None  # type: ignore[assignment]
 
-log = logging.getLogger("pdf_toolkit")
 
 PROGID = "pdf-toolkit.Viewer"
 PROGID_LABEL = "PDF (pdf-toolkit viewer)"

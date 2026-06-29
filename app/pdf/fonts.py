@@ -9,14 +9,13 @@ embedded font) — we fall back to a guaranteed Base14 builtin.
 
 from __future__ import annotations
 
-import logging
 import os
 import re
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
-log = logging.getLogger("pdf_toolkit")
+from app.logging_setup import log
 
 # Reserved PyMuPDF Base14 font codes (need no embedded file).
 BASE14_REGULAR = "helv"

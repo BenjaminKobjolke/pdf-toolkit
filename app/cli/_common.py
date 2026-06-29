@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import argparse
-import logging
 import sys
 from collections.abc import Callable
 from pathlib import Path
 
 from app.config.settings import Settings
-from app.logging_setup import configure_logging
+from app.logging_setup import configure_logging, log
 from app.pdf.backup import create_backup
 from app.pdf.merger import MERGED_FILENAME, find_existing_merged
 
@@ -17,7 +16,6 @@ EXIT_OK = 0
 EXIT_USAGE = 2
 EXIT_FAILURE = 1
 
-log = logging.getLogger("pdf_toolkit")
 
 # Type of a runner like ``run_with_backup`` / ``run_folder_merge``.
 CliRunner = Callable[[Path, Callable[[Path], None], Settings], int]

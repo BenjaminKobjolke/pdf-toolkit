@@ -6,7 +6,6 @@ wizard exposes it. CLAUDE.md mandates this update for every new feature.
 
 from __future__ import annotations
 
-import logging
 import sys
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
@@ -28,8 +27,6 @@ from app.pdf.merger import merge_folder
 from app.pdf.mover import move_page
 from app.pdf.rotator import rotate_page
 from app.pdf.swapper import swap_two_pages
-
-log = logging.getLogger("pdf_toolkit")
 
 
 @dataclass(frozen=True)

@@ -7,7 +7,6 @@ file (PDF or JPG/PNG image) into a list of pages ready to add to a writer.
 
 from __future__ import annotations
 
-import logging
 from io import BytesIO
 from pathlib import Path
 
@@ -15,12 +14,12 @@ import img2pdf  # type: ignore[import-untyped]
 from PIL import Image
 from pypdf import PageObject, PdfReader
 
+from app.logging_setup import log
+
 PDF_EXTENSION: str = ".pdf"
 IMAGE_EXTENSIONS: tuple[str, ...] = (".jpg", ".jpeg", ".png")
 SUPPORTED_EXTENSIONS: tuple[str, ...] = (PDF_EXTENSION,) + IMAGE_EXTENSIONS
 JPEG_FALLBACK_QUALITY: int = 95
-
-log = logging.getLogger("pdf_toolkit")
 
 
 def open_reader(source: Path) -> PdfReader:

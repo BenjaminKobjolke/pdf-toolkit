@@ -2,18 +2,16 @@
 
 from __future__ import annotations
 
-import logging
 from pathlib import Path
 
 from pypdf import PdfWriter
 
+from app.logging_setup import log
 from app.pdf._atomic import write_pdf_atomic
 from app.pdf._inputs import SUPPORTED_EXTENSIONS, pages_for_input
 
 MERGED_FILENAME: str = "merged.pdf"
 TMP_SUFFIX: str = ".tmp"
-
-log = logging.getLogger("pdf_toolkit")
 
 
 def scan_folder(folder: Path) -> list[Path]:

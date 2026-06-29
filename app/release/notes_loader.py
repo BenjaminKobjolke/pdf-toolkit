@@ -9,13 +9,11 @@ so the dialog can show the latest release before older ones.
 from __future__ import annotations
 
 import json
-import logging
 from dataclasses import dataclass
 from pathlib import Path
 
+from app.logging_setup import log
 from app.release import schema
-
-logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -64,7 +62,7 @@ def _read_locale(folder: Path, locale: str) -> dict[str, object] | None:
             try:
                 loaded = json.loads(candidate.read_text(encoding="utf-8"))
             except json.JSONDecodeError:
-                logger.warning("Malformed release notes JSON: %s", candidate)
+                log.warning("Malformed release notes JSON: %s", candidate)
                 return None
             return loaded if isinstance(loaded, dict) else None
     return None

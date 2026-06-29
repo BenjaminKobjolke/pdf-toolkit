@@ -7,15 +7,13 @@ bundles ``assets/icon.ico`` so ``app_icon()`` works in both modes.
 
 from __future__ import annotations
 
-import logging
 import sys
 from pathlib import Path
 
 from PySide6.QtGui import QIcon
 
+from app.logging_setup import log
 from app.release.schema import RELEASE_NOTES_DIRNAME
-
-logger = logging.getLogger(__name__)
 
 ICON_FILE = "icon.ico"
 APP_USER_MODEL_ID = "BenjaminKobjolke.PdfToolkit.Gui"
@@ -64,6 +62,6 @@ def set_app_user_model_id(app_id: str = APP_USER_MODEL_ID) -> bool:
 
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
     except (OSError, AttributeError) as exc:
-        logger.warning("Could not set AppUserModelID: %s", exc)
+        log.warning("Could not set AppUserModelID: %s", exc)
         return False
     return True

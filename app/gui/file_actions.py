@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import os
 from collections.abc import Callable
 from pathlib import Path
@@ -12,9 +11,8 @@ from PySide6.QtWidgets import QWidget
 
 from app.gui import file_strings
 from app.gui.operations import OpResult
+from app.logging_setup import log
 from app.pdf.words import page_text
-
-log = logging.getLogger("pdf_toolkit")
 
 
 class FileActions:

@@ -10,7 +10,6 @@ deferred until the user explicitly saves.
 from __future__ import annotations
 
 import contextlib
-import logging
 import os
 import shutil
 import tempfile
@@ -20,9 +19,8 @@ from app.config.settings import Settings
 from app.gui import strings
 from app.gui.operations import OpResult, back_up
 from app.io.fs import clear_readonly, replace_atomic
+from app.logging_setup import log
 from app.pdf.sidecar import sidecar_path
-
-log = logging.getLogger("pdf_toolkit")
 
 _TMP_SUFFIX = ".tmp"
 
