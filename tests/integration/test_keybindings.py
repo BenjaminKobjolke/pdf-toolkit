@@ -104,3 +104,95 @@ def test_configure_actions_clear_flow(window: MainWindow, monkeypatch: pytest.Mo
 
     window._keybinding_actions._clear(ListEntry(title=save_command.title, payload=save_command))
     assert window.current_keymap().chords_for(commands.SAVE) == ()
+
+
+def _fake_capture(monkeypatch: pytest.MonkeyPatch, chord: str) -> None:
+    class FakeCapture:
+        def __init__(self, _title: str, _parent: object) -> None: ...
+
+        def exec(self) -> int:
+            return 1
+
+        def chosen_chord(self) -> str:
+            return chord
+
+    monkeypatch.setattr(keybinding_actions, "KeyCaptureDialog", FakeCapture)
+    monkeypatch.setattr(confirm_dialog, "show_message", staticmethod(lambda *a, **k: None))
+
+
+def test_bind_to_bound_command_append_keeps_existing(
+    window: MainWindow, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _fake_capture(monkeypatch, "Alt+Z")
+    monkeypatch.setattr(
+        confirm_dialog, "confirm", staticmethod(lambda *a, **k: confirm_dialog.DialogResult.PRIMARY)
+    )
+    zoom = commands.find(window._registry, commands.ZOOM_IN)
+    window._keybinding_actions._bind(zoom)
+    chords = window.current_keymap().chords_for(commands.ZOOM_IN)
+    assert "Alt+Z" in chords
+    assert "Ctrl++" in chords  # existing default kept
+
+
+def test_bind_to_bound_command_replace_collapses(
+    window: MainWindow, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _fake_capture(monkeypatch, "Alt+Z")
+    monkeypatch.setattr(
+        confirm_dialog,
+        "confirm",
+        staticmethod(lambda *a, **k: confirm_dialog.DialogResult.SECONDARY),
+    )
+    zoom = commands.find(window._registry, commands.ZOOM_IN)
+    window._keybinding_actions._bind(zoom)
+    assert window.current_keymap().chords_for(commands.ZOOM_IN) == ("Alt+Z",)
+
+
+def _fake_picker(monkeypatch: pytest.MonkeyPatch, window: MainWindow, chosen_title: str) -> None:
+    """Make the delete picker return the entry whose title matches ``chosen_title``."""
+    from app.gui.filter_list_dialog import ListEntry
+
+    class FakePicker:
+        def __init__(self, entries: list[ListEntry], **_kwargs: object) -> None:
+            self._chosen = next(e for e in entries if e.title == chosen_title)
+
+        def exec(self) -> int:
+            return 1
+
+        def chosen(self) -> ListEntry:
+            return self._chosen
+
+    monkeypatch.setattr(keybinding_actions, "FilterListDialog", FakePicker)
+    monkeypatch.setattr(window._keybinding_actions._palette, "apply_to", lambda *a, **k: None)
+
+
+def test_clear_multi_chord_removes_single(
+    window: MainWindow, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(confirm_dialog, "show_message", staticmethod(lambda *a, **k: None))
+    _fake_picker(monkeypatch, window, "Ctrl+=")
+    from app.gui.filter_list_dialog import ListEntry
+
+    zoom = commands.find(window._registry, commands.ZOOM_IN)
+    window._keybinding_actions._clear(ListEntry(title=zoom.title, payload=zoom))
+    chords = window.current_keymap().chords_for(commands.ZOOM_IN)
+    assert "Ctrl+=" not in chords
+    assert "Ctrl++" in chords  # siblings survive
+
+
+def test_clear_multi_chord_removes_all(window: MainWindow, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(confirm_dialog, "show_message", staticmethod(lambda *a, **k: None))
+    _fake_picker(monkeypatch, window, strings.DELETE_ALL_SHORTCUTS)
+    from app.gui.filter_list_dialog import ListEntry
+
+    zoom = commands.find(window._registry, commands.ZOOM_IN)
+    window._keybinding_actions._clear(ListEntry(title=zoom.title, payload=zoom))
+    assert window.current_keymap().chords_for(commands.ZOOM_IN) == ()
+
+
+def test_palette_row_shows_all_chords(window: MainWindow) -> None:
+    from app.gui.palette_entries import build_palette_entries
+
+    entries = build_palette_entries(window._registry, [], window.current_keymap())
+    zoom = next(e for e in entries if e.payload.command_id == commands.ZOOM_IN)
+    assert zoom.shortcut == "Ctrl++, Ctrl+=, Ctrl+Up"

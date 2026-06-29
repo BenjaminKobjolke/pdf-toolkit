@@ -8,8 +8,9 @@ can be overwritten, moved to another command, or removed.
 
 ## Seeing the current shortcut
 
-The command palette (**Ctrl+Shift+P**) shows each command's shortcut
-**right-aligned** on its row, so you always see what's bound to what. Press **F1**
+The command palette (**Ctrl+Shift+P**) shows each command's shortcut(s)
+**right-aligned** on its row, so you always see what's bound to what. A command
+can hold **several chords** — they are all listed, comma-separated. Press **F1**
 for the full searchable key + mouse list.
 
 ## Changing a shortcut
@@ -24,7 +25,11 @@ for the full searchable key + mouse list.
 4. Press **Enter** to confirm, or **Esc** to cancel (Esc once clears the detected
    chord so you can try again; Esc again closes the window).
 
-The new chord appears next to the command in the palette and works right away.
+If the command **already has shortcut(s)**, a prompt asks whether to **Add** the
+new chord (the command keeps its existing ones and gains this one) or **Replace**
+them (the existing chords are removed and only the new one remains). Cancel to
+leave things unchanged. The new chord appears next to the command in the palette
+and works right away.
 
 > **Example.** Open **Configure keyboard shortcuts…**, search `exit`, press
 > **Enter**, then press **Alt+W**. Confirm with **Enter**. The palette now shows
@@ -39,8 +44,11 @@ command loses it); cancel to keep things as they are.
 ## Clearing a shortcut
 
 In the **Configure keyboard shortcuts…** list, highlight a command and press
-**Del**. After a confirmation prompt, every chord bound to that command is
-removed. (A command can still be run from the palette even with no shortcut.)
+**Del**. If the command has a single chord, a yes/no prompt removes it. If it has
+**several chords**, a picker opens listing **All shortcuts** plus each chord —
+choose **All shortcuts** to clear every one, or a single chord to remove just
+that one (the rest survive). (A command can still be run from the palette even
+with no shortcut.)
 
 ## The command palette chord is rebindable too
 

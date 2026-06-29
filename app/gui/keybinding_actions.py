@@ -21,6 +21,7 @@ from app.config.key_bindings import (
     assign,
     effective_keymap,
     merge_keymap,
+    remove_chord,
     remove_command,
 )
 from app.gui import commands, confirm_dialog, strings
@@ -30,6 +31,9 @@ from app.gui.key_capture_dialog import KeyCaptureDialog
 from app.gui.operations import OpResult
 from app.gui.palette_controller import PaletteController
 from app.gui.palette_entries import build_palette_entries
+
+# Sentinel payload for the "All shortcuts" row in the delete picker.
+_DELETE_ALL = object()
 
 
 class KeybindingActions:
@@ -76,17 +80,25 @@ class KeybindingActions:
         chord = capture.chosen_chord()
         if chord is None:
             return
+        keymap = self._keymap()
         overrides = self._store.load()
-        stolen_from = self._keymap().command_for(chord)
+        stolen_from = keymap.command_for(chord)
         if stolen_from == command.command_id:
             return
         if stolen_from is not None and not self._confirm_reassign(chord, stolen_from, command):
             return
+        existing = keymap.chords_for(command.command_id)
+        if existing:
+            decision = self._ask_add_or_replace(command, existing, chord)
+            if decision is None:
+                return
+            if decision is confirm_dialog.DialogResult.SECONDARY:  # Replace
+                overrides = remove_command(overrides, self._defaults, command.command_id)
         self._apply(assign(overrides, chord, command.command_id))
         self._report(OpResult(True, self._set_message(chord, command, stolen_from)))
 
     def _clear(self, entry: ListEntry) -> None:
-        """Remove every chord bound to the entry's command (with confirmation)."""
+        """Delete a chord bound to the entry's command (all, or a chosen one)."""
         command: Command = entry.payload
         chords = self._keymap().chords_for(command.command_id)
         if not chords:
@@ -94,10 +106,42 @@ class KeybindingActions:
                 OpResult(True, strings.MSG_SHORTCUT_NONE_TO_CLEAR_FMT.format(title=command.title))
             )
             return
-        if not self._confirm_clear(command, chords):
+        if len(chords) == 1:
+            if not self._confirm_clear(command, chords):
+                return
+            self._remove_all(command)
             return
+        choice = self._pick_chord_to_remove(command, chords)
+        if choice is None:
+            return
+        if choice is _DELETE_ALL:
+            self._remove_all(command)
+        elif isinstance(choice, str):
+            self._apply(remove_chord(self._store.load(), choice))
+            message = strings.MSG_SHORTCUT_CHORD_REMOVED_FMT.format(
+                chord=choice, title=command.title
+            )
+            self._report(OpResult(True, message))
+
+    def _remove_all(self, command: Command) -> None:
         self._apply(remove_command(self._store.load(), self._defaults, command.command_id))
         self._report(OpResult(True, strings.MSG_SHORTCUT_CLEARED_FMT.format(title=command.title)))
+
+    def _pick_chord_to_remove(self, command: Command, chords: tuple[str, ...]) -> object | None:
+        """Ask which chord to delete; return the chord, ``_DELETE_ALL``, or ``None``."""
+        entries = [ListEntry(title=strings.DELETE_ALL_SHORTCUTS, payload=_DELETE_ALL)]
+        entries += [ListEntry(title=chord, payload=chord) for chord in chords]
+        dialog = FilterListDialog(
+            entries,
+            placeholder=strings.DELETE_SHORTCUT_PLACEHOLDER,
+            title=strings.DELETE_SHORTCUT_TITLE_FMT.format(title=command.title),
+            parent=self._parent,
+        )
+        self._palette.apply_to(dialog, self._parent.size())
+        if dialog.exec() and (chosen := dialog.chosen()) is not None:
+            payload: object = chosen.payload
+            return payload
+        return None
 
     def _apply(self, overrides: tuple[KeyOverride, ...]) -> None:
         self._store.save(overrides)
@@ -112,6 +156,24 @@ class KeybindingActions:
         return strings.MSG_SHORTCUT_STOLEN_FMT.format(
             chord=chord, title=command.title, stolen=self._title_for(stolen_from)
         )
+
+    def _ask_add_or_replace(
+        self, command: Command, existing: tuple[str, ...], chord: str
+    ) -> confirm_dialog.DialogResult | None:
+        """Ask whether to add the new chord or replace existing ones; ``None`` cancels."""
+        choice = confirm_dialog.confirm(
+            self._parent,
+            strings.CONFIRM_ADD_OR_REPLACE_TITLE,
+            strings.CONFIRM_ADD_OR_REPLACE_FMT.format(
+                title=command.title, chords=", ".join(existing), chord=chord
+            ),
+            primary=strings.BTN_APPEND,
+            secondary=strings.BTN_REPLACE,
+            cancel=strings.BTN_CANCEL,
+        )
+        if choice is confirm_dialog.DialogResult.CANCEL:
+            return None
+        return choice
 
     def _confirm_reassign(self, chord: str, current_id: str, command: Command) -> bool:
         return self._confirm(

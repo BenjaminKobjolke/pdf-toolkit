@@ -5,8 +5,12 @@ everything else is reachable through the command palette. The keys below are the
 **built-in defaults** (registered in `app/gui/window_input.py` — `_SHORTCUTS` +
 `_PALETTE_CHORD`); mouse gestures live in `_MOUSE_CONTROLS`. Press **F1** in the
 viewer to open a chooser: **Keyboard shortcuts…** opens the editable dialog
-(Enter binds a chord, **Del deletes the selected shortcut** after a yes/no
-confirm), and **Mouse controls** opens the read-only list of wheel gestures.
+(Enter binds a chord; binding to an action that already has shortcuts asks
+whether to **Add** the new chord or **Replace** the existing one(s); **Del
+deletes a shortcut** — for an action with several chords it lets you pick **All
+shortcuts** or one specific chord), and **Mouse controls** opens the read-only
+list of wheel gestures. An action can hold **multiple chords**, and every row
+lists all of them.
 
 Every shortcut here can be **changed, added, or removed** at runtime — see
 `CONFIGURE_SHORTCUTS.md`. The command palette shows each command's current chord

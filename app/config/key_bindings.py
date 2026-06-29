@@ -48,11 +48,6 @@ class KeyMap:
         """Return every chord bound to ``command_id``, in binding order."""
         return tuple(chord for chord, bound_id in self.bindings if bound_id == command_id)
 
-    def primary_chord(self, command_id: str) -> str | None:
-        """Return the first chord bound to ``command_id`` (for palette display)."""
-        chords = self.chords_for(command_id)
-        return chords[0] if chords else None
-
 
 def merge_keymap(defaults: list[DefaultPair], overrides: tuple[KeyOverride, ...]) -> KeyMap:
     """Overlay ``overrides`` onto ``defaults`` by chord (value sets, ``None`` deletes)."""
@@ -88,6 +83,11 @@ def remove_command(
     for chord in keymap.chords_for(command_id):
         result = _upsert(result, chord, None)
     return result
+
+
+def remove_chord(overrides: tuple[KeyOverride, ...], chord: str) -> tuple[KeyOverride, ...]:
+    """Tombstone a single chord (leaves the command's other chords intact)."""
+    return _upsert(overrides, chord, None)
 
 
 def _upsert(

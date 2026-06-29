@@ -19,8 +19,8 @@ def build_palette_entries(
 ) -> list[ListEntry]:
     """Return palette rows ordered by recency, bolding the top enabled row.
 
-    Each row carries its effective chord (``keymap.primary_chord``) so the dialog
-    can render it right-aligned.
+    Each row carries every chord bound to the command (``keymap.chords_for``,
+    comma-joined) so the dialog can render them right-aligned.
     """
     by_id = {cmd.command_id: cmd for cmd in registry}
     ordered_ids = order_ids([cmd.command_id for cmd in registry], mru)
@@ -33,7 +33,7 @@ def build_palette_entries(
             enabled=cmd.is_enabled(),
             payload=cmd,
             bold=cmd.command_id == first_enabled,
-            shortcut=keymap.primary_chord(cmd.command_id) or "",
+            shortcut=", ".join(keymap.chords_for(cmd.command_id)),
         )
         for cmd in ordered
     ]

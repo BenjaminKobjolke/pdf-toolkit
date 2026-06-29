@@ -6,10 +6,10 @@ from pathlib import Path
 
 from app.config.key_bindings import (
     KeyBindingStore,
-    KeyMap,
     KeyOverride,
     assign,
     merge_keymap,
+    remove_chord,
     remove_command,
 )
 from app.storage.sqlite_backend import SqliteBackend
@@ -82,13 +82,10 @@ def test_remove_command_includes_user_added_chord() -> None:
     assert keymap.chords_for("save") == ()
 
 
-# --- KeyMap queries -----------------------------------------------------------
-
-
-def test_primary_chord_is_first_binding() -> None:
-    keymap = KeyMap((("Ctrl++", "zoom_in"), ("Ctrl+=", "zoom_in")))
-    assert keymap.primary_chord("zoom_in") == "Ctrl++"
-    assert keymap.primary_chord("missing") is None
+def test_remove_chord_tombstones_only_named_chord() -> None:
+    overrides = remove_chord((), "Ctrl++")
+    keymap = merge_keymap(_DEFAULTS, overrides)
+    assert keymap.chords_for("zoom_in") == ("Ctrl+=",)  # sibling chord survives
 
 
 # --- store --------------------------------------------------------------------

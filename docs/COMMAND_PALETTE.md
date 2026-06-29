@@ -61,7 +61,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Outline: type…** | Line type of the outline — Dashed or Solid. |
 | **Outline: color…** | Color of the outline (keyboard-first picker). |
 | **Exit** | Close the viewer. |
-| **Show keyboard and mouse controls** | Open a searchable, read-only list of every key + mouse gesture (also **F1**). |
+| **Help: Show keyboard and mouse controls** | Open the F1 chooser: edit keyboard shortcuts (Del deletes) or view mouse controls (also **F1**). |
 | **Previous page** / **Next page** | Step one page back / forward. |
 | **First page** / **Last page** | Jump to the first / last page. |
 | **Zoom to fit** | Scale the page to fit the window. |
