@@ -48,6 +48,7 @@ SAVE = "save"
 SAVE_AS = "save_as"
 COPY_FILE_PATH = "copy_file_path"
 COPY_FILE_NAME = "copy_file_name"
+COPY_FILE_NAME_NO_EXT = "copy_file_name_no_ext"
 COPY_PAGE_TEXT = "copy_page_text"
 OPEN_FOLDER = "open_folder"
 PRINT = "print"
@@ -145,6 +146,12 @@ def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
         ),
         Command(
             COPY_FILE_NAME, file_strings.CMD_COPY_FILE_NAME, window.file_actions.copy_name, has_doc
+        ),
+        Command(
+            COPY_FILE_NAME_NO_EXT,
+            file_strings.CMD_COPY_FILE_NAME_NO_EXT,
+            window.file_actions.copy_name_without_extension,
+            has_doc,
         ),
         Command(
             COPY_PAGE_TEXT,

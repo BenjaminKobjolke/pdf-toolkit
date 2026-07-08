@@ -72,6 +72,16 @@ def test_delete_saved_fields_command_removes_sidecar(
     assert not sidecar_path(pdf).is_file()
 
 
+def test_copy_name_no_ext_command_gated_by_document(
+    window: MainWindow, make_pdf: MakePdf
+) -> None:
+    registry = commands.build_commands(window)
+    assert commands.find(registry, commands.COPY_FILE_NAME_NO_EXT).is_enabled() is False
+    window.open_pdf(make_pdf([(200, 300)]))
+    registry = commands.build_commands(window)
+    assert commands.find(registry, commands.COPY_FILE_NAME_NO_EXT).is_enabled() is True
+
+
 def test_close_document_resets_state(window: MainWindow, make_pdf: MakePdf) -> None:
     window.open_pdf(make_pdf([(200, 300)]))
     window.close_document()

@@ -44,6 +44,13 @@ class FileActions:
         QGuiApplication.clipboard().setText(source.name)
         self._report(OpResult(True, file_strings.MSG_COPIED_NAME))
 
+    def copy_name_without_extension(self) -> None:
+        source = self._source()
+        if source is None:
+            return
+        QGuiApplication.clipboard().setText(source.stem)
+        self._report(OpResult(True, file_strings.MSG_COPIED_NAME_NO_EXT))
+
     def copy_page_text(self) -> None:
         source = self._source()
         if source is None:

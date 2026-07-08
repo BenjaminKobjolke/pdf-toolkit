@@ -40,6 +40,7 @@ _ALL_IDS = {
     commands.SAVE_AS,
     commands.COPY_FILE_PATH,
     commands.COPY_FILE_NAME,
+    commands.COPY_FILE_NAME_NO_EXT,
     commands.COPY_PAGE_TEXT,
     commands.OPEN_FOLDER,
     commands.PRINT,

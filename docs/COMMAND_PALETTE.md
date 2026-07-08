@@ -47,6 +47,9 @@ missing or corrupt file just means no commands are floated yet.
 | **Open from recent / history…** | Pick from recently opened documents (see below). |
 | **Save changes to original file** | Write the working copy back to the original (with a backup). See *Deferred saving*. |
 | **Rename file…** | Rename the open PDF (and its sidecar) and reopen it. |
+| **Copy file path to clipboard** | Copy the open PDF's full path. |
+| **Copy file name to clipboard** | Copy the filename with extension. |
+| **Copy file name without extension to clipboard** | Copy the filename stem (no `.pdf`). |
 | **Close current document** | Offer to save unsaved changes, then return to the empty viewer. |
 | **Toggle menu bar** | Show/hide the top menu bar (remembered across sessions). |
 | **Toggle toolbar** | Show/hide the button toolbars (remembered across sessions). |
