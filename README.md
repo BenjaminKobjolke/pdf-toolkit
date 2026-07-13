@@ -95,6 +95,12 @@ The palette and direct shortcuts cover:
   cursor **starts on the current search match** (after `Ctrl+F`) or wherever you
   **click**; `Esc` outside select mode clears the search highlight. See
   [docs/SELECT_MODE.md](docs/SELECT_MODE.md).
+- **Open / copy link (vim-style link hints)** — **Open link** / **Copy link** in
+  the palette label every link on the current page with a letter; type the letter
+  to open that URL in the browser or copy it to the clipboard, `Esc` cancels.
+  Detects both real PDF hyperlinks and bare printed `http(s)://` URLs. The overlay
+  (letter size, letter color, chip background, box color) is configurable from the
+  palette and remembered. See [docs/OPEN_LINK.md](docs/OPEN_LINK.md).
 - **File browser (vim-style)** — opening, saving, and folder-picking use a custom
   keyboard-first browser instead of the OS dialog: `j`/`k` move, `l`/`Enter` enter
   a folder or pick a file, `h`/`Alt+↑`/`..` go up (drive list at a drive root), `/`

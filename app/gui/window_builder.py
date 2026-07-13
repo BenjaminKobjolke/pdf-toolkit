@@ -15,6 +15,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 from app.config.command_history import CommandHistoryStore
 from app.config.image_choice_settings import ImageChoiceStore
 from app.config.key_bindings import KeyBindingStore, effective_keymap
+from app.config.link_hint_settings import LinkHintSettingsStore
 from app.config.outline_settings import OutlineSettingsStore
 from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
@@ -38,6 +39,9 @@ from app.gui.image_actions import ImageActions
 from app.gui.image_controller import ImageController
 from app.gui.keybinding_actions import KeybindingActions
 from app.gui.layer_actions import LayerActions
+from app.gui.link_hint_controller import LinkHintController
+from app.gui.link_hint_settings_controller import LinkHintSettingsController
+from app.gui.link_hint_style import LinkHintStyle
 from app.gui.mode_status_bar import ModeStatusBar
 from app.gui.move_actions import MoveActions
 from app.gui.operations import GuiOperationRunner
@@ -142,6 +146,20 @@ def _build_overlay(window: MainWindow, settings: Settings) -> None:
     window._rect_actions = RectActions(window, window._page_view, window._rects)
     window._layer_actions = LayerActions(window._page_view, window._controller)
     window._select = SelectController(window._page_view, window._mode_bar, window.exit_edit_mode)
+    link_hint_style = LinkHintStyle()
+    window._link_hint_settings = LinkHintSettingsController(
+        window,
+        LinkHintSettingsStore(window._backend),
+        link_hint_style,
+        lambda: window._page_view.graphics_scene().update(),
+    )
+    window._link_hints = LinkHintController(
+        window._page_view,
+        window._mode_bar,
+        window._select,
+        link_hint_style,
+        window.exit_edit_mode,
+    )
     window._page_view.set_key_interceptor(window._select.handle_key)
     window._page_view.set_click_handler(window._select.handle_click)
     window._overlay_actions = OverlayActions(

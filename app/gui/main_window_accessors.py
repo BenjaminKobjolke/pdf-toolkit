@@ -36,6 +36,8 @@ if TYPE_CHECKING:
     from app.gui.image_controller import ImageController
     from app.gui.keybinding_actions import KeybindingActions
     from app.gui.layer_actions import LayerActions
+    from app.gui.link_hint_controller import LinkHintController
+    from app.gui.link_hint_settings_controller import LinkHintSettingsController
     from app.gui.mode_status_bar import ModeStatusBar
     from app.gui.move_actions import MoveActions
     from app.gui.operations import GuiOperationRunner
@@ -49,6 +51,8 @@ if TYPE_CHECKING:
     from app.gui.print_actions import PrintActions
     from app.gui.rect_actions import RectActions
     from app.gui.rect_controller import RectController
+
+if TYPE_CHECKING:
     from app.gui.remembered_settings import RememberedSettingsController
     from app.gui.rotate_actions import RotateActions
     from app.gui.save_controller import SaveController
@@ -83,6 +87,8 @@ class CollaboratorAccessors:
     _images: ImageController
     _rects: RectController
     _select: SelectController
+    _link_hints: LinkHintController
+    _link_hint_settings: LinkHintSettingsController
     _placement: PlacementController
     _field_actions: FieldActions
     _image_actions: ImageActions
@@ -131,6 +137,14 @@ class CollaboratorAccessors:
     @property
     def select_controller(self) -> SelectController:
         return self._select
+
+    @property
+    def link_hint_controller(self) -> LinkHintController:
+        return self._link_hints
+
+    @property
+    def link_hint_settings(self) -> LinkHintSettingsController:
+        return self._link_hint_settings
 
     @property
     def operation_bar(self) -> OperationBar:

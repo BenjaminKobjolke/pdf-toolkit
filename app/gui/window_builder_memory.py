@@ -13,6 +13,7 @@ from app.config.document_page import DocumentPageStore
 from app.config.document_zoom import DocumentZoomStore
 from app.config.image_choice_settings import ImageChoiceStore
 from app.config.key_bindings import KeyBindingStore
+from app.config.link_hint_settings import LinkHintSettingsStore
 from app.config.outline_settings import OutlineSettingsStore
 from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
@@ -73,6 +74,7 @@ def remembered_stores(window: MainWindow, settings: Settings) -> list[RecordStor
         WindowGeometryStore(backend),
         ImageChoiceStore(backend),
         OutlineSettingsStore(backend),
+        LinkHintSettingsStore(backend),
         ZoomSettingsStore(backend),
         KeyBindingStore(backend),
         DocumentZoomStore(backend),

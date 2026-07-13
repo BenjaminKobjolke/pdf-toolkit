@@ -137,6 +137,14 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
         """Enter/leave vim-style text select mode."""
         self._select.toggle()
 
+    def open_link_hints(self) -> None:
+        """Enter vim-style open-link mode (type a letter to open a link)."""
+        self._link_hints.open()
+
+    def copy_link_hints(self) -> None:
+        """Enter vim-style copy-link mode (type a letter to copy a link)."""
+        self._link_hints.copy()
+
     def add_text_field(self) -> None:
         """Add a text field, entering edit mode first if needed (palette/button)."""
         self._overlay_actions.add_text_field()

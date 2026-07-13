@@ -63,6 +63,10 @@ missing or corrupt file just means no commands are floated yet.
 | **Outline: width…** | Stroke width (px) of the selected-element outline (see *Appearance settings*). |
 | **Outline: type…** | Line type of the outline — Dashed or Solid. |
 | **Outline: color…** | Color of the outline (keyboard-first picker). |
+| **Link overlay: font size…** | Letter font size of the link-hint overlay (see *Appearance settings*). |
+| **Link overlay: text color…** | Color of the hint letter. |
+| **Link overlay: background color…** | Fill of the chip behind the hint letter. |
+| **Link overlay: box color…** | Outline color of the box around each link. |
 | **Exit** | Close the viewer. |
 | **Help: Show keyboard and mouse controls** | Open the F1 chooser: edit keyboard shortcuts (Del deletes) or view mouse controls (also **F1**). |
 | **Previous page** / **Next page** | Step one page back / forward. |
@@ -77,6 +81,8 @@ missing or corrupt file just means no commands are floated yet.
 | **Move page to next position** / **previous position** | Swap the current page one step forward / back. |
 | **Move page to first** / **to last** | Move the current page to the start / end. |
 | **Merge folder…** | Merge a folder of PDFs and images into `merged.pdf`. |
+| **Open link** | Enter vim-style link-hint mode: label every link on the page, type the letter to open it (see below). |
+| **Copy link** | Same hint overlay as **Open link**, but the letter copies the URL to the clipboard instead of opening it. |
 | **Toggle edit mode** | Turn edit mode on / off (see `edit_mode/EDIT_MODE.md`). |
 | **Select next / previous editable element** | Cycle selection through text fields and images (also **Tab** / **Shift+Tab**). |
 | **Add text field** | Add a new text field (edit mode only). |
@@ -211,6 +217,26 @@ every keystroke. Navigate with the arrow keys, **Enter** to act, **Esc** to clos
 - **Search text fields…** (`Ctrl+Shift+F`) searches the text you placed via the
   editor. Selecting a result jumps to that page and **selects** the field (edit
   mode turns on) — its field commands then appear in the palette.
+
+## Open link
+
+**Open link** enters a vim-style hint mode over the current page. Every link gets
+a green box and a small gold letter label; **type the letter** to open that link
+in your default browser. **Esc** cancels. When a page has more than 26 links,
+two-letter labels (`aa`, `ab`, …) are used and keystrokes are buffered until they
+match. If the page has no links a **No links on this page** hint is shown and the
+mode is not entered.
+
+Both link kinds are detected: real PDF hyperlink annotations and bare
+`http(s)://` URLs printed in the page text (a URL that is both is labelled once).
+
+**Copy link** is the same overlay with a different action: the letter **copies the
+URL to the clipboard** instead of opening it.
+
+The overlay's appearance is tunable and remembered across sessions via the palette
+— **Link overlay: font size… / text color… / background color… / box color…**
+(letter size, letter color, chip fill, and box outline). Reset them from
+**Remembered settings…** ("Link overlay appearance"). See `OPEN_LINK.md`.
 
 ## Color picker
 

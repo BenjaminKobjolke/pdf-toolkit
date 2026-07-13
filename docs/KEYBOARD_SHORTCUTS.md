@@ -95,6 +95,17 @@ hop word to word, select with **v**, and copy with **y**. Full reference:
 | **y** | Copy the selection (or current word) to the clipboard |
 | **Esc** / **q** | Leave select mode |
 
+## Open / Copy link (vim-style link hints)
+
+Label every link on the current page, then **Open link** (browser) or **Copy
+link** (clipboard) by keyboard. Palette-only by default (no built-in chord;
+bindable via **Configure keyboard shortcuts…**). Full reference: `OPEN_LINK.md`.
+
+| Key | Action |
+|-----|--------|
+| **a**, **b**, **c**, … | Open/copy the link with that label (`aa`, `ab`, … past 26) |
+| **Esc** | Leave the mode |
+
 ## File browser (open / save / folder)
 
 Choosing a file or folder (open, insert, add image, save-as, extract, merge)

@@ -12,7 +12,14 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from app.gui import default_app_strings, file_strings, release_strings, select_strings, strings
+from app.gui import (
+    default_app_strings,
+    file_strings,
+    link_strings,
+    release_strings,
+    select_strings,
+    strings,
+)
 from app.os_integration import pdf_association
 
 if TYPE_CHECKING:
@@ -76,6 +83,12 @@ DOC_ZOOM_REMEMBER = "doc_zoom_remember"
 DOC_PAGE_REMEMBER = "doc_page_remember"
 EDIT_MODE = "edit_mode"
 SELECT_MODE = "select_mode"
+OPEN_LINK = "open_link"
+COPY_LINK = "copy_link"
+LINK_FONT = "link_font"
+LINK_TEXT_COLOR = "link_text_color"
+LINK_BG_COLOR = "link_bg_color"
+LINK_BOX_COLOR = "link_box_color"
 SELECT_NEXT = "select_next"
 SELECT_PREV = "select_prev"
 ADD_FIELD = "add_field"
@@ -226,6 +239,7 @@ def _view_commands(window: MainWindow) -> list[Command]:
     """Window chrome plus command-palette and outline appearance settings."""
     palette = window.palette_controller
     outline = window.outline_controller
+    link = window.link_hint_settings
     zoom = window.zoom_settings_controller
     return [
         Command(COMMAND_PALETTE, strings.CMD_COMMAND_PALETTE, window.open_command_palette),
@@ -254,6 +268,10 @@ def _view_commands(window: MainWindow) -> list[Command]:
         Command(OUTLINE_WIDTH, strings.CMD_OUTLINE_WIDTH, outline.set_width),
         Command(OUTLINE_STYLE, strings.CMD_OUTLINE_STYLE, outline.set_style),
         Command(OUTLINE_COLOR, strings.CMD_OUTLINE_COLOR, outline.set_color),
+        Command(LINK_FONT, link_strings.CMD_LINK_FONT, link.set_font_size),
+        Command(LINK_TEXT_COLOR, link_strings.CMD_LINK_TEXT_COLOR, link.set_text_color),
+        Command(LINK_BG_COLOR, link_strings.CMD_LINK_BG_COLOR, link.set_background_color),
+        Command(LINK_BOX_COLOR, link_strings.CMD_LINK_BOX_COLOR, link.set_box_color),
         Command(ZOOM_SET_DEFAULT, strings.CMD_SET_DEFAULT_ZOOM, zoom.set_default_zoom),
         Command(DOC_ZOOM_REMEMBER, strings.CMD_REMEMBER_DOC_ZOOM, window.remember_document_zoom),
         Command(DOC_PAGE_REMEMBER, strings.CMD_REMEMBER_DOC_PAGE, window.remember_document_page),
@@ -270,6 +288,8 @@ def _edit_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     return [
         Command(EDIT_MODE, strings.CMD_EDIT_MODE, window.toggle_edit_mode, has_doc),
         Command(SELECT_MODE, select_strings.CMD_SELECT_MODE, window.toggle_select_mode, has_doc),
+        Command(OPEN_LINK, link_strings.CMD_OPEN_LINK, window.open_link_hints, has_doc),
+        Command(COPY_LINK, link_strings.CMD_COPY_LINK, window.copy_link_hints, has_doc),
         Command(SELECT_NEXT, strings.CMD_SELECT_NEXT, window.select_next_editable, has_doc),
         Command(SELECT_PREV, strings.CMD_SELECT_PREV, window.select_previous_editable, has_doc),
         Command(ADD_FIELD, strings.CMD_ADD_FIELD, window.add_text_field, has_doc),
