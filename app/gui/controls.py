@@ -23,33 +23,49 @@ class OperationBar(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self._page_label = QLabel(strings.LABEL_NO_DOC)
-        self._doc_buttons: list[QPushButton] = []
+        # Nav buttons need only an open doc; the page-op buttons are PDF-only.
+        # ponytail: a fixed 6-button toolbar, so a nav-vs-pdf split is simpler
+        # than driving it from the command registry (which stays authoritative).
+        self._nav_buttons: list[QPushButton] = []
+        self._pdf_buttons: list[QPushButton] = []
 
         layout = QHBoxLayout(self)
-        layout.addWidget(self._button(strings.BTN_PREV, self.prev_requested, doc_only=True))
-        layout.addWidget(self._button(strings.BTN_NEXT, self.next_requested, doc_only=True))
+        layout.addWidget(self._button(strings.BTN_PREV, self.prev_requested, self._nav_buttons))
+        layout.addWidget(self._button(strings.BTN_NEXT, self.next_requested, self._nav_buttons))
         layout.addWidget(self._page_label)
         layout.addStretch(1)
-        layout.addWidget(self._button(strings.BTN_DELETE_PAGE, self.delete_page_requested, True))
-        layout.addWidget(self._button(strings.BTN_DELETE_RANGE, self.delete_range_requested, True))
-        layout.addWidget(self._button(strings.BTN_SWAP, self.swap_requested, doc_only=True))
-        layout.addWidget(self._button(strings.BTN_INSERT_PAGE, self.insert_page_requested, True))
-        layout.addWidget(self._button(strings.BTN_EXTRACT_PAGE, self.extract_page_requested, True))
+        layout.addWidget(
+            self._button(strings.BTN_DELETE_PAGE, self.delete_page_requested, self._pdf_buttons)
+        )
+        layout.addWidget(
+            self._button(strings.BTN_DELETE_RANGE, self.delete_range_requested, self._pdf_buttons)
+        )
+        layout.addWidget(self._button(strings.BTN_SWAP, self.swap_requested, self._pdf_buttons))
+        layout.addWidget(
+            self._button(strings.BTN_INSERT_PAGE, self.insert_page_requested, self._pdf_buttons)
+        )
+        layout.addWidget(
+            self._button(strings.BTN_EXTRACT_PAGE, self.extract_page_requested, self._pdf_buttons)
+        )
         layout.addWidget(self._button(strings.BTN_MERGE_FOLDER, self.merge_folder_requested))
 
-        self.set_enabled_for_doc(False)
+        self.update_for(has_doc=False, is_pdf=False)
 
-    def set_enabled_for_doc(self, has_doc: bool) -> None:
-        """Enable the buttons that require an open document."""
-        for button in self._doc_buttons:
+    def update_for(self, has_doc: bool, is_pdf: bool) -> None:
+        """Enable nav buttons for any open doc; page-op buttons only for PDFs."""
+        for button in self._nav_buttons:
             button.setEnabled(has_doc)
+        for button in self._pdf_buttons:
+            button.setEnabled(has_doc and is_pdf)
 
     def set_page_label(self, current: int, total: int) -> None:
         self._page_label.setText(strings.LABEL_PAGE_FMT.format(current=current, total=total))
 
-    def _button(self, text: str, signal: SignalInstance, doc_only: bool = False) -> QPushButton:
+    def _button(
+        self, text: str, signal: SignalInstance, group: list[QPushButton] | None = None
+    ) -> QPushButton:
         button = QPushButton(text)
         button.clicked.connect(signal.emit)
-        if doc_only:
-            self._doc_buttons.append(button)
+        if group is not None:
+            group.append(button)
         return button

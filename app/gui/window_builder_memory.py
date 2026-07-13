@@ -19,6 +19,7 @@ from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
 from app.config.record_store import RecordStore
 from app.config.settings import Settings
+from app.config.text_view_settings import TextViewSettingsStore
 from app.config.window_geometry import WindowGeometryStore
 from app.config.zoom_settings import ZoomSettingsStore
 from app.gui import settings_strings
@@ -74,6 +75,7 @@ def remembered_stores(window: MainWindow, settings: Settings) -> list[RecordStor
         WindowGeometryStore(backend),
         ImageChoiceStore(backend),
         OutlineSettingsStore(backend),
+        TextViewSettingsStore(backend),
         LinkHintSettingsStore(backend),
         ZoomSettingsStore(backend),
         KeyBindingStore(backend),

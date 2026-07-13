@@ -15,7 +15,7 @@ from app.config.settings import Settings
 from app.gui import strings
 from app.logging_setup import log
 from app.pdf.backup import create_backup
-from app.pdf.merger import MERGED_FILENAME, find_existing_merged
+from app.pdf.merger import find_existing_merged, merged_output_path
 
 
 @dataclass(frozen=True)
@@ -80,9 +80,15 @@ class GuiOperationRunner:
         return self._run(op, source, strings.MSG_DONE_FMT.format(name=source.name))
 
     def run_folder_merge(self, folder: Path, op: Callable[[Path], None]) -> OpResult:
-        """Validate ``folder``, back up an existing merged.pdf, then run ``op``."""
+        """Validate ``folder``, back up an existing merged output, then run ``op``."""
         if not folder.is_dir():
             return OpResult(False, strings.MSG_NOT_FOUND_FMT.format(path=folder))
+
+        try:
+            merged = merged_output_path(folder)  # also rejects a mixed-format folder
+        except ValueError as err:
+            log.error("%s", err)
+            return OpResult(False, str(err))
 
         existing = find_existing_merged(folder)
         if existing is not None:
@@ -90,7 +96,6 @@ class GuiOperationRunner:
             if backup is not None and not backup.ok:
                 return backup
 
-        merged = folder / MERGED_FILENAME
         return self._run(op, folder, strings.MSG_MERGED_FMT.format(path=merged))
 
     def _back_up(self, source: Path) -> OpResult | None:

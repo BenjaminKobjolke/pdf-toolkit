@@ -11,13 +11,15 @@ from pathlib import Path
 import fitz  # PyMuPDF
 from PySide6.QtGui import QImage
 
+from app.pdf.file_format import open_fitz
+
 DEFAULT_ZOOM: float = 1.5
 _RGB_CHANNELS: int = 3
 
 
 def page_count(source: Path) -> int:
     """Return the number of pages in ``source``."""
-    doc = fitz.open(source)
+    doc = open_fitz(source)
     try:
         return int(doc.page_count)
     finally:
@@ -39,7 +41,7 @@ def render_page(
     reproduces a plain ``zoom`` render). Raises ``ValueError`` if ``page_index``
     is out of range.
     """
-    doc = fitz.open(source)
+    doc = open_fitz(source)
     try:
         total = int(doc.page_count)
         if not 0 <= page_index < total:

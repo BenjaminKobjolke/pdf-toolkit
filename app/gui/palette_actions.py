@@ -14,6 +14,7 @@ from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.palette_controller import PaletteController
 from app.gui.palette_entries import build_palette_entries
 from app.gui.window_input import mouse_control_pairs
+from app.pdf.file_format import FileFormat
 
 
 class PaletteActions:
@@ -27,6 +28,7 @@ class PaletteActions:
         history: CommandHistoryStore,
         keymap_provider: Callable[[], KeyMap],
         open_keyboard_config: Callable[[], None],
+        format_provider: Callable[[], FileFormat | None],
     ) -> None:
         self._parent = parent
         self._registry = registry
@@ -34,11 +36,16 @@ class PaletteActions:
         self._history = history
         self._keymap_provider = keymap_provider
         self._open_keyboard_config = open_keyboard_config
+        self._format_provider = format_provider
 
     def open_commands(self) -> None:
         """Show commands with recently-run entries floated to the top."""
+        current_format = self._format_provider()
         entries = build_palette_entries(
-            self._registry, self._history.load(), self._keymap_provider()
+            self._registry,
+            self._history.load(),
+            self._keymap_provider(),
+            lambda cmd: cmd.available(current_format),
         )
         dialog = FilterListDialog(
             entries,

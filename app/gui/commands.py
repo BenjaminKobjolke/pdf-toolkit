@@ -21,9 +21,15 @@ from app.gui import (
     strings,
 )
 from app.os_integration import pdf_association
+from app.pdf.file_format import TEXT_FORMATS, FileFormat
 
 if TYPE_CHECKING:
     from app.gui.main_window import MainWindow
+
+# Format-capability sets for annotating commands (self-describing: consumers ask
+# a command which formats it supports rather than hardcoding per-format branches).
+PDF_ONLY = frozenset({FileFormat.PDF})
+VIEWABLE = PDF_ONLY | TEXT_FORMATS  # any rendered doc (pdf/txt/md)
 
 # Command ids — stable keys for menu/shortcut lookups (UPPER_SNAKE_CASE).
 OPEN = "open"
@@ -78,6 +84,8 @@ PALETTE_BORDERLESS = "palette_borderless"
 OUTLINE_WIDTH = "outline_width"
 OUTLINE_STYLE = "outline_style"
 OUTLINE_COLOR = "outline_color"
+TEXT_DARK_MODE = "text_dark_mode"
+TEXT_FONT_SIZE = "text_font_size"
 ZOOM_SET_DEFAULT = "zoom_set_default"
 DOC_ZOOM_REMEMBER = "doc_zoom_remember"
 DOC_PAGE_REMEMBER = "doc_page_remember"
@@ -114,12 +122,23 @@ FIELD_DELETE = "field_delete"
 
 @dataclass(frozen=True)
 class Command:
-    """One palette/menu/shortcut action."""
+    """One palette/menu/shortcut action.
+
+    ``formats`` declares which document formats the command applies to; ``None``
+    means format-agnostic (no open doc, or format-irrelevant, e.g. settings).
+    """
 
     command_id: str
     title: str
     run: Callable[[], None]
     is_enabled: Callable[[], bool] = field(default=lambda: True)
+    formats: frozenset[FileFormat] | None = None
+
+    def available(self, fmt: FileFormat | None) -> bool:
+        """Whether the command is reachable for a document of format ``fmt``."""
+        if not self.is_enabled():
+            return False
+        return self.formats is None or (fmt is not None and fmt in self.formats)
 
 
 Predicate = Callable[[], bool]
@@ -152,32 +171,48 @@ def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     return [
         Command(OPEN, strings.CMD_OPEN, lambda: window.open_pdf()),
         Command(OPEN_HISTORY, strings.CMD_OPEN_HISTORY, window.open_from_history),
-        Command(SAVE, strings.CMD_SAVE, window.save_changes, has_doc),
-        Command(SAVE_AS, file_strings.CMD_SAVE_AS, window.document_actions.save_as, has_doc),
+        Command(SAVE, strings.CMD_SAVE, window.save_changes, has_doc, PDF_ONLY),
         Command(
-            COPY_FILE_PATH, file_strings.CMD_COPY_FILE_PATH, window.file_actions.copy_path, has_doc
+            SAVE_AS, file_strings.CMD_SAVE_AS, window.document_actions.save_as, has_doc, PDF_ONLY
         ),
         Command(
-            COPY_FILE_NAME, file_strings.CMD_COPY_FILE_NAME, window.file_actions.copy_name, has_doc
+            COPY_FILE_PATH,
+            file_strings.CMD_COPY_FILE_PATH,
+            window.file_actions.copy_path,
+            has_doc,
+            VIEWABLE,
+        ),
+        Command(
+            COPY_FILE_NAME,
+            file_strings.CMD_COPY_FILE_NAME,
+            window.file_actions.copy_name,
+            has_doc,
+            VIEWABLE,
         ),
         Command(
             COPY_FILE_NAME_NO_EXT,
             file_strings.CMD_COPY_FILE_NAME_NO_EXT,
             window.file_actions.copy_name_without_extension,
             has_doc,
+            VIEWABLE,
         ),
         Command(
             COPY_PAGE_TEXT,
             file_strings.CMD_COPY_PAGE_TEXT,
             window.file_actions.copy_page_text,
             has_doc,
+            VIEWABLE,
         ),
         Command(
-            OPEN_FOLDER, file_strings.CMD_OPEN_FOLDER, window.file_actions.open_folder, has_doc
+            OPEN_FOLDER,
+            file_strings.CMD_OPEN_FOLDER,
+            window.file_actions.open_folder,
+            has_doc,
+            VIEWABLE,
         ),
-        Command(PRINT, strings.CMD_PRINT, window.print_actions.print_document, has_doc),
-        Command(RENAME_FILE, strings.CMD_RENAME_FILE, window.rename_file, has_doc),
-        Command(CLOSE_DOC, strings.CMD_CLOSE_DOC, window.close_document, has_doc),
+        Command(PRINT, strings.CMD_PRINT, window.print_actions.print_document, has_doc, VIEWABLE),
+        Command(RENAME_FILE, strings.CMD_RENAME_FILE, window.rename_file, has_doc, VIEWABLE),
+        Command(CLOSE_DOC, strings.CMD_CLOSE_DOC, window.close_document, has_doc, VIEWABLE),
         Command(EXIT, strings.CMD_EXIT, window.exit_app),
         Command(SHOW_SHORTCUTS, strings.CMD_SHOW_SHORTCUTS, window.show_keyboard_shortcuts),
         Command(RELEASE_NOTES, release_strings.CMD_RELEASE_NOTES, window.show_release_notes),
@@ -187,31 +222,34 @@ def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
 def _navigation_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     view = window.page_view
     return [
-        Command(PREV_PAGE, strings.CMD_PREV_PAGE, view.show_prev, has_doc),
-        Command(NEXT_PAGE, strings.CMD_NEXT_PAGE, view.show_next, has_doc),
-        Command(FIRST_PAGE, strings.CMD_FIRST_PAGE, view.show_first, has_doc),
-        Command(LAST_PAGE, strings.CMD_LAST_PAGE, view.show_last, has_doc),
+        Command(PREV_PAGE, strings.CMD_PREV_PAGE, view.show_prev, has_doc, VIEWABLE),
+        Command(NEXT_PAGE, strings.CMD_NEXT_PAGE, view.show_next, has_doc, VIEWABLE),
+        Command(FIRST_PAGE, strings.CMD_FIRST_PAGE, view.show_first, has_doc, VIEWABLE),
+        Command(LAST_PAGE, strings.CMD_LAST_PAGE, view.show_last, has_doc, VIEWABLE),
     ]
 
 
 def _zoom_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     view = window.page_view
     return [
-        Command(ZOOM_FIT, strings.CMD_ZOOM_FIT, view.zoom_fit, has_doc),
-        Command(ZOOM_ACTUAL, strings.CMD_ZOOM_ACTUAL, view.zoom_actual, has_doc),
-        Command(ZOOM_IN, strings.CMD_ZOOM_IN, view.zoom_in, has_doc),
-        Command(ZOOM_OUT, strings.CMD_ZOOM_OUT, view.zoom_out, has_doc),
+        Command(ZOOM_FIT, strings.CMD_ZOOM_FIT, view.zoom_fit, has_doc, VIEWABLE),
+        Command(ZOOM_ACTUAL, strings.CMD_ZOOM_ACTUAL, view.zoom_actual, has_doc, VIEWABLE),
+        Command(ZOOM_IN, strings.CMD_ZOOM_IN, view.zoom_in, has_doc, VIEWABLE),
+        Command(ZOOM_OUT, strings.CMD_ZOOM_OUT, view.zoom_out, has_doc, VIEWABLE),
     ]
 
 
 def _page_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     pages = window.page_actions
     return [
-        Command(SWAP, strings.CMD_SWAP, pages.swap, has_doc),
-        Command(DELETE_PAGE, strings.CMD_DELETE_PAGE, pages.delete_current_page, has_doc),
-        Command(DELETE_RANGE, strings.CMD_DELETE_RANGE, pages.delete_page_range, has_doc),
-        Command(INSERT_PAGE, strings.CMD_INSERT_PAGE, pages.insert_pages, has_doc),
-        Command(EXTRACT_PAGE, strings.CMD_EXTRACT_PAGE, pages.extract_current_page, has_doc),
+        Command(SWAP, strings.CMD_SWAP, pages.swap, has_doc, PDF_ONLY),
+        Command(DELETE_PAGE, strings.CMD_DELETE_PAGE, pages.delete_current_page, has_doc, PDF_ONLY),
+        Command(DELETE_RANGE, strings.CMD_DELETE_RANGE, pages.delete_page_range, has_doc, PDF_ONLY),
+        Command(INSERT_PAGE, strings.CMD_INSERT_PAGE, pages.insert_pages, has_doc, PDF_ONLY),
+        Command(
+            EXTRACT_PAGE, strings.CMD_EXTRACT_PAGE, pages.extract_current_page, has_doc, PDF_ONLY
+        ),
+        # Merge is folder-bound (picks a folder, not the open doc); format handled inside the op.
         Command(MERGE_FOLDER, strings.CMD_MERGE_FOLDER, pages.merge_folder),
     ]
 
@@ -219,19 +257,19 @@ def _page_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
 def _rotate_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     rotate = window.rotate_actions
     return [
-        Command(ROTATE_LEFT, strings.CMD_ROTATE_LEFT, rotate.rotate_left, has_doc),
-        Command(ROTATE_RIGHT, strings.CMD_ROTATE_RIGHT, rotate.rotate_right, has_doc),
-        Command(ROTATE_180, strings.CMD_ROTATE_180, rotate.rotate_180, has_doc),
+        Command(ROTATE_LEFT, strings.CMD_ROTATE_LEFT, rotate.rotate_left, has_doc, PDF_ONLY),
+        Command(ROTATE_RIGHT, strings.CMD_ROTATE_RIGHT, rotate.rotate_right, has_doc, PDF_ONLY),
+        Command(ROTATE_180, strings.CMD_ROTATE_180, rotate.rotate_180, has_doc, PDF_ONLY),
     ]
 
 
 def _move_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     move = window.move_actions
     return [
-        Command(MOVE_NEXT, strings.CMD_MOVE_NEXT, move.move_to_next, has_doc),
-        Command(MOVE_PREV, strings.CMD_MOVE_PREV, move.move_to_prev, has_doc),
-        Command(MOVE_FIRST, strings.CMD_MOVE_FIRST, move.move_to_first, has_doc),
-        Command(MOVE_LAST, strings.CMD_MOVE_LAST, move.move_to_last, has_doc),
+        Command(MOVE_NEXT, strings.CMD_MOVE_NEXT, move.move_to_next, has_doc, PDF_ONLY),
+        Command(MOVE_PREV, strings.CMD_MOVE_PREV, move.move_to_prev, has_doc, PDF_ONLY),
+        Command(MOVE_FIRST, strings.CMD_MOVE_FIRST, move.move_to_first, has_doc, PDF_ONLY),
+        Command(MOVE_LAST, strings.CMD_MOVE_LAST, move.move_to_last, has_doc, PDF_ONLY),
     ]
 
 
@@ -239,6 +277,7 @@ def _view_commands(window: MainWindow) -> list[Command]:
     """Window chrome plus command-palette and outline appearance settings."""
     palette = window.palette_controller
     outline = window.outline_controller
+    text_view = window.text_view_controller
     link = window.link_hint_settings
     zoom = window.zoom_settings_controller
     return [
@@ -268,6 +307,18 @@ def _view_commands(window: MainWindow) -> list[Command]:
         Command(OUTLINE_WIDTH, strings.CMD_OUTLINE_WIDTH, outline.set_width),
         Command(OUTLINE_STYLE, strings.CMD_OUTLINE_STYLE, outline.set_style),
         Command(OUTLINE_COLOR, strings.CMD_OUTLINE_COLOR, outline.set_color),
+        Command(
+            TEXT_DARK_MODE,
+            strings.CMD_TEXT_DARK_MODE,
+            text_view.toggle_dark_mode,
+            formats=TEXT_FORMATS,
+        ),
+        Command(
+            TEXT_FONT_SIZE,
+            strings.CMD_TEXT_FONT_SIZE,
+            text_view.set_font_size,
+            formats=TEXT_FORMATS,
+        ),
         Command(LINK_FONT, link_strings.CMD_LINK_FONT, link.set_font_size),
         Command(LINK_TEXT_COLOR, link_strings.CMD_LINK_TEXT_COLOR, link.set_text_color),
         Command(LINK_BG_COLOR, link_strings.CMD_LINK_BG_COLOR, link.set_background_color),
@@ -286,21 +337,34 @@ def _view_commands(window: MainWindow) -> list[Command]:
 def _edit_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     controller = window.controller
     return [
-        Command(EDIT_MODE, strings.CMD_EDIT_MODE, window.toggle_edit_mode, has_doc),
-        Command(SELECT_MODE, select_strings.CMD_SELECT_MODE, window.toggle_select_mode, has_doc),
-        Command(OPEN_LINK, link_strings.CMD_OPEN_LINK, window.open_link_hints, has_doc),
-        Command(COPY_LINK, link_strings.CMD_COPY_LINK, window.copy_link_hints, has_doc),
-        Command(SELECT_NEXT, strings.CMD_SELECT_NEXT, window.select_next_editable, has_doc),
-        Command(SELECT_PREV, strings.CMD_SELECT_PREV, window.select_previous_editable, has_doc),
-        Command(ADD_FIELD, strings.CMD_ADD_FIELD, window.add_text_field, has_doc),
-        Command(ADD_IMAGE, strings.CMD_ADD_IMAGE, window.add_image, has_doc),
-        Command(DELETE_FIELD, strings.CMD_DELETE_FIELD, controller.delete_selected, has_doc),
-        Command(EXPORT_TEXT, strings.CMD_EXPORT_TEXT, window.export_text, has_doc),
+        Command(EDIT_MODE, strings.CMD_EDIT_MODE, window.toggle_edit_mode, has_doc, PDF_ONLY),
+        Command(
+            SELECT_MODE,
+            select_strings.CMD_SELECT_MODE,
+            window.toggle_select_mode,
+            has_doc,
+            VIEWABLE,
+        ),
+        Command(OPEN_LINK, link_strings.CMD_OPEN_LINK, window.open_link_hints, has_doc, VIEWABLE),
+        Command(COPY_LINK, link_strings.CMD_COPY_LINK, window.copy_link_hints, has_doc, VIEWABLE),
+        Command(
+            SELECT_NEXT, strings.CMD_SELECT_NEXT, window.select_next_editable, has_doc, PDF_ONLY
+        ),
+        Command(
+            SELECT_PREV, strings.CMD_SELECT_PREV, window.select_previous_editable, has_doc, PDF_ONLY
+        ),
+        Command(ADD_FIELD, strings.CMD_ADD_FIELD, window.add_text_field, has_doc, PDF_ONLY),
+        Command(ADD_IMAGE, strings.CMD_ADD_IMAGE, window.add_image, has_doc, PDF_ONLY),
+        Command(
+            DELETE_FIELD, strings.CMD_DELETE_FIELD, controller.delete_selected, has_doc, PDF_ONLY
+        ),
+        Command(EXPORT_TEXT, strings.CMD_EXPORT_TEXT, window.export_text, has_doc, PDF_ONLY),
         Command(
             DELETE_SAVED_FIELDS,
             strings.CMD_DELETE_SAVED_FIELDS,
             window.delete_saved_text_fields,
             has_doc,
+            PDF_ONLY,
         ),
     ]
 
@@ -310,8 +374,8 @@ def _search_commands(
 ) -> list[Command]:
     search = window.search_actions
     return [
-        Command(SEARCH_PDF, strings.CMD_SEARCH_PDF, search.search_pdf_text, has_doc),
-        Command(SEARCH_FIELDS, strings.CMD_SEARCH_FIELDS, search.search_fields, has_doc),
+        Command(SEARCH_PDF, strings.CMD_SEARCH_PDF, search.search_pdf_text, has_doc, VIEWABLE),
+        Command(SEARCH_FIELDS, strings.CMD_SEARCH_FIELDS, search.search_fields, has_doc, PDF_ONLY),
         Command(
             CLEAR_HIGHLIGHTS, strings.CMD_CLEAR_HIGHLIGHTS, search.clear_highlights, has_highlights
         ),

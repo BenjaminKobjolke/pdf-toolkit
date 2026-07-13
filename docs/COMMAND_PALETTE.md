@@ -60,6 +60,8 @@ missing or corrupt file just means no commands are floated yet.
 | **Palette: font size…** | Set the palette font size in points (0 = default). |
 | **Palette: opacity %…** | Set the palette window opacity. |
 | **Palette: toggle borderless** | Show/hide the palette window frame. |
+| **Text/Markdown: toggle dark mode** | Light ⇄ dark reading theme for `.txt`/`.md` (only shown for those; see *Appearance settings*). |
+| **Text/Markdown: font size…** | Base font size (pt) for `.txt`/`.md` rendering (only shown for those). |
 | **Outline: width…** | Stroke width (px) of the selected-element outline (see *Appearance settings*). |
 | **Outline: type…** | Line type of the outline — Dashed or Solid. |
 | **Outline: color…** | Color of the outline (keyboard-first picker). |
@@ -189,6 +191,21 @@ Settings persist in a global file:
 The location can be overridden with the `PDF_TOOLKIT_PALETTE_FILE` environment
 variable. A missing or corrupt file falls back to the defaults (width 80%,
 height 60%, default font, opaque, framed).
+
+### Text / Markdown appearance
+
+For `.txt` and `.md` documents (which render through an HTML engine), two palette
+commands — shown only when such a file is open — tune the reading experience and are
+remembered across sessions:
+
+| Command | Range | Effect |
+|---------|-------|--------|
+| **Text/Markdown: toggle dark mode** | — | Light ⇄ dark theme (light-on-dark). |
+| **Text/Markdown: font size…** | 6–40 pt | Base font size; changing it re-paginates the document. |
+
+`.md` files also render **formatted** (`##` → heading, bold, lists, code, links) rather
+than as raw source. Persisted with the other settings in the sqlite backend; reset from
+**Remembered settings…** ("Text/Markdown appearance"). See `FILE_FORMATS.md`.
 
 ### Selected-element outline
 

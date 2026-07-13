@@ -51,6 +51,7 @@ if TYPE_CHECKING:
     from app.gui.print_actions import PrintActions
     from app.gui.rect_actions import RectActions
     from app.gui.rect_controller import RectController
+    from app.pdf.file_format import FileFormat
 
 if TYPE_CHECKING:
     from app.gui.remembered_settings import RememberedSettingsController
@@ -59,6 +60,7 @@ if TYPE_CHECKING:
     from app.gui.search_actions import SearchActions
     from app.gui.select_controller import SelectController
     from app.gui.shortcut_installer import ShortcutInstaller
+    from app.gui.text_view_controller import TextViewController
     from app.gui.window_geometry_controller import WindowGeometryController
     from app.gui.working_document import WorkingDocument
     from app.gui.zoom_settings_controller import ZoomSettingsController
@@ -74,6 +76,7 @@ class CollaboratorAccessors:
     _ui_state: UiStateStore
     _palette: PaletteController
     _outline: OutlineController
+    _text_view: TextViewController
     _command_history: CommandHistoryStore
     _geometry: WindowGeometryController
     _working_doc: WorkingDocument
@@ -215,8 +218,18 @@ class CollaboratorAccessors:
         return self._outline
 
     @property
+    def text_view_controller(self) -> TextViewController:
+        return self._text_view
+
+    @property
     def zoom_settings_controller(self) -> ZoomSettingsController:
         return self._zoom_settings
 
     def has_document(self) -> bool:
         return self._source is not None
+
+    def current_format(self) -> FileFormat | None:
+        """The format of the open document, or ``None`` when none is open."""
+        from app.pdf.file_format import FileFormat
+
+        return FileFormat.of(self._source)

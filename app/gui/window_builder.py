@@ -21,6 +21,7 @@ from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
 from app.config.recent_files import RecentFilesStore
 from app.config.settings import Settings
+from app.config.text_view_settings import TextViewSettingsStore
 from app.config.ui_state import UiStateStore
 from app.config.window_geometry import WindowGeometryStore
 from app.config.zoom_settings import ZoomSettingsStore
@@ -61,6 +62,7 @@ from app.gui.rotate_actions import RotateActions
 from app.gui.save_controller import SaveController
 from app.gui.search_actions import SearchActions
 from app.gui.select_controller import SelectController
+from app.gui.text_view_controller import TextViewController
 from app.gui.window_builder_memory import build_document_memory, remembered_stores
 from app.gui.window_geometry_controller import WindowGeometryController
 from app.gui.window_input import (
@@ -108,6 +110,9 @@ def _build_core(window: MainWindow, settings: Settings) -> None:
         OutlineSettingsStore(backend),
         outline_holder,
         lambda: window._page_view.graphics_scene().update(),
+    )
+    window._text_view = TextViewController(
+        window, TextViewSettingsStore(backend), window._page_view.reload
     )
     window._bar = OperationBar()
     window._edit_bar = EditBar()
@@ -248,6 +253,7 @@ def _finish(window: MainWindow, settings: Settings) -> None:
         window._command_history,
         window.current_keymap,
         window.configure_shortcuts,
+        window.current_format,
     )
     build_file_menu(window)
     window._shortcut_installer = install_shortcuts(window, window._registry, window._keymap)

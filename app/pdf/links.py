@@ -19,6 +19,8 @@ from pathlib import Path
 
 import fitz  # PyMuPDF
 
+from app.pdf.file_format import open_fitz
+
 _URL_RE = re.compile(r"https?://\S+", re.IGNORECASE)
 _TRAILING = ".,;:!?)]}>\"'"  # punctuation that commonly abuts a printed URL
 
@@ -40,7 +42,7 @@ def page_links(source: Path, page_index: int) -> list[LinkBox]:
     Annotation links come first, then printed URLs not already covered by an
     annotation. A page with no links returns ``[]``.
     """
-    doc = fitz.open(str(source))
+    doc = open_fitz(source)
     try:
         page = doc.load_page(page_index)
         annotations = _annotation_links(page)

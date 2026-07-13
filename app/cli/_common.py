@@ -10,7 +10,7 @@ from pathlib import Path
 from app.config.settings import Settings
 from app.logging_setup import configure_logging, log
 from app.pdf.backup import create_backup
-from app.pdf.merger import MERGED_FILENAME, find_existing_merged
+from app.pdf.merger import find_existing_merged, merged_output_path
 
 EXIT_OK = 0
 EXIT_USAGE = 2
@@ -129,5 +129,5 @@ def run_folder_merge(
         log.error("I/O error while merging %s: %s", folder, err)
         return EXIT_FAILURE
 
-    log.info("done: %s", folder / MERGED_FILENAME)
+    log.info("done: %s", merged_output_path(folder))
     return EXIT_OK

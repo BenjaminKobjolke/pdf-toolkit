@@ -21,6 +21,7 @@ def _actions(open_keyboard: MagicMock) -> PaletteActions:
         MagicMock(spec=CommandHistoryStore),
         lambda: KeyMap(()),
         open_keyboard,
+        lambda: None,
     )
 
 

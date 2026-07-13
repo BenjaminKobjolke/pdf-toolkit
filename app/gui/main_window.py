@@ -16,6 +16,7 @@ from app.gui import (
 )
 from app.gui.main_window_accessors import CollaboratorAccessors
 from app.gui.window_builder import assemble
+from app.pdf.file_format import FileFormat
 
 if TYPE_CHECKING:
     from PySide6.QtGui import QCloseEvent
@@ -46,12 +47,23 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
             chosen = file_dialogs.prompt_open_file(
                 self,
                 strings.DIALOG_OPEN_TITLE,
-                file_browser_strings.FILTER_PDF,
+                file_browser_strings.FILTER_OPEN,
                 self._source.parent if self._source else None,
             )
             if chosen is None:
                 return
             path = chosen
+        # Boundary: reject a format the viewer can't render (e.g. a path passed on
+        # the command line) instead of handing it to fitz and failing obscurely.
+        doc_format = FileFormat.of(path)
+        if doc_format is None:
+            confirm_dialog.show_message(
+                self,
+                strings.DIALOG_ERROR_TITLE,
+                strings.MSG_UNSUPPORTED_FORMAT_FMT.format(name=path.name),
+                confirm_dialog.Severity.WARNING,
+            )
+            return
         # Capture the outgoing document's view state before switching away.
         self._doc_memories.capture(self._source)
         self._source = path
@@ -68,7 +80,7 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
         self._page_view.load(working)
         # Restore the remembered zoom/page for this document (independent dimensions).
         self._doc_memories.apply_for(path)
-        self._bar.set_enabled_for_doc(True)
+        self._bar.update_for(has_doc=True, is_pdf=doc_format is FileFormat.PDF)
         self._mode_bar.set_dirty(False)
         self._recent.add(path)
         self.setWindowTitle(strings.WINDOW_TITLE_OPEN_FMT.format(path=path))
@@ -83,7 +95,7 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
         self._doc_memories.capture(self._source)
         self._working_doc.close()
         self._page_view.reset()
-        self._bar.set_enabled_for_doc(False)
+        self._bar.update_for(has_doc=False, is_pdf=False)
         self._mode_bar.clear_page_label()
         self._mode_bar.clear_zoom_label()
         self._mode_bar.set_dirty(False)

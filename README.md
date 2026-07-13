@@ -9,9 +9,9 @@ Small Python CLI toolkit for two PDF page operations, each with an automatic tim
 - `pdf-move-page.bat <from> <to> <pdf>` — move page `<from>` to 1-based position `<to>`, overwriting the original.
 - `pdf-insert-page.bat <insert> <after> <pdf>` — insert `<insert>` (a PDF or `.jpg`/`.jpeg`/`.png` image) after 1-based page `<after>` of `<pdf>` (`0` = before the first page), overwriting the original.
 - `pdf-extract-page.bat <page> <pdf> [-o <out>]` — extract 1-based `<page>` into its own new file (default `<name>-pNN.pdf` beside the source); the original is left untouched, so no backup is made.
-- `pdf-merge-folder.bat <folder>` — merge every supported file (`.pdf`, `.jpg`, `.jpeg`, `.png`) in `<folder>` into `<folder>\merged.pdf`. Files are added in alphabetical order (case-insensitive). Subfolders are ignored. If `merged.pdf` already exists in the folder, it is backed up first.
+- `pdf-merge-folder.bat <folder>` — merge a folder into a single file. A folder of `.pdf`/`.jpg`/`.jpeg`/`.png` files becomes `<folder>\merged.pdf`; a folder of text files (`.txt`/`.md`) is concatenated into `<folder>\merged.txt` (or `merged.md` when all inputs are `.md`). Files are added in alphabetical order (case-insensitive). Subfolders are ignored, a mixed text-and-PDF folder is refused, and an existing `merged.*` is backed up first.
 - `pdft.bat` — interactive wizard that prompts for the operation (swap / delete single / delete range / rotate / move / insert pages / extract page / merge folder / open GUI viewer) and its arguments. The PDF prompt has Tab-completion against `*.pdf` files in the current directory; the insert-file prompt completes PDFs + images; the folder prompt has Tab-completion against subdirectories (powered by `prompt_toolkit`).
-- `pdft_gui.bat [pdf]` — GUI viewer (PySide6) that renders the PDF page by page, with a **command palette** (`Ctrl+Shift+P`) for every action: page operations (rotate, move, delete, swap), zoom, navigation, full-text + field search, recent-document history, rename, and in-place editing of text fields and images. Edits go to a temporary working copy and reach the original only when you **Save** (`Ctrl+S`); closing with unsaved changes prompts first. Press **F1** for the keyboard and mouse controls. Optionally pass a PDF path to open on startup.
+- `pdft_gui.bat [file]` — GUI viewer (PySide6) that renders **PDF, `.txt`, and `.md`** documents page by page, with a **command palette** (`Ctrl+Shift+P`) for every action: page operations (rotate, move, delete, swap), zoom, navigation, full-text + field search, recent-document history, rename, and in-place editing of text fields and images. Each feature declares which formats it supports — reading, search, and links work on all three, while page operations and editing stay PDF-only (see [docs/FILE_FORMATS.md](docs/FILE_FORMATS.md)). `.md` renders as its raw source. Edits go to a temporary working copy and reach the original only when you **Save** (`Ctrl+S`); closing with unsaved changes prompts first. Press **F1** for the keyboard and mouse controls. Optionally pass a file path to open on startup.
 
 Every run first copies the original to `backup/YYYYMMDD-HHMM-<filename>.pdf`. The `backup/` directory is resolved relative to your current working directory, so when you run the tool from `C:\Users\me\Documents` the backup lands in `C:\Users\me\Documents\backup\`. Override with the `PDF_TOOLKIT_BACKUP_DIR` environment variable. The backup is created **before** validation, so if validation fails (e.g. swap on a 3-page PDF) the original is untouched but a backup still exists.
 
@@ -43,9 +43,12 @@ Relative paths are resolved against your current working directory.
 ### GUI viewer
 
 `pdft_gui.bat` (or the wizard's **Open GUI viewer** entry) opens a window that
-renders the current PDF. The viewer is **keyboard-first**: the menu bar and
-button toolbars are **hidden by default** (toggle them from the palette), so the
-command palette is the primary way to drive it.
+renders the current document — **PDF, `.txt`, or `.md`** (see
+[docs/FILE_FORMATS.md](docs/FILE_FORMATS.md) for what each feature supports per
+format). The viewer is **keyboard-first**: the menu bar and button toolbars are
+**hidden by default** (toggle them from the palette), so the command palette is the
+primary way to drive it. Commands the open document's format can't use are greyed
+out.
 
 #### Command palette (`Ctrl+Shift+P`)
 
@@ -98,7 +101,8 @@ The palette and direct shortcuts cover:
 - **Open / copy link (vim-style link hints)** — **Open link** / **Copy link** in
   the palette label every link on the current page with a letter; type the letter
   to open that URL in the browser or copy it to the clipboard, `Esc` cancels.
-  Detects both real PDF hyperlinks and bare printed `http(s)://` URLs. The overlay
+  Detects both real PDF hyperlinks and bare printed `http(s)://` URLs (so URLs in
+  `.txt` / `.md` documents get hints too). The overlay
   (letter size, letter color, chip background, box color) is configurable from the
   palette and remembered. See [docs/OPEN_LINK.md](docs/OPEN_LINK.md).
 - **File browser (vim-style)** — opening, saving, and folder-picking use a custom
@@ -234,11 +238,13 @@ Both commands:
 
 ### Merge-folder rules
 
-- Supported file types: `.pdf`, `.jpg`, `.jpeg`, `.png` (case-insensitive).
-- Flat scan only (no recursion into subfolders).
-- Files are merged in alphabetical order by filename, case-insensitive.
-- The output is always written as `<folder>\merged.pdf`.
-- An existing `merged.pdf` in the folder is backed up to `backup/YYYYMMDD-HHMM-merged.pdf` before being overwritten and is excluded from the input list.
+- Two kinds of folder, chosen by content:
+  - **PDF / image** (`.pdf`, `.jpg`, `.jpeg`, `.png`) → pages concatenated into `<folder>\merged.pdf`.
+  - **Text** (`.txt`, `.md`) → files read as UTF-8 and concatenated (blank line between them) into `<folder>\merged.<ext>` — the shared extension when uniform (all `.md` → `merged.md`), otherwise `merged.txt`.
+- A folder **mixing** text with PDF/image files is refused.
+- Flat scan only (no recursion into subfolders); case-insensitive on extension and sort.
+- Files are merged in alphabetical order by filename.
+- An existing `merged.{pdf,txt,md}` is backed up to `backup/YYYYMMDD-HHMM-merged.*` before being overwritten and is excluded from the input list.
 - RGBA PNGs (e.g. screenshots with alpha channels) are auto-converted to RGB JPEG before being placed into the PDF (via Pillow); other images pass through `img2pdf` losslessly.
 - Refuses if the folder contains no supported files, or if any input PDF is encrypted.
 

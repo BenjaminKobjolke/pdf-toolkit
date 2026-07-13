@@ -7,7 +7,9 @@ from pathlib import Path
 import pytest
 
 from app.gui import commands, overlay_commands
+from app.gui.commands import PDF_ONLY, VIEWABLE, Command
 from app.gui.main_window import MainWindow
+from app.pdf.file_format import TEXT_FORMATS, FileFormat
 from tests.conftest import MakePdf, gui_settings
 
 _ALL_IDS = {
@@ -90,6 +92,8 @@ _ALL_IDS = {
     commands.OUTLINE_WIDTH,
     commands.OUTLINE_STYLE,
     commands.OUTLINE_COLOR,
+    commands.TEXT_DARK_MODE,
+    commands.TEXT_FONT_SIZE,
     commands.ZOOM_SET_DEFAULT,
     commands.DOC_ZOOM_REMEMBER,
     commands.DOC_PAGE_REMEMBER,
@@ -168,3 +172,75 @@ def test_clear_highlights_enabled_only_with_highlights(
     window.page_view.set_highlights([(1.0, 2.0, 3.0, 4.0)])
     registry = commands.build_commands(window)
     assert commands.find(registry, commands.CLEAR_HIGHLIGHTS).is_enabled() is True
+
+
+# --- format-capability gating -------------------------------------------------
+
+
+def _cmd(formats: frozenset[FileFormat] | None, *, enabled: bool = True) -> Command:
+    return Command("id", "title", lambda: None, lambda: enabled, formats)
+
+
+def test_available_agnostic_always_on() -> None:
+    cmd = _cmd(None)
+    assert cmd.available(FileFormat.PDF)
+    assert cmd.available(FileFormat.TXT)
+    assert cmd.available(None)
+
+
+def test_available_pdf_only() -> None:
+    cmd = _cmd(PDF_ONLY)
+    assert cmd.available(FileFormat.PDF)
+    assert not cmd.available(FileFormat.TXT)
+    assert not cmd.available(FileFormat.MD)
+    assert not cmd.available(None)
+
+
+def test_available_viewable_covers_all_rendered_formats() -> None:
+    cmd = _cmd(VIEWABLE)
+    assert cmd.available(FileFormat.PDF)
+    assert cmd.available(FileFormat.TXT)
+    assert cmd.available(FileFormat.MD)
+    assert not cmd.available(None)
+
+
+def test_available_respects_is_enabled() -> None:
+    assert not _cmd(None, enabled=False).available(FileFormat.PDF)
+
+
+def test_registry_format_annotations(window: MainWindow) -> None:
+    registry = commands.build_commands(window)
+    assert commands.find(registry, commands.DELETE_PAGE).formats == PDF_ONLY
+    assert commands.find(registry, commands.INSERT_PAGE).formats == PDF_ONLY
+    assert commands.find(registry, commands.EDIT_MODE).formats == PDF_ONLY
+    assert commands.find(registry, commands.OPEN_LINK).formats == VIEWABLE
+    assert commands.find(registry, commands.COPY_LINK).formats == VIEWABLE
+    assert commands.find(registry, commands.SEARCH_PDF).formats == VIEWABLE
+    assert commands.find(registry, commands.NEXT_PAGE).formats == VIEWABLE
+    assert commands.find(registry, commands.OPEN).formats is None
+    assert commands.find(registry, commands.MERGE_FOLDER).formats is None
+
+
+def test_text_appearance_commands_gated_to_text_formats(window: MainWindow) -> None:
+    registry = commands.build_commands(window)
+    for command_id in (commands.TEXT_DARK_MODE, commands.TEXT_FONT_SIZE):
+        cmd = commands.find(registry, command_id)
+        assert cmd.formats == TEXT_FORMATS
+        assert cmd.available(FileFormat.TXT)
+        assert cmd.available(FileFormat.MD)
+        assert not cmd.available(FileFormat.PDF)
+        assert not cmd.available(None)
+
+
+def test_text_document_gates_page_ops_but_not_viewers(window: MainWindow) -> None:
+    registry = commands.build_commands(window)
+    delete = commands.find(registry, commands.DELETE_PAGE)
+    open_link = commands.find(registry, commands.OPEN_LINK)
+    # Rebuild with is_enabled stubbed True so only the format gate is exercised.
+    delete_on = Command(delete.command_id, delete.title, delete.run, lambda: True, delete.formats)
+    link_on = Command(
+        open_link.command_id, open_link.title, open_link.run, lambda: True, open_link.formats
+    )
+    for fmt in (FileFormat.TXT, FileFormat.MD):
+        assert not delete_on.available(fmt)
+        assert link_on.available(fmt)

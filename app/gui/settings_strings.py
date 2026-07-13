@@ -18,6 +18,10 @@ PROMPT_PALETTE_HEIGHT = "Height (% of window):"
 PROMPT_PALETTE_FONT = "Font size (pt, 0 = default):"
 PROMPT_PALETTE_OPACITY = "Opacity (%):"
 
+# Text/Markdown appearance dialogs
+DIALOG_TEXT_FONT_TITLE = "Text/Markdown font size"
+PROMPT_TEXT_FONT = "Font size (pt):"
+
 # Selected-item outline appearance dialogs
 DIALOG_OUTLINE_WIDTH_TITLE = "Outline width"
 DIALOG_OUTLINE_STYLE_TITLE = "Outline type"

@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-import fitz  # PyMuPDF
+from app.pdf.file_format import open_fitz
 
 
 @dataclass(frozen=True)
@@ -39,7 +39,7 @@ def page_words(source: Path, page_index: int) -> list[WordBox]:
     Uses fitz ``get_text("words", sort=True)`` so words come pre-ordered top-to-
     bottom, left-to-right. A page with no text returns ``[]``.
     """
-    doc = fitz.open(str(source))
+    doc = open_fitz(source)
     try:
         raw = doc.load_page(page_index).get_text("words", sort=True)
     finally:
@@ -61,7 +61,7 @@ def page_words(source: Path, page_index: int) -> list[WordBox]:
 
 def page_text(source: Path, page_index: int) -> str:
     """Return the full text of ``page_index`` with native line breaks (or "")."""
-    doc = fitz.open(str(source))
+    doc = open_fitz(source)
     try:
         return str(doc.load_page(page_index).get_text("text")).rstrip()
     finally:

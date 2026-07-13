@@ -17,6 +17,8 @@ from PySide6.QtGui import QImage, QPainter
 from PySide6.QtPrintSupport import QPrinter, QPrintPreviewDialog
 from PySide6.QtWidgets import QWidget
 
+from app.pdf.file_format import open_fitz
+
 _POINTS_PER_INCH: float = 72.0
 _RGB_FORMAT = QImage.Format.Format_RGB888
 
@@ -49,7 +51,7 @@ class PrintActions:
         ``QPrinter`` without a dialog.
         """
         scale = printer.resolution() / _POINTS_PER_INCH  # PDF points -> printer pixels
-        doc = fitz.open(source)
+        doc = open_fitz(source)
         painter = QPainter()
         try:
             painter.begin(printer)

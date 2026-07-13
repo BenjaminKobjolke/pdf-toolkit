@@ -13,6 +13,8 @@ from pathlib import Path
 
 import fitz  # PyMuPDF
 
+from app.pdf.file_format import open_fitz
+
 
 @dataclass(frozen=True)
 class SearchHit:
@@ -36,7 +38,7 @@ def search_pdf(source: Path, query: str) -> list[SearchHit]:
         return []
 
     hits: list[SearchHit] = []
-    doc = fitz.open(str(source))
+    doc = open_fitz(source)
     try:
         for page_index in range(int(doc.page_count)):
             page = doc.load_page(page_index)

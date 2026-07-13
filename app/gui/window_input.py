@@ -150,16 +150,17 @@ def _make_trigger_factory(window: MainWindow) -> TriggerFactory:
     def factory(command: Command) -> Callable[[], None]:
         if command.command_id in _ZOOM_SCALE_FACTORS:
             return _zoom_or_scale(window, command, _ZOOM_SCALE_FACTORS[command.command_id])
-        return _guarded(command)
+        return _guarded(window, command)
 
     return factory
 
 
-def _guarded(command: Command) -> Callable[[], None]:
-    """Wrap a command so a shortcut is a no-op when the command is disabled."""
+def _guarded(window: MainWindow, command: Command) -> Callable[[], None]:
+    """Wrap a command so a shortcut is a no-op when it's disabled or unavailable
+    for the open document's format."""
 
     def trigger() -> None:
-        if command.is_enabled():
+        if command.available(window.current_format()):
             command.run()
 
     return trigger
@@ -179,7 +180,7 @@ def _zoom_or_scale(window: MainWindow, command: Command, factor: float) -> Calla
             window.field_actions.scale_font(factor)
         elif scale is not None:
             window.images.set_selected_scale(scale * factor)
-        elif command.is_enabled():
+        elif command.available(window.current_format()):
             command.run()
 
     return trigger

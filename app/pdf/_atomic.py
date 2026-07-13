@@ -23,3 +23,10 @@ def write_pdf_atomic(source: Path, writer: PdfWriter) -> None:
     with tmp.open("wb") as fh:
         writer.write(fh)
     replace_atomic(tmp, source)
+
+
+def write_text_atomic(source: Path, text: str) -> None:
+    """Write ``text`` (UTF-8) to ``source`` atomically — the text-merge counterpart."""
+    tmp = source.with_suffix(source.suffix + _TMP_SUFFIX)
+    tmp.write_text(text, encoding="utf-8")
+    replace_atomic(tmp, source)

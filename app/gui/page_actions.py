@@ -26,7 +26,7 @@ from app.gui.page_view import PageView
 from app.pdf.deleter import delete_page, delete_page_range
 from app.pdf.extractor import default_extract_dest, extract_page
 from app.pdf.inserter import insert_after
-from app.pdf.merger import MERGED_FILENAME, merge_folder
+from app.pdf.merger import merge_folder, merged_output_path
 from app.pdf.swapper import swap_two_pages
 
 
@@ -128,5 +128,5 @@ class PageActions:
             return
         result = self._runner.run_folder_merge(chosen, merge_folder)
         if result.ok:
-            self._open_pdf(chosen / MERGED_FILENAME)
+            self._open_pdf(merged_output_path(chosen))
         self._report(result)

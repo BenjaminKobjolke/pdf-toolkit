@@ -10,6 +10,8 @@ from __future__ import annotations
 from app.gui.file_browser_model import FileFilter
 
 FILTER_PDF = FileFilter("PDF files", (".pdf",))
+# Formats the viewer can open (PDF plus the text formats fitz renders as text).
+FILTER_OPEN = FileFilter("Documents", (".pdf", ".txt", ".md"))
 FILTER_INSERT = FileFilter("PDF or image", (".pdf", ".jpg", ".jpeg", ".png"))
 FILTER_IMAGE = FileFilter("Images", (".png", ".jpg", ".jpeg"))
 FILTER_ALL = FileFilter("All files", ())
