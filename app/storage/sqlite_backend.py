@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS document_memory (
 );
 """
 
+__all__ = ["SqliteBackend", "log"]
+
 
 class SqliteBackend:
     """A :class:`StorageBackend` backed by one local SQLite file."""

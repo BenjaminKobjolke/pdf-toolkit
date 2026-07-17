@@ -21,12 +21,10 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import (
     QGraphicsPixmapItem,
-    QGraphicsRectItem,
     QGraphicsScene,
     QGraphicsView,
 )
 
-from app.config.zoom_settings import ZoomSettings
 from app.gui import strings
 from app.gui.image_item import ImageItem
 from app.gui.item_layer import ItemLayer
@@ -34,6 +32,7 @@ from app.gui.page_highlights import PageHighlights
 from app.gui.page_input import PageInputController
 from app.gui.page_navigator import PageNavigator
 from app.gui.page_overlay_items import OverlayItemsMixin
+from app.gui.page_view_zoom import ZoomDelegateMixin
 from app.gui.rect_item import RectItem
 from app.gui.render_quality import RenderQualityController
 from app.gui.selection_highlights import SelectionHighlights
@@ -43,7 +42,7 @@ from app.gui.zoom_controller import ZoomController
 _OVERLAY_Z = 1.0  # default; per-item z (set from each spec) drives real stacking
 
 
-class PageView(OverlayItemsMixin, QGraphicsView):
+class PageView(OverlayItemsMixin, ZoomDelegateMixin, QGraphicsView):
     """Renders the current page of an open PDF and tracks the page index."""
 
     page_changed = Signal(int, int)  # (current 1-based, total)
@@ -126,30 +125,7 @@ class PageView(OverlayItemsMixin, QGraphicsView):
         """Jump to absolute 0-based ``index`` (clamped to the page range)."""
         self._nav.go_to_page(index)
 
-    # --- search highlights --------------------------------------------------
-
-    def set_highlights(self, rects_pts: list[tuple[float, float, float, float]]) -> None:
-        """Draw gold outlines for the given match rects (in PDF points)."""
-        self._highlights.set(rects_pts)
-
-    def clear_highlights(self) -> None:
-        self._highlights.clear()
-
-    def has_highlights(self) -> bool:
-        return self._highlights.has()
-
-    def highlight_items(self) -> tuple[QGraphicsRectItem, ...]:
-        return self._highlights.items()
-
-    def highlight_rects_points(self) -> list[tuple[float, float, float, float]]:
-        """Return the current search-match rects in PDF points (empty when none)."""
-        return self._highlights.rects_points()
-
-    # --- text-selection overlay (vim-style select mode) ---------------------
-
-    def selection_highlights(self) -> SelectionHighlights:
-        """Expose the select-mode overlay so the controller can draw on it."""
-        return self._selection
+    # --- input hooks (select mode) ------------------------------------------
 
     def set_key_interceptor(self, interceptor: Callable[[QKeyEvent], bool] | None) -> None:
         """Install a hook consulted before the input controller for key presses."""
@@ -158,35 +134,6 @@ class PageView(OverlayItemsMixin, QGraphicsView):
     def set_click_handler(self, handler: Callable[[QPointF], bool] | None) -> None:
         """Install a hook consulted before default click handling (select mode)."""
         self._click_handler = handler
-
-    # --- zoom (delegated to ZoomController) ---------------------------------
-
-    def zoom(self) -> float:
-        """Return the current scene-to-view scale factor."""
-        return self._zoom_ctl.zoom()
-
-    def current_zoom(self) -> ZoomSettings:
-        """Return the current zoom as a remembered default (fit vs. percentage)."""
-        return self._zoom_ctl.current_default()
-
-    def zoom_actual(self) -> None:
-        self._zoom_ctl.actual()
-
-    def zoom_in(self) -> None:
-        self._zoom_ctl.zoom_in()
-
-    def zoom_out(self) -> None:
-        self._zoom_ctl.zoom_out()
-
-    def zoom_fit(self) -> None:
-        if self._nav.source() is not None:
-            self._zoom_ctl.fit()
-
-    def set_default_zoom(self, fit: bool, percent: int) -> None:
-        """Set the start zoom mode; apply it now if a document is already open."""
-        self._zoom_ctl.set_default(fit, percent)
-        if self._nav.source() is not None:
-            self._zoom_ctl.reapply()
 
     # --- queries ------------------------------------------------------------
 

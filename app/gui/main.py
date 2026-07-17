@@ -17,6 +17,8 @@ from app.gui.single_instance import InstanceServer
 from app.logging_setup import configure_logging, log
 from app.storage.factory import make_backend
 
+__all__ = ["InstanceServer", "main", "single_instance"]
+
 
 def main(argv: list[str] | None = None) -> int:
     """Launch the viewer. ``argv`` may carry a PDF path to open on startup."""

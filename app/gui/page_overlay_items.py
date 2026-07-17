@@ -1,24 +1,56 @@
-"""Per-kind overlay item accessors for :class:`~app.gui.page_view.PageView`.
+"""Per-kind overlay accessors for :class:`~app.gui.page_view.PageView`.
 
-A mixin holding the thin add/items/selected/remove/clear wrappers for each of the
-three overlay layers (text, image, rect). Split out so ``page_view`` stays under
-the file-length cap; the layers themselves are created in ``PageView.__init__``.
+A mixin holding the thin wrappers for each overlay: the three item layers
+(text, image, rect) plus the search-highlight and text-selection overlays.
+Split out so ``page_view`` stays under the file-length cap; the layers
+themselves are created in ``PageView.__init__``.
 """
 
 from __future__ import annotations
 
+from PySide6.QtWidgets import QGraphicsRectItem
+
 from app.gui.image_item import ImageItem
 from app.gui.item_layer import ItemLayer
+from app.gui.page_highlights import PageHighlights
 from app.gui.rect_item import RectItem
+from app.gui.selection_highlights import SelectionHighlights
 from app.gui.text_item import TextFieldItem
 
 
 class OverlayItemsMixin:
-    """Add/query/remove helpers for the text, image, and rect layers."""
+    """Add/query/remove helpers for the item layers and highlight overlays."""
 
     _text_layer: ItemLayer[TextFieldItem]
     _image_layer: ItemLayer[ImageItem]
     _rect_layer: ItemLayer[RectItem]
+    _highlights: PageHighlights
+    _selection: SelectionHighlights
+
+    # --- search highlights ---------------------------------------------------
+
+    def set_highlights(self, rects_pts: list[tuple[float, float, float, float]]) -> None:
+        """Draw gold outlines for the given match rects (in PDF points)."""
+        self._highlights.set(rects_pts)
+
+    def clear_highlights(self) -> None:
+        self._highlights.clear()
+
+    def has_highlights(self) -> bool:
+        return self._highlights.has()
+
+    def highlight_items(self) -> tuple[QGraphicsRectItem, ...]:
+        return self._highlights.items()
+
+    def highlight_rects_points(self) -> list[tuple[float, float, float, float]]:
+        """Return the current search-match rects in PDF points (empty when none)."""
+        return self._highlights.rects_points()
+
+    # --- text-selection overlay (vim-style select mode) ----------------------
+
+    def selection_highlights(self) -> SelectionHighlights:
+        """Expose the select-mode overlay so the controller can draw on it."""
+        return self._selection
 
     # --- text items ---------------------------------------------------------
 

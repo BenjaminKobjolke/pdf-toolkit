@@ -52,10 +52,15 @@ def test_reuse_on_forwards_and_exits_without_window(
 ) -> None:
     """When a running viewer accepts the path, no second window is created."""
     forwarded: list[Path | None] = []
+
+    def forward(path: Path | None, **_kwargs: object) -> bool:
+        forwarded.append(path)
+        return True
+
     monkeypatch.setattr(
         gui_main.single_instance,
         "try_send_to_running",
-        lambda path, **_k: forwarded.append(path) or True,
+        forward,
     )
     constructed: list[bool] = []
     monkeypatch.setattr(MainWindow, "__init__", lambda self, *_a: constructed.append(True))

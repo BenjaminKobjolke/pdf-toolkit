@@ -25,6 +25,18 @@ TMP_SUFFIX: str = ".tmp"
 TEXT_MERGE_EXTENSIONS: tuple[str, ...] = (".txt", ".md")
 TEXT_SEPARATOR: str = "\n\n"
 
+__all__ = [
+    "MERGED_FILENAME",
+    "MERGED_STEM",
+    "TEXT_MERGE_EXTENSIONS",
+    "TMP_SUFFIX",
+    "find_existing_merged",
+    "log",
+    "merge_folder",
+    "merged_output_path",
+    "scan_folder",
+]
+
 
 def scan_folder(folder: Path, extensions: tuple[str, ...] = SUPPORTED_EXTENSIONS) -> list[Path]:
     """Return files in ``folder`` with one of ``extensions`` (flat, alphabetical).

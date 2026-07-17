@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 import pytest
 from PIL import Image
@@ -33,7 +34,7 @@ def _coords(img: Image.Image) -> list[tuple[int, int]]:
 
 def _size(path: Path) -> tuple[int, int]:
     with Image.open(path) as img:
-        return img.size
+        return cast(tuple[int, int], img.size)
 
 
 def test_rotate_90_clockwise_turns_row_into_column(tmp_path: Path) -> None:

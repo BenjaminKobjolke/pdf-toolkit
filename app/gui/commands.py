@@ -10,19 +10,8 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from functools import partial
 from typing import TYPE_CHECKING
 
-from app.gui import (
-    copy_image_titles,
-    default_app_strings,
-    file_strings,
-    link_strings,
-    release_strings,
-    select_strings,
-    strings,
-)
-from app.os_integration import file_association
 from app.pdf.file_format import IMAGE_FORMATS, TEXT_FORMATS, FileFormat
 
 if TYPE_CHECKING:
@@ -169,300 +158,25 @@ Predicate = Callable[[], bool]
 
 def build_commands(window: MainWindow) -> list[Command]:
     """Assemble the full registry from the per-concern command groups."""
-    from app.gui import overlay_commands  # local import breaks the import cycle
+    # Local imports break the cycle: the group modules import from this module.
+    from app.gui import doc_commands, overlay_commands, view_commands
 
     has_doc = window.has_document
     has_highlights = window.page_view.has_highlights
     return [
-        *_document_commands(window, has_doc),
-        *_navigation_commands(window, has_doc),
-        *_zoom_commands(window, has_doc),
-        *_page_commands(window, has_doc),
-        *_rotate_commands(window, has_doc),
-        *_move_commands(window, has_doc),
-        *_view_commands(window),
-        *_edit_commands(window, has_doc),
-        *_search_commands(window, has_doc, has_highlights),
+        *doc_commands.document_commands(window, has_doc),
+        *doc_commands.navigation_commands(window, has_doc),
+        *doc_commands.zoom_commands(window, has_doc),
+        *doc_commands.page_commands(window, has_doc),
+        *doc_commands.rotate_commands(window, has_doc),
+        *doc_commands.move_commands(window, has_doc),
+        *view_commands.view_commands(window),
+        *view_commands.edit_commands(window, has_doc),
+        *doc_commands.search_commands(window, has_doc, has_highlights),
         *overlay_commands.field_commands(window),
         *overlay_commands.image_commands(window),
         *overlay_commands.rectangle_commands(window, has_doc),
         *overlay_commands.layer_commands(window),
-    ]
-
-
-def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
-    return [
-        Command(OPEN, strings.CMD_OPEN, lambda: window.open_pdf()),
-        Command(OPEN_DIR, strings.CMD_OPEN_DIR, window.open_directory),
-        Command(OPEN_HISTORY, strings.CMD_OPEN_HISTORY, window.open_from_history),
-        Command(
-            OPEN_FOLDER_HISTORY,
-            strings.CMD_OPEN_FOLDER_HISTORY,
-            window.open_folder_from_history,
-        ),
-        Command(NEXT_FILE, strings.CMD_NEXT_FILE, window.open_next_file, has_doc, VIEWABLE),
-        Command(PREV_FILE, strings.CMD_PREV_FILE, window.open_previous_file, has_doc, VIEWABLE),
-        Command(SAVE, strings.CMD_SAVE, window.save_changes, has_doc, TRANSFORMABLE),
-        Command(
-            SAVE_AS,
-            file_strings.CMD_SAVE_AS,
-            window.document_actions.save_as,
-            has_doc,
-            TRANSFORMABLE,
-        ),
-        Command(
-            COPY_FILE_PATH,
-            file_strings.CMD_COPY_FILE_PATH,
-            window.file_actions.copy_path,
-            has_doc,
-            VIEWABLE,
-        ),
-        Command(
-            COPY_FILE_NAME,
-            file_strings.CMD_COPY_FILE_NAME,
-            window.file_actions.copy_name,
-            has_doc,
-            VIEWABLE,
-        ),
-        Command(
-            COPY_FILE_NAME_NO_EXT,
-            file_strings.CMD_COPY_FILE_NAME_NO_EXT,
-            window.file_actions.copy_name_without_extension,
-            has_doc,
-            VIEWABLE,
-        ),
-        Command(
-            COPY_PAGE_TEXT,
-            file_strings.CMD_COPY_PAGE_TEXT,
-            window.file_actions.copy_page_text,
-            has_doc,
-            HAS_TEXT,
-        ),
-        *(
-            Command(
-                COPY_PAGE_IMAGE if pct == 100 else f"{COPY_PAGE_IMAGE}_{pct}",
-                copy_image_titles.static_page_title(pct),
-                partial(window.file_actions.copy_page_image, pct / 100),
-                has_doc,
-                VIEWABLE,
-                title_fn=partial(copy_image_titles.page_image_title, window, pct),
-            )
-            for pct in COPY_IMAGE_PERCENTS
-        ),
-        *(
-            Command(
-                COPY_VIEW_IMAGE if pct == 100 else f"{COPY_VIEW_IMAGE}_{pct}",
-                copy_image_titles.static_view_title(pct),
-                partial(window.file_actions.copy_view_image, pct / 100),
-                has_doc,
-                VIEWABLE,
-                title_fn=partial(copy_image_titles.view_image_title, window, pct),
-            )
-            for pct in COPY_IMAGE_PERCENTS
-        ),
-        Command(
-            OPEN_FOLDER,
-            file_strings.CMD_OPEN_FOLDER,
-            window.file_actions.open_folder,
-            has_doc,
-            VIEWABLE,
-        ),
-        Command(PRINT, strings.CMD_PRINT, window.print_actions.print_document, has_doc, VIEWABLE),
-        Command(RENAME_FILE, strings.CMD_RENAME_FILE, window.rename_file, has_doc, VIEWABLE),
-        Command(CLOSE_DOC, strings.CMD_CLOSE_DOC, window.close_document, has_doc, VIEWABLE),
-        Command(EXIT, strings.CMD_EXIT, window.exit_app),
-        Command(SHOW_SHORTCUTS, strings.CMD_SHOW_SHORTCUTS, window.show_keyboard_shortcuts),
-        Command(RELEASE_NOTES, release_strings.CMD_RELEASE_NOTES, window.show_release_notes),
-    ]
-
-
-def _navigation_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
-    view = window.page_view
-    return [
-        Command(PREV_PAGE, strings.CMD_PREV_PAGE, view.show_prev, has_doc, VIEWABLE),
-        Command(NEXT_PAGE, strings.CMD_NEXT_PAGE, view.show_next, has_doc, VIEWABLE),
-        Command(FIRST_PAGE, strings.CMD_FIRST_PAGE, view.show_first, has_doc, VIEWABLE),
-        Command(LAST_PAGE, strings.CMD_LAST_PAGE, view.show_last, has_doc, VIEWABLE),
-    ]
-
-
-def _zoom_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
-    view = window.page_view
-    return [
-        Command(ZOOM_FIT, strings.CMD_ZOOM_FIT, view.zoom_fit, has_doc, VIEWABLE),
-        Command(ZOOM_ACTUAL, strings.CMD_ZOOM_ACTUAL, view.zoom_actual, has_doc, VIEWABLE),
-        Command(ZOOM_IN, strings.CMD_ZOOM_IN, view.zoom_in, has_doc, VIEWABLE),
-        Command(ZOOM_OUT, strings.CMD_ZOOM_OUT, view.zoom_out, has_doc, VIEWABLE),
-    ]
-
-
-def _page_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
-    pages = window.page_actions
-    return [
-        Command(SWAP, strings.CMD_SWAP, pages.swap, has_doc, PDF_ONLY),
-        Command(DELETE_PAGE, strings.CMD_DELETE_PAGE, pages.delete_current_page, has_doc, PDF_ONLY),
-        Command(DELETE_RANGE, strings.CMD_DELETE_RANGE, pages.delete_page_range, has_doc, PDF_ONLY),
-        Command(INSERT_PAGE, strings.CMD_INSERT_PAGE, pages.insert_pages, has_doc, PDF_ONLY),
-        Command(
-            EXTRACT_PAGE, strings.CMD_EXTRACT_PAGE, pages.extract_current_page, has_doc, PDF_ONLY
-        ),
-        # Merge is folder-bound (picks a folder, not the open doc); format handled inside the op.
-        Command(MERGE_FOLDER, strings.CMD_MERGE_FOLDER, pages.merge_folder),
-    ]
-
-
-def _rotate_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
-    rotate = window.rotate_actions
-    return [
-        Command(ROTATE_LEFT, strings.CMD_ROTATE_LEFT, rotate.rotate_left, has_doc, TRANSFORMABLE),
-        Command(
-            ROTATE_RIGHT, strings.CMD_ROTATE_RIGHT, rotate.rotate_right, has_doc, TRANSFORMABLE
-        ),
-        Command(ROTATE_180, strings.CMD_ROTATE_180, rotate.rotate_180, has_doc, TRANSFORMABLE),
-        Command(
-            FLIP_HORIZONTAL,
-            strings.CMD_FLIP_HORIZONTAL,
-            rotate.flip_horizontal,
-            has_doc,
-            TRANSFORMABLE,
-        ),
-        Command(
-            FLIP_VERTICAL,
-            strings.CMD_FLIP_VERTICAL,
-            rotate.flip_vertical,
-            has_doc,
-            TRANSFORMABLE,
-        ),
-    ]
-
-
-def _move_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
-    move = window.move_actions
-    return [
-        Command(MOVE_NEXT, strings.CMD_MOVE_NEXT, move.move_to_next, has_doc, PDF_ONLY),
-        Command(MOVE_PREV, strings.CMD_MOVE_PREV, move.move_to_prev, has_doc, PDF_ONLY),
-        Command(MOVE_FIRST, strings.CMD_MOVE_FIRST, move.move_to_first, has_doc, PDF_ONLY),
-        Command(MOVE_LAST, strings.CMD_MOVE_LAST, move.move_to_last, has_doc, PDF_ONLY),
-    ]
-
-
-def _view_commands(window: MainWindow) -> list[Command]:
-    """Window chrome plus command-palette and outline appearance settings."""
-    palette = window.palette_controller
-    outline = window.outline_controller
-    text_view = window.text_view_controller
-    open_filter = window.open_filter_controller
-    link = window.link_hint_settings
-    zoom = window.zoom_settings_controller
-    return [
-        Command(COMMAND_PALETTE, strings.CMD_COMMAND_PALETTE, window.open_command_palette),
-        Command(CONFIGURE_SHORTCUTS, strings.CMD_CONFIGURE_SHORTCUTS, window.configure_shortcuts),
-        Command(
-            FILE_TYPE_ASSOCIATIONS,
-            default_app_strings.CMD_FILE_TYPE_ASSOCIATIONS,
-            window.default_app_actions.configure_file_associations,
-            file_association.is_supported,
-        ),
-        Command(TOGGLE_MENU, strings.CMD_TOGGLE_MENU, window.toggle_menu_bar),
-        Command(TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
-        Command(TOGGLE_STATUSBAR, strings.CMD_TOGGLE_STATUSBAR, window.toggle_statusbar),
-        Command(TOGGLE_FULLSCREEN, strings.CMD_TOGGLE_FULLSCREEN, window.toggle_fullscreen),
-        Command(PALETTE_WIDTH, strings.CMD_PALETTE_WIDTH, palette.set_width),
-        Command(PALETTE_HEIGHT, strings.CMD_PALETTE_HEIGHT, palette.set_height),
-        Command(PALETTE_FONT, strings.CMD_PALETTE_FONT, palette.set_font_size),
-        Command(PALETTE_OPACITY, strings.CMD_PALETTE_OPACITY, palette.set_opacity),
-        Command(PALETTE_BORDERLESS, strings.CMD_PALETTE_BORDERLESS, palette.toggle_borderless),
-        Command(DIALOG_SIZE, strings.CMD_DIALOG_SIZE, palette.set_dialog_size),
-        Command(OUTLINE_WIDTH, strings.CMD_OUTLINE_WIDTH, outline.set_width),
-        Command(OUTLINE_STYLE, strings.CMD_OUTLINE_STYLE, outline.set_style),
-        Command(OUTLINE_COLOR, strings.CMD_OUTLINE_COLOR, outline.set_color),
-        Command(
-            TEXT_DARK_MODE,
-            strings.CMD_TEXT_DARK_MODE,
-            text_view.toggle_dark_mode,
-            formats=TEXT_FORMATS,
-        ),
-        Command(
-            TEXT_FONT_SIZE,
-            strings.CMD_TEXT_FONT_SIZE,
-            text_view.set_font_size,
-            formats=TEXT_FORMATS,
-        ),
-        Command(
-            OPEN_FILTER_ALL_FILES,
-            strings.CMD_OPEN_FILTER_ALL_FILES,
-            open_filter.toggle_all_files,
-        ),
-        Command(
-            OPEN_FILTER_EXTENSIONS,
-            strings.CMD_OPEN_FILTER_EXTENSIONS,
-            open_filter.edit_extensions,
-        ),
-        Command(
-            REUSE_WINDOW,
-            strings.CMD_REUSE_WINDOW,
-            window.instance_controller.toggle_reuse_window,
-        ),
-        Command(LINK_FONT, link_strings.CMD_LINK_FONT, link.set_font_size),
-        Command(LINK_TEXT_COLOR, link_strings.CMD_LINK_TEXT_COLOR, link.set_text_color),
-        Command(LINK_BG_COLOR, link_strings.CMD_LINK_BG_COLOR, link.set_background_color),
-        Command(LINK_BOX_COLOR, link_strings.CMD_LINK_BOX_COLOR, link.set_box_color),
-        Command(ZOOM_SET_DEFAULT, strings.CMD_SET_DEFAULT_ZOOM, zoom.set_default_zoom),
-        Command(DOC_ZOOM_REMEMBER, strings.CMD_REMEMBER_DOC_ZOOM, window.remember_document_zoom),
-        Command(DOC_PAGE_REMEMBER, strings.CMD_REMEMBER_DOC_PAGE, window.remember_document_page),
-        Command(
-            REMEMBERED_SETTINGS,
-            strings.CMD_REMEMBERED_SETTINGS,
-            window.open_remembered_settings,
-        ),
-    ]
-
-
-def _edit_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
-    controller = window.controller
-    return [
-        Command(EDIT_MODE, strings.CMD_EDIT_MODE, window.toggle_edit_mode, has_doc, PDF_ONLY),
-        Command(
-            SELECT_MODE,
-            select_strings.CMD_SELECT_MODE,
-            window.toggle_select_mode,
-            has_doc,
-            HAS_TEXT,
-        ),
-        Command(OPEN_LINK, link_strings.CMD_OPEN_LINK, window.open_link_hints, has_doc, HAS_TEXT),
-        Command(COPY_LINK, link_strings.CMD_COPY_LINK, window.copy_link_hints, has_doc, HAS_TEXT),
-        Command(
-            SELECT_NEXT, strings.CMD_SELECT_NEXT, window.select_next_editable, has_doc, PDF_ONLY
-        ),
-        Command(
-            SELECT_PREV, strings.CMD_SELECT_PREV, window.select_previous_editable, has_doc, PDF_ONLY
-        ),
-        Command(ADD_FIELD, strings.CMD_ADD_FIELD, window.add_text_field, has_doc, PDF_ONLY),
-        Command(ADD_IMAGE, strings.CMD_ADD_IMAGE, window.add_image, has_doc, PDF_ONLY),
-        Command(
-            DELETE_FIELD, strings.CMD_DELETE_FIELD, controller.delete_selected, has_doc, PDF_ONLY
-        ),
-        Command(EXPORT_TEXT, strings.CMD_EXPORT_TEXT, window.export_text, has_doc, PDF_ONLY),
-        Command(
-            DELETE_SAVED_FIELDS,
-            strings.CMD_DELETE_SAVED_FIELDS,
-            window.delete_saved_text_fields,
-            has_doc,
-            PDF_ONLY,
-        ),
-    ]
-
-
-def _search_commands(
-    window: MainWindow, has_doc: Predicate, has_highlights: Predicate
-) -> list[Command]:
-    search = window.search_actions
-    return [
-        Command(SEARCH_PDF, strings.CMD_SEARCH_PDF, search.search_pdf_text, has_doc, HAS_TEXT),
-        Command(SEARCH_FIELDS, strings.CMD_SEARCH_FIELDS, search.search_fields, has_doc, PDF_ONLY),
-        Command(
-            CLEAR_HIGHLIGHTS, strings.CMD_CLEAR_HIGHLIGHTS, search.clear_highlights, has_highlights
-        ),
     ]
 
 

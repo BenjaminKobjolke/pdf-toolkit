@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import stat
 from pathlib import Path
+from typing import cast
 
 import pytest
 from PIL import Image
@@ -98,7 +99,7 @@ def test_rotate_and_save_readonly_pdf(
 
 def _image_size(path: Path) -> tuple[int, int]:
     with Image.open(path) as img:
-        return img.size
+        return cast(tuple[int, int], img.size)
 
 
 def test_image_rotate_is_deferred_until_save(
