@@ -2,15 +2,50 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from pathlib import Path
 
+import pytest
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget
 
+from app.config.palette_settings import PaletteSettings
+from app.gui import dialog_appearance
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 
 
 def _titles(dialog: FilterListDialog) -> list[str]:
     return [dialog.visible_entry(i).title for i in range(dialog.visible_count())]
+
+
+@pytest.fixture
+def active_dialog_size() -> Iterator[None]:
+    original = dialog_appearance.active()
+    dialog_appearance.set_active(PaletteSettings(dialog_size_pct=60))
+    yield
+    dialog_appearance.set_active(original)
+
+
+def test_parented_dialog_sizes_to_pct_of_window(qapp: object, active_dialog_size: None) -> None:
+    parent = QWidget()
+    parent.resize(1000, 800)
+    dialog = FilterListDialog([ListEntry(title="a")], parent=parent)
+    assert (dialog.width(), dialog.height()) == (600, 480)
+
+
+def test_dialog_size_pct_change_applies_to_next_dialog(
+    qapp: object, active_dialog_size: None
+) -> None:
+    dialog_appearance.set_active(PaletteSettings(dialog_size_pct=40))
+    parent = QWidget()
+    parent.resize(1000, 800)
+    dialog = FilterListDialog([ListEntry(title="a")], parent=parent)
+    assert (dialog.width(), dialog.height()) == (400, 320)
+
+
+def test_unparented_dialog_keeps_fallback_size(qapp: object) -> None:
+    dialog = FilterListDialog([ListEntry(title="a")])
+    assert (dialog.width(), dialog.height()) == (520, 420)
 
 
 def test_shows_all_enabled_entries(qapp: object) -> None:

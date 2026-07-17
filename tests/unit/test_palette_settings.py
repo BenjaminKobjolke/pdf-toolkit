@@ -19,7 +19,7 @@ def test_default_when_missing(tmp_path: Path) -> None:
 def test_save_then_load_round_trips(tmp_path: Path) -> None:
     store = _store(tmp_path)
     settings = PaletteSettings(
-        width_pct=50, height_pct=40, font_pt=14, borderless=True, opacity_pct=80
+        width_pct=50, height_pct=40, font_pt=14, borderless=True, opacity_pct=80, dialog_size_pct=45
     )
     store.save(settings)
     assert store.load() == settings

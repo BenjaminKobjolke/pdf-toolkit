@@ -55,6 +55,8 @@ command palette and their keyboard shortcuts are no-ops. Format-agnostic command
   suffix always wins — a `.pdf` or `.png` is never sniffed.
 - **Images** open as a single-page document rendered by fitz directly; no text
   layer, so search/select/link commands are greyed out.
+- To open files by **double-click from Explorer**, associate their types with the
+  viewer via **File type associations…** (Windows only; see `FILE_ASSOCIATIONS.md`).
 
 ## Merging text folders
 

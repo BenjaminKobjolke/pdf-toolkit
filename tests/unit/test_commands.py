@@ -15,6 +15,7 @@ from tests.conftest import MakePdf, gui_settings
 _ALL_IDS = {
     commands.OPEN,
     commands.OPEN_HISTORY,
+    commands.OPEN_FOLDER_HISTORY,
     commands.NEXT_FILE,
     commands.PREV_FILE,
     commands.CLOSE_DOC,
@@ -86,6 +87,7 @@ _ALL_IDS = {
     commands.FIELD_TOGGLE_BOLD,
     commands.FIELD_TOGGLE_ITALIC,
     commands.FIELD_DELETE,
+    commands.DIALOG_SIZE,
     commands.PALETTE_WIDTH,
     commands.PALETTE_HEIGHT,
     commands.PALETTE_FONT,
@@ -102,8 +104,7 @@ _ALL_IDS = {
     commands.ZOOM_SET_DEFAULT,
     commands.DOC_ZOOM_REMEMBER,
     commands.DOC_PAGE_REMEMBER,
-    commands.SET_DEFAULT_PDF_VIEWER,
-    commands.REMOVE_PDF_HANDLER,
+    commands.FILE_TYPE_ASSOCIATIONS,
     overlay_commands.ADD_RECT,
     overlay_commands.RECT_FILL_COLOR,
     overlay_commands.RECT_WIDTH,
@@ -129,6 +130,17 @@ def test_registry_covers_all_commands(window: MainWindow) -> None:
 def test_titles_are_non_empty(window: MainWindow) -> None:
     for command in commands.build_commands(window):
         assert command.title
+
+
+def test_history_command_titles(window: MainWindow) -> None:
+    registry = commands.build_commands(window)
+    assert (
+        commands.find(registry, commands.OPEN_HISTORY).title == "Open file from recent / history…"
+    )
+    assert (
+        commands.find(registry, commands.OPEN_FOLDER_HISTORY).title
+        == "Open folder from recent / history…"
+    )
 
 
 def test_find_returns_by_id(window: MainWindow) -> None:

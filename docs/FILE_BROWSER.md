@@ -7,7 +7,8 @@ not the OS-native dialog. A cursor hops between directory entries vim-style:
 The native `QFileDialog` ignored the app's keyboard-only workflow and its palette
 chrome, so it was replaced everywhere a file or folder is chosen. The browser is a
 `BaseDialog`, so it inherits the same font / opacity / frameless chrome as every
-other dialog (see `CUSTOM_UI.md`).
+other dialog, and it sizes to the **Dialogs: size %…** fraction of the main window
+(see `CUSTOM_UI.md` and `COMMAND_PALETTE.md` → *Appearance settings*).
 
 ## Where it appears
 

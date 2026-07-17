@@ -63,7 +63,7 @@ across restarts. Full reference:
 
 The palette and direct shortcuts cover:
 
-- **Document** — Open, **Open from recent / history…** (last 100 PDFs),
+- **Document** — Open, **Open file / folder from recent / history…** (last 100 PDFs),
   **Next / previous file in directory** (`Alt+Right` / `Alt+Left`, wraps, skips
   unopenable files, asks to save first),
   **Rename file…** (renames the PDF and its text-field sidecar together),
@@ -140,24 +140,30 @@ Full key + mouse map: [docs/KEYBOARD_SHORTCUTS.md](docs/KEYBOARD_SHORTCUTS.md).
 A footer **status bar** shows the current mode (left) and page `current/total`
 (centre); shown by default and hideable via **Toggle status bar** (remembered).
 See [docs/STATUS_BAR.md](docs/STATUS_BAR.md). The palette window itself is tunable
-(size, font, opacity, borderless), as is the selected-element outline (width,
-type, color) — see the *Appearance settings* section of
+(size, font, opacity, borderless), every list/picker dialog fills a configurable
+percentage of the window (**Dialogs: size %…**), and the selected-element outline
+(width, type, color) is configurable too — see the *Appearance settings* section of
 [docs/COMMAND_PALETTE.md](docs/COMMAND_PALETTE.md).
 
 Every page operation writes a backup first (same `backup/YYYYMMDD-HHMM-<name>.pdf`
 format) and surfaces validation errors in a dialog.
 
-### Make it a PDF handler (open PDFs by double-click)
+### File associations (open files by double-click)
+
+In the viewer, run **File type associations…** from the command palette
+(`Ctrl+Shift+P`): check the file types FastFileViewer should offer to open
+(PDF, text, markdown, images) and press OK. See `docs/FILE_ASSOCIATIONS.md`.
+
+Outside the GUI, the repo-root scripts do the same for all/no types:
 
 ```bat
-FastFileViewer_register.bat     REM register the viewer as a PDF handler (HKCU, no admin)
+FastFileViewer_register.bat     REM associate all supported types (HKCU, no admin)
 FastFileViewer_unregister.bat   REM undo
 ```
 
-`FastFileViewer_register.bat` registers a per-user ProgID so the viewer appears in
-Windows' *Open with* list for `.pdf`. Windows 11 does **not** let any tool set
-the *default* app silently, so finish in the UI: right-click a PDF →
-**Open with → Choose another app → PDF (pdf-toolkit viewer)** → tick **Always**.
+Windows 11 does **not** let any tool set the *default* app silently, so finish
+in the UI: right-click a file → **Open with → Choose another app →
+FastFileViewer** → tick **Always**.
 
 Double-click opens are launched windowless via `FastFileViewer.vbs` (no console flash),
 and the working directory is set to the opened PDF's folder, so its backups land

@@ -20,7 +20,7 @@ from app.gui import (
     select_strings,
     strings,
 )
-from app.os_integration import pdf_association
+from app.os_integration import file_association
 from app.pdf.file_format import IMAGE_FORMATS, TEXT_FORMATS, FileFormat
 
 if TYPE_CHECKING:
@@ -35,6 +35,7 @@ VIEWABLE = HAS_TEXT | IMAGE_FORMATS  # any rendered doc (pdf/txt/md/images)
 # Command ids — stable keys for menu/shortcut lookups (UPPER_SNAKE_CASE).
 OPEN = "open"
 OPEN_HISTORY = "open_history"
+OPEN_FOLDER_HISTORY = "open_folder_history"
 NEXT_FILE = "next_file"
 PREV_FILE = "prev_file"
 CLOSE_DOC = "close_doc"
@@ -72,8 +73,7 @@ SHOW_SHORTCUTS = "show_shortcuts"
 RELEASE_NOTES = "release_notes"
 COMMAND_PALETTE = "command_palette"
 CONFIGURE_SHORTCUTS = "configure_shortcuts"
-SET_DEFAULT_PDF_VIEWER = "set_default_pdf_viewer"
-REMOVE_PDF_HANDLER = "remove_pdf_handler"
+FILE_TYPE_ASSOCIATIONS = "file_type_associations"
 RENAME_FILE = "rename_file"
 TOGGLE_MENU = "toggle_menu"
 TOGGLE_TOOLBAR = "toggle_toolbar"
@@ -84,6 +84,7 @@ PALETTE_HEIGHT = "palette_height"
 PALETTE_FONT = "palette_font"
 PALETTE_OPACITY = "palette_opacity"
 PALETTE_BORDERLESS = "palette_borderless"
+DIALOG_SIZE = "dialog_size"
 OUTLINE_WIDTH = "outline_width"
 OUTLINE_STYLE = "outline_style"
 OUTLINE_COLOR = "outline_color"
@@ -177,6 +178,11 @@ def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     return [
         Command(OPEN, strings.CMD_OPEN, lambda: window.open_pdf()),
         Command(OPEN_HISTORY, strings.CMD_OPEN_HISTORY, window.open_from_history),
+        Command(
+            OPEN_FOLDER_HISTORY,
+            strings.CMD_OPEN_FOLDER_HISTORY,
+            window.open_folder_from_history,
+        ),
         Command(NEXT_FILE, strings.CMD_NEXT_FILE, window.open_next_file, has_doc, VIEWABLE),
         Command(PREV_FILE, strings.CMD_PREV_FILE, window.open_previous_file, has_doc, VIEWABLE),
         Command(SAVE, strings.CMD_SAVE, window.save_changes, has_doc, PDF_ONLY),
@@ -293,16 +299,10 @@ def _view_commands(window: MainWindow) -> list[Command]:
         Command(COMMAND_PALETTE, strings.CMD_COMMAND_PALETTE, window.open_command_palette),
         Command(CONFIGURE_SHORTCUTS, strings.CMD_CONFIGURE_SHORTCUTS, window.configure_shortcuts),
         Command(
-            SET_DEFAULT_PDF_VIEWER,
-            default_app_strings.CMD_SET_DEFAULT_PDF_VIEWER,
-            window.default_app_actions.set_as_default_pdf_viewer,
-            pdf_association.is_supported,
-        ),
-        Command(
-            REMOVE_PDF_HANDLER,
-            default_app_strings.CMD_REMOVE_PDF_HANDLER,
-            window.default_app_actions.remove_pdf_handler,
-            pdf_association.is_supported,
+            FILE_TYPE_ASSOCIATIONS,
+            default_app_strings.CMD_FILE_TYPE_ASSOCIATIONS,
+            window.default_app_actions.configure_file_associations,
+            file_association.is_supported,
         ),
         Command(TOGGLE_MENU, strings.CMD_TOGGLE_MENU, window.toggle_menu_bar),
         Command(TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
@@ -313,6 +313,7 @@ def _view_commands(window: MainWindow) -> list[Command]:
         Command(PALETTE_FONT, strings.CMD_PALETTE_FONT, palette.set_font_size),
         Command(PALETTE_OPACITY, strings.CMD_PALETTE_OPACITY, palette.set_opacity),
         Command(PALETTE_BORDERLESS, strings.CMD_PALETTE_BORDERLESS, palette.toggle_borderless),
+        Command(DIALOG_SIZE, strings.CMD_DIALOG_SIZE, palette.set_dialog_size),
         Command(OUTLINE_WIDTH, strings.CMD_OUTLINE_WIDTH, outline.set_width),
         Command(OUTLINE_STYLE, strings.CMD_OUTLINE_STYLE, outline.set_style),
         Command(OUTLINE_COLOR, strings.CMD_OUTLINE_COLOR, outline.set_color),

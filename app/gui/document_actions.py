@@ -45,20 +45,36 @@ class DocumentActions:
         self._report = report
 
     def open_from_history(self) -> None:
-        """Pick a recently-opened PDF from the history list and open it."""
+        """Pick a recently-opened document from the history list and open it."""
         entries = [
             ListEntry(title=path.name, subtitle=str(path), payload=path)
             for path in self._recent.load()
         ]
+        self._pick_and_open(entries, strings.HISTORY_TITLE, strings.HISTORY_PLACEHOLDER)
+
+    def open_folder_from_history(self) -> None:
+        """Pick a recently-used folder and reopen its last-opened document."""
+        # First occurrence of each parent is that folder's most recent file
+        # (history is most-recent-first; dict insertion order keeps recency).
+        last_per_folder: dict[Path, Path] = {}
+        for path in self._recent.load():
+            last_per_folder.setdefault(path.parent, path)
+        entries = [
+            ListEntry(title=folder.name, subtitle=str(folder), payload=last_file)
+            for folder, last_file in last_per_folder.items()
+        ]
+        self._pick_and_open(
+            entries, strings.FOLDER_HISTORY_TITLE, strings.FOLDER_HISTORY_PLACEHOLDER
+        )
+
+    def _pick_and_open(self, entries: list[ListEntry], title: str, placeholder: str) -> None:
         if not entries:
-            confirm_dialog.show_message(
-                self._parent, strings.HISTORY_TITLE, strings.LABEL_HISTORY_EMPTY
-            )
+            confirm_dialog.show_message(self._parent, title, strings.LABEL_HISTORY_EMPTY)
             return
         dialog = FilterListDialog(
             entries,
-            placeholder=strings.HISTORY_PLACEHOLDER,
-            title=strings.HISTORY_TITLE,
+            placeholder=placeholder,
+            title=title,
             parent=self._parent,
         )
         if dialog.exec() and (chosen := dialog.chosen()) is not None:

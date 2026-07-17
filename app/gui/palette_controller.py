@@ -12,6 +12,8 @@ from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QDialog, QWidget
 
 from app.config.palette_settings import (
+    DIALOG_PCT_MAX,
+    DIALOG_PCT_MIN,
     FONT_PT_MAX,
     FONT_PT_MIN,
     HEIGHT_PCT_MAX,
@@ -59,6 +61,16 @@ class PaletteController:
             settings_strings.PROMPT_PALETTE_HEIGHT,
             HEIGHT_PCT_MIN,
             HEIGHT_PCT_MAX,
+        )
+
+    def set_dialog_size(self) -> None:
+        """Prompt for the list/picker dialog size as a percentage of the window."""
+        self._edit_int(
+            "dialog_size_pct",
+            settings_strings.DIALOG_DIALOG_SIZE_TITLE,
+            settings_strings.PROMPT_DIALOG_SIZE,
+            DIALOG_PCT_MIN,
+            DIALOG_PCT_MAX,
         )
 
     def set_font_size(self) -> None:

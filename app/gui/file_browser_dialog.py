@@ -20,6 +20,7 @@ from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QLabel, QLineEdit, QListWidget, QVBoxLayout, QWidget
 
+from app.gui import dialog_appearance
 from app.gui import file_browser_strings as fbs
 from app.gui.base_dialog import BaseDialog
 from app.gui.file_browser_model import (
@@ -85,7 +86,7 @@ class FileBrowserDialog(BaseDialog):
             self._name.installEventFilter(self)
             layout.addWidget(self._name)
         layout.addWidget(QLabel(fbs.SAVE_KEY_HINT if mode is _Mode.SAVE else fbs.KEY_HINT))
-        self.resize(560, 460)
+        dialog_appearance.resize_for_parent(self, (560, 460))
         self._reload()
         self._list.setFocus()
 

@@ -13,10 +13,12 @@ DIALOG_PALETTE_WIDTH_TITLE = "Palette width"
 DIALOG_PALETTE_HEIGHT_TITLE = "Palette height"
 DIALOG_PALETTE_FONT_TITLE = "Palette font size"
 DIALOG_PALETTE_OPACITY_TITLE = "Palette opacity"
+DIALOG_DIALOG_SIZE_TITLE = "Dialog size"
 PROMPT_PALETTE_WIDTH = "Width (% of window):"
 PROMPT_PALETTE_HEIGHT = "Height (% of window):"
 PROMPT_PALETTE_FONT = "Font size (pt, 0 = default):"
 PROMPT_PALETTE_OPACITY = "Opacity (%):"
+PROMPT_DIALOG_SIZE = "Size (% of window):"
 
 # Text/Markdown appearance dialogs
 DIALOG_TEXT_FONT_TITLE = "Text/Markdown font size"

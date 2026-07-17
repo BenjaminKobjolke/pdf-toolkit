@@ -1,8 +1,9 @@
-"""Palette actions to register / unregister the app as the Windows PDF viewer.
+"""Palette action to manage the viewer's Windows file-type associations.
 
-Registration only makes the viewer a *choosable* handler; Windows blocks apps
-from silently forcing the default, so after registering we open the Default Apps
-settings page and tell the user how to finish. See ``app.os_integration``.
+Association only makes the viewer a *choosable* handler; Windows blocks apps
+from silently forcing the default, so after applying we open the Default Apps
+settings page (deep-linked to the app on Win11) and tell the user how to
+finish. See ``app.os_integration.file_association``.
 """
 
 from __future__ import annotations
@@ -13,40 +14,39 @@ from PySide6.QtWidgets import QWidget
 
 from app.gui import default_app_strings as ds
 from app.gui.confirm_dialog import Severity, show_message
+from app.gui.file_association_dialog import ask_associations
 from app.logging_setup import log
-from app.os_integration import pdf_association
+from app.os_integration import file_association
 
-_DEFAULT_APPS_URI = "ms-settings:defaultapps"
+# Must match the RegisteredApplications value name; Win10 ignores the query
+# part and just opens the plain Default Apps page.
+_DEFAULT_APPS_URI = f"ms-settings:defaultapps?registeredAppUser={file_association.APP_NAME}"
 
 
 class DefaultAppActions:
-    """Register / remove the viewer as a Windows PDF handler from the palette."""
+    """Edit the viewer's file-type associations from the palette."""
 
     def __init__(self, parent: QWidget) -> None:
         self._parent = parent
 
-    def set_as_default_pdf_viewer(self) -> None:
-        """Register as a PDF handler, then open Default Apps with instructions."""
-        if not pdf_association.is_supported():
+    def configure_file_associations(self) -> None:
+        """Show the checklist dialog and make the registry match the answer."""
+        if not file_association.is_supported():
             self._warn(ds.WINDOWS_ONLY)
             return
-        result = pdf_association.register_pdf_viewer()
+        checked = file_association.registered_extensions()
+        selection = ask_associations(self._parent, checked=checked)
+        if selection is None:
+            return
+        result = file_association.set_associations(selection)
         if not result.ok:
             self._error(ds.FAILED_FMT.format(error=result.error))
             return
-        show_message(self._parent, ds.TITLE, ds.INSTRUCTIONS)
-        self._open_default_apps_settings()
-
-    def remove_pdf_handler(self) -> None:
-        """Remove the PDF-handler registration created by the command above."""
-        if not pdf_association.is_supported():
-            self._warn(ds.WINDOWS_ONLY)
-            return
-        result = pdf_association.unregister_pdf_viewer()
-        if not result.ok:
-            self._error(ds.REMOVE_FAILED_FMT.format(error=result.error))
-            return
-        show_message(self._parent, ds.TITLE, ds.REMOVED)
+        if selection:
+            show_message(self._parent, ds.TITLE, ds.APPLIED_INSTRUCTIONS)
+            self._open_default_apps_settings()
+        else:
+            show_message(self._parent, ds.TITLE, ds.REMOVED_ALL)
 
     def _open_default_apps_settings(self) -> None:
         """Open the Windows Default Apps page; non-fatal if it cannot open."""

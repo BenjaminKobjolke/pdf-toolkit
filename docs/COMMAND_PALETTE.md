@@ -44,7 +44,8 @@ missing or corrupt file just means no commands are floated yet.
 | Command | What it does |
 |---------|--------------|
 | **Open document…** | Prompt for a document (PDF / text / markdown / image / any plain-text file) and open it. |
-| **Open from recent / history…** | Pick from recently opened documents (see below). |
+| **Open file from recent / history…** | Pick from recently opened documents (see below). |
+| **Open folder from recent / history…** | Pick from recently used folders; reopens the last file you opened from that folder (see below). |
 | **Next file in directory** / **Previous file in directory** | Open the alphabetically next / previous openable file in the current document's folder (also **Alt+Right** / **Alt+Left**). Wraps at the ends; honors the Open-dialog filter and skips files the viewer can't render; prompts to save unsaved changes first. |
 | **Save changes to original file** | Write the working copy back to the original (with a backup). See *Deferred saving*. |
 | **Rename file…** | Rename the open PDF (and its sidecar) and reopen it. |
@@ -61,6 +62,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Palette: font size…** | Set the palette font size in points (0 = default). |
 | **Palette: opacity %…** | Set the palette window opacity. |
 | **Palette: toggle borderless** | Show/hide the palette window frame. |
+| **Dialogs: size %…** | Set how much of the window every list/picker dialog fills (see *Appearance settings*). |
 | **Text/Markdown: toggle dark mode** | Light ⇄ dark reading theme for `.txt`/`.md` (only shown for those; see *Appearance settings*). |
 | **Text/Markdown: font size…** | Base font size (pt) for `.txt`/`.md` rendering (only shown for those). |
 | **Open dialog: toggle all files** | Open dialog lists every file ⇄ only the configured extensions (persisted). |
@@ -98,8 +100,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Export to PDF (text + images)** | Flatten the placed overlay into the document (deferred until save). |
 | **Delete saved text fields for this document** | Delete this PDF's saved fields and its JSON sidecar. |
 | **Configure keyboard shortcuts…** | Bind, rebind, or clear a command's keyboard shortcut (see `CONFIGURE_SHORTCUTS.md`). |
-| **Set as default PDF viewer…** | Register the viewer as a Windows PDF handler, then open Default Apps (Windows only; see `DEFAULT_PDF_VIEWER.md`). |
-| **Remove as PDF handler** | Undo the PDF-handler registration (Windows only; see `DEFAULT_PDF_VIEWER.md`). |
+| **File type associations…** | Checklist of all supported file types (PDF, text, markdown, images) — check the ones FastFileViewer should offer to open; unchecking all removes the registration (Windows only; see `FILE_ASSOCIATIONS.md`). |
 | **Remembered settings…** | Reset stored preferences (placement, image choice, palette, outline, keyboard shortcuts, …) individually or all. |
 | **Search document text…** | Live full-text search of the document (see below). |
 | **Search text fields…** | Live search of your placed text fields (see below). |
@@ -186,6 +187,7 @@ prompts) and remembered across sessions:
 | **Palette: font size…** | 0–40 pt | Font size of the filter box + list (0 keeps the default). |
 | **Palette: opacity %…** | 20–100 | Window transparency. |
 | **Palette: toggle borderless** | — | Removes/restores the OS window frame. |
+| **Dialogs: size %…** | 20–100 | Width **and** height of every other list/picker dialog — file browser (Open/Save/folder), the recent file/folder pickers, font and color pickers, search, and the small option menus — as a percentage of the main window (default 60). The palette itself keeps its own width/height settings above. |
 
 Settings persist in a global file:
 
@@ -294,7 +296,7 @@ windows (self-heals on the next launch), Windows may only flash the taskbar
 instead of focusing the window when another app holds focus, and one file per
 launch is forwarded.
 
-## Open from recent / history
+## Open file / folder from recent / history
 
 The viewer records every PDF you open (most recent first, up to 100 entries) in a
 global file:
@@ -303,10 +305,14 @@ global file:
 ~/.pdf-toolkit/recent.json
 ```
 
-**Open from recent / history…** shows that list — filename plus full path — in the
-same type-to-filter dialog as the palette. Filter, select with the arrow keys, and
-press **Enter** to open. The location can be overridden with the
+**Open file from recent / history…** shows that list — filename plus full path — in
+the same type-to-filter dialog as the palette. Filter, select with the arrow keys,
+and press **Enter** to open. The location can be overridden with the
 `PDF_TOOLKIT_RECENT_FILE` environment variable.
+
+**Open folder from recent / history…** shows the **unique folders** from the same
+history (most-recent first). Picking a folder reopens the **last file you opened
+from that folder**.
 
 ## Remembered window state
 

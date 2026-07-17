@@ -19,6 +19,7 @@ PALETTE_KEY = "palette"
 # applier clamp (palette_appearance), so the two can never drift apart.
 WIDTH_PCT_MIN, WIDTH_PCT_MAX = 20, 100
 HEIGHT_PCT_MIN, HEIGHT_PCT_MAX = 20, 100
+DIALOG_PCT_MIN, DIALOG_PCT_MAX = 20, 100
 OPACITY_PCT_MIN, OPACITY_PCT_MAX = 20, 100
 FONT_PT_MIN, FONT_PT_MAX = 0, 40  # 0 = inherit the default font size
 
@@ -32,6 +33,8 @@ class PaletteSettings:
     font_pt: int = 0
     borderless: bool = False
     opacity_pct: int = 100
+    # Size of every non-palette list/picker dialog, as % of the window (both axes).
+    dialog_size_pct: int = 60
 
 
 class PaletteSettingsStore(RecordStore):
@@ -54,6 +57,7 @@ class PaletteSettingsStore(RecordStore):
             font_pt=int(raw.get("font_pt", default.font_pt)),
             borderless=bool(raw.get("borderless", default.borderless)),
             opacity_pct=int(raw.get("opacity_pct", default.opacity_pct)),
+            dialog_size_pct=int(raw.get("dialog_size_pct", default.dialog_size_pct)),
         )
 
     def save(self, settings: PaletteSettings) -> None:
@@ -66,5 +70,6 @@ class PaletteSettingsStore(RecordStore):
                 "font_pt": settings.font_pt,
                 "borderless": settings.borderless,
                 "opacity_pct": settings.opacity_pct,
+                "dialog_size_pct": settings.dialog_size_pct,
             },
         )

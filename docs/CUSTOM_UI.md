@@ -32,9 +32,16 @@ A module-level holder of the current `PaletteSettings`, mirroring the
 
 - `active()` / `set_active(settings)` — get/replace the live appearance.
 - `apply_chrome(dialog, settings)` — apply **font size, opacity, frameless flag** to a
-  dialog. This is the *single source* for those three properties; the palette's own
-  applier (`palette_appearance.apply_appearance`) delegates to it after doing its
-  window-relative resize.
+  dialog. This is the *single source* for those three properties.
+- `apply_relative_size(dialog, width_pct, height_pct, window_size)` — the *single
+  source* of the window-relative resize math (clamp to 20–100%, 200 px minimum).
+  The palette's own applier (`palette_appearance.apply_appearance`) delegates both
+  its resize and its chrome here.
+- `resize_for_parent(dialog, fallback)` — size a dialog to the user's
+  **dialog size %** (`dialog_size_pct`, both axes) of its parent window; dialogs
+  without a parent keep the fixed `fallback` pixel size. Called by
+  `FilterableListDialog._finish_layout` and `FileBrowserDialog`, so every list /
+  picker dialog is covered without per-dialog wiring.
 
 `PaletteController` re-registers the settings via `set_active()` on load and after every
 edit, so changing the palette font / opacity / borderless takes effect on the **next**
@@ -78,16 +85,18 @@ dialogs — they all stack the same way:
 
 ## Appearance inheritance
 
-Dialogs inherit three things from the command-palette settings:
+Dialogs inherit four things from the command-palette settings:
 
 | Property | Source field | Effect |
 |----------|--------------|--------|
 | Font size | `font_pt` (0 = default) | `setFont` cascades to the filter box, list, labels, inputs. |
 | Opacity | `opacity_pct` | Window transparency. |
 | Frameless | `borderless` | OS window frame on/off. |
+| Dialog size | `dialog_size_pct` (default 60) | List/picker dialogs fill this % of the main window (both axes) — **Dialogs: size %…**. |
 
-They do **not** inherit the palette's window-relative **width % / height %** — that
-sizing is palette-only; other dialogs keep their own natural size.
+The palette's own **width % / height %** stay palette-only; the message / prompt
+dialogs (`FormDialog` family, `KeyCaptureDialog`, `TextInputDialog`) keep their
+natural size — only the list/picker dialogs use `dialog_size_pct`.
 
 The settings live in `~/.pdf-toolkit/palette.json` and are edited from the palette itself
 (**Palette: font size…**, **Palette: opacity %…**, **Palette: toggle borderless**). See

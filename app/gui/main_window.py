@@ -88,6 +88,9 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
     def open_from_history(self) -> None:
         self._document_actions.open_from_history()
 
+    def open_folder_from_history(self) -> None:
+        self._document_actions.open_folder_from_history()
+
     def open_next_file(self) -> None:
         """Open the alphabetically next openable file in the document's directory."""
         self._open_sibling(1)

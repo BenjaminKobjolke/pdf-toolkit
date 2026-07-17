@@ -14,6 +14,7 @@ from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QLineEdit, QListWidget, QVBoxLayout, QWidget
 
+from app.gui import dialog_appearance
 from app.gui.base_dialog import BaseDialog
 
 
@@ -41,13 +42,17 @@ class FilterableListDialog(BaseDialog):
         self._list.currentRowChanged.connect(lambda _row: self._on_row_changed())
 
     def _finish_layout(self, *middle: QWidget, size: tuple[int, int] = (520, 420)) -> None:
-        """Lay out filter, any ``middle`` widgets, then the list; show initial rows."""
+        """Lay out filter, any ``middle`` widgets, then the list; show initial rows.
+
+        Parented dialogs size to the user's dialog-size % of the window;
+        ``size`` is the fixed fallback when there is no parent.
+        """
         layout = QVBoxLayout(self)
         layout.addWidget(self._filter)
         for widget in middle:
             layout.addWidget(widget)
         layout.addWidget(self._list)
-        self.resize(*size)
+        dialog_appearance.resize_for_parent(self, size)
         self._apply_filter("")
         self._filter.setFocus()
 
