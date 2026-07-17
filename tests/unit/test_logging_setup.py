@@ -13,5 +13,5 @@ def test_modules_reuse_the_same_logger_instance() -> None:
     import app.pdf.merger as merger
     import app.storage.sqlite_backend as sqlite_backend
 
-    assert getattr(merger, "log") is log
-    assert getattr(sqlite_backend, "log") is log
+    assert merger.log is log
+    assert sqlite_backend.log is log
