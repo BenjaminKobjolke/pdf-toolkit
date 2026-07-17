@@ -15,6 +15,8 @@ from tests.conftest import MakePdf, gui_settings
 _ALL_IDS = {
     commands.OPEN,
     commands.OPEN_HISTORY,
+    commands.NEXT_FILE,
+    commands.PREV_FILE,
     commands.CLOSE_DOC,
     commands.EXIT,
     commands.PREV_PAGE,
@@ -158,6 +160,29 @@ def test_doc_commands_enabled_after_open(window: MainWindow, make_pdf: MakePdf) 
     assert commands.find(registry, commands.LAST_PAGE).is_enabled() is True
 
 
+def test_next_file_opens_alphabetical_sibling(window: MainWindow, make_pdf: MakePdf) -> None:
+    first = make_pdf([(200, 300)], name="a.pdf")
+    second = make_pdf([(200, 300)], name="b.pdf")
+    window.open_pdf(first)
+    commands.find(commands.build_commands(window), commands.NEXT_FILE).run()
+    assert window._source == second
+
+
+def test_prev_file_wraps_to_last_sibling(window: MainWindow, make_pdf: MakePdf) -> None:
+    first = make_pdf([(200, 300)], name="a.pdf")
+    last = make_pdf([(200, 300)], name="z.pdf")
+    window.open_pdf(first)
+    commands.find(commands.build_commands(window), commands.PREV_FILE).run()
+    assert window._source == last
+
+
+def test_next_file_solo_document_stays_open(window: MainWindow, make_pdf: MakePdf) -> None:
+    only = make_pdf([(200, 300)], name="only.pdf")
+    window.open_pdf(only)
+    commands.find(commands.build_commands(window), commands.NEXT_FILE).run()
+    assert window._source == only
+
+
 def test_field_commands_disabled_without_selection(window: MainWindow, make_pdf: MakePdf) -> None:
     window.open_pdf(make_pdf([(200, 300)]))
     registry = commands.build_commands(window)
@@ -219,6 +244,8 @@ def test_registry_format_annotations(window: MainWindow) -> None:
     assert commands.find(registry, commands.COPY_LINK).formats == VIEWABLE
     assert commands.find(registry, commands.SEARCH_PDF).formats == VIEWABLE
     assert commands.find(registry, commands.NEXT_PAGE).formats == VIEWABLE
+    assert commands.find(registry, commands.NEXT_FILE).formats == VIEWABLE
+    assert commands.find(registry, commands.PREV_FILE).formats == VIEWABLE
     assert commands.find(registry, commands.OPEN).formats is None
     assert commands.find(registry, commands.MERGE_FOLDER).formats is None
 

@@ -42,6 +42,9 @@ command palette and their keyboard shortcuts are no-ops. Format-agnostic command
   list (e.g. `pdf, txt, md, ini`). Both persist across sessions and reset from
   **Remembered settings…** ("Open dialog filter").
 - Passing a path on the command line — `pdft_gui.bat notes.md` — opens it directly.
+- **Next / previous file in directory** (Alt+Right / Alt+Left) steps through the
+  same filter's matches in the current document's folder, skipping files that
+  fail the content sniff.
 - **Unknown extensions are content-sniffed**: if the file's leading bytes are plain
   UTF-8 text (no null bytes), it opens as a `.txt`-style document — so `.ini`,
   `.log`, `.cfg`, `.json`, … just work. Binary or non-UTF-8 files are rejected

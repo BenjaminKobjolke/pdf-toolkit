@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QMainWindow
 
 from app.gui import (
     confirm_dialog,
+    file_browser_model,
     file_dialogs,
     overlay_selection,
     strings,
@@ -86,6 +87,25 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
 
     def open_from_history(self) -> None:
         self._document_actions.open_from_history()
+
+    def open_next_file(self) -> None:
+        """Open the alphabetically next openable file in the document's directory."""
+        self._open_sibling(1)
+
+    def open_previous_file(self) -> None:
+        """Open the alphabetically previous openable file in the document's directory."""
+        self._open_sibling(-1)
+
+    def _open_sibling(self, step: int) -> None:
+        if self._source is None:
+            return
+        target = file_browser_model.sibling_file(
+            self._source, self._open_filter.current_filter(), step
+        )
+        if target is None:
+            self._mode_bar.set_hint(strings.HINT_NO_SIBLING_FILE)
+            return
+        self.open_pdf(target)
 
     def close_document(self) -> None:
         """Offer to save pending changes, then return to the empty viewer state."""

@@ -17,7 +17,7 @@ pdft_gui.bat path\to\document.pdf
 ```
 
 Or start the wizard (`pdft.bat`), choose **Open GUI viewer**, then
-**File → Open PDF…**.
+**File → Open document…**.
 
 ## Turning edit mode on
 

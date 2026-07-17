@@ -10,11 +10,14 @@ meaningfully break.
 
 from __future__ import annotations
 
+import bisect
 import ctypes
 import os
 import string
 from dataclasses import dataclass
 from pathlib import Path
+
+from app.pdf.file_format import FileFormat
 
 
 @dataclass(frozen=True)
@@ -62,6 +65,32 @@ def list_dir(directory: Path, filt: FileFilter) -> list[FsEntry]:
     dirs.sort(key=lambda entry: entry.name.casefold())
     files.sort(key=lambda entry: entry.name.casefold())
     return dirs + files
+
+
+def sibling_file(current: Path, filt: FileFilter, step: int) -> Path | None:
+    """The next (``step=1``) / previous (``step=-1``) openable file beside ``current``.
+
+    Candidates are the filter-matching files in ``current``'s directory, in the
+    same case-insensitive alphabetical order the browser shows; the ends wrap
+    around. Files the viewer can't render (``FileFormat.of`` → ``None``, e.g.
+    binaries under an all-files filter) are skipped. Never returns ``current``
+    itself; ``None`` when no other openable file exists.
+    """
+    files = [entry.path for entry in list_dir(current.parent, filt) if not entry.is_dir]
+    names = [path.name.casefold() for path in files]
+    key = current.name.casefold()
+    if key in names:
+        index = names.index(key)
+    else:
+        # The open document itself may not pass the filter (a sniff-opened file
+        # such as .ini); anchor stepping at its alphabetical position anyway.
+        index = bisect.bisect_left(names, key)
+        files.insert(index, current)
+    for offset in range(1, len(files)):
+        candidate = files[(index + step * offset) % len(files)]
+        if candidate != current and FileFormat.of(candidate) is not None:
+            return candidate
+    return None
 
 
 def parent_of(directory: Path) -> Path:

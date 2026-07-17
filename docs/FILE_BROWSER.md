@@ -13,7 +13,7 @@ other dialog (see `CUSTOM_UI.md`).
 
 | Action | Entry point |
 |--------|-------------|
-| **Open PDF** (`Ctrl+O` / no-arg open) | `file_dialogs.prompt_open_file` |
+| **Open document** (`Ctrl+O` / no-arg open) | `file_dialogs.prompt_open_file` |
 | **Insert pages** (choose PDF/image) | `file_dialogs.prompt_open_file` |
 | **Add image** | `file_dialogs.prompt_open_file` |
 | **Save file as…** | `file_dialogs.prompt_save_file` |
@@ -57,8 +57,9 @@ individual letters, so an absent floppy / disconnected network drive can't stall
 
 - `app/gui/file_browser_model.py` — pure, Qt-free logic: `list_dir` (dirs first,
   then files matching the `FileFilter`, dotfiles skipped), `parent_of`,
-  `substring_filter`, `is_root`, `drives`. Unit-tested in
-  `tests/unit/test_file_browser_model.py`.
+  `substring_filter`, `is_root`, `drives`, and `sibling_file` (the alphabetical
+  next/previous openable neighbour used by **Next / previous file in directory**).
+  Unit-tested in `tests/unit/test_file_browser_model.py`.
 - `app/gui/file_browser_dialog.py` — `FileBrowserDialog(BaseDialog)`: the widget,
   the `..`/drive rows, and the vim key dispatch.
 - `app/gui/file_dialogs.py` — the public `prompt_open_file` / `prompt_save_file` /

@@ -43,8 +43,9 @@ missing or corrupt file just means no commands are floated yet.
 
 | Command | What it does |
 |---------|--------------|
-| **Open PDF…** | Prompt for a document (PDF / text / markdown / any plain-text file) and open it. |
+| **Open document…** | Prompt for a document (PDF / text / markdown / any plain-text file) and open it. |
 | **Open from recent / history…** | Pick from recently opened documents (see below). |
+| **Next file in directory** / **Previous file in directory** | Open the alphabetically next / previous openable file in the current document's folder (also **Alt+Right** / **Alt+Left**). Wraps at the ends; honors the Open-dialog filter and skips files the viewer can't render; prompts to save unsaved changes first. |
 | **Save changes to original file** | Write the working copy back to the original (with a backup). See *Deferred saving*. |
 | **Rename file…** | Rename the open PDF (and its sidecar) and reopen it. |
 | **Copy file path to clipboard** | Copy the open PDF's full path. |
@@ -99,7 +100,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Set as default PDF viewer…** | Register the viewer as a Windows PDF handler, then open Default Apps (Windows only; see `DEFAULT_PDF_VIEWER.md`). |
 | **Remove as PDF handler** | Undo the PDF-handler registration (Windows only; see `DEFAULT_PDF_VIEWER.md`). |
 | **Remembered settings…** | Reset stored preferences (placement, image choice, palette, outline, keyboard shortcuts, …) individually or all. |
-| **Search PDF text…** | Live full-text search of the document (see below). |
+| **Search document text…** | Live full-text search of the document (see below). |
 | **Search text fields…** | Live search of your placed text fields (see below). |
 | **Clear search highlights** | Remove the gold match highlights (shown only while highlights exist). |
 
@@ -147,11 +148,12 @@ Common commands also have direct keys, so you do not have to open the palette:
 |-----|---------|
 | **Ctrl+Shift+P** | Open the command palette |
 | **F1** | Show keyboard and mouse controls |
-| **Ctrl+F** | Search PDF text |
+| **Ctrl+F** | Search document text |
 | **Ctrl+Shift+F** | Search text fields |
 | **Ctrl+Shift+H** | Clear search highlights |
 | **Page Down** / **Page Up** | Next / previous page |
 | **Home** / **End** | First / last page |
+| **Alt+Right** / **Alt+Left** | Next / previous file in directory |
 | **Ctrl++** (or **Ctrl+=**, **Ctrl+↑**) | Zoom in 10% |
 | **Ctrl+-** (or **Ctrl+↓**) | Zoom out 10% |
 | **Ctrl+0** | Zoom 100% |
@@ -230,7 +232,7 @@ built-in selection marquee. Reset it from **Remembered settings…**.
 Both searches are **live**: type at least **3 characters** and results refresh on
 every keystroke. Navigate with the arrow keys, **Enter** to act, **Esc** to close.
 
-- **Search PDF text…** (`Ctrl+F`) lists **one row per match** — `Page N: …text…`.
+- **Search document text…** (`Ctrl+F`) lists **one row per match** — `Page N: …text…`.
   Selecting a match jumps to its page and draws a **gold highlight** around it.
   Highlights stay until you run **Clear search highlights** (`Ctrl+Shift+H`).
 - **Search text fields…** (`Ctrl+Shift+F`) searches the text you placed via the

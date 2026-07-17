@@ -11,6 +11,7 @@ from app.gui.file_browser_model import (
     is_root,
     list_dir,
     parent_of,
+    sibling_file,
     substring_filter,
 )
 
@@ -93,6 +94,65 @@ def test_is_root_true_at_anchor() -> None:
 
 def test_is_root_false_for_subdir(tmp_path: Path) -> None:
     assert not is_root(tmp_path)
+
+
+def test_sibling_file_next_is_alphabetical(tmp_path: Path) -> None:
+    _touch(tmp_path / "a.pdf")
+    _touch(tmp_path / "b.pdf")
+    _touch(tmp_path / "c.pdf")
+    assert sibling_file(tmp_path / "a.pdf", PDF, 1) == tmp_path / "b.pdf"
+
+
+def test_sibling_file_previous_steps_back(tmp_path: Path) -> None:
+    _touch(tmp_path / "a.pdf")
+    _touch(tmp_path / "b.pdf")
+    assert sibling_file(tmp_path / "b.pdf", PDF, -1) == tmp_path / "a.pdf"
+
+
+def test_sibling_file_wraps_at_both_ends(tmp_path: Path) -> None:
+    _touch(tmp_path / "a.pdf")
+    _touch(tmp_path / "b.pdf")
+    assert sibling_file(tmp_path / "b.pdf", PDF, 1) == tmp_path / "a.pdf"
+    assert sibling_file(tmp_path / "a.pdf", PDF, -1) == tmp_path / "b.pdf"
+
+
+def test_sibling_file_respects_filter(tmp_path: Path) -> None:
+    _touch(tmp_path / "a.pdf")
+    _touch(tmp_path / "b.txt")
+    _touch(tmp_path / "c.pdf")
+    assert sibling_file(tmp_path / "a.pdf", PDF, 1) == tmp_path / "c.pdf"
+
+
+def test_sibling_file_skips_unopenable_binary(tmp_path: Path) -> None:
+    _touch(tmp_path / "a.txt")
+    (tmp_path / "b.bin").write_bytes(b"\x00\x01\x02binary")
+    _touch(tmp_path / "c.txt")
+    assert sibling_file(tmp_path / "a.txt", ALL, 1) == tmp_path / "c.txt"
+
+
+def test_sibling_file_anchors_current_outside_filter(tmp_path: Path) -> None:
+    # A sniff-opened file (e.g. .ini) may not pass the open-dialog filter; stepping
+    # still starts from its alphabetical position.
+    _touch(tmp_path / "a.pdf")
+    _touch(tmp_path / "b.ini")
+    _touch(tmp_path / "c.pdf")
+    assert sibling_file(tmp_path / "b.ini", PDF, 1) == tmp_path / "c.pdf"
+    assert sibling_file(tmp_path / "b.ini", PDF, -1) == tmp_path / "a.pdf"
+
+
+def test_sibling_file_solo_file_returns_none(tmp_path: Path) -> None:
+    _touch(tmp_path / "only.pdf")
+    assert sibling_file(tmp_path / "only.pdf", PDF, 1) is None
+
+
+def test_sibling_file_never_returns_current(tmp_path: Path) -> None:
+    _touch(tmp_path / "a.txt")
+    (tmp_path / "b.bin").write_bytes(b"\x00\x01")
+    assert sibling_file(tmp_path / "a.txt", ALL, 1) is None
+
+
+def test_sibling_file_missing_dir_returns_none(tmp_path: Path) -> None:
+    assert sibling_file(tmp_path / "gone" / "x.pdf", PDF, 1) is None
 
 
 def test_drives_look_like_roots() -> None:

@@ -63,6 +63,8 @@ across restarts. Full reference:
 The palette and direct shortcuts cover:
 
 - **Document** — Open, **Open from recent / history…** (last 100 PDFs),
+  **Next / previous file in directory** (`Alt+Right` / `Alt+Left`, wraps, skips
+  unopenable files, asks to save first),
   **Rename file…** (renames the PDF and its text-field sidecar together),
   **Copy all text from current page** (to the clipboard), Close, Exit.
 - **Pages** — Previous/Next, **First/Last**, Swap 2 pages, Delete current page,
@@ -70,7 +72,7 @@ The palette and direct shortcuts cover:
   **Extract current page to file…**, Merge folder…
 - **Zoom** — Fit, 100% (true PDF size), in/out 10%. The zoom *mode* sticks as you
   change pages (fit re-fits each page).
-- **Search** — **Search PDF text** (`Ctrl+F`, live, jump to a match + gold
+- **Search** — **Search document text** (`Ctrl+F`, live, jump to a match + gold
   highlight that stays until **Clear highlights**) and **Search text fields**
   (`Ctrl+Shift+F`, jump to and select a placed field).
 - **View** — **Toggle menu bar** / **Toggle toolbar** / **Toggle status bar**
@@ -116,7 +118,7 @@ The palette and direct shortcuts cover:
 | Key | Action |
 |-----|--------|
 | `Ctrl+Shift+P` | Command palette |
-| `Ctrl+F` / `Ctrl+Shift+F` | Search PDF text / text fields |
+| `Ctrl+F` / `Ctrl+Shift+F` | Search document text / text fields |
 | `Ctrl+Shift+H` | Clear search highlights |
 | `Ctrl+Shift+S` | Toggle text select mode (vim-style copy) |
 | `Page Down` / `Page Up` | Next / previous page |

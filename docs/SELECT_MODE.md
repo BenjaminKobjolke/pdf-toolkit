@@ -25,7 +25,7 @@ reloads the words and resets the cursor to the first word.
 
 ## Where the cursor starts
 
-- **From a search match.** If you **Search PDF text** (`Ctrl+F`) first, the match
+- **From a search match.** If you **Search document text** (`Ctrl+F`) first, the match
   is highlighted gold; entering select mode then **starts the cursor on that
   word** (the match's first word) and consumes the gold highlight. With no active
   highlight the cursor starts on the page's first word.

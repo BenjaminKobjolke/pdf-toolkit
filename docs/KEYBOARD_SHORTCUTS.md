@@ -22,12 +22,12 @@ right-aligned.
 |-----|--------|
 | **Ctrl+Shift+P** | Open the command palette |
 | **F1** | Choose keyboard shortcuts (editable) or mouse controls |
-| **Ctrl+F** | Search PDF text |
+| **Ctrl+F** | Search document text |
 | **Ctrl+Shift+F** | Search text fields |
 | **Ctrl+Shift+H** | Clear search highlights |
 | **Esc** | Clear the active search highlight (when not in select mode) |
 
-After a **Search PDF text** match, opening **select mode** (`Ctrl+Shift+S`) starts
+After a **Search document text** match, opening **select mode** (`Ctrl+Shift+S`) starts
 its cursor on the matched word. **Copy all text from current page** (palette) copies
 the whole page to the clipboard. See `SELECT_MODE.md`.
 
@@ -52,6 +52,13 @@ page (to next/previous/first/last) is palette-only; see `COMMAND_PALETTE.md`.
 | **Page Up** | Previous page |
 | **Home** | First page |
 | **End** | Last page |
+| **Alt+Right** | Next file in directory |
+| **Alt+Left** | Previous file in directory |
+
+**Next / previous file in directory** steps alphabetically through the openable
+files beside the current document (wrapping at the ends). It honors the
+Open-dialog filter, skips files the viewer can't render, and prompts to save
+unsaved changes before switching.
 
 ## Zoom
 

@@ -22,6 +22,8 @@ if TYPE_CHECKING:
 _SHORTCUTS: tuple[tuple[str, str], ...] = (
     ("PgDown", commands.NEXT_PAGE),
     ("PgUp", commands.PREV_PAGE),
+    ("Alt+Right", commands.NEXT_FILE),
+    ("Alt+Left", commands.PREV_FILE),
     ("Home", commands.FIRST_PAGE),
     ("End", commands.LAST_PAGE),
     ("Ctrl++", commands.ZOOM_IN),

@@ -34,6 +34,8 @@ VIEWABLE = PDF_ONLY | TEXT_FORMATS  # any rendered doc (pdf/txt/md)
 # Command ids — stable keys for menu/shortcut lookups (UPPER_SNAKE_CASE).
 OPEN = "open"
 OPEN_HISTORY = "open_history"
+NEXT_FILE = "next_file"
+PREV_FILE = "prev_file"
 CLOSE_DOC = "close_doc"
 EXIT = "exit"
 PREV_PAGE = "prev_page"
@@ -173,6 +175,8 @@ def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     return [
         Command(OPEN, strings.CMD_OPEN, lambda: window.open_pdf()),
         Command(OPEN_HISTORY, strings.CMD_OPEN_HISTORY, window.open_from_history),
+        Command(NEXT_FILE, strings.CMD_NEXT_FILE, window.open_next_file, has_doc, VIEWABLE),
+        Command(PREV_FILE, strings.CMD_PREV_FILE, window.open_previous_file, has_doc, VIEWABLE),
         Command(SAVE, strings.CMD_SAVE, window.save_changes, has_doc, PDF_ONLY),
         Command(
             SAVE_AS, file_strings.CMD_SAVE_AS, window.document_actions.save_as, has_doc, PDF_ONLY
