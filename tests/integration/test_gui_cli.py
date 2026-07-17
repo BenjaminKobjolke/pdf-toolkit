@@ -16,12 +16,8 @@ from app.gui.main_window import MainWindow
 def isolate_single_instance(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """Keep main() away from the user's real settings DB and viewer pipe."""
     monkeypatch.setenv("PDF_TOOLKIT_DATABASE_URL", f"sqlite:///{tmp_path / 'test.db'}")
-    monkeypatch.setattr(
-        gui_main.single_instance, "try_send_to_running", lambda *a, **k: False
-    )
-    monkeypatch.setattr(
-        gui_main.InstanceServer, "start", lambda self: True
-    )
+    monkeypatch.setattr(gui_main.single_instance, "try_send_to_running", lambda *a, **k: False)
+    monkeypatch.setattr(gui_main.InstanceServer, "start", lambda self: True)
 
 
 def test_gui_cli_main_launches_without_blocking(
@@ -62,9 +58,7 @@ def test_reuse_on_forwards_and_exits_without_window(
         lambda path, **_k: forwarded.append(path) or True,
     )
     constructed: list[bool] = []
-    monkeypatch.setattr(
-        MainWindow, "__init__", lambda self, *_a: constructed.append(True)
-    )
+    monkeypatch.setattr(MainWindow, "__init__", lambda self, *_a: constructed.append(True))
 
     exit_code = gui_main.main([r"C:\docs\report.pdf"])
 
