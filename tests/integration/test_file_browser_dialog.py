@@ -116,16 +116,41 @@ def test_save_accepts_typed_name(qapp: object, tree: Path) -> None:
     assert dialog.chosen() == tree / "out.pdf"
 
 
-def test_directory_mode_shows_only_dirs_and_accepts_current(qapp: object, tree: Path) -> None:
+def test_directory_mode_shows_choose_row_then_dirs(qapp: object, tree: Path) -> None:
     dialog = FileBrowserDialog(mode=_Mode.DIR, title="t", filt=fbs.FILTER_ALL, start=tree)
-    assert [dialog._list.item(i).text() for i in range(dialog._list.count())] == ["..", "sub/"]
-    _send(dialog, "j")  # off "..", onto sub/
+    rows = [dialog._list.item(i).text() for i in range(dialog._list.count())]
+    assert rows == [fbs.CHOOSE_DIR_LABEL, "..", "sub/"]
+    _send(dialog, "j")  # off the choose row, onto ".."
+    _send(dialog, "j")  # onto sub/
     _send(dialog, "", Qt.Key.Key_Return)  # accept the directory we are browsing
     assert dialog.chosen() == tree
 
 
-def test_directory_mode_enter_on_subdir_descends(qapp: object, tree: Path) -> None:
+def test_directory_mode_choose_row_picks_current_dir(qapp: object, tree: Path) -> None:
     dialog = FileBrowserDialog(mode=_Mode.DIR, title="t", filt=fbs.FILTER_ALL, start=tree)
-    _send(dialog, "j")  # off "..", onto sub/
+    _send(dialog, "l")  # activate "[ use this folder ]" (cursor starts on it)
+    assert dialog.chosen() == tree
+
+
+def test_directory_mode_choose_row_after_descending(qapp: object, tree: Path) -> None:
+    dialog = FileBrowserDialog(mode=_Mode.DIR, title="t", filt=fbs.FILTER_ALL, start=tree)
+    _send(dialog, "j")  # -> ".."
+    _send(dialog, "j")  # -> sub/
     _send(dialog, "l")  # descend into sub/
     assert dialog._path_label.text() == str(tree / "sub")
+    _send(dialog, "", Qt.Key.Key_Return)  # Enter on the choose row (cursor reset to top)
+    assert dialog.chosen() == tree / "sub"
+
+
+def test_directory_mode_choose_row_survives_type_ahead(qapp: object, tree: Path) -> None:
+    dialog = FileBrowserDialog(mode=_Mode.DIR, title="t", filt=fbs.FILTER_ALL, start=tree)
+    _send(dialog, "/")
+    dialog._filter.setText("nomatch")
+    rows = [dialog._list.item(i).text() for i in range(dialog._list.count())]
+    assert rows == [fbs.CHOOSE_DIR_LABEL, ".."]
+
+
+def test_open_mode_has_no_choose_row(qapp: object, tree: Path) -> None:
+    dialog = FileBrowserDialog(mode=_Mode.OPEN, title="t", filt=fbs.FILTER_PDF, start=tree)
+    rows = [dialog._list.item(i).text() for i in range(dialog._list.count())]
+    assert fbs.CHOOSE_DIR_LABEL not in rows

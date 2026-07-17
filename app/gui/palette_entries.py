@@ -39,7 +39,7 @@ def build_palette_entries(
     first_enabled = next((cmd.command_id for cmd in ordered if is_available(cmd)), None)
     return [
         ListEntry(
-            title=cmd.title,
+            title=cmd.display_title(),
             enabled=is_available(cmd),
             payload=cmd,
             bold=cmd.command_id == first_enabled,

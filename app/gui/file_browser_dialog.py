@@ -114,8 +114,14 @@ class FileBrowserDialog(BaseDialog):
 
     def _render(self) -> None:
         listing = substring_filter(self._all, self._query)
-        # A ".." row tops every directory level (drive list is already the top).
-        self._entries = listing if self._drives_view else [self._up_entry(), *listing]
+        # A ".." row tops every directory level (drive list is already the top);
+        # directory mode gets a "use this folder" row above it.
+        if self._drives_view:
+            self._entries = listing
+        elif self._mode is _Mode.DIR:
+            self._entries = [self._choose_entry(), self._up_entry(), *listing]
+        else:
+            self._entries = [self._up_entry(), *listing]
         self._list.clear()
         for entry in self._entries:
             self._list.addItem(self._row_label(entry))
@@ -124,6 +130,10 @@ class FileBrowserDialog(BaseDialog):
 
     def _up_entry(self) -> FsEntry:
         return FsEntry(fbs.UP_NAME, parent_of(self._dir), True)
+
+    def _choose_entry(self) -> FsEntry:
+        # is_dir=False so _activate finishes instead of descending.
+        return FsEntry(fbs.CHOOSE_DIR_LABEL, self._dir, False)
 
     def _row_label(self, entry: FsEntry) -> str:
         if self._drives_view or entry.name == fbs.UP_NAME:
@@ -136,6 +146,14 @@ class FileBrowserDialog(BaseDialog):
 
     def _is_up(self, entry: FsEntry | None) -> bool:
         return entry is not None and not self._drives_view and entry.name == fbs.UP_NAME
+
+    def _is_choose(self, entry: FsEntry | None) -> bool:
+        return (
+            entry is not None
+            and self._mode is _Mode.DIR
+            and not self._drives_view
+            and entry.name == fbs.CHOOSE_DIR_LABEL
+        )
 
     # --- navigation ---------------------------------------------------------
 
@@ -168,7 +186,9 @@ class FileBrowserDialog(BaseDialog):
         entry = self._current()
         if entry is None:
             return
-        if self._is_up(entry):
+        if self._is_choose(entry):
+            self._finish(self._dir)
+        elif self._is_up(entry):
             self._go_up()
         elif entry.is_dir:
             self._enter_dir(entry.path)
@@ -180,7 +200,9 @@ class FileBrowserDialog(BaseDialog):
     def _on_enter(self) -> None:
         """Enter key: ``..``/drive navigation first, then choose-folder / descend / pick."""
         entry = self._current()
-        if self._is_up(entry):
+        if self._is_choose(entry):
+            self._finish(self._dir)
+        elif self._is_up(entry):
             self._go_up()
         elif self._drives_view:
             self._activate()  # pick a drive to enter

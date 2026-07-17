@@ -223,7 +223,11 @@ def _build_operations(window: MainWindow) -> None:
     window._print_actions = PrintActions(window, window._working_doc.working)
     window._default_app_actions = DefaultAppActions(window)
     window._file_actions = FileActions(
-        window, lambda: window._source, window._report, window._page_view.current_page_index
+        window,
+        lambda: window._source,
+        window._report,
+        window._page_view.current_page_index,
+        lambda: window._page_view.viewport().grab(),
     )
 
 

@@ -30,3 +30,22 @@ def test_copies_pdf_only_when_no_sidecar(tmp_path: Path) -> None:
 
     assert dest.read_bytes() == b"%PDF-fake"
     assert not sidecar_path(dest).exists()
+
+
+def test_copies_image_bytes_verbatim(tmp_path: Path) -> None:
+    working = tmp_path / "working.png"
+    working.write_bytes(b"\x89PNG-fake")
+    dest = tmp_path / "saved.png"
+
+    save_copy(working, dest)
+
+    assert dest.read_bytes() == b"\x89PNG-fake"
+
+
+def test_viewer_image_filter_accepts_every_image_format(tmp_path: Path) -> None:
+    from app.gui.file_browser_strings import FILTER_VIEWER_IMAGES
+    from app.pdf.file_format import IMAGE_FORMATS
+
+    for fmt in IMAGE_FORMATS:
+        assert FILTER_VIEWER_IMAGES.accepts(tmp_path / f"pic{fmt.value}")
+    assert not FILTER_VIEWER_IMAGES.accepts(tmp_path / "doc.pdf")

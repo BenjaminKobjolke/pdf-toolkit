@@ -7,11 +7,13 @@ import stat
 from pathlib import Path
 
 import pytest
+from PIL import Image
 from pypdf import PdfReader
 
 from app.config.settings import Settings
 from app.gui.main_window import MainWindow
-from tests.conftest import MakePdf, PageSizesOf, gui_settings, silence_dialogs
+from app.pdf.sidecar import sidecar_path
+from tests.conftest import MakeImage, MakePdf, PageSizesOf, gui_settings, silence_dialogs
 
 
 @pytest.fixture
@@ -92,6 +94,54 @@ def test_rotate_and_save_readonly_pdf(
     working = window._working_doc.working()
     assert working is not None
     assert list(working.parent.glob("*.tmp")) == []
+
+
+def _image_size(path: Path) -> tuple[int, int]:
+    with Image.open(path) as img:
+        return img.size
+
+
+def test_image_rotate_is_deferred_until_save(
+    window: MainWindow, settings: Settings, make_image: MakeImage
+) -> None:
+    png = make_image(size=(4, 2))
+    original_bytes = png.read_bytes()
+    window.open_pdf(png)
+
+    window.rotate_actions.rotate_right()
+
+    # The working copy is rotated, but the original on disk is untouched.
+    assert window._working_doc.is_dirty()
+    assert png.read_bytes() == original_bytes
+    working = window._working_doc.working()
+    assert working is not None
+    assert _image_size(working) == (2, 4)
+
+    window.save_changes()
+
+    assert not window._working_doc.is_dirty()
+    assert _image_size(png) == (2, 4)
+    assert len(list(settings.backup_dir.glob("*.png"))) == 1
+    # Saving an image must not leave a stray text-field sidecar behind.
+    assert not sidecar_path(png).exists()
+
+
+def test_image_flip_horizontal_mirrors_working_copy(window: MainWindow, tmp_path: Path) -> None:
+    source = tmp_path / "row.png"
+    img = Image.new("RGB", (2, 1))
+    img.putpixel((0, 0), (255, 0, 0))
+    img.putpixel((1, 0), (0, 0, 255))
+    img.save(source)
+    window.open_pdf(source)
+
+    window.rotate_actions.flip_horizontal()
+
+    working = window._working_doc.working()
+    assert working is not None
+    with Image.open(working) as flipped:
+        assert flipped.getpixel((0, 0)) == (0, 0, 255)
+        assert flipped.getpixel((1, 0)) == (255, 0, 0)
+    assert window._working_doc.is_dirty()
 
 
 def test_discard_path_leaves_original_unchanged(window: MainWindow, make_pdf: MakePdf) -> None:

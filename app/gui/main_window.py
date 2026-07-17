@@ -110,6 +110,21 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
             return
         self.open_pdf(target)
 
+    def open_directory(self) -> None:
+        """Browse to a folder and open its first openable file."""
+        chosen = file_dialogs.prompt_directory(
+            self,
+            strings.DIALOG_OPEN_DIR_TITLE,
+            self._source.parent if self._source else None,
+        )
+        if chosen is None:
+            return
+        target = file_browser_model.first_openable_file(chosen, self._open_filter.current_filter())
+        if target is None:
+            self._mode_bar.set_hint(strings.HINT_NO_OPENABLE_FILE)
+            return
+        self.open_pdf(target)
+
     def close_document(self) -> None:
         """Offer to save pending changes, then return to the empty viewer state."""
         if not self._save.confirm_unsaved():

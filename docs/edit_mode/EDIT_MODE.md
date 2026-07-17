@@ -17,7 +17,7 @@ FastFileViewer.bat path\to\document.pdf
 ```
 
 Or start the wizard (`pdft.bat`), choose **Open GUI viewer**, then
-**File → Open document…**.
+**File → Open file…**.
 
 ## Turning edit mode on
 

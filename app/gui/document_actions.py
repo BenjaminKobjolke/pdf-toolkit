@@ -20,6 +20,7 @@ from app.gui.edit_controller import EditController
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.operations import OpResult
 from app.gui.save_controller import SaveController
+from app.pdf.file_format import FileFormat
 from app.pdf.renamer import rename_document
 
 
@@ -98,8 +99,13 @@ class DocumentActions:
         source = self._source()
         if source is None:
             return
+        filt = (
+            file_browser_strings.FILTER_PDF
+            if FileFormat.of(source) is FileFormat.PDF
+            else file_browser_strings.FILTER_VIEWER_IMAGES
+        )
         dest = file_dialogs.prompt_save_file(
-            self._parent, file_strings.DIALOG_SAVE_AS_TITLE, source, file_browser_strings.FILTER_PDF
+            self._parent, file_strings.DIALOG_SAVE_AS_TITLE, source, filt
         )
         if dest is None:
             return

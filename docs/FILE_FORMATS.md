@@ -27,10 +27,12 @@ palette and remembered across sessions (see below).
 | Select mode (vim-style copy) | ✅ | ✅ | ✅ | — |
 | Copy page text | ✅ | ✅ | ✅ | — |
 | Copy file path / name | ✅ | ✅ | ✅ | ✅ |
+| Copy page / current view as image | ✅ | ✅ | ✅ | ✅ |
 | Print, rename, open folder | ✅ | ✅ | ✅ | ✅ |
-| Delete / insert / extract / swap / rotate / move page | ✅ | — | — | — |
+| Delete / insert / extract / swap / move page | ✅ | — | — | — |
+| Rotate / flip (page for PDFs, whole image for img) | ✅ | — | — | ✅ |
 | Edit mode (text fields, images, rectangles), export | ✅ | — | — | — |
-| Save / Save As | ✅ | — | — | — |
+| Save / Save As | ✅ | — | — | ✅ |
 | Merge folder | ✅ (→ `merged.pdf`) | ✅ (→ `merged.txt`) | ✅ (→ `merged.md`) | ✅ (→ `merged.pdf`, png/jpg/jpeg only) |
 
 Commands that don't apply to the open document's format are greyed out in the
@@ -55,6 +57,20 @@ command palette and their keyboard shortcuts are no-ops. Format-agnostic command
   suffix always wins — a `.pdf` or `.png` is never sniffed.
 - **Images** open as a single-page document rendered by fitz directly; no text
   layer, so search/select/link commands are greyed out.
+
+## Editing images
+
+**Rotate** (90° left/right, 180°) and **flip** (horizontal/vertical) work on image
+documents: the pixels themselves are transformed (an image has no rotation flag).
+Like PDF page edits, the change applies to the working copy and is deferred until
+**Save changes to original file** (`Ctrl+S`), which backs up the original first.
+Caveats:
+
+- **JPEG** is re-encoded on save (quality 95) — repeated transforms compound the loss.
+- Any **EXIF orientation** tag is baked into the pixels; other EXIF metadata is dropped.
+- **Animated GIF / multi-frame TIFF**: only the first frame is kept.
+- **Save As** for an image copies the bytes verbatim — the extension you type does
+  not convert the format.
 - To open files by **double-click from Explorer**, associate their types with the
   viewer via **File type associations…** (Windows only; see `FILE_ASSOCIATIONS.md`).
 
@@ -104,6 +120,13 @@ This applies to the CLI `pdf-merge-folder.bat` too — it shares the same backen
   The command palette (`palette_entries.py`), keyboard shortcuts
   (`window_input.py`), and the button toolbar (`controls.py`) all consult it
   against `MainWindow.current_format()`. Covered by `tests/unit/test_commands.py`.
+- `app/pdf/image_transform.py` — `rotate_image` / `flip_image`: Pillow-based
+  in-place transforms for image documents, format-preserving, atomic write.
+  Unit-tested in `tests/unit/test_image_transform.py`.
+- `app/pdf/flipper.py` — `flip_page`: mirrors one PDF page (bakes any `/Rotate`
+  into the content first so the flip matches what is displayed). Unit-tested in
+  `tests/unit/test_flipper.py`. `app/gui/rotate_actions.py` dispatches PDF vs
+  image per document.
 - `app/pdf/merger.py` — `merged_output_path(folder)` classifies a folder and names
   its output; `merge_folder` branches to the PDF (`pypdf`) or text
   (`write_text_atomic`) path. Covered by `tests/unit/test_merger.py`.

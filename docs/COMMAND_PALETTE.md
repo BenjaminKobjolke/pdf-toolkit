@@ -43,15 +43,19 @@ missing or corrupt file just means no commands are floated yet.
 
 | Command | What it does |
 |---------|--------------|
-| **Open document…** | Prompt for a document (PDF / text / markdown / image / any plain-text file) and open it. |
+| **Open file…** | Prompt for a document (PDF / text / markdown / image / any plain-text file) and open it. |
+| **Open folder…** | Browse to a folder (folders-only browser with a **[ use this folder ]** row) and open its alphabetically first openable file. |
 | **Open file from recent / history…** | Pick from recently opened documents (see below). |
 | **Open folder from recent / history…** | Pick from recently used folders; reopens the last file you opened from that folder (see below). |
 | **Next file in directory** / **Previous file in directory** | Open the alphabetically next / previous openable file in the current document's folder (also **Alt+Right** / **Alt+Left**). Wraps at the ends; honors the Open-dialog filter and skips files the viewer can't render; prompts to save unsaved changes first. |
-| **Save changes to original file** | Write the working copy back to the original (with a backup). See *Deferred saving*. |
+| **Save changes to original file** | Write the working copy back to the original (with a backup) — PDFs and images. See *Deferred saving*. |
+| **Open containing folder in native file explorer** | Open the document's folder in the OS file explorer. |
 | **Rename file…** | Rename the open PDF (and its sidecar) and reopen it. |
 | **Copy file path to clipboard** | Copy the open PDF's full path. |
 | **Copy file name to clipboard** | Copy the filename with extension. |
 | **Copy file name without extension to clipboard** | Copy the filename stem (no `.pdf`). |
+| **Copy page as image (W×H px)** / **at 50% (…)** / **at 25% (…)** | Render the current page to an image and put it on the clipboard — at original size (one pixel per PDF point; for image documents the native pixels), half, or quarter. Titles show the **actual output pixel size**, recomputed every time the palette opens. |
+| **Copy current view (W×H px)** / **at 50% (…)** / **at 25% (…)** | Copy exactly what the viewer shows on screen (current zoom, scroll position, overlays) as an image — at full, half, or quarter size. Same live pixel-size titles. |
 | **Close current document** | Offer to save unsaved changes, then return to the empty viewer. |
 | **Toggle menu bar** | Show/hide the top menu bar (remembered across sessions). |
 | **Toggle toolbar** | Show/hide the button toolbars (remembered across sessions). |
@@ -85,7 +89,8 @@ missing or corrupt file just means no commands are floated yet.
 | **Swap 2 pages** | Swap the two pages of a 2-page PDF. |
 | **Delete current page** | Delete the page on screen (asks first). |
 | **Delete page range…** | Delete an inclusive range of pages. |
-| **Rotate page 90° left** / **90° right** / **180°** | Rotate the current page (also `Ctrl+Shift+R` / `Ctrl+R`). |
+| **Rotate page 90° left** / **90° right** / **180°** | Rotate the current page — for image documents, the image itself (also `Ctrl+Shift+R` / `Ctrl+R`). |
+| **Flip page horizontally** / **vertically** | Mirror the current page (PDFs) or the image itself (image documents). |
 | **Move page to next position** / **previous position** | Swap the current page one step forward / back. |
 | **Move page to first** / **to last** | Move the current page to the start / end. |
 | **Merge folder…** | Merge a folder of PDFs and images into `merged.pdf`. |
@@ -132,7 +137,8 @@ for the full image workflow.
 
 ## Deferred saving
 
-Page edits (rotate, move, delete, swap), **Export text to PDF**, and your text-field
+Page edits (rotate, flip, move, delete, swap — for image documents rotate/flip
+transform the image itself), **Export text to PDF**, and your text-field
 layout all apply to a **temporary working copy** — the original file and its JSON
 sidecar on disk are left untouched. The footer shows **● Modified** while there are
 unsaved changes.

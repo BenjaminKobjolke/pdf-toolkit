@@ -8,6 +8,7 @@ from app.gui.file_browser_model import (
     FileFilter,
     FsEntry,
     drives,
+    first_openable_file,
     is_root,
     list_dir,
     parent_of,
@@ -56,6 +57,34 @@ def test_list_dir_extension_match_is_case_insensitive(tmp_path: Path) -> None:
 
 def test_list_dir_unreadable_returns_empty(tmp_path: Path) -> None:
     assert list_dir(tmp_path / "missing", PDF) == []
+
+
+def test_first_openable_file_alphabetical_first(tmp_path: Path) -> None:
+    _touch(tmp_path / "b.pdf")
+    _touch(tmp_path / "a.pdf")
+    assert first_openable_file(tmp_path, PDF) == tmp_path / "a.pdf"
+
+
+def test_first_openable_file_skips_directories(tmp_path: Path) -> None:
+    (tmp_path / "aaa").mkdir()
+    _touch(tmp_path / "z.pdf")
+    assert first_openable_file(tmp_path, PDF) == tmp_path / "z.pdf"
+
+
+def test_first_openable_file_skips_unrenderable_files(tmp_path: Path) -> None:
+    # A binary under the all-files filter is listed but not openable.
+    (tmp_path / "a.bin").write_bytes(b"\x00\x01")
+    _touch(tmp_path / "b.txt")
+    assert first_openable_file(tmp_path, ALL) == tmp_path / "b.txt"
+
+
+def test_first_openable_file_none_when_empty(tmp_path: Path) -> None:
+    assert first_openable_file(tmp_path, ALL) is None
+
+
+def test_first_openable_file_none_when_only_unopenable(tmp_path: Path) -> None:
+    (tmp_path / "a.bin").write_bytes(b"\x00\x01")
+    assert first_openable_file(tmp_path, ALL) is None
 
 
 def test_list_dir_marks_directories(tmp_path: Path) -> None:

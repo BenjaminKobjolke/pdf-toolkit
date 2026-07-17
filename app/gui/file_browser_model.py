@@ -93,6 +93,18 @@ def sibling_file(current: Path, filt: FileFilter, step: int) -> Path | None:
     return None
 
 
+def first_openable_file(directory: Path, filt: FileFilter) -> Path | None:
+    """The alphabetically first filter-matching, renderable file in ``directory``.
+
+    Same openability rule as :func:`sibling_file`; ``None`` when the directory
+    holds nothing the viewer can open.
+    """
+    for entry in list_dir(directory, filt):
+        if not entry.is_dir and FileFormat.of(entry.path) is not None:
+            return entry.path
+    return None
+
+
 def parent_of(directory: Path) -> Path:
     """The parent directory, clamped at the filesystem root (``Path.parent`` self-clamps)."""
     return directory.parent

@@ -14,12 +14,13 @@ other dialog, and it sizes to the **Dialogs: size %…** fraction of the main wi
 
 | Action | Entry point |
 |--------|-------------|
-| **Open document** (`Ctrl+O` / no-arg open) | `file_dialogs.prompt_open_file` |
+| **Open file** (`Ctrl+O` / no-arg open) | `file_dialogs.prompt_open_file` |
 | **Insert pages** (choose PDF/image) | `file_dialogs.prompt_open_file` |
 | **Add image** | `file_dialogs.prompt_open_file` |
 | **Save file as…** | `file_dialogs.prompt_save_file` |
 | **Extract page to file** | `file_dialogs.prompt_save_file` |
 | **Merge folder** (choose folder) | `file_dialogs.prompt_directory` |
+| **Open folder…** (open its first file) | `file_dialogs.prompt_directory` |
 
 Each returns a `Path`, or `None` when cancelled. They start in the current
 document's folder (or the prefilled destination for save/extract).
@@ -52,14 +53,15 @@ individual letters, so an absent floppy / disconnected network drive can't stall
 |------|---------|------------------------|
 | **Open** | open, insert, add image | `Enter`/`l` on a file picks it |
 | **Save** | save-as, extract | `l` on a file copies its name into the field; `Enter` on a file overwrites it; `Tab` edits the name, `Enter` there saves |
-| **Directory** | merge folder | only folders are listed; navigate in with `l`/`h`, `Enter` chooses the folder shown |
+| **Directory** | merge folder, open folder | only folders are listed; a **`[ use this folder ]`** row sits above `..` and picks the folder shown (as does `Enter` anywhere in the list) |
 
 ## How it fits together
 
 - `app/gui/file_browser_model.py` — pure, Qt-free logic: `list_dir` (dirs first,
   then files matching the `FileFilter`, dotfiles skipped), `parent_of`,
-  `substring_filter`, `is_root`, `drives`, and `sibling_file` (the alphabetical
-  next/previous openable neighbour used by **Next / previous file in directory**).
+  `substring_filter`, `is_root`, `drives`, `sibling_file` (the alphabetical
+  next/previous openable neighbour used by **Next / previous file in directory**),
+  and `first_openable_file` (used by **Open folder…**).
   Unit-tested in `tests/unit/test_file_browser_model.py`.
 - `app/gui/file_browser_dialog.py` — `FileBrowserDialog(BaseDialog)`: the widget,
   the `..`/drive rows, and the vim key dispatch.

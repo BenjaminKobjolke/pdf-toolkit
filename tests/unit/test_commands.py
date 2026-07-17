@@ -7,13 +7,14 @@ from pathlib import Path
 import pytest
 
 from app.gui import commands, overlay_commands
-from app.gui.commands import HAS_TEXT, PDF_ONLY, VIEWABLE, Command
+from app.gui.commands import HAS_TEXT, PDF_ONLY, TRANSFORMABLE, VIEWABLE, Command
 from app.gui.main_window import MainWindow
 from app.pdf.file_format import TEXT_FORMATS, FileFormat
 from tests.conftest import MakePdf, gui_settings
 
 _ALL_IDS = {
     commands.OPEN,
+    commands.OPEN_DIR,
     commands.OPEN_HISTORY,
     commands.OPEN_FOLDER_HISTORY,
     commands.NEXT_FILE,
@@ -37,6 +38,8 @@ _ALL_IDS = {
     commands.ROTATE_LEFT,
     commands.ROTATE_RIGHT,
     commands.ROTATE_180,
+    commands.FLIP_HORIZONTAL,
+    commands.FLIP_VERTICAL,
     commands.MOVE_NEXT,
     commands.MOVE_PREV,
     commands.MOVE_FIRST,
@@ -47,6 +50,13 @@ _ALL_IDS = {
     commands.COPY_FILE_NAME,
     commands.COPY_FILE_NAME_NO_EXT,
     commands.COPY_PAGE_TEXT,
+    # Pinned literally: generated from COPY_IMAGE_PERCENTS, ids must never drift.
+    "copy_page_image",
+    "copy_page_image_50",
+    "copy_page_image_25",
+    commands.COPY_VIEW_IMAGE,
+    "copy_view_image_50",
+    "copy_view_image_25",
     commands.OPEN_FOLDER,
     commands.PRINT,
     commands.SHOW_SHORTCUTS,
@@ -134,6 +144,7 @@ def test_titles_are_non_empty(window: MainWindow) -> None:
 
 def test_history_command_titles(window: MainWindow) -> None:
     registry = commands.build_commands(window)
+    assert commands.find(registry, commands.OPEN).title == "Open file…"
     assert (
         commands.find(registry, commands.OPEN_HISTORY).title == "Open file from recent / history…"
     )
@@ -161,6 +172,8 @@ def test_doc_commands_disabled_without_document(window: MainWindow) -> None:
     assert commands.find(registry, commands.SAVE_AS).is_enabled() is False
     assert commands.find(registry, commands.COPY_FILE_PATH).is_enabled() is False
     assert commands.find(registry, commands.OPEN_FOLDER).is_enabled() is False
+    assert commands.find(registry, "copy_page_image").is_enabled() is False
+    assert commands.find(registry, commands.COPY_VIEW_IMAGE).is_enabled() is False
     # Always-available commands stay enabled.
     assert commands.find(registry, commands.OPEN).is_enabled() is True
     assert commands.find(registry, commands.EXIT).is_enabled() is True
@@ -212,6 +225,58 @@ def test_clear_highlights_enabled_only_with_highlights(
     window.page_view.set_highlights([(1.0, 2.0, 3.0, 4.0)])
     registry = commands.build_commands(window)
     assert commands.find(registry, commands.CLEAR_HIGHLIGHTS).is_enabled() is True
+
+
+# --- dynamic pixel-size titles -------------------------------------------------
+
+
+def test_copy_image_titles_fall_back_to_static_without_document(window: MainWindow) -> None:
+    registry = commands.build_commands(window)
+    assert commands.find(registry, "copy_page_image").display_title() == "Copy page as image"
+    assert commands.find(registry, "copy_page_image_50").display_title() == (
+        "Copy page as image at 50%"
+    )
+    assert commands.find(registry, commands.COPY_VIEW_IMAGE).display_title() == (
+        "Copy current view to clipboard"
+    )
+    assert commands.find(registry, "copy_view_image_50").display_title() == (
+        "Copy current view at 50%"
+    )
+
+
+def test_page_image_titles_show_pixels_with_document(window: MainWindow, make_pdf: MakePdf) -> None:
+    window.open_pdf(make_pdf([(200, 100)]))
+    registry = commands.build_commands(window)
+    assert commands.find(registry, "copy_page_image").display_title() == (
+        "Copy page as image (200×100 px)"
+    )
+    assert commands.find(registry, "copy_page_image_50").display_title() == (
+        "Copy page as image at 50% (100×50 px)"
+    )
+    assert commands.find(registry, "copy_page_image_25").display_title() == (
+        "Copy page as image at 25% (50×25 px)"
+    )
+
+
+def test_view_image_titles_show_scaled_viewport_pixels(
+    window: MainWindow, make_pdf: MakePdf
+) -> None:
+    window.open_pdf(make_pdf([(200, 100)]))
+    registry = commands.build_commands(window)
+    viewport = window.page_view.viewport()
+    w = round(viewport.width() * viewport.devicePixelRatioF())
+    h = round(viewport.height() * viewport.devicePixelRatioF())
+    assert commands.find(registry, commands.COPY_VIEW_IMAGE).display_title() == (
+        f"Copy current view ({w}×{h} px)"
+    )
+    assert commands.find(registry, "copy_view_image_50").display_title() == (
+        f"Copy current view at 50% ({round(w * 0.5)}×{round(h * 0.5)} px)"
+    )
+
+
+def test_display_title_defaults_to_title() -> None:
+    cmd = Command("id", "static", lambda: None)
+    assert cmd.display_title() == "static"
 
 
 # --- format-capability gating -------------------------------------------------
@@ -277,7 +342,23 @@ def test_registry_format_annotations(window: MainWindow) -> None:
     assert commands.find(registry, commands.NEXT_PAGE).formats == VIEWABLE
     assert commands.find(registry, commands.NEXT_FILE).formats == VIEWABLE
     assert commands.find(registry, commands.PREV_FILE).formats == VIEWABLE
+    for cid in ("copy_page_image", "copy_page_image_50", "copy_page_image_25"):
+        assert commands.find(registry, cid).formats == VIEWABLE
+    assert commands.find(registry, commands.COPY_VIEW_IMAGE).formats == VIEWABLE
+    for pct in (50, 25):
+        assert commands.find(registry, f"copy_view_image_{pct}").formats == VIEWABLE
+    for cid in (
+        commands.ROTATE_LEFT,
+        commands.ROTATE_RIGHT,
+        commands.ROTATE_180,
+        commands.FLIP_HORIZONTAL,
+        commands.FLIP_VERTICAL,
+        commands.SAVE,
+        commands.SAVE_AS,
+    ):
+        assert commands.find(registry, cid).formats == TRANSFORMABLE
     assert commands.find(registry, commands.OPEN).formats is None
+    assert commands.find(registry, commands.OPEN_DIR).formats is None
     assert commands.find(registry, commands.MERGE_FOLDER).formats is None
 
 
@@ -303,8 +384,16 @@ def test_text_document_gates_page_ops_but_not_viewers(window: MainWindow) -> Non
 
 def test_image_document_gates_text_and_page_ops_but_not_viewers(window: MainWindow) -> None:
     registry = commands.build_commands(window)
-    gated = (commands.DELETE_PAGE, commands.SAVE, commands.SEARCH_PDF, commands.COPY_PAGE_TEXT)
-    open_ok = (commands.ZOOM_IN, commands.NEXT_PAGE, commands.PRINT, commands.NEXT_FILE)
+    gated = (commands.DELETE_PAGE, commands.SEARCH_PDF, commands.COPY_PAGE_TEXT)
+    open_ok = (
+        commands.ZOOM_IN,
+        commands.NEXT_PAGE,
+        commands.PRINT,
+        commands.NEXT_FILE,
+        commands.SAVE,
+        commands.ROTATE_RIGHT,
+        commands.FLIP_HORIZONTAL,
+    )
     for command_id in gated:
         stub = _format_gate_stub(commands.find(registry, command_id))
         assert not stub.available(FileFormat.PNG)

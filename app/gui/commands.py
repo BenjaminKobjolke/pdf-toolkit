@@ -10,9 +10,11 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from functools import partial
 from typing import TYPE_CHECKING
 
 from app.gui import (
+    copy_image_titles,
     default_app_strings,
     file_strings,
     link_strings,
@@ -31,9 +33,11 @@ if TYPE_CHECKING:
 PDF_ONLY = frozenset({FileFormat.PDF})
 HAS_TEXT = PDF_ONLY | TEXT_FORMATS  # formats with extractable text (pdf/txt/md)
 VIEWABLE = HAS_TEXT | IMAGE_FORMATS  # any rendered doc (pdf/txt/md/images)
+TRANSFORMABLE = PDF_ONLY | IMAGE_FORMATS  # rotate/flip/save mutate the file itself
 
 # Command ids — stable keys for menu/shortcut lookups (UPPER_SNAKE_CASE).
 OPEN = "open"
+OPEN_DIR = "open_dir"
 OPEN_HISTORY = "open_history"
 OPEN_FOLDER_HISTORY = "open_folder_history"
 NEXT_FILE = "next_file"
@@ -57,6 +61,8 @@ MERGE_FOLDER = "merge_folder"
 ROTATE_LEFT = "rotate_left"
 ROTATE_RIGHT = "rotate_right"
 ROTATE_180 = "rotate_180"
+FLIP_HORIZONTAL = "flip_horizontal"
+FLIP_VERTICAL = "flip_vertical"
 MOVE_NEXT = "move_next"
 MOVE_PREV = "move_prev"
 MOVE_FIRST = "move_first"
@@ -67,6 +73,11 @@ COPY_FILE_PATH = "copy_file_path"
 COPY_FILE_NAME = "copy_file_name"
 COPY_FILE_NAME_NO_EXT = "copy_file_name_no_ext"
 COPY_PAGE_TEXT = "copy_page_text"
+COPY_PAGE_IMAGE = "copy_page_image"
+COPY_VIEW_IMAGE = "copy_view_image"
+# Shared size steps for both copy-as-image families; 100% keeps the bare id,
+# the rest get an "_<pct>" suffix (copy_page_image_50, copy_view_image_25, …).
+COPY_IMAGE_PERCENTS = (100, 50, 25)
 OPEN_FOLDER = "open_folder"
 PRINT = "print"
 SHOW_SHORTCUTS = "show_shortcuts"
@@ -140,12 +151,17 @@ class Command:
     run: Callable[[], None]
     is_enabled: Callable[[], bool] = field(default=lambda: True)
     formats: frozenset[FileFormat] | None = None
+    title_fn: Callable[[], str] | None = None
 
     def available(self, fmt: FileFormat | None) -> bool:
         """Whether the command is reachable for a document of format ``fmt``."""
         if not self.is_enabled():
             return False
         return self.formats is None or (fmt is not None and fmt in self.formats)
+
+    def display_title(self) -> str:
+        """The palette row title — ``title_fn`` (live, e.g. pixel sizes) or ``title``."""
+        return self.title_fn() if self.title_fn is not None else self.title
 
 
 Predicate = Callable[[], bool]
@@ -177,6 +193,7 @@ def build_commands(window: MainWindow) -> list[Command]:
 def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     return [
         Command(OPEN, strings.CMD_OPEN, lambda: window.open_pdf()),
+        Command(OPEN_DIR, strings.CMD_OPEN_DIR, window.open_directory),
         Command(OPEN_HISTORY, strings.CMD_OPEN_HISTORY, window.open_from_history),
         Command(
             OPEN_FOLDER_HISTORY,
@@ -185,9 +202,13 @@ def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
         ),
         Command(NEXT_FILE, strings.CMD_NEXT_FILE, window.open_next_file, has_doc, VIEWABLE),
         Command(PREV_FILE, strings.CMD_PREV_FILE, window.open_previous_file, has_doc, VIEWABLE),
-        Command(SAVE, strings.CMD_SAVE, window.save_changes, has_doc, PDF_ONLY),
+        Command(SAVE, strings.CMD_SAVE, window.save_changes, has_doc, TRANSFORMABLE),
         Command(
-            SAVE_AS, file_strings.CMD_SAVE_AS, window.document_actions.save_as, has_doc, PDF_ONLY
+            SAVE_AS,
+            file_strings.CMD_SAVE_AS,
+            window.document_actions.save_as,
+            has_doc,
+            TRANSFORMABLE,
         ),
         Command(
             COPY_FILE_PATH,
@@ -216,6 +237,28 @@ def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
             window.file_actions.copy_page_text,
             has_doc,
             HAS_TEXT,
+        ),
+        *(
+            Command(
+                COPY_PAGE_IMAGE if pct == 100 else f"{COPY_PAGE_IMAGE}_{pct}",
+                copy_image_titles.static_page_title(pct),
+                partial(window.file_actions.copy_page_image, pct / 100),
+                has_doc,
+                VIEWABLE,
+                title_fn=partial(copy_image_titles.page_image_title, window, pct),
+            )
+            for pct in COPY_IMAGE_PERCENTS
+        ),
+        *(
+            Command(
+                COPY_VIEW_IMAGE if pct == 100 else f"{COPY_VIEW_IMAGE}_{pct}",
+                copy_image_titles.static_view_title(pct),
+                partial(window.file_actions.copy_view_image, pct / 100),
+                has_doc,
+                VIEWABLE,
+                title_fn=partial(copy_image_titles.view_image_title, window, pct),
+            )
+            for pct in COPY_IMAGE_PERCENTS
         ),
         Command(
             OPEN_FOLDER,
@@ -271,9 +314,25 @@ def _page_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
 def _rotate_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     rotate = window.rotate_actions
     return [
-        Command(ROTATE_LEFT, strings.CMD_ROTATE_LEFT, rotate.rotate_left, has_doc, PDF_ONLY),
-        Command(ROTATE_RIGHT, strings.CMD_ROTATE_RIGHT, rotate.rotate_right, has_doc, PDF_ONLY),
-        Command(ROTATE_180, strings.CMD_ROTATE_180, rotate.rotate_180, has_doc, PDF_ONLY),
+        Command(ROTATE_LEFT, strings.CMD_ROTATE_LEFT, rotate.rotate_left, has_doc, TRANSFORMABLE),
+        Command(
+            ROTATE_RIGHT, strings.CMD_ROTATE_RIGHT, rotate.rotate_right, has_doc, TRANSFORMABLE
+        ),
+        Command(ROTATE_180, strings.CMD_ROTATE_180, rotate.rotate_180, has_doc, TRANSFORMABLE),
+        Command(
+            FLIP_HORIZONTAL,
+            strings.CMD_FLIP_HORIZONTAL,
+            rotate.flip_horizontal,
+            has_doc,
+            TRANSFORMABLE,
+        ),
+        Command(
+            FLIP_VERTICAL,
+            strings.CMD_FLIP_VERTICAL,
+            rotate.flip_vertical,
+            has_doc,
+            TRANSFORMABLE,
+        ),
     ]
 
 

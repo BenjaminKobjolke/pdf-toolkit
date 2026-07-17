@@ -144,9 +144,7 @@ def test_dialog_size_command_persists(
     assert reopened.palette_controller._settings.dialog_size_pct == 45
 
 
-def test_file_browser_sizes_relative_to_parent_window(
-    window: MainWindow, tmp_path: Path
-) -> None:
+def test_file_browser_sizes_relative_to_parent_window(window: MainWindow, tmp_path: Path) -> None:
     from app.gui import file_browser_strings as fbs
     from app.gui.file_browser_dialog import FileBrowserDialog, _Mode
 
