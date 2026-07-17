@@ -48,7 +48,7 @@ app, and each has a constraint.
 | You run… | Registry `shell\open\command` | Keeps working as long as… |
 |----------|-------------------------------|---------------------------|
 | **Source / Python** (`.venv`) | `wscript.exe "…\FastFileViewer.vbs" "%1"` | the repo stays at the same path **and** the `.venv` (with deps) exists. The vbs sets the working dir to the file's folder and launches the GUI through the venv. |
-| **Compiled exe** (PyInstaller) | `"…\FastFileViewer.exe" "%1"` | the exe stays at the same path. Self-contained — no venv, no scripts. |
+| **Compiled exe** (PyInstaller) | `"…\FastFileViewer.exe" "%1"` | the exe stays at the same path, inside its onedir `FastFileViewer\` folder (move the whole folder, not the exe alone). Self-contained — no venv, no scripts. |
 
 So the **Python version works fine** for everyday use as long as you don't move
 the repo or delete the virtual environment. The **compiled exe is the more

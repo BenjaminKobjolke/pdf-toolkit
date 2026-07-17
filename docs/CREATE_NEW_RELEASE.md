@@ -115,9 +115,9 @@ tools\build_release.bat     :: 2. test + build + stage the exe
 
 `tools\build_release.bat`:
 1. runs the unit tests (aborts on failure),
-2. builds `dist\FastFileViewer.exe` via `tools\build_exe.bat` (PyInstaller, onefile,
+2. builds `dist\FastFileViewer\` via `tools\build_exe.bat` (PyInstaller, onedir,
    windowed) — this is where `release_notes/` + `build_version.txt` get bundled,
-3. copies the exe to `release\<version>_<build>\FastFileViewer.exe`.
+3. mirrors the folder to `release\<version>_<build>\FastFileViewer\`.
 
 To build only the exe without staging, run `tools\build_exe.bat` directly.
 
@@ -145,5 +145,5 @@ To build only the exe without staging, run `tools\build_exe.bat` directly.
 2. (optional) edit `pyproject.toml` version for a semver bump.
 3. `release_notes/<version>_<build>/en.json` — write notes (`notes` array).
 4. `tools\translator_release_notes.bat` — generate translations. **⚠️ don't skip.**
-5. `tools\build_release.bat` — test, build, stage `release\<label>\FastFileViewer.exe`.
+5. `tools\build_release.bat` — test, build, stage `release\<label>\FastFileViewer\`.
 6. Launch the exe → File → Release notes… to verify the newest notes show.

@@ -21,10 +21,10 @@ if errorlevel 1 exit /b 1
 
 set "OUTDIR=%PROJECT_ROOT%\release\%LABEL%"
 if not exist "%OUTDIR%" mkdir "%OUTDIR%"
-copy /y "%PROJECT_ROOT%\dist\FastFileViewer.exe" "%OUTDIR%\FastFileViewer.exe" >nul
-if errorlevel 1 (
+robocopy "%PROJECT_ROOT%\dist\FastFileViewer" "%OUTDIR%\FastFileViewer" /mir /njh /njs /ndl /nc /ns >nul
+if errorlevel 8 (
     echo [build_release] Copy failed.
     exit /b 1
 )
-echo [build_release] Done: %OUTDIR%\FastFileViewer.exe
+echo [build_release] Done: %OUTDIR%\FastFileViewer\FastFileViewer.exe
 exit /b 0

@@ -1,5 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
-# PyInstaller spec: builds dist/FastFileViewer.exe (onefile, windowed).
+# PyInstaller spec: builds dist/FastFileViewer/FastFileViewer.exe (onedir, windowed).
+# Onedir over onefile: no per-launch temp extraction of PySide6/PyMuPDF DLLs,
+# so the app starts fast. UPX off: slows load, trips antivirus.
 # Build via tools/build_exe.bat. PySide6 + pymupdf bundle through built-in hooks.
 
 from PyInstaller.utils.hooks import copy_metadata
@@ -32,16 +34,13 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.datas,
     [],
+    exclude_binaries=True,
     name='FastFileViewer',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
+    upx=False,
     console=False,  # no console window (matches pythonw behavior)
     disable_windowed_traceback=False,
     argv_emulation=False,
@@ -49,4 +48,12 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon='assets/icon.ico',
+)
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=False,
+    name='FastFileViewer',
 )

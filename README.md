@@ -178,15 +178,16 @@ Build a self-contained GUI executable with PyInstaller:
 tools\build_exe.bat
 ```
 
-This produces `dist\FastFileViewer.exe` — a single onefile, windowed (no console)
-executable that bundles Python, PySide6, and pymupdf. It takes an optional PDF
-path argument, so `dist\FastFileViewer.exe C:\path\to\file.pdf` opens that PDF, and you
+This produces the `dist\FastFileViewer\` folder with `FastFileViewer.exe` inside —
+an onedir, windowed (no console) build that bundles Python, PySide6, and pymupdf.
+It takes an optional PDF path argument, so
+`dist\FastFileViewer\FastFileViewer.exe C:\path\to\file.pdf` opens that PDF, and you
 can point Windows' *Open with → Choose another app* at it.
 
 Notes:
 
-- Onefile startup is slightly slower than the `.bat` (it unpacks to a temp dir on
-  each launch).
+- Onedir starts fast (no per-launch temp unpack), but the exe must stay inside
+  its `FastFileViewer\` folder — move/copy the whole folder, not just the exe.
 - `dist\` and `build\` are git-ignored; the build config `FastFileViewer.spec` is
   committed. To change the icon or bundled modules, edit that spec.
 - The window and exe icon come from one source PNG; see
