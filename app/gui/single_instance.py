@@ -82,11 +82,11 @@ class InstanceServer:
         if socket is None:
             return
         buffer = bytearray()
-        socket.readyRead.connect(lambda: buffer.extend(bytes(socket.readAll())))
+        socket.readyRead.connect(lambda: buffer.extend(socket.readAll().data()))
         socket.disconnected.connect(lambda: self._dispatch(socket, buffer))
 
     def _dispatch(self, socket: QLocalSocket, buffer: bytearray) -> None:
-        buffer.extend(bytes(socket.readAll()))  # drain anything readyRead missed
+        buffer.extend(socket.readAll().data())  # drain anything readyRead missed
         socket.deleteLater()
         text = buffer.decode("utf-8", errors="replace").strip()
         try:
