@@ -1,9 +1,11 @@
 # File Formats (multi-format viewer)
 
-The GUI viewer opens **PDF, plain-text (`.txt`), and Markdown (`.md`)** documents.
-Each command declares which formats it supports, so a feature is reachable only for
-the formats it actually works on — you can read, search, and open links in a `.txt`
-or `.md`, but page operations like *Delete page* stay PDF-only.
+The GUI viewer opens **PDF, plain-text (`.txt`), and Markdown (`.md`)** documents —
+plus **any other plain-text file** (`.ini`, `.log`, `.json`, …) via a content sniff
+(see *Opening a file*). Each command declares which formats it supports, so a
+feature is reachable only for the formats it actually works on — you can read,
+search, and open links in a `.txt` or `.md`, but page operations like *Delete page*
+stay PDF-only.
 
 `.md` files render as **formatted markdown** — `## x` becomes a heading, `**bold**`,
 lists, code, and links are styled. Text (`.txt`/`.md`) documents are turned into a
@@ -34,10 +36,17 @@ command palette and their keyboard shortcuts are no-ops. Format-agnostic command
 
 ## Opening a file
 
-- The **Open** dialog lists `.pdf`, `.txt`, and `.md` files.
+- The **Open** dialog's filter is **user-configurable**: by default it lists
+  `.pdf`, `.txt`, and `.md` files; **Open dialog: toggle all files** switches to
+  listing everything, and **Open dialog: file extensions…** edits the extension
+  list (e.g. `pdf, txt, md, ini`). Both persist across sessions and reset from
+  **Remembered settings…** ("Open dialog filter").
 - Passing a path on the command line — `pdft_gui.bat notes.md` — opens it directly.
-- An unsupported type (e.g. `.docx`) is rejected with a warning rather than handed
-  to the renderer to fail obscurely.
+- **Unknown extensions are content-sniffed**: if the file's leading bytes are plain
+  UTF-8 text (no null bytes), it opens as a `.txt`-style document — so `.ini`,
+  `.log`, `.cfg`, `.json`, … just work. Binary or non-UTF-8 files are rejected
+  with a warning rather than handed to the renderer to fail obscurely. A known
+  suffix always wins — a `.pdf` is never sniffed.
 
 ## Merging text folders
 
@@ -54,7 +63,8 @@ This applies to the CLI `pdf-merge-folder.bat` too — it shares the same backen
 ## How it fits together
 
 - `app/pdf/file_format.py` — the `FileFormat` enum (`.pdf` / `.txt` / `.md`),
-  `FileFormat.of(path)` (suffix → format, or `None` if unsupported), and
+  `FileFormat.of(path)` (suffix → format; an unknown suffix falls back to a content
+  sniff — first 8KB, no null bytes, valid UTF-8 → `TXT` — else `None`), and
   `open_fitz(source)`. `open_fitz` is the single seam every fitz consumer uses; for
   text formats it builds a styled HTML document (via `app/pdf/text_html.py`) and opens
   it with `filetype="html"` — so `.md` renders formatted and `.txt`/`.md` honor the
@@ -68,6 +78,12 @@ This applies to the CLI `pdf-merge-folder.bat` too — it shares the same backen
   its store, persisted like the other appearance settings; edited via
   `app/gui/text_view_controller.py` and the two palette commands
   (**Text/Markdown: toggle dark mode** / **font size…**, gated to `.txt`/`.md`).
+- `app/config/open_filter_settings.py` — `OpenFilterSettings` (`all_files`,
+  `extensions`; defaults derived from the `FileFormat` enum) + its store, and
+  `parse_extensions("pdf, ini")` → `(".pdf", ".ini")`. Edited via
+  `app/gui/open_filter_controller.py` and the two **Open dialog:** palette
+  commands; `MainWindow.open_pdf` asks the controller for the current
+  `FileFilter`. Unit-tested in `tests/unit/test_open_filter_settings.py`.
 - `app/gui/commands.py` — each `Command` carries a `formats` field (`None` =
   agnostic, `PDF_ONLY`, or `VIEWABLE` = pdf/txt/md) and a `available(fmt)` gate.
   The command palette (`palette_entries.py`), keyboard shortcuts

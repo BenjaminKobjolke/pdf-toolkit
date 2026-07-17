@@ -54,6 +54,7 @@ if TYPE_CHECKING:
     from app.pdf.file_format import FileFormat
 
 if TYPE_CHECKING:
+    from app.gui.open_filter_controller import OpenFilterController
     from app.gui.remembered_settings import RememberedSettingsController
     from app.gui.rotate_actions import RotateActions
     from app.gui.save_controller import SaveController
@@ -77,6 +78,7 @@ class CollaboratorAccessors:
     _palette: PaletteController
     _outline: OutlineController
     _text_view: TextViewController
+    _open_filter: OpenFilterController
     _command_history: CommandHistoryStore
     _geometry: WindowGeometryController
     _working_doc: WorkingDocument
@@ -220,6 +222,10 @@ class CollaboratorAccessors:
     @property
     def text_view_controller(self) -> TextViewController:
         return self._text_view
+
+    @property
+    def open_filter_controller(self) -> OpenFilterController:
+        return self._open_filter
 
     @property
     def zoom_settings_controller(self) -> ZoomSettingsController:

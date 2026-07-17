@@ -43,6 +43,7 @@ command in the palette (pick one to reset, or "clear all").
 | Field outline appearance | selection outline width / style / color |
 | Default zoom | fit-to-window vs. a fixed percentage on open |
 | Keyboard shortcuts | custom chord bindings |
+| Open dialog filter | all-files vs. extension list, and the extensions themselves |
 
 ## Per-document settings
 

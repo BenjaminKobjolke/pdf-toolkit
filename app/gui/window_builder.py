@@ -16,6 +16,7 @@ from app.config.command_history import CommandHistoryStore
 from app.config.image_choice_settings import ImageChoiceStore
 from app.config.key_bindings import KeyBindingStore, effective_keymap
 from app.config.link_hint_settings import LinkHintSettingsStore
+from app.config.open_filter_settings import OpenFilterSettingsStore
 from app.config.outline_settings import OutlineSettingsStore
 from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
@@ -45,6 +46,7 @@ from app.gui.link_hint_settings_controller import LinkHintSettingsController
 from app.gui.link_hint_style import LinkHintStyle
 from app.gui.mode_status_bar import ModeStatusBar
 from app.gui.move_actions import MoveActions
+from app.gui.open_filter_controller import OpenFilterController
 from app.gui.operations import GuiOperationRunner
 from app.gui.outline_controller import OutlineController
 from app.gui.outline_style import OutlineStyle, set_active
@@ -114,6 +116,7 @@ def _build_core(window: MainWindow, settings: Settings) -> None:
     window._text_view = TextViewController(
         window, TextViewSettingsStore(backend), window._page_view.reload
     )
+    window._open_filter = OpenFilterController(window, OpenFilterSettingsStore(backend))
     window._bar = OperationBar()
     window._edit_bar = EditBar()
     window._mode_bar = ModeStatusBar()

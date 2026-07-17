@@ -9,7 +9,6 @@ from PySide6.QtWidgets import QMainWindow
 
 from app.gui import (
     confirm_dialog,
-    file_browser_strings,
     file_dialogs,
     overlay_selection,
     strings,
@@ -47,7 +46,7 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
             chosen = file_dialogs.prompt_open_file(
                 self,
                 strings.DIALOG_OPEN_TITLE,
-                file_browser_strings.FILTER_OPEN,
+                self._open_filter.current_filter(),
                 self._source.parent if self._source else None,
             )
             if chosen is None:

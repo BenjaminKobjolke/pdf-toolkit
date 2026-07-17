@@ -86,6 +86,8 @@ OUTLINE_STYLE = "outline_style"
 OUTLINE_COLOR = "outline_color"
 TEXT_DARK_MODE = "text_dark_mode"
 TEXT_FONT_SIZE = "text_font_size"
+OPEN_FILTER_ALL_FILES = "open_filter_all_files"
+OPEN_FILTER_EXTENSIONS = "open_filter_extensions"
 ZOOM_SET_DEFAULT = "zoom_set_default"
 DOC_ZOOM_REMEMBER = "doc_zoom_remember"
 DOC_PAGE_REMEMBER = "doc_page_remember"
@@ -278,6 +280,7 @@ def _view_commands(window: MainWindow) -> list[Command]:
     palette = window.palette_controller
     outline = window.outline_controller
     text_view = window.text_view_controller
+    open_filter = window.open_filter_controller
     link = window.link_hint_settings
     zoom = window.zoom_settings_controller
     return [
@@ -318,6 +321,16 @@ def _view_commands(window: MainWindow) -> list[Command]:
             strings.CMD_TEXT_FONT_SIZE,
             text_view.set_font_size,
             formats=TEXT_FORMATS,
+        ),
+        Command(
+            OPEN_FILTER_ALL_FILES,
+            strings.CMD_OPEN_FILTER_ALL_FILES,
+            open_filter.toggle_all_files,
+        ),
+        Command(
+            OPEN_FILTER_EXTENSIONS,
+            strings.CMD_OPEN_FILTER_EXTENSIONS,
+            open_filter.edit_extensions,
         ),
         Command(LINK_FONT, link_strings.CMD_LINK_FONT, link.set_font_size),
         Command(LINK_TEXT_COLOR, link_strings.CMD_LINK_TEXT_COLOR, link.set_text_color),

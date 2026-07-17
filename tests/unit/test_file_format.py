@@ -30,6 +30,48 @@ def test_of_none_path() -> None:
     assert FileFormat.of(None) is None
 
 
+def test_of_sniffs_unknown_suffix_text_as_txt(tmp_path: Path) -> None:
+    ini = tmp_path / "config.ini"
+    ini.write_text("[section]\nkey = value\n", encoding="utf-8")
+    assert FileFormat.of(ini) is FileFormat.TXT
+
+
+def test_of_rejects_binary_content(tmp_path: Path) -> None:
+    blob = tmp_path / "data.bin"
+    blob.write_bytes(b"MZ\x00\x01\x02binary\x00stuff")
+    assert FileFormat.of(blob) is None
+
+
+def test_of_rejects_non_utf8_content(tmp_path: Path) -> None:
+    blob = tmp_path / "legacy.dat"
+    blob.write_bytes(b"\xff\xfe\xfd totally not utf-8 \xff")
+    assert FileFormat.of(blob) is None
+
+
+def test_of_unknown_suffix_missing_file_is_none(tmp_path: Path) -> None:
+    assert FileFormat.of(tmp_path / "ghost.ini") is None
+
+
+def test_of_suffix_wins_over_content(tmp_path: Path) -> None:
+    # A known suffix is trusted without sniffing — .pdf stays PDF even if the
+    # bytes are plain text.
+    fake = tmp_path / "fake.pdf"
+    fake.write_text("just text\n", encoding="utf-8")
+    assert FileFormat.of(fake) is FileFormat.PDF
+
+
+def test_open_fitz_opens_sniffed_ini_as_text(tmp_path: Path) -> None:
+    ini = tmp_path / "settings.ini"
+    ini.write_text("[main]\nvalue = 1\n" * 20, encoding="utf-8")
+    set_text_view_settings(TextViewSettings())
+    doc = open_fitz(ini)
+    try:
+        assert doc.page_count >= 1
+        assert "[main]" in doc.load_page(0).get_text()
+    finally:
+        doc.close()
+
+
 def test_open_fitz_opens_md_where_bare_fitz_would_fail(tmp_path: Path) -> None:
     md = tmp_path / "note.md"
     md.write_text("# Heading\n\nsome text\n" * 20, encoding="utf-8")

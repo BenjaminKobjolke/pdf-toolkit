@@ -64,7 +64,9 @@ individual letters, so an absent floppy / disconnected network drive can't stall
 - `app/gui/file_dialogs.py` — the public `prompt_open_file` / `prompt_save_file` /
   `prompt_directory` helpers that build the dialog and return a `Path | None`.
 - `app/gui/file_browser_strings.py` — titles, key hints, and the `FileFilter`
-  presets (PDF, PDF-or-image, images, all).
+  presets (PDF, PDF-or-image, images, all). The **open** dialog's filter is not a
+  preset: it is user-configurable and persisted (see `FILE_FORMATS.md`, *Opening a
+  file*), built by `app/gui/open_filter_controller.py`.
 
 Call the helpers **module-qualified** (`file_dialogs.prompt_open_file(...)`); tests
 patch them at the module (`monkeypatch.setattr(file_dialogs, "prompt_open_file", …)`).

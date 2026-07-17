@@ -43,7 +43,7 @@ missing or corrupt file just means no commands are floated yet.
 
 | Command | What it does |
 |---------|--------------|
-| **Open PDF…** | Prompt for a PDF and open it. |
+| **Open PDF…** | Prompt for a document (PDF / text / markdown / any plain-text file) and open it. |
 | **Open from recent / history…** | Pick from recently opened documents (see below). |
 | **Save changes to original file** | Write the working copy back to the original (with a backup). See *Deferred saving*. |
 | **Rename file…** | Rename the open PDF (and its sidecar) and reopen it. |
@@ -62,6 +62,8 @@ missing or corrupt file just means no commands are floated yet.
 | **Palette: toggle borderless** | Show/hide the palette window frame. |
 | **Text/Markdown: toggle dark mode** | Light ⇄ dark reading theme for `.txt`/`.md` (only shown for those; see *Appearance settings*). |
 | **Text/Markdown: font size…** | Base font size (pt) for `.txt`/`.md` rendering (only shown for those). |
+| **Open dialog: toggle all files** | Open dialog lists every file ⇄ only the configured extensions (persisted). |
+| **Open dialog: file extensions…** | Edit which extensions the Open dialog lists (e.g. `pdf, txt, md, ini`); switches back to extension-list mode. |
 | **Outline: width…** | Stroke width (px) of the selected-element outline (see *Appearance settings*). |
 | **Outline: type…** | Line type of the outline — Dashed or Solid. |
 | **Outline: color…** | Color of the outline (keyboard-first picker). |

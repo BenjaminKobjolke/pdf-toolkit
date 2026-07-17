@@ -31,16 +31,46 @@ class FileFormat(StrEnum):
 
     @classmethod
     def of(cls, path: Path | None) -> FileFormat | None:
-        """Return the format for ``path``'s suffix, or ``None`` if unsupported."""
+        """Return the format for ``path``'s suffix, or sniff unknown suffixes.
+
+        A known suffix is trusted without looking at content. Unknown suffixes
+        (``.ini``, ``.log``, …) fall back to a content sniff: plain UTF-8 text
+        opens as :attr:`TXT`, anything else stays unsupported.
+        """
         if path is None:
             return None
         try:
             return cls(path.suffix.lower())
         except ValueError:
-            return None
+            return cls.TXT if _looks_like_text(path) else None
 
 
 TEXT_FORMATS = frozenset({FileFormat.TXT, FileFormat.MD})
+
+_SNIFF_BYTES = 8192
+
+
+def _looks_like_text(path: Path) -> bool:
+    """True if ``path``'s leading bytes are plain UTF-8 text (no null bytes).
+
+    ``of`` is called speculatively (missing paths, directories), so I/O errors
+    mean "not text" rather than raising. Non-UTF-8 text is rejected on purpose:
+    :func:`open_fitz` reads text strictly as UTF-8 and would crash on it.
+    """
+    try:
+        with path.open("rb") as fh:
+            chunk = fh.read(_SNIFF_BYTES)
+    except OSError:
+        return False
+    if not chunk or b"\x00" in chunk:
+        return False
+    try:
+        chunk.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        # A multibyte char cut off at the chunk boundary is still text.
+        return exc.start >= len(chunk) - 3
+    return True
+
 
 # ponytail: single-window viewer, so one module-level setting is enough; make it
 # per-window if the app ever opens multiple viewers. Defaults keep non-GUI

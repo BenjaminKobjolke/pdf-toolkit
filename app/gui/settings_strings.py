@@ -22,6 +22,10 @@ PROMPT_PALETTE_OPACITY = "Opacity (%):"
 DIALOG_TEXT_FONT_TITLE = "Text/Markdown font size"
 PROMPT_TEXT_FONT = "Font size (pt):"
 
+# Open-dialog filter dialogs
+DIALOG_OPEN_FILTER_TITLE = "Open dialog file extensions"
+PROMPT_OPEN_FILTER_EXTENSIONS = "Extensions (e.g. pdf, txt, md):"
+
 # Selected-item outline appearance dialogs
 DIALOG_OUTLINE_WIDTH_TITLE = "Outline width"
 DIALOG_OUTLINE_STYLE_TITLE = "Outline type"

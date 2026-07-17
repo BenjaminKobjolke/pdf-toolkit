@@ -94,6 +94,8 @@ _ALL_IDS = {
     commands.OUTLINE_COLOR,
     commands.TEXT_DARK_MODE,
     commands.TEXT_FONT_SIZE,
+    commands.OPEN_FILTER_ALL_FILES,
+    commands.OPEN_FILTER_EXTENSIONS,
     commands.ZOOM_SET_DEFAULT,
     commands.DOC_ZOOM_REMEMBER,
     commands.DOC_PAGE_REMEMBER,
