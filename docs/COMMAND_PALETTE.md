@@ -43,7 +43,7 @@ missing or corrupt file just means no commands are floated yet.
 
 | Command | What it does |
 |---------|--------------|
-| **Open document…** | Prompt for a document (PDF / text / markdown / any plain-text file) and open it. |
+| **Open document…** | Prompt for a document (PDF / text / markdown / image / any plain-text file) and open it. |
 | **Open from recent / history…** | Pick from recently opened documents (see below). |
 | **Next file in directory** / **Previous file in directory** | Open the alphabetically next / previous openable file in the current document's folder (also **Alt+Right** / **Alt+Left**). Wraps at the ends; honors the Open-dialog filter and skips files the viewer can't render; prompts to save unsaved changes first. |
 | **Save changes to original file** | Write the working copy back to the original (with a backup). See *Deferred saving*. |
@@ -65,6 +65,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Text/Markdown: font size…** | Base font size (pt) for `.txt`/`.md` rendering (only shown for those). |
 | **Open dialog: toggle all files** | Open dialog lists every file ⇄ only the configured extensions (persisted). |
 | **Open dialog: file extensions…** | Edit which extensions the Open dialog lists (e.g. `pdf, txt, md, ini`); switches back to extension-list mode. |
+| **Single instance: toggle reuse existing window** | When on (default), launching the viewer with a file (e.g. double-click in Explorer) opens it in the already-running window instead of a new one (see *Single instance* below). |
 | **Outline: width…** | Stroke width (px) of the selected-element outline (see *Appearance settings*). |
 | **Outline: type…** | Line type of the outline — Dashed or Solid. |
 | **Outline: color…** | Color of the outline (keyboard-first picker). |
@@ -270,6 +271,28 @@ The color commands open a keyboard-first picker:
 - **Enter** accepts the typed value or the highlighted row; **Esc** cancels.
 
 No new dependency — the picker is the same searchable dialog used elsewhere.
+
+## Single instance
+
+**Single instance: toggle reuse existing window** (on by default) controls what a
+second launch does — e.g. double-clicking a file associated with
+`FastFileViewer.bat`:
+
+- **On**: the new process forwards the file to the already-running viewer (over a
+  local named pipe), that window opens it and comes to the front, and the second
+  process exits. A launch without a file just brings the running window to the
+  front. The unsaved-changes prompt still appears if the current document is
+  modified.
+- **Off**: every launch opens its own viewer window (the previous behavior).
+
+The *launching* process reads the setting, so toggling it takes effect on the
+next launch — no restart of the running viewer needed. Persisted in the sqlite
+settings backend; reset from **Remembered settings…** ("Reuse existing window").
+
+Known limitations: two launches in the same instant can still produce two
+windows (self-heals on the next launch), Windows may only flash the taskbar
+instead of focusing the window when another app holds focus, and one file per
+launch is forwarded.
 
 ## Open from recent / history
 

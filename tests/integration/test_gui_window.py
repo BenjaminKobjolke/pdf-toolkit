@@ -11,7 +11,7 @@ from app.config.window_geometry import WindowGeometry, WindowGeometryStore
 from app.gui import confirm_dialog
 from app.gui.main_window import MainWindow
 from app.storage.factory import make_backend
-from tests.conftest import MakePdf, PageSizesOf, gui_settings, silence_dialogs
+from tests.conftest import MakeImage, MakePdf, PageSizesOf, gui_settings, silence_dialogs
 
 
 def _settings(tmp_path: Path) -> Settings:
@@ -42,6 +42,13 @@ def test_delete_current_page_shrinks_document(
 
     window.save_changes()
     assert page_sizes_of(pdf) == [(300, 400), (120, 120)]
+
+
+def test_open_image_renders_single_page(window: MainWindow, make_image: MakeImage) -> None:
+    image = make_image("png")
+    window.open_pdf(image)
+
+    assert window._page_view.total_pages() == 1
 
 
 def test_swap_pages_through_window(

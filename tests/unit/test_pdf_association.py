@@ -98,8 +98,8 @@ def test_launch_command_dev_points_at_vbs(monkeypatch: pytest.MonkeyPatch, tmp_p
 
 def test_launch_command_frozen_points_at_exe(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(sys, "frozen", True, raising=False)
-    monkeypatch.setattr(sys, "executable", r"C:\apps\FastPDFToolkit.exe")
-    assert pdf_association.launch_command() == r'"C:\apps\FastPDFToolkit.exe" "%1"'
+    monkeypatch.setattr(sys, "executable", r"C:\apps\FastFileViewer.exe")
+    assert pdf_association.launch_command() == r'"C:\apps\FastFileViewer.exe" "%1"'
 
 
 def test_register_writes_all_keys(fake_winreg: FakeWinreg, tmp_path: Path) -> None:

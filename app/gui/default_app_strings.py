@@ -14,9 +14,9 @@ TITLE = "Set as default PDF viewer"
 WINDOWS_ONLY = "Setting the default PDF viewer is only supported on Windows."
 FAILED_FMT = "Could not register as a PDF handler:\n{error}"
 INSTRUCTIONS = (
-    "FastPDFToolkit was registered as a PDF handler.\n\n"
+    "FastFileViewer was registered as a PDF handler.\n\n"
     "Windows blocks apps from silently forcing the default. Press OK to open the "
     'Default Apps window, then find ".pdf", choose "PDF (pdf-toolkit viewer)", set default.'
 )
-REMOVED = "FastPDFToolkit was removed as a PDF handler."
+REMOVED = "FastFileViewer was removed as a PDF handler."
 REMOVE_FAILED_FMT = "Could not remove the PDF handler:\n{error}"

@@ -24,7 +24,7 @@ pdf-extract-page = "app.cli.extract_page:main"
 pdf-merge-folder = "app.cli.merge_folder:main"
 pdf-install-global = "app.cli.install_global:main"
 pdft = "app.cli.pdft:main"
-pdft-gui = "app.cli.gui:main"
+FastFileViewer = "app.cli.gui:main"
 
 [dependency-groups]
 dev = [

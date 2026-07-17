@@ -14,6 +14,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from app.config.command_history import CommandHistoryStore
 from app.config.image_choice_settings import ImageChoiceStore
+from app.config.instance_settings import InstanceSettingsStore
 from app.config.key_bindings import KeyBindingStore, effective_keymap
 from app.config.link_hint_settings import LinkHintSettingsStore
 from app.config.open_filter_settings import OpenFilterSettingsStore
@@ -39,6 +40,7 @@ from app.gui.field_actions import FieldActions
 from app.gui.file_actions import FileActions
 from app.gui.image_actions import ImageActions
 from app.gui.image_controller import ImageController
+from app.gui.instance_controller import InstanceController
 from app.gui.keybinding_actions import KeybindingActions
 from app.gui.layer_actions import LayerActions
 from app.gui.link_hint_controller import LinkHintController
@@ -117,6 +119,7 @@ def _build_core(window: MainWindow, settings: Settings) -> None:
         window, TextViewSettingsStore(backend), window._page_view.reload
     )
     window._open_filter = OpenFilterController(window, OpenFilterSettingsStore(backend))
+    window._instance = InstanceController(InstanceSettingsStore(backend), window._report)
     window._bar = OperationBar()
     window._edit_bar = EditBar()
     window._mode_bar = ModeStatusBar()

@@ -26,6 +26,24 @@ def test_render_bat_contains_project_root_and_module() -> None:
     assert ".venv\\Scripts\\python.exe" in text
 
 
+def test_render_bat_windowed_detaches_via_pythonw() -> None:
+    project_root = Path("D:/some/project")
+
+    text = render_bat(project_root, "app.cli.gui", windowed=True)
+
+    assert ".venv\\Scripts\\pythonw.exe" in text
+    assert "start" in text  # detach so no console lingers
+    assert "%*" in text
+    assert ".venv\\Scripts\\python.exe" not in text
+
+
+def test_gui_bat_is_marked_windowed() -> None:
+    windowed_by_name = {name: windowed for name, _, windowed in BAT_FILES}
+
+    assert windowed_by_name["FastFileViewer.bat"] is True
+    assert windowed_by_name["pdft.bat"] is False
+
+
 def test_render_bat_uses_windows_path_separators() -> None:
     project_root = Path("D:/some/project")
 
@@ -43,8 +61,8 @@ def test_install_bats_writes_both_files(tmp_path: Path) -> None:
 
     written = install_bats(project_root, target, overwrite=False)
 
-    assert {p.name for p in written} == {name for name, _ in BAT_FILES}
-    for name, _ in BAT_FILES:
+    assert {p.name for p in written} == {name for name, *_ in BAT_FILES}
+    for name, *_ in BAT_FILES:
         assert (target / name).is_file()
 
 

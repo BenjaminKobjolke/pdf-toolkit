@@ -2,7 +2,7 @@
 
 Used to produce ``assets/icon.ico`` from a user-supplied ``assets/icon.png``.
 The same ``.ico`` drives both the runtime Qt window icon and the embedded
-PyInstaller exe icon (see ``pdft-gui.spec``).
+PyInstaller exe icon (see ``FastFileViewer.spec``).
 
 Run via ``tools/png_to_ico.bat``.
 """

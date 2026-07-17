@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from app.gui import commands, overlay_commands
-from app.gui.commands import PDF_ONLY, VIEWABLE, Command
+from app.gui.commands import HAS_TEXT, PDF_ONLY, VIEWABLE, Command
 from app.gui.main_window import MainWindow
 from app.pdf.file_format import TEXT_FORMATS, FileFormat
 from tests.conftest import MakePdf, gui_settings
@@ -98,6 +98,7 @@ _ALL_IDS = {
     commands.TEXT_FONT_SIZE,
     commands.OPEN_FILTER_ALL_FILES,
     commands.OPEN_FILTER_EXTENSIONS,
+    commands.REUSE_WINDOW,
     commands.ZOOM_SET_DEFAULT,
     commands.DOC_ZOOM_REMEMBER,
     commands.DOC_PAGE_REMEMBER,
@@ -208,6 +209,11 @@ def _cmd(formats: frozenset[FileFormat] | None, *, enabled: bool = True) -> Comm
     return Command("id", "title", lambda: None, lambda: enabled, formats)
 
 
+def _format_gate_stub(cmd: Command) -> Command:
+    """Copy with is_enabled stubbed True so only the format gate is exercised."""
+    return Command(cmd.command_id, cmd.title, cmd.run, lambda: True, cmd.formats)
+
+
 def test_available_agnostic_always_on() -> None:
     cmd = _cmd(None)
     assert cmd.available(FileFormat.PDF)
@@ -228,6 +234,17 @@ def test_available_viewable_covers_all_rendered_formats() -> None:
     assert cmd.available(FileFormat.PDF)
     assert cmd.available(FileFormat.TXT)
     assert cmd.available(FileFormat.MD)
+    assert cmd.available(FileFormat.PNG)
+    assert cmd.available(FileFormat.WEBP)
+    assert not cmd.available(None)
+
+
+def test_available_has_text_excludes_images() -> None:
+    cmd = _cmd(HAS_TEXT)
+    assert cmd.available(FileFormat.PDF)
+    assert cmd.available(FileFormat.TXT)
+    assert cmd.available(FileFormat.MD)
+    assert not cmd.available(FileFormat.PNG)
     assert not cmd.available(None)
 
 
@@ -240,9 +257,11 @@ def test_registry_format_annotations(window: MainWindow) -> None:
     assert commands.find(registry, commands.DELETE_PAGE).formats == PDF_ONLY
     assert commands.find(registry, commands.INSERT_PAGE).formats == PDF_ONLY
     assert commands.find(registry, commands.EDIT_MODE).formats == PDF_ONLY
-    assert commands.find(registry, commands.OPEN_LINK).formats == VIEWABLE
-    assert commands.find(registry, commands.COPY_LINK).formats == VIEWABLE
-    assert commands.find(registry, commands.SEARCH_PDF).formats == VIEWABLE
+    assert commands.find(registry, commands.OPEN_LINK).formats == HAS_TEXT
+    assert commands.find(registry, commands.COPY_LINK).formats == HAS_TEXT
+    assert commands.find(registry, commands.SEARCH_PDF).formats == HAS_TEXT
+    assert commands.find(registry, commands.COPY_PAGE_TEXT).formats == HAS_TEXT
+    assert commands.find(registry, commands.SELECT_MODE).formats == HAS_TEXT
     assert commands.find(registry, commands.NEXT_PAGE).formats == VIEWABLE
     assert commands.find(registry, commands.NEXT_FILE).formats == VIEWABLE
     assert commands.find(registry, commands.PREV_FILE).formats == VIEWABLE
@@ -263,13 +282,20 @@ def test_text_appearance_commands_gated_to_text_formats(window: MainWindow) -> N
 
 def test_text_document_gates_page_ops_but_not_viewers(window: MainWindow) -> None:
     registry = commands.build_commands(window)
-    delete = commands.find(registry, commands.DELETE_PAGE)
-    open_link = commands.find(registry, commands.OPEN_LINK)
-    # Rebuild with is_enabled stubbed True so only the format gate is exercised.
-    delete_on = Command(delete.command_id, delete.title, delete.run, lambda: True, delete.formats)
-    link_on = Command(
-        open_link.command_id, open_link.title, open_link.run, lambda: True, open_link.formats
-    )
+    delete_on = _format_gate_stub(commands.find(registry, commands.DELETE_PAGE))
+    link_on = _format_gate_stub(commands.find(registry, commands.OPEN_LINK))
     for fmt in (FileFormat.TXT, FileFormat.MD):
         assert not delete_on.available(fmt)
         assert link_on.available(fmt)
+
+
+def test_image_document_gates_text_and_page_ops_but_not_viewers(window: MainWindow) -> None:
+    registry = commands.build_commands(window)
+    gated = (commands.DELETE_PAGE, commands.SAVE, commands.SEARCH_PDF, commands.COPY_PAGE_TEXT)
+    open_ok = (commands.ZOOM_IN, commands.NEXT_PAGE, commands.PRINT, commands.NEXT_FILE)
+    for command_id in gated:
+        stub = _format_gate_stub(commands.find(registry, command_id))
+        assert not stub.available(FileFormat.PNG)
+    for command_id in open_ok:
+        stub = _format_gate_stub(commands.find(registry, command_id))
+        assert stub.available(FileFormat.PNG)

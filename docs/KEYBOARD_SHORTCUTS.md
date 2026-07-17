@@ -1,6 +1,6 @@
 # Keyboard and Mouse Controls
 
-The GUI viewer (`pdft-gui`) is keyboard-first. Common actions have direct keys;
+The GUI viewer (`FastFileViewer`) is keyboard-first. Common actions have direct keys;
 everything else is reachable through the command palette. The keys below are the
 **built-in defaults** (registered in `app/gui/window_input.py` — `_SHORTCUTS` +
 `_PALETTE_CHORD`); mouse gestures live in `_MOUSE_CONTROLS`. Press **F1** in the

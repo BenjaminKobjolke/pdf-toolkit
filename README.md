@@ -11,7 +11,7 @@ Small Python CLI toolkit for two PDF page operations, each with an automatic tim
 - `pdf-extract-page.bat <page> <pdf> [-o <out>]` — extract 1-based `<page>` into its own new file (default `<name>-pNN.pdf` beside the source); the original is left untouched, so no backup is made.
 - `pdf-merge-folder.bat <folder>` — merge a folder into a single file. A folder of `.pdf`/`.jpg`/`.jpeg`/`.png` files becomes `<folder>\merged.pdf`; a folder of text files (`.txt`/`.md`) is concatenated into `<folder>\merged.txt` (or `merged.md` when all inputs are `.md`). Files are added in alphabetical order (case-insensitive). Subfolders are ignored, a mixed text-and-PDF folder is refused, and an existing `merged.*` is backed up first.
 - `pdft.bat` — interactive wizard that prompts for the operation (swap / delete single / delete range / rotate / move / insert pages / extract page / merge folder / open GUI viewer) and its arguments. The PDF prompt has Tab-completion against `*.pdf` files in the current directory; the insert-file prompt completes PDFs + images; the folder prompt has Tab-completion against subdirectories (powered by `prompt_toolkit`).
-- `pdft_gui.bat [file]` — GUI viewer (PySide6) that renders **PDF, `.txt`, and `.md`** documents page by page (any other plain-text file — `.ini`, `.log`, `.json`, … — is content-sniffed and opened as text), with a **command palette** (`Ctrl+Shift+P`) for every action: page operations (rotate, move, delete, swap), zoom, navigation, full-text + field search, recent-document history, rename, and in-place editing of text fields and images. Each feature declares which formats it supports — reading, search, and links work on all three, while page operations and editing stay PDF-only (see [docs/FILE_FORMATS.md](docs/FILE_FORMATS.md)). `.md` renders as its raw source. Edits go to a temporary working copy and reach the original only when you **Save** (`Ctrl+S`); closing with unsaved changes prompts first. Press **F1** for the keyboard and mouse controls. Optionally pass a file path to open on startup.
+- `FastFileViewer.bat [file]` — GUI viewer (PySide6) that renders **PDF, `.txt`, and `.md`** documents page by page (any other plain-text file — `.ini`, `.log`, `.json`, … — is content-sniffed and opened as text), with a **command palette** (`Ctrl+Shift+P`) for every action: page operations (rotate, move, delete, swap), zoom, navigation, full-text + field search, recent-document history, rename, and in-place editing of text fields and images. Each feature declares which formats it supports — reading, search, and links work on all three, while page operations and editing stay PDF-only (see [docs/FILE_FORMATS.md](docs/FILE_FORMATS.md)). `.md` renders as its raw source. Edits go to a temporary working copy and reach the original only when you **Save** (`Ctrl+S`); closing with unsaved changes prompts first. Press **F1** for the keyboard and mouse controls. Optionally pass a file path to open on startup.
 
 Every run first copies the original to `backup/YYYYMMDD-HHMM-<filename>.pdf`. The `backup/` directory is resolved relative to your current working directory, so when you run the tool from `C:\Users\me\Documents` the backup lands in `C:\Users\me\Documents\backup\`. Override with the `PDF_TOOLKIT_BACKUP_DIR` environment variable. The backup is created **before** validation, so if validation fails (e.g. swap on a 3-page PDF) the original is untouched but a backup still exists.
 
@@ -35,15 +35,16 @@ pdf-delete-page.bat 2 C:\path\to\file.pdf
 pdf-delete-pages.bat 1 10 C:\path\to\file.pdf
 pdf-merge-folder.bat "E:\path\to\folder"
 pdft.bat                                    REM interactive wizard
-pdft_gui.bat C:\path\to\file.pdf            REM GUI viewer
+FastFileViewer.bat C:\path\to\file.pdf            REM GUI viewer
 ```
 
 Relative paths are resolved against your current working directory.
 
 ### GUI viewer
 
-`pdft_gui.bat` (or the wizard's **Open GUI viewer** entry) opens a window that
-renders the current document — **PDF, `.txt`, `.md`, or any other plain-text
+`FastFileViewer.bat` (or the wizard's **Open GUI viewer** entry) opens a window that
+renders the current document — **PDF, `.txt`, `.md`, images (`.png` `.jpg`
+`.jpeg` `.gif` `.bmp` `.tif` `.tiff` `.webp`), or any other plain-text
 file** (unknown extensions are content-sniffed; see
 [docs/FILE_FORMATS.md](docs/FILE_FORMATS.md) for what each feature supports per
 format). The viewer is **keyboard-first**: the menu bar and button toolbars are
@@ -78,6 +79,11 @@ The palette and direct shortcuts cover:
 - **View** — **Toggle menu bar** / **Toggle toolbar** / **Toggle status bar**
   (remembered across runs) and **Toggle fullscreen** (session only). Window
   position and size are also remembered across runs.
+- **Single instance** — by default a second launch (e.g. double-clicking an
+  associated file in Explorer) opens the file in the **already-running viewer
+  window** instead of a new one; toggle with **Single instance: toggle reuse
+  existing window**. See [docs/COMMAND_PALETTE.md](docs/COMMAND_PALETTE.md)
+  (*Single instance*).
 - **Edit mode (text + images)** — toggle edit mode to place text fields and
   images (e.g. a transparent `signature.png`). When a field is selected the
   palette exposes its options (change text, font size/family, text + background
@@ -144,16 +150,16 @@ format) and surfaces validation errors in a dialog.
 ### Make it a PDF handler (open PDFs by double-click)
 
 ```bat
-pdft_gui_register.bat     REM register the viewer as a PDF handler (HKCU, no admin)
-pdft_gui_unregister.bat   REM undo
+FastFileViewer_register.bat     REM register the viewer as a PDF handler (HKCU, no admin)
+FastFileViewer_unregister.bat   REM undo
 ```
 
-`pdft_gui_register.bat` registers a per-user ProgID so the viewer appears in
+`FastFileViewer_register.bat` registers a per-user ProgID so the viewer appears in
 Windows' *Open with* list for `.pdf`. Windows 11 does **not** let any tool set
 the *default* app silently, so finish in the UI: right-click a PDF →
 **Open with → Choose another app → PDF (pdf-toolkit viewer)** → tick **Always**.
 
-Double-click opens are launched windowless via `pdft_gui.vbs` (no console flash),
+Double-click opens are launched windowless via `FastFileViewer.vbs` (no console flash),
 and the working directory is set to the opened PDF's folder, so its backups land
 in `<that folder>\backup\`.
 
@@ -166,16 +172,16 @@ Build a self-contained GUI executable with PyInstaller:
 tools\build_exe.bat
 ```
 
-This produces `dist\FastPDFToolkit.exe` — a single onefile, windowed (no console)
+This produces `dist\FastFileViewer.exe` — a single onefile, windowed (no console)
 executable that bundles Python, PySide6, and pymupdf. It takes an optional PDF
-path argument, so `dist\FastPDFToolkit.exe C:\path\to\file.pdf` opens that PDF, and you
+path argument, so `dist\FastFileViewer.exe C:\path\to\file.pdf` opens that PDF, and you
 can point Windows' *Open with → Choose another app* at it.
 
 Notes:
 
 - Onefile startup is slightly slower than the `.bat` (it unpacks to a temp dir on
   each launch).
-- `dist\` and `build\` are git-ignored; the build config `pdft-gui.spec` is
+- `dist\` and `build\` are git-ignored; the build config `FastFileViewer.spec` is
   committed. To change the icon or bundled modules, edit that spec.
 - The window and exe icon come from one source PNG; see
   [docs/APP_ICON.md](docs/APP_ICON.md) for the PNG → `.ico` workflow.
@@ -200,7 +206,7 @@ If you keep a folder on `PATH` for command-line tools (e.g. `C:\cmdtools`), you 
 tools\install_global.bat
 ```
 
-It prompts for the target directory (default `C:\cmdtools`), then writes `pdft.bat` (the interactive wizard) and `pdft_gui.bat` (the GUI viewer) into it. `pdft` asks which operation to run, lists `*.pdf` files in your current directory for selection, and dispatches to the right tool internally. The generated bats point back to this project's venv, so the toolkit stays installed in one place but is callable from anywhere.
+It prompts for the target directory (default `C:\cmdtools`), then writes `pdft.bat` (the interactive wizard) and `FastFileViewer.bat` (the GUI viewer) into it. `pdft` asks which operation to run, lists `*.pdf` files in your current directory for selection, and dispatches to the right tool internally. The generated bats point back to this project's venv, so the toolkit stays installed in one place but is callable from anywhere.
 
 Both commands:
 

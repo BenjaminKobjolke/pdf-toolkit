@@ -6,7 +6,7 @@ REM silently force the *default* app, so after running this you set the default
 REM once via the UI (see the printed instructions).
 
 set "PROGID=pdf-toolkit.Viewer"
-set "VBS=%~dp0pdft_gui.vbs"
+set "VBS=%~dp0FastFileViewer.vbs"
 
 if not exist "%VBS%" (
     echo [register] launcher not found: %VBS%
@@ -29,5 +29,5 @@ echo   1) Right-click any .pdf -^> Open with -^> Choose another app
 echo   2) Pick "PDF (pdf-toolkit viewer)"
 echo   3) Tick "Always use this app", then OK
 echo.
-echo Undo with: pdft_gui_unregister.bat
+echo Undo with: FastFileViewer_unregister.bat
 exit /b 0

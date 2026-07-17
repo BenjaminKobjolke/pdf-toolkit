@@ -26,6 +26,10 @@ PROMPT_TEXT_FONT = "Font size (pt):"
 DIALOG_OPEN_FILTER_TITLE = "Open dialog file extensions"
 PROMPT_OPEN_FILTER_EXTENSIONS = "Extensions (e.g. pdf, txt, md):"
 
+# Single-instance toggle confirmations
+MSG_REUSE_WINDOW_ON = "Reuse existing window: on. New launches open in this window."
+MSG_REUSE_WINDOW_OFF = "Reuse existing window: off. Each launch opens its own window."
+
 # Selected-item outline appearance dialogs
 DIALOG_OUTLINE_WIDTH_TITLE = "Outline width"
 DIALOG_OUTLINE_STYLE_TITLE = "Outline type"

@@ -36,7 +36,7 @@ MANIFEST
 *.manifest
 *.spec
 # committed: build config for the standalone GUI exe
-!pdft-gui.spec
+!FastFileViewer.spec
 
 # Installer logs
 pip-log.txt

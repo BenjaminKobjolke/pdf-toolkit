@@ -16,9 +16,10 @@ mouse over. Select mode drives selection from the PDF's word geometry instead
 | **Ctrl+Shift+S** | Toggle text select mode |
 | Command palette | **Toggle text select mode (vim)** |
 
-A document must be open. The footer status bar shows the current keys while the
-mode is active (see `STATUS_BAR.md`). Select mode and **Edit mode** are mutually
-exclusive — entering one leaves the other.
+A document with a text layer must be open (PDF / `.txt` / `.md` — the command is
+greyed out for images, see `FILE_FORMATS.md`). The footer status bar shows the
+current keys while the mode is active (see `STATUS_BAR.md`). Select mode and
+**Edit mode** are mutually exclusive — entering one leaves the other.
 
 Single-page scope: a selection stays within the current page. Changing pages
 reloads the words and resets the cursor to the first word.

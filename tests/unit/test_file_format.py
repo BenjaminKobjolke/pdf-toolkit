@@ -7,8 +7,14 @@ from pathlib import Path
 import pytest
 
 from app.config.text_view_settings import TextViewSettings
-from app.pdf.file_format import FileFormat, open_fitz, set_text_view_settings
-from tests.conftest import MakePdf
+from app.pdf.file_format import (
+    IMAGE_FORMATS,
+    TEXT_FORMATS,
+    FileFormat,
+    open_fitz,
+    set_text_view_settings,
+)
+from tests.conftest import MakeImage, MakePdf
 
 
 @pytest.mark.parametrize(
@@ -18,6 +24,15 @@ from tests.conftest import MakePdf
         ("a.PDF", FileFormat.PDF),
         ("a.txt", FileFormat.TXT),
         ("notes.md", FileFormat.MD),
+        ("a.png", FileFormat.PNG),
+        ("a.PNG", FileFormat.PNG),
+        ("a.jpg", FileFormat.JPG),
+        ("a.jpeg", FileFormat.JPEG),
+        ("a.gif", FileFormat.GIF),
+        ("a.bmp", FileFormat.BMP),
+        ("a.tif", FileFormat.TIF),
+        ("a.tiff", FileFormat.TIFF),
+        ("a.webp", FileFormat.WEBP),
         ("a.docx", None),
         ("a", None),
     ],
@@ -103,6 +118,22 @@ def test_open_fitz_opens_txt(tmp_path: Path) -> None:
     doc = open_fitz(txt)
     try:
         assert doc.page_count >= 1
+    finally:
+        doc.close()
+
+
+def test_image_formats_cover_all_image_members() -> None:
+    assert frozenset(FileFormat) - {FileFormat.PDF} - TEXT_FORMATS == IMAGE_FORMATS
+
+
+@pytest.mark.parametrize("kind", ["png", "jpg"])
+def test_open_fitz_opens_image_as_single_page(make_image: MakeImage, kind: str) -> None:
+    image = make_image(kind)  # type: ignore[arg-type]
+    doc = open_fitz(image)
+    try:
+        assert doc.page_count == 1
+        pixmap = doc.load_page(0).get_pixmap()
+        assert pixmap.width > 0
     finally:
         doc.close()
 

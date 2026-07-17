@@ -14,10 +14,11 @@ from app.logging_setup import configure_logging, log
 DEFAULT_TARGET = Path(r"C:\cmdtools")
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-# Single source of truth: which bats get installed and which module each invokes.
-BAT_FILES: tuple[tuple[str, str], ...] = (
-    ("pdft.bat", "app.cli.pdft"),
-    ("pdft_gui.bat", "app.cli.gui"),
+# Single source of truth: which bats get installed, which module each invokes,
+# and whether it launches a GUI (windowed=True → detached pythonw, no console).
+BAT_FILES: tuple[tuple[str, str, bool], ...] = (
+    ("pdft.bat", "app.cli.pdft", False),
+    ("FastFileViewer.bat", "app.cli.gui", True),
 )
 
 
@@ -25,20 +26,30 @@ class InstallError(Exception):
     """Raised when bat installation fails for a domain reason."""
 
 
-def render_bat(project_root: Path, module: str) -> str:
+def render_bat(project_root: Path, module: str, windowed: bool = False) -> str:
     """Return the contents of a global wrapper bat that calls ``module`` in this project.
 
     The generated bat preserves the user's CWD so relative path arguments resolve
-    against the directory the user invoked the bat from.
+    against the directory the user invoked the bat from. ``windowed`` launches via
+    pythonw + ``start`` (detached, no console lingering) for GUI modules; CLI
+    modules stay blocking so their exit code and console I/O reach the caller.
     """
     root_str = str(project_root).replace("/", "\\")
+    if windowed:
+        launch = (
+            f'start "{module}" "%PROJECT_ROOT%\\.venv\\Scripts\\pythonw.exe" -m {module} %*\r\n'
+            "exit /b 0\r\n"
+        )
+    else:
+        launch = (
+            f'"%PROJECT_ROOT%\\.venv\\Scripts\\python.exe" -m {module} %*\r\n'
+            "exit /b %ERRORLEVEL%\r\n"
+        )
     return (
         "@echo off\r\n"
         "setlocal\r\n"
         f'set "PROJECT_ROOT={root_str}"\r\n'
-        'set "PYTHONPATH=%PROJECT_ROOT%"\r\n'
-        f'"%PROJECT_ROOT%\\.venv\\Scripts\\python.exe" -m {module} %*\r\n'
-        "exit /b %ERRORLEVEL%\r\n"
+        'set "PYTHONPATH=%PROJECT_ROOT%"\r\n' + launch
     )
 
 
@@ -50,15 +61,15 @@ def install_bats(project_root: Path, target_dir: Path, overwrite: bool) -> list[
         raise InstallError(f"target is not a directory: {target_dir}")
 
     if not overwrite:
-        existing = [target_dir / name for name, _ in BAT_FILES if (target_dir / name).exists()]
+        existing = [target_dir / name for name, *_ in BAT_FILES if (target_dir / name).exists()]
         if existing:
             joined = ", ".join(p.name for p in existing)
             raise InstallError(f"these files already exist in {target_dir}: {joined}")
 
     written: list[Path] = []
-    for name, module in BAT_FILES:
+    for name, module, windowed in BAT_FILES:
         path = target_dir / name
-        path.write_text(render_bat(project_root, module), encoding="utf-8", newline="")
+        path.write_text(render_bat(project_root, module, windowed), encoding="utf-8", newline="")
         written.append(path)
     return written
 
@@ -109,7 +120,7 @@ def main() -> int:
         written = install_bats(PROJECT_ROOT, target, overwrite=args.force)
     except InstallError as err:
         if "already exist" in str(err) and not args.force:
-            existing = [name for name, _ in BAT_FILES if (target / name).exists()]
+            existing = [name for name, *_ in BAT_FILES if (target / name).exists()]
             if not _confirm_overwrite(existing):
                 log.error("aborted; nothing installed")
                 return EXIT_FAILURE

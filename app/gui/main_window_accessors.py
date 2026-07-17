@@ -17,6 +17,17 @@ if TYPE_CHECKING:
     from app.config.key_bindings import KeyBindingStore, KeyMap
     from app.config.recent_files import RecentFilesStore
     from app.config.ui_state import UiStateStore
+    from app.gui import field_actions as field_actions_mod
+    from app.gui import file_actions as file_actions_mod
+    from app.gui import image_actions as image_actions_mod
+    from app.gui import image_controller as image_controller_mod
+    from app.gui import layer_actions as layer_actions_mod
+    from app.gui import move_actions as move_actions_mod
+    from app.gui import overlay_actions as overlay_actions_mod
+    from app.gui import page_actions as page_actions_mod
+    from app.gui import print_actions as print_actions_mod
+    from app.gui import rect_actions as rect_actions_mod
+    from app.gui import rect_controller as rect_controller_mod
     from app.gui.chrome import ChromeController
     from app.gui.commands import Command
     from app.gui.controls import OperationBar
@@ -30,33 +41,23 @@ if TYPE_CHECKING:
     from app.gui.edit_bar import EditBar
     from app.gui.edit_controller import EditController
     from app.gui.export_actions import ExportActions
-    from app.gui.field_actions import FieldActions
-    from app.gui.file_actions import FileActions
-    from app.gui.image_actions import ImageActions
-    from app.gui.image_controller import ImageController
+    from app.gui.instance_controller import InstanceController
     from app.gui.keybinding_actions import KeybindingActions
-    from app.gui.layer_actions import LayerActions
     from app.gui.link_hint_controller import LinkHintController
     from app.gui.link_hint_settings_controller import LinkHintSettingsController
     from app.gui.mode_status_bar import ModeStatusBar
-    from app.gui.move_actions import MoveActions
     from app.gui.operations import GuiOperationRunner
     from app.gui.outline_controller import OutlineController
-    from app.gui.overlay_actions import OverlayActions
-    from app.gui.page_actions import PageActions
     from app.gui.page_view import PageView
     from app.gui.palette_actions import PaletteActions
     from app.gui.palette_controller import PaletteController
     from app.gui.placement import PlacementController
-    from app.gui.print_actions import PrintActions
-    from app.gui.rect_actions import RectActions
-    from app.gui.rect_controller import RectController
     from app.pdf.file_format import FileFormat
 
 if TYPE_CHECKING:
+    from app.gui import rotate_actions as rotate_actions_mod
     from app.gui.open_filter_controller import OpenFilterController
     from app.gui.remembered_settings import RememberedSettingsController
-    from app.gui.rotate_actions import RotateActions
     from app.gui.save_controller import SaveController
     from app.gui.search_actions import SearchActions
     from app.gui.select_controller import SelectController
@@ -79,6 +80,7 @@ class CollaboratorAccessors:
     _outline: OutlineController
     _text_view: TextViewController
     _open_filter: OpenFilterController
+    _instance: InstanceController
     _command_history: CommandHistoryStore
     _geometry: WindowGeometryController
     _working_doc: WorkingDocument
@@ -89,17 +91,17 @@ class CollaboratorAccessors:
     _mode_bar: ModeStatusBar
     _save: SaveController
     _controller: EditController
-    _images: ImageController
-    _rects: RectController
+    _images: image_controller_mod.ImageController
+    _rects: rect_controller_mod.RectController
     _select: SelectController
     _link_hints: LinkHintController
     _link_hint_settings: LinkHintSettingsController
     _placement: PlacementController
-    _field_actions: FieldActions
-    _image_actions: ImageActions
-    _rect_actions: RectActions
-    _layer_actions: LayerActions
-    _overlay_actions: OverlayActions
+    _field_actions: field_actions_mod.FieldActions
+    _image_actions: image_actions_mod.ImageActions
+    _rect_actions: rect_actions_mod.RectActions
+    _layer_actions: layer_actions_mod.LayerActions
+    _overlay_actions: overlay_actions_mod.OverlayActions
     _doc_zoom: DocumentMemoryController[Any]
     _doc_page: DocumentMemoryController[Any]
     _doc_memories: DocumentMemoryGroup
@@ -107,12 +109,12 @@ class CollaboratorAccessors:
     _export: ExportActions
     _search_actions: SearchActions
     _deferred: DeferredOps
-    _page_actions: PageActions
-    _rotate_actions: RotateActions
-    _move_actions: MoveActions
-    _print_actions: PrintActions
+    _page_actions: page_actions_mod.PageActions
+    _rotate_actions: rotate_actions_mod.RotateActions
+    _move_actions: move_actions_mod.MoveActions
+    _print_actions: print_actions_mod.PrintActions
     _default_app_actions: DefaultAppActions
-    _file_actions: FileActions
+    _file_actions: file_actions_mod.FileActions
     _registry: list[Command]
     _document_actions: DocumentActions
     _palette_actions: PaletteActions
@@ -132,11 +134,11 @@ class CollaboratorAccessors:
         return self._controller
 
     @property
-    def images(self) -> ImageController:
+    def images(self) -> image_controller_mod.ImageController:
         return self._images
 
     @property
-    def rects(self) -> RectController:
+    def rects(self) -> rect_controller_mod.RectController:
         return self._rects
 
     @property
@@ -164,19 +166,19 @@ class CollaboratorAccessors:
         return self._mode_bar
 
     @property
-    def field_actions(self) -> FieldActions:
+    def field_actions(self) -> field_actions_mod.FieldActions:
         return self._field_actions
 
     @property
-    def image_actions(self) -> ImageActions:
+    def image_actions(self) -> image_actions_mod.ImageActions:
         return self._image_actions
 
     @property
-    def rect_actions(self) -> RectActions:
+    def rect_actions(self) -> rect_actions_mod.RectActions:
         return self._rect_actions
 
     @property
-    def layer_actions(self) -> LayerActions:
+    def layer_actions(self) -> layer_actions_mod.LayerActions:
         return self._layer_actions
 
     @property
@@ -184,19 +186,19 @@ class CollaboratorAccessors:
         return self._search_actions
 
     @property
-    def page_actions(self) -> PageActions:
+    def page_actions(self) -> page_actions_mod.PageActions:
         return self._page_actions
 
     @property
-    def rotate_actions(self) -> RotateActions:
+    def rotate_actions(self) -> rotate_actions_mod.RotateActions:
         return self._rotate_actions
 
     @property
-    def move_actions(self) -> MoveActions:
+    def move_actions(self) -> move_actions_mod.MoveActions:
         return self._move_actions
 
     @property
-    def print_actions(self) -> PrintActions:
+    def print_actions(self) -> print_actions_mod.PrintActions:
         return self._print_actions
 
     @property
@@ -208,7 +210,7 @@ class CollaboratorAccessors:
         return self._document_actions
 
     @property
-    def file_actions(self) -> FileActions:
+    def file_actions(self) -> file_actions_mod.FileActions:
         return self._file_actions
 
     @property
@@ -226,6 +228,10 @@ class CollaboratorAccessors:
     @property
     def open_filter_controller(self) -> OpenFilterController:
         return self._open_filter
+
+    @property
+    def instance_controller(self) -> InstanceController:
+        return self._instance
 
     @property
     def zoom_settings_controller(self) -> ZoomSettingsController:

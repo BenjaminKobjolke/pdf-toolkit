@@ -13,7 +13,7 @@ overview; the details live in companion docs:
 ## Opening the viewer
 
 ```
-pdft_gui.bat path\to\document.pdf
+FastFileViewer.bat path\to\document.pdf
 ```
 
 Or start the wizard (`pdft.bat`), choose **Open GUI viewer**, then

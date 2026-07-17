@@ -5,8 +5,8 @@
 ' the CWD-relative backup folder would land in a random place. This script:
 '   1) sets the working directory to the opened PDF's own folder, so backups go
 '      to <pdf folder>\backup\ next to the file, and
-'   2) launches pdft_gui.bat with a hidden window (no console flash).
-' It reuses pdft_gui.bat so the venv path and PYTHONPATH stay defined in one place.
+'   2) launches FastFileViewer.bat with a hidden window (no console flash).
+' It reuses FastFileViewer.bat so the venv path and PYTHONPATH stay defined in one place.
 
 Option Explicit
 
@@ -15,7 +15,7 @@ Set shell = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 
 projectRoot = fso.GetParentFolderName(WScript.ScriptFullName)
-bat = projectRoot & "\pdft_gui.bat"
+bat = projectRoot & "\FastFileViewer.bat"
 
 If WScript.Arguments.Count > 0 Then
     pdf = WScript.Arguments(0)

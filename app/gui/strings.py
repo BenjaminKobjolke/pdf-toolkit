@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-WINDOW_TITLE = "FastPDFToolkit"
-WINDOW_TITLE_OPEN_FMT = "FastPDFToolkit - {path}"
+WINDOW_TITLE = "FastFileViewer"
+WINDOW_TITLE_OPEN_FMT = "FastFileViewer - {path}"
 
 MENU_FILE = "&File"
 ACTION_OPEN = "Open document…"
@@ -207,6 +207,7 @@ CMD_TEXT_DARK_MODE = "Text/Markdown: toggle dark mode"
 CMD_TEXT_FONT_SIZE = "Text/Markdown: font size…"
 CMD_OPEN_FILTER_ALL_FILES = "Open dialog: toggle all files"
 CMD_OPEN_FILTER_EXTENSIONS = "Open dialog: file extensions…"
+CMD_REUSE_WINDOW = "Single instance: toggle reuse existing window"
 CMD_SET_DEFAULT_ZOOM = "Set default zoom…"
 CMD_REMEMBER_DOC_ZOOM = "Zoom: remember for documents…"
 CMD_REMEMBER_DOC_PAGE = "Page: remember for documents…"

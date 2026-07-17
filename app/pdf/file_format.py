@@ -1,11 +1,12 @@
 """The document formats the viewer can open, and how to hand them to fitz.
 
 One source of truth for "which file types are viewable" and the per-format quirk
-that ``fitz`` needs: PDF opens by extension, but text formats (``.txt`` / ``.md``)
-are rendered by building a styled HTML document and opening it via fitz's HTML
-engine (fitz has no Markdown reader). :func:`open_fitz` centralizes that so no
-call site hardcodes it, and every consumer (render, search, links, words) sees
-the same paginated result — important because the font size affects pagination.
+that ``fitz`` needs: PDF and images open by extension, but text formats
+(``.txt`` / ``.md``) are rendered by building a styled HTML document and opening
+it via fitz's HTML engine (fitz has no Markdown reader). :func:`open_fitz`
+centralizes that so no call site hardcodes it, and every consumer (render,
+search, links, words) sees the same paginated result — important because the
+font size affects pagination.
 
 Adding a future format (e.g. docx) is one enum member here — plus a real render
 path, since fitz cannot open docx.
@@ -28,6 +29,14 @@ class FileFormat(StrEnum):
     PDF = ".pdf"
     TXT = ".txt"
     MD = ".md"
+    PNG = ".png"
+    JPG = ".jpg"
+    JPEG = ".jpeg"
+    GIF = ".gif"
+    BMP = ".bmp"
+    TIF = ".tif"
+    TIFF = ".tiff"
+    WEBP = ".webp"
 
     @classmethod
     def of(cls, path: Path | None) -> FileFormat | None:
@@ -46,6 +55,22 @@ class FileFormat(StrEnum):
 
 
 TEXT_FORMATS = frozenset({FileFormat.TXT, FileFormat.MD})
+
+# What fitz can *render*; deliberately wider than merge's img2pdf-convertible set
+# (app/pdf/_inputs.py IMAGE_EXTENSIONS). Listed explicitly, not derived, so a
+# future non-image member (e.g. DOCX) can't silently classify as an image.
+IMAGE_FORMATS = frozenset(
+    {
+        FileFormat.PNG,
+        FileFormat.JPG,
+        FileFormat.JPEG,
+        FileFormat.GIF,
+        FileFormat.BMP,
+        FileFormat.TIF,
+        FileFormat.TIFF,
+        FileFormat.WEBP,
+    }
+)
 
 _SNIFF_BYTES = 8192
 

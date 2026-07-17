@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-# PyInstaller spec: builds dist/FastPDFToolkit.exe (onefile, windowed).
+# PyInstaller spec: builds dist/FastFileViewer.exe (onefile, windowed).
 # Build via tools/build_exe.bat. PySide6 + pymupdf bundle through built-in hooks.
 
 from PyInstaller.utils.hooks import copy_metadata
@@ -35,7 +35,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='FastPDFToolkit',
+    name='FastFileViewer',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

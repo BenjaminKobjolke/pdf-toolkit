@@ -8,7 +8,8 @@ the URL to the clipboard** instead. Neither changes the document.
 The page is rendered as a bitmap, so there is nothing to click through. Open-link
 mode reads the links from the document instead (via PyMuPDF in `app/pdf/links.py`)
 and draws a hint over each one. This works for PDF, `.txt`, and `.md` documents —
-printed `http(s)://` URLs are detected in all three (see
+printed `http(s)://` URLs are detected in all three. Image documents have no text
+layer, so the commands are greyed out for them (see
 [FILE_FORMATS.md](FILE_FORMATS.md)).
 
 ## Turning it on

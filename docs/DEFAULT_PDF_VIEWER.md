@@ -1,6 +1,6 @@
 # Set as Default PDF Viewer
 
-Two command-palette commands let you make FastPDFToolkit your Windows PDF handler
+Two command-palette commands let you make FastFileViewer your Windows PDF handler
 without leaving the viewer:
 
 | Command | What it does |
@@ -40,8 +40,8 @@ app, and each has a constraint.
 
 | You run… | Registry `shell\open\command` | Keeps working as long as… |
 |----------|-------------------------------|---------------------------|
-| **Source / Python** (`.venv`) | `wscript.exe "…\pdft_gui.vbs" "%1"` | the repo stays at the same path **and** the `.venv` (with deps) exists. The vbs sets the working dir to the PDF's folder and launches the GUI through the venv. |
-| **Compiled exe** (PyInstaller) | `"…\FastPDFToolkit.exe" "%1"` | the exe stays at the same path. Self-contained — no venv, no scripts. |
+| **Source / Python** (`.venv`) | `wscript.exe "…\FastFileViewer.vbs" "%1"` | the repo stays at the same path **and** the `.venv` (with deps) exists. The vbs sets the working dir to the PDF's folder and launches the GUI through the venv. |
+| **Compiled exe** (PyInstaller) | `"…\FastFileViewer.exe" "%1"` | the exe stays at the same path. Self-contained — no venv, no scripts. |
 
 So the **Python version works fine** for everyday use as long as you don't move
 the repo or delete the virtual environment. The **compiled exe is the more
@@ -55,5 +55,5 @@ viewer…** again to rewrite the path.
 The same registration is available outside the GUI via the repo-root scripts the
 commands are ported from:
 
-- `pdft_gui_register.bat` — register (source build).
-- `pdft_gui_unregister.bat` — remove the registration.
+- `FastFileViewer_register.bat` — register (source build).
+- `FastFileViewer_unregister.bat` — remove the registration.

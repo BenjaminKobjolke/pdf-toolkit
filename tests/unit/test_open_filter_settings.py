@@ -35,6 +35,8 @@ def test_parse_extensions(text: str, expected: tuple[str, ...]) -> None:
 def test_defaults_match_viewer_formats() -> None:
     assert OpenFilterSettings().extensions == DEFAULT_EXTENSIONS
     assert ".pdf" in DEFAULT_EXTENSIONS
+    assert ".png" in DEFAULT_EXTENSIONS
+    assert ".webp" in DEFAULT_EXTENSIONS
     assert OpenFilterSettings().all_files is False
 
 

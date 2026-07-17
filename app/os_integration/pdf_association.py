@@ -1,6 +1,6 @@
 """Register (and remove) the GUI viewer as a Windows PDF handler.
 
-This is the Python port of ``pdft_gui_register.bat`` / ``pdft_gui_unregister.bat``
+This is the Python port of ``FastFileViewer_register.bat`` / ``FastFileViewer_unregister.bat``
 so the command palette can register the app without shelling out to a ``.bat``.
 
 What registration does and does NOT do:
@@ -12,7 +12,7 @@ What registration does and does NOT do:
   party can forge, so the user must finish in the Default Apps UI.
 
 The ``shell\\open\\command`` value differs by build: a dev/source run points at
-``wscript.exe pdft_gui.vbs`` (which sets up the venv + PYTHONPATH); a frozen
+``wscript.exe FastFileViewer.vbs`` (which sets up the venv + PYTHONPATH); a frozen
 PyInstaller build points at the running ``.exe`` directly (the vbs/bat are not
 bundled and ``_MEIPASS`` is a volatile temp dir).
 """
@@ -36,7 +36,7 @@ PROGID = "pdf-toolkit.Viewer"
 PROGID_LABEL = "PDF (pdf-toolkit viewer)"
 PROGID_ICON = r"%SystemRoot%\System32\shell32.dll,1"
 EXT = ".pdf"
-LAUNCHER_VBS = "pdft_gui.vbs"
+LAUNCHER_VBS = "FastFileViewer.vbs"
 
 _CLASSES = r"Software\Classes"
 PROGID_KEY = rf"{_CLASSES}\{PROGID}"
@@ -79,7 +79,7 @@ def launch_command(root: Path | None = None) -> str:
     """Return the ``shell\\open\\command`` string for the current install.
 
     Frozen builds launch the exe directly; source runs go through the windowless
-    ``pdft_gui.vbs`` launcher at the project root.
+    ``FastFileViewer.vbs`` launcher at the project root.
     """
     if _is_frozen():
         return f'"{sys.executable}" "%1"'

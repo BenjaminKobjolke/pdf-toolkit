@@ -1,7 +1,7 @@
 """Resolve bundled GUI assets in both source and frozen (PyInstaller) runs.
 
 PyInstaller's onefile exe unpacks bundled ``datas`` under ``sys._MEIPASS`` at
-runtime; from source we resolve relative to the project root. ``pdft-gui.spec``
+runtime; from source we resolve relative to the project root. ``FastFileViewer.spec``
 bundles ``assets/icon.ico`` so ``app_icon()`` works in both modes.
 """
 

@@ -21,7 +21,7 @@ from app.gui import (
     strings,
 )
 from app.os_integration import pdf_association
-from app.pdf.file_format import TEXT_FORMATS, FileFormat
+from app.pdf.file_format import IMAGE_FORMATS, TEXT_FORMATS, FileFormat
 
 if TYPE_CHECKING:
     from app.gui.main_window import MainWindow
@@ -29,7 +29,8 @@ if TYPE_CHECKING:
 # Format-capability sets for annotating commands (self-describing: consumers ask
 # a command which formats it supports rather than hardcoding per-format branches).
 PDF_ONLY = frozenset({FileFormat.PDF})
-VIEWABLE = PDF_ONLY | TEXT_FORMATS  # any rendered doc (pdf/txt/md)
+HAS_TEXT = PDF_ONLY | TEXT_FORMATS  # formats with extractable text (pdf/txt/md)
+VIEWABLE = HAS_TEXT | IMAGE_FORMATS  # any rendered doc (pdf/txt/md/images)
 
 # Command ids — stable keys for menu/shortcut lookups (UPPER_SNAKE_CASE).
 OPEN = "open"
@@ -90,6 +91,7 @@ TEXT_DARK_MODE = "text_dark_mode"
 TEXT_FONT_SIZE = "text_font_size"
 OPEN_FILTER_ALL_FILES = "open_filter_all_files"
 OPEN_FILTER_EXTENSIONS = "open_filter_extensions"
+REUSE_WINDOW = "reuse_window"
 ZOOM_SET_DEFAULT = "zoom_set_default"
 DOC_ZOOM_REMEMBER = "doc_zoom_remember"
 DOC_PAGE_REMEMBER = "doc_page_remember"
@@ -207,7 +209,7 @@ def _document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
             file_strings.CMD_COPY_PAGE_TEXT,
             window.file_actions.copy_page_text,
             has_doc,
-            VIEWABLE,
+            HAS_TEXT,
         ),
         Command(
             OPEN_FOLDER,
@@ -336,6 +338,11 @@ def _view_commands(window: MainWindow) -> list[Command]:
             strings.CMD_OPEN_FILTER_EXTENSIONS,
             open_filter.edit_extensions,
         ),
+        Command(
+            REUSE_WINDOW,
+            strings.CMD_REUSE_WINDOW,
+            window.instance_controller.toggle_reuse_window,
+        ),
         Command(LINK_FONT, link_strings.CMD_LINK_FONT, link.set_font_size),
         Command(LINK_TEXT_COLOR, link_strings.CMD_LINK_TEXT_COLOR, link.set_text_color),
         Command(LINK_BG_COLOR, link_strings.CMD_LINK_BG_COLOR, link.set_background_color),
@@ -360,10 +367,10 @@ def _edit_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
             select_strings.CMD_SELECT_MODE,
             window.toggle_select_mode,
             has_doc,
-            VIEWABLE,
+            HAS_TEXT,
         ),
-        Command(OPEN_LINK, link_strings.CMD_OPEN_LINK, window.open_link_hints, has_doc, VIEWABLE),
-        Command(COPY_LINK, link_strings.CMD_COPY_LINK, window.copy_link_hints, has_doc, VIEWABLE),
+        Command(OPEN_LINK, link_strings.CMD_OPEN_LINK, window.open_link_hints, has_doc, HAS_TEXT),
+        Command(COPY_LINK, link_strings.CMD_COPY_LINK, window.copy_link_hints, has_doc, HAS_TEXT),
         Command(
             SELECT_NEXT, strings.CMD_SELECT_NEXT, window.select_next_editable, has_doc, PDF_ONLY
         ),
@@ -391,7 +398,7 @@ def _search_commands(
 ) -> list[Command]:
     search = window.search_actions
     return [
-        Command(SEARCH_PDF, strings.CMD_SEARCH_PDF, search.search_pdf_text, has_doc, VIEWABLE),
+        Command(SEARCH_PDF, strings.CMD_SEARCH_PDF, search.search_pdf_text, has_doc, HAS_TEXT),
         Command(SEARCH_FIELDS, strings.CMD_SEARCH_FIELDS, search.search_fields, has_doc, PDF_ONLY),
         Command(
             CLEAR_HIGHLIGHTS, strings.CMD_CLEAR_HIGHLIGHTS, search.clear_highlights, has_highlights

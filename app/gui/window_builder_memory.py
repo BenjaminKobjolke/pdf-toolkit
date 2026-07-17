@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from app.config.document_page import DocumentPageStore
 from app.config.document_zoom import DocumentZoomStore
 from app.config.image_choice_settings import ImageChoiceStore
+from app.config.instance_settings import InstanceSettingsStore
 from app.config.key_bindings import KeyBindingStore
 from app.config.link_hint_settings import LinkHintSettingsStore
 from app.config.open_filter_settings import OpenFilterSettingsStore
@@ -78,6 +79,7 @@ def remembered_stores(window: MainWindow, settings: Settings) -> list[RecordStor
         OutlineSettingsStore(backend),
         TextViewSettingsStore(backend),
         OpenFilterSettingsStore(backend),
+        InstanceSettingsStore(backend),
         LinkHintSettingsStore(backend),
         ZoomSettingsStore(backend),
         KeyBindingStore(backend),

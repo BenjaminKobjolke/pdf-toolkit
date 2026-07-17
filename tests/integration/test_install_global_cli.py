@@ -24,7 +24,7 @@ def test_main_installs_bats_into_prompted_dir(
     exit_code = install_cli.main()
 
     assert exit_code == 0
-    for name, _ in BAT_FILES:
+    for name, *_ in BAT_FILES:
         assert (target / name).is_file()
 
 
@@ -52,7 +52,7 @@ def test_main_accepts_target_via_argv(
     exit_code = install_cli.main()
 
     assert exit_code == 0
-    for name, _ in BAT_FILES:
+    for name, *_ in BAT_FILES:
         assert (target / name).is_file()
 
 
