@@ -6,6 +6,7 @@
 !include "LogicLib.nsh"
 
 ; Installer settings
+Name "FastFileViewer"
 Outfile "..\releases\windows\installer.exe"
 InstallDir $PROGRAMFILES\FastFileViewer
 RequestExecutionLevel admin

@@ -202,7 +202,9 @@ palette / the `pdft` wizard's *Show release notes*). Notes are bundled into the
 exe and shown newest-first with Older/Newer navigation. The release is identified
 by `<version>_<build>` (`pyproject.toml` + `build_version.txt`). To cut a release —
 bump the build (`tools\build_increment.bat`), write `release_notes/<label>/en.json`,
-translate, then `tools\build_release.bat` — see
+translate, then `tools\build_release.bat` (tests, builds, signs the exe, and
+compiles a Windows installer via NSIS); `tools\publish_release.bat` signs the
+installer and uploads it under the stable name `FastFileViewer.exe` — see
 [docs/CREATE_NEW_RELEASE.md](docs/CREATE_NEW_RELEASE.md).
 
 ## Install globally

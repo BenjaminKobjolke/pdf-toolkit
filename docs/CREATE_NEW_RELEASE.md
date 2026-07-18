@@ -141,12 +141,21 @@ To build only the exe without signing/installer/staging, run
 tools\publish_release.bat
 ```
 
-Publishes the **versioned installer exe** (`releases\windows\FastFileViewer_v<label>.exe`)
-via release-tool: the `[PreSigning]` pipeline signs the installer itself
-(network-share handshake, signer CN verified), then uploads it per
-`tools\publish_settings.ini`. Both the installer **and** the FastFileViewer.exe
-inside it end up signed. Run `tools\build_release.bat` first — the bat aborts if
-the installer for the current label doesn't exist.
+Publishes the installer under the **stable name `FastFileViewer.exe`** (constant
+download URL): the bat copies `releases\windows\FastFileViewer_v<label>.exe` to
+`releases\windows\FastFileViewer.exe` and hands that to release-tool. The
+`[PreSigning]` pipeline signs the installer (network-share handshake, signer CN
+verified), then uploads it per `tools\publish_settings.ini`. Both the installer
+**and** the FastFileViewer.exe inside it end up signed.
+
+The previous remote `FastFileViewer.exe` is archived to
+`versions/<--previous-version>/` before being replaced — update the
+`--previous-version` value in the bat to the last **shipped** label when cutting
+a release. Run `tools\build_release.bat` first — the bat aborts if the installer
+for the current label doesn't exist.
+
+The publish step also uploads every `release_notes/<label>/*.json` to the
+website assets path (`[ReleaseNotes]` in `tools\publish_settings.ini`).
 
 ---
 
@@ -176,4 +185,5 @@ the installer for the current label doesn't exist.
    (`releases\windows\FastFileViewer_v<label>.exe`), stage
    `release\<label>\FastFileViewer\`.
 6. Launch the exe → File → Release notes… to verify the newest notes show.
-7. `tools\publish_release.bat` — sign + upload the installer exe.
+7. `tools\publish_release.bat` — sign + upload the installer as stable
+   `FastFileViewer.exe` (plus the release-notes JSONs).

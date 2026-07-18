@@ -13,6 +13,13 @@ if not exist "%INSTALLER%" (
     exit /b 1
 )
 
+REM Upload under a stable filename (constant download URL); the versioned file
+REM stays local as the version stamp. release-tool archives the previous remote
+REM FastFileViewer.exe into versions\<--previous-version>\ before replacing it,
+REM so update --previous-version to the last SHIPPED label when cutting a release.
+set "ARTIFACT=%~dp0..\releases\windows\FastFileViewer.exe"
+copy /y "%INSTALLER%" "%ARTIFACT%" >nul
+
 cd D:\GIT\BenjaminKobjolke\release-tool
-call uv run python -m release_tool "%INSTALLER%" "%~dp0publish_settings.ini" --previous-version 0.0.0 --verbose
+call uv run python -m release_tool "%ARTIFACT%" "%~dp0publish_settings.ini" --previous-version 0.0.0 --verbose
 cd "%~dp0"
