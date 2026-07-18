@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.config.record_store import RecordStore
+from app.config.record_store import SettingsRecordStore
 from app.storage.backend import StorageBackend
 
 TEXT_VIEW_SETTINGS_VERSION = 1
@@ -28,28 +28,11 @@ class TextViewSettings:
     dark_mode: bool = False
 
 
-class TextViewSettingsStore(RecordStore):
+class TextViewSettingsStore(SettingsRecordStore[TextViewSettings]):
     """Reads and writes :class:`TextViewSettings` via the storage backend."""
 
     LABEL = "Text/Markdown appearance"
+    VERSION = TEXT_VIEW_SETTINGS_VERSION
 
     def __init__(self, backend: StorageBackend) -> None:
-        super().__init__(backend, TEXT_VIEW_KEY)
-
-    def load(self) -> TextViewSettings:
-        """Return the stored settings, or defaults if absent/corrupt."""
-        raw = self._backend.get_versioned(self._key, TEXT_VIEW_SETTINGS_VERSION)
-        if raw is None:
-            return TextViewSettings()
-        default = TextViewSettings()
-        return TextViewSettings(
-            font_pt=int(raw.get("font_pt", default.font_pt)),
-            dark_mode=bool(raw.get("dark_mode", default.dark_mode)),
-        )
-
-    def save(self, settings: TextViewSettings) -> None:
-        self._backend.set_versioned(
-            self._key,
-            TEXT_VIEW_SETTINGS_VERSION,
-            {"font_pt": settings.font_pt, "dark_mode": settings.dark_mode},
-        )
+        super().__init__(backend, TEXT_VIEW_KEY, TextViewSettings())

@@ -7,9 +7,9 @@ versioned-dict pattern as :mod:`app.config.instance_settings`.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 
-from app.config.record_store import RecordStore
+from app.config.record_store import SettingsRecordStore
 from app.storage.backend import StorageBackend
 
 RELOAD_VERSION = 1
@@ -23,23 +23,11 @@ class ReloadSettings:
     watch_by_default: bool = False
 
 
-class ReloadSettingsStore(RecordStore):
+class ReloadSettingsStore(SettingsRecordStore[ReloadSettings]):
     """Reads and writes :class:`ReloadSettings` via the storage backend."""
 
     LABEL = "Reload on file changes"
+    VERSION = RELOAD_VERSION
 
     def __init__(self, backend: StorageBackend) -> None:
-        super().__init__(backend, RELOAD_KEY)
-
-    def load(self) -> ReloadSettings:
-        """Return the stored settings, or defaults if absent/corrupt."""
-        raw = self._backend.get_versioned(self._key, RELOAD_VERSION)
-        if raw is None:
-            return ReloadSettings()
-        default = ReloadSettings()
-        return ReloadSettings(
-            watch_by_default=bool(raw.get("watch_by_default", default.watch_by_default)),
-        )
-
-    def save(self, settings: ReloadSettings) -> None:
-        self._backend.set_versioned(self._key, RELOAD_VERSION, asdict(settings))
+        super().__init__(backend, RELOAD_KEY, ReloadSettings())

@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
-from app.config.record_store import RecordStore
+from app.config.record_store import SettingsRecordStore
 from app.storage.backend import StorageBackend
 
 OUTLINE_SETTINGS_VERSION = 1
@@ -28,14 +28,6 @@ class OutlineLineStyle(StrEnum):
     SOLID = "solid"
     DASHED = "dashed"
 
-    @classmethod
-    def from_value(cls, value: str) -> OutlineLineStyle:
-        """Return the matching member, or the default on an unknown value."""
-        try:
-            return cls(value)
-        except ValueError:
-            return OutlineSettings().style
-
 
 @dataclass(frozen=True)
 class OutlineSettings:
@@ -46,33 +38,11 @@ class OutlineSettings:
     color: str = "#FF0000"  # "#rrggbb"
 
 
-class OutlineSettingsStore(RecordStore):
+class OutlineSettingsStore(SettingsRecordStore[OutlineSettings]):
     """Reads and writes :class:`OutlineSettings` via the storage backend."""
 
     LABEL = "Field outline appearance"
+    VERSION = OUTLINE_SETTINGS_VERSION
 
     def __init__(self, backend: StorageBackend) -> None:
-        super().__init__(backend, OUTLINE_KEY)
-
-    def load(self) -> OutlineSettings:
-        """Return the stored settings, or defaults if absent/corrupt."""
-        raw = self._backend.get_versioned(self._key, OUTLINE_SETTINGS_VERSION)
-        if raw is None:
-            return OutlineSettings()
-        default = OutlineSettings()
-        return OutlineSettings(
-            width_px=int(raw.get("width_px", default.width_px)),
-            style=OutlineLineStyle.from_value(str(raw.get("style", default.style.value))),
-            color=str(raw.get("color", default.color)),
-        )
-
-    def save(self, settings: OutlineSettings) -> None:
-        self._backend.set_versioned(
-            self._key,
-            OUTLINE_SETTINGS_VERSION,
-            {
-                "width_px": settings.width_px,
-                "style": settings.style.value,
-                "color": settings.color,
-            },
-        )
+        super().__init__(backend, OUTLINE_KEY, OutlineSettings())

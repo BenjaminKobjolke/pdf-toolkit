@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.config.record_store import RecordStore
+from app.config.record_store import SettingsRecordStore
 from app.storage.backend import StorageBackend
 
 PALETTE_SETTINGS_VERSION = 1
@@ -37,39 +37,11 @@ class PaletteSettings:
     dialog_size_pct: int = 60
 
 
-class PaletteSettingsStore(RecordStore):
+class PaletteSettingsStore(SettingsRecordStore[PaletteSettings]):
     """Reads and writes :class:`PaletteSettings` via the storage backend."""
 
     LABEL = "Command-palette appearance"
+    VERSION = PALETTE_SETTINGS_VERSION
 
     def __init__(self, backend: StorageBackend) -> None:
-        super().__init__(backend, PALETTE_KEY)
-
-    def load(self) -> PaletteSettings:
-        """Return the stored settings, or defaults if absent/corrupt."""
-        raw = self._backend.get_versioned(self._key, PALETTE_SETTINGS_VERSION)
-        if raw is None:
-            return PaletteSettings()
-        default = PaletteSettings()
-        return PaletteSettings(
-            width_pct=int(raw.get("width_pct", default.width_pct)),
-            height_pct=int(raw.get("height_pct", default.height_pct)),
-            font_pt=int(raw.get("font_pt", default.font_pt)),
-            borderless=bool(raw.get("borderless", default.borderless)),
-            opacity_pct=int(raw.get("opacity_pct", default.opacity_pct)),
-            dialog_size_pct=int(raw.get("dialog_size_pct", default.dialog_size_pct)),
-        )
-
-    def save(self, settings: PaletteSettings) -> None:
-        self._backend.set_versioned(
-            self._key,
-            PALETTE_SETTINGS_VERSION,
-            {
-                "width_pct": settings.width_pct,
-                "height_pct": settings.height_pct,
-                "font_pt": settings.font_pt,
-                "borderless": settings.borderless,
-                "opacity_pct": settings.opacity_pct,
-                "dialog_size_pct": settings.dialog_size_pct,
-            },
-        )
+        super().__init__(backend, PALETTE_KEY, PaletteSettings())

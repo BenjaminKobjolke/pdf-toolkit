@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.config.record_store import RecordStore
+from app.config.record_store import SettingsRecordStore
 from app.storage.backend import StorageBackend
 
 LINK_HINT_SETTINGS_VERSION = 1
@@ -31,35 +31,11 @@ class LinkHintSettings:
     box_color: str = "#00a000"  # outline around the link
 
 
-class LinkHintSettingsStore(RecordStore):
+class LinkHintSettingsStore(SettingsRecordStore[LinkHintSettings]):
     """Reads and writes :class:`LinkHintSettings` via the storage backend."""
 
     LABEL = "Link overlay appearance"
+    VERSION = LINK_HINT_SETTINGS_VERSION
 
     def __init__(self, backend: StorageBackend) -> None:
-        super().__init__(backend, LINK_HINT_KEY)
-
-    def load(self) -> LinkHintSettings:
-        """Return the stored settings, or defaults if absent/corrupt."""
-        raw = self._backend.get_versioned(self._key, LINK_HINT_SETTINGS_VERSION)
-        if raw is None:
-            return LinkHintSettings()
-        default = LinkHintSettings()
-        return LinkHintSettings(
-            font_pt=int(raw.get("font_pt", default.font_pt)),
-            text_color=str(raw.get("text_color", default.text_color)),
-            background_color=str(raw.get("background_color", default.background_color)),
-            box_color=str(raw.get("box_color", default.box_color)),
-        )
-
-    def save(self, settings: LinkHintSettings) -> None:
-        self._backend.set_versioned(
-            self._key,
-            LINK_HINT_SETTINGS_VERSION,
-            {
-                "font_pt": settings.font_pt,
-                "text_color": settings.text_color,
-                "background_color": settings.background_color,
-                "box_color": settings.box_color,
-            },
-        )
+        super().__init__(backend, LINK_HINT_KEY, LinkHintSettings())
