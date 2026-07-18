@@ -105,7 +105,7 @@ def test_box_color_command_applies_to_overlay(
         def chosen(self) -> str:
             return "#123456"
 
-    monkeypatch.setattr("app.gui.link_hint_settings_controller.ColorPickerDialog", _FakePicker)
+    monkeypatch.setattr("app.gui.color_picker_dialog.ColorPickerDialog", _FakePicker)
     commands.find(commands.build_commands(window), commands.LINK_BOX_COLOR).run()
     assert LinkHintSettingsStore(gui_backend(tmp_path)).load().box_color == "#123456"
 

@@ -21,7 +21,7 @@ from app.config.outline_settings import (
     OutlineSettingsStore,
 )
 from app.gui import number_input_dialog, settings_strings
-from app.gui.color_picker_dialog import ColorPickerDialog
+from app.gui.color_picker_dialog import pick_color
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.outline_style import OutlineStyle
 
@@ -81,22 +81,15 @@ class OutlineController:
 
     def set_color(self) -> None:
         """Pick the outline color via the shared color dialog."""
-        dialog = ColorPickerDialog(
-            recent=self._recent_colors,
+        chosen = pick_color(
+            self._parent,
+            self._recent_colors,
             title=settings_strings.DIALOG_OUTLINE_COLOR_TITLE,
-            parent=self._parent,
         )
-        if dialog.exec() and (chosen := dialog.chosen()) is not None:
-            self._remember_color(chosen)
+        if chosen is not None:
             self._save(color=chosen)
 
     # --- internals ----------------------------------------------------------
-
-    def _remember_color(self, hex_value: str) -> None:
-        if hex_value in self._recent_colors:
-            self._recent_colors.remove(hex_value)
-        self._recent_colors.insert(0, hex_value)
-        del self._recent_colors[8:]
 
     def _save(self, **changes: Any) -> None:
         self._settings = replace(self._settings, **changes)

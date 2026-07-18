@@ -11,7 +11,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QWidget
 
 from app.gui import number_input_dialog, overlay_strings
-from app.gui.color_picker_dialog import ColorPickerDialog
+from app.gui.color_picker_dialog import pick_color
 from app.gui.page_view import PageView
 from app.gui.rect_controller import RectController
 
@@ -32,9 +32,8 @@ class RectActions:
         item = self._page_view.selected_rect_item()
         if item is None:
             return
-        dialog = ColorPickerDialog(recent=self._recent_colors, parent=self._parent)
-        if dialog.exec() and (chosen := dialog.chosen()) is not None:
-            self._remember_color(chosen)
+        chosen = pick_color(self._parent, self._recent_colors)
+        if chosen is not None:
             item.set_fill_color(QColor(chosen))
             self._rects.notify_changed()
 
@@ -70,9 +69,3 @@ class RectActions:
 
     def delete(self) -> None:
         self._rects.delete_selected()
-
-    def _remember_color(self, hex_value: str) -> None:
-        if hex_value in self._recent_colors:
-            self._recent_colors.remove(hex_value)
-        self._recent_colors.insert(0, hex_value)
-        del self._recent_colors[8:]

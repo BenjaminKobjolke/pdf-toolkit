@@ -20,7 +20,7 @@ from app.config.link_hint_settings import (
     LinkHintSettingsStore,
 )
 from app.gui import link_strings, number_input_dialog
-from app.gui.color_picker_dialog import ColorPickerDialog
+from app.gui.color_picker_dialog import pick_color
 from app.gui.link_hint_style import LinkHintStyle
 
 
@@ -72,16 +72,9 @@ class LinkHintSettingsController:
     # --- internals ----------------------------------------------------------
 
     def _pick_color(self, title: str, field: str) -> None:
-        dialog = ColorPickerDialog(recent=self._recent_colors, title=title, parent=self._parent)
-        if dialog.exec() and (chosen := dialog.chosen()) is not None:
-            self._remember_color(chosen)
+        chosen = pick_color(self._parent, self._recent_colors, title=title)
+        if chosen is not None:
             self._save(**{field: chosen})
-
-    def _remember_color(self, hex_value: str) -> None:
-        if hex_value in self._recent_colors:
-            self._recent_colors.remove(hex_value)
-        self._recent_colors.insert(0, hex_value)
-        del self._recent_colors[8:]
 
     def _save(self, **changes: Any) -> None:
         self._settings = replace(self._settings, **changes)

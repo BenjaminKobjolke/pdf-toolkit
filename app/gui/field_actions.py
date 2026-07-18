@@ -14,13 +14,12 @@ from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import QWidget
 
 from app.gui import number_input_dialog, strings
-from app.gui.color_picker_dialog import ColorPickerDialog
+from app.gui.color_picker_dialog import ColorPickerDialog, pick_color
 from app.gui.edit_controller import EditController
 from app.gui.filter_list_dialog import FilterListDialog, ListEntry
 from app.gui.page_view import PageView
 from app.gui.text_input_dialog import TextInputDialog
 
-_MAX_RECENT_COLORS = 8
 _MIN_FONT_SIZE = 4.0
 _MAX_FONT_SIZE = 400.0
 
@@ -83,7 +82,7 @@ class FieldActions:
         style = self._controller.selected_style()
         if style is None:
             return
-        picked = self._pick_color()
+        picked = pick_color(self._parent, self._recent_colors)
         if picked is not None:
             self._controller.apply_style(replace(style, color=picked))
 
@@ -91,7 +90,7 @@ class FieldActions:
         style = self._controller.selected_style()
         if style is None:
             return
-        picked = self._pick_color(allow_transparent=True)
+        picked = pick_color(self._parent, self._recent_colors, allow_transparent=True)
         if picked is None:
             return  # cancelled
         bg = None if picked == ColorPickerDialog.TRANSPARENT else picked
@@ -109,19 +108,3 @@ class FieldActions:
 
     def delete(self) -> None:
         self._controller.delete_selected()
-
-    def _pick_color(self, *, allow_transparent: bool = False) -> str | None:
-        dialog = ColorPickerDialog(
-            recent=self._recent_colors, allow_transparent=allow_transparent, parent=self._parent
-        )
-        if dialog.exec() and (chosen := dialog.chosen()) is not None:
-            if chosen != ColorPickerDialog.TRANSPARENT:
-                self._remember_color(chosen)  # only real colors are recent-listed
-            return chosen
-        return None
-
-    def _remember_color(self, hex_value: str) -> None:
-        if hex_value in self._recent_colors:
-            self._recent_colors.remove(hex_value)
-        self._recent_colors.insert(0, hex_value)
-        del self._recent_colors[_MAX_RECENT_COLORS:]

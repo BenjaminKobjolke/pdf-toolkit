@@ -75,7 +75,7 @@ def test_set_color_persists(
         def chosen(self) -> str:
             return "#123456"
 
-    monkeypatch.setattr("app.gui.outline_controller.ColorPickerDialog", _FakeColorDialog)
+    monkeypatch.setattr("app.gui.color_picker_dialog.ColorPickerDialog", _FakeColorDialog)
     commands.find(window._registry, commands.OUTLINE_COLOR).run()
 
     assert active().settings().color == "#123456"

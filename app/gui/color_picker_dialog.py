@@ -37,6 +37,10 @@ _SWATCH_STYLE = "background-color: {hex}; border: 1px solid #888;"
 _TRANSPARENT_SWATCH_STYLE = "border: 1px dashed #888;"
 _TRANSPARENT_WORDS = {"transparent", "none"}
 
+#: Sentinel returned when the user picks "transparent" (only offered with
+#: ``allow_transparent``). Distinct from ``None``, which means cancelled.
+TRANSPARENT = "transparent"
+
 
 def _normalize(text: str) -> str | None:
     """Return ``#rrggbb`` for a valid hex/name, else ``None``."""
@@ -52,10 +56,8 @@ def _normalize(text: str) -> str | None:
 class ColorPickerDialog(FilterableListDialog):
     """Filterable color list with a typed hex/name override and live preview."""
 
-    #: Sentinel returned by :meth:`chosen` when the user picks "transparent"
-    #: (only offered when ``allow_transparent`` is set). Distinct from ``None``,
-    #: which means the dialog was cancelled.
-    TRANSPARENT = "transparent"
+    #: Class-level alias of the module :data:`TRANSPARENT` sentinel.
+    TRANSPARENT = TRANSPARENT
 
     def __init__(
         self,
@@ -176,3 +178,32 @@ class ColorPickerDialog(FilterableListDialog):
         else:
             self._preview.setStyleSheet(_SWATCH_STYLE.format(hex=value))
             self._preview.setText("")
+
+
+_MAX_RECENT_COLORS = 8
+
+
+def pick_color(
+    parent: QWidget | None,
+    recent: list[str],
+    *,
+    title: str = "",
+    allow_transparent: bool = False,
+) -> str | None:
+    """Run the picker and maintain ``recent`` (a most-recently-used list) in place.
+
+    Returns the chosen ``#rrggbb``, :data:`ColorPickerDialog.TRANSPARENT`, or
+    ``None`` when cancelled. Only real colors enter the recent list, capped and
+    front-inserted so the last picks are one keystroke away.
+    """
+    dialog = ColorPickerDialog(
+        recent=recent, allow_transparent=allow_transparent, title=title, parent=parent
+    )
+    if not dialog.exec() or (chosen := dialog.chosen()) is None:
+        return None
+    if chosen != TRANSPARENT:
+        if chosen in recent:
+            recent.remove(chosen)
+        recent.insert(0, chosen)
+        del recent[_MAX_RECENT_COLORS:]
+    return chosen
