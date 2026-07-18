@@ -117,9 +117,36 @@ tools\build_release.bat     :: 2. test + build + stage the exe
 1. runs the unit tests (aborts on failure),
 2. builds `dist\FastFileViewer\` via `tools\build_exe.bat` (PyInstaller, onedir,
    windowed) — this is where `release_notes/` + `build_version.txt` get bundled,
-3. mirrors the folder to `release\<version>_<build>\FastFileViewer\`.
+3. **signs `dist\FastFileViewer\FastFileViewer.exe` in place** via
+   `tools\presign_exe.py` (release-tool's network-share signer — requires
+   `//XIDA-SERVER/SigningExecutables/` reachable, config in
+   `tools\publish_settings.ini` `[PreSigning]`),
+4. compiles the **Windows installer** from `installer\installer.nsi` (NSIS,
+   `makensis` must be on PATH) and renames it to
+   `releases\windows\FastFileViewer_v<version>_<build>.exe` — the versioned
+   filename is the version stamp; the NSI itself carries no version info,
+5. mirrors the folder to `release\<version>_<build>\FastFileViewer\`.
 
-To build only the exe without staging, run `tools\build_exe.bat` directly.
+The installer packages the **GUI viewer only** (`dist\FastFileViewer`), not the
+CLI tools. It installs to Program Files, adds Start Menu + uninstall shortcuts.
+
+To build only the exe without signing/installer/staging, run
+`tools\build_exe.bat` directly (dev builds stay sign-free).
+
+---
+
+## 4b. Publish
+
+```bat
+tools\publish_release.bat
+```
+
+Publishes the **versioned installer exe** (`releases\windows\FastFileViewer_v<label>.exe`)
+via release-tool: the `[PreSigning]` pipeline signs the installer itself
+(network-share handshake, signer CN verified), then uploads it per
+`tools\publish_settings.ini`. Both the installer **and** the FastFileViewer.exe
+inside it end up signed. Run `tools\build_release.bat` first — the bat aborts if
+the installer for the current label doesn't exist.
 
 ---
 
@@ -145,5 +172,8 @@ To build only the exe without staging, run `tools\build_exe.bat` directly.
 2. (optional) edit `pyproject.toml` version for a semver bump.
 3. `release_notes/<version>_<build>/en.json` — write notes (`notes` array).
 4. `tools\translator_release_notes.bat` — generate translations. **⚠️ don't skip.**
-5. `tools\build_release.bat` — test, build, stage `release\<label>\FastFileViewer\`.
+5. `tools\build_release.bat` — test, build, sign exe, build installer
+   (`releases\windows\FastFileViewer_v<label>.exe`), stage
+   `release\<label>\FastFileViewer\`.
 6. Launch the exe → File → Release notes… to verify the newest notes show.
+7. `tools\publish_release.bat` — sign + upload the installer exe.
