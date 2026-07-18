@@ -127,6 +127,10 @@ Warning signs: >5 public methods, >4 constructor deps, methods spanning unrelate
 
 When behavior depends on which fields a class has, the class declares those fields through a contract — never hardcode field lists in consuming code.
 
+### Inject Collaborators, Don't Fold Dependencies In
+
+Prefer injected collaborators (constructor injection) over fold-in reuse (mixins/traits/multiple inheritance) — folding merges all the helper's dependencies into the host. Reserve fold-in for stateless, dependency-free helpers. Never instantiate a service inside a method (`new`/direct construction) — it hides the dependency and blocks test substitution. Collapse config-callback swarms (many one-line overridable getters) into one value object handed to the base.
+
 ---
 
 ## Python Rules (uv)
