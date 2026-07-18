@@ -41,6 +41,22 @@ def test_toggle_twice_restores_default(window: MainWindow, tmp_path: Path) -> No
     assert InstanceSettingsStore(gui_backend(tmp_path)).load().reuse_window is default
 
 
+def test_focus_command_registered_and_enabled(window: MainWindow) -> None:
+    command = commands.find(window._registry, commands.FOCUS_ON_FORWARD)
+    assert command.is_enabled()
+    assert command.available(None)  # no document needed
+
+
+def test_focus_toggle_persists_flipped_value(window: MainWindow, tmp_path: Path) -> None:
+    default = InstanceSettingsStore(gui_backend(tmp_path)).load().focus_on_forward
+
+    commands.find(window._registry, commands.FOCUS_ON_FORWARD).run()
+
+    store = InstanceSettingsStore(gui_backend(tmp_path))
+    assert store.load().focus_on_forward is (not default)
+    assert window.instance_controller.focus_on_forward is (not default)
+
+
 def test_store_in_remembered_list(window: MainWindow) -> None:
     labels = [store.label for store in window._remembered._stores]
     assert InstanceSettingsStore.LABEL in labels

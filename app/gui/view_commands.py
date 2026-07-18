@@ -76,6 +76,11 @@ def view_commands(window: MainWindow) -> list[Command]:
             strings.CMD_REUSE_WINDOW,
             window.instance_controller.toggle_reuse_window,
         ),
+        Command(
+            c.FOCUS_ON_FORWARD,
+            strings.CMD_FOCUS_ON_FORWARD,
+            window.instance_controller.toggle_focus_on_forward,
+        ),
         Command(c.LINK_FONT, link_strings.CMD_LINK_FONT, link.set_font_size),
         Command(c.LINK_TEXT_COLOR, link_strings.CMD_LINK_TEXT_COLOR, link.set_text_color),
         Command(c.LINK_BG_COLOR, link_strings.CMD_LINK_BG_COLOR, link.set_background_color),

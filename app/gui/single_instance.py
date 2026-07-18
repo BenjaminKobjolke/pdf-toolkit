@@ -9,6 +9,7 @@ reason a file fails to open.
 
 from __future__ import annotations
 
+import sys
 from collections.abc import Callable
 from pathlib import Path
 
@@ -18,6 +19,25 @@ from app.logging_setup import log
 
 SERVER_NAME = "pdf-toolkit-viewer"
 CONNECT_TIMEOUT_MS = 300
+ASFW_ANY = -1  # AllowSetForegroundWindow: grant to any process
+
+
+def _allow_foreground_transfer() -> None:
+    """Let the running viewer take focus when it receives our message.
+
+    Windows only allows the *foreground* process to call SetForegroundWindow;
+    the receiving viewer is background, so its raise/activate would only flash
+    the taskbar. This launching process *is* foreground-eligible (the user just
+    started it), so it hands that right over before forwarding.
+    """
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+
+        ctypes.windll.user32.AllowSetForegroundWindow(ASFW_ANY)
+    except (AttributeError, OSError):  # pragma: no cover - defensive, never fatal
+        log.debug("single-instance: AllowSetForegroundWindow failed", exc_info=True)
 
 
 def try_send_to_running(
@@ -31,6 +51,7 @@ def try_send_to_running(
     ``True`` only when a server accepted the message; any failure means the
     caller should continue starting up as a normal standalone instance.
     """
+    _allow_foreground_transfer()
     socket = QLocalSocket()
     socket.connectToServer(name)
     if not socket.waitForConnected(timeout_ms):

@@ -22,6 +22,7 @@ from app.config.outline_settings import OutlineSettingsStore
 from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
 from app.config.recent_files import RecentFilesStore
+from app.config.reload_settings import ReloadSettingsStore
 from app.config.settings import Settings
 from app.config.text_view_settings import TextViewSettingsStore
 from app.config.ui_state import UiStateStore
@@ -61,6 +62,7 @@ from app.gui.placement import PlacementController
 from app.gui.print_actions import PrintActions
 from app.gui.rect_actions import RectActions
 from app.gui.rect_controller import RectController
+from app.gui.reload_controller import ReloadController
 from app.gui.remembered_settings import RememberedSettingsController
 from app.gui.rotate_actions import RotateActions
 from app.gui.save_controller import SaveController
@@ -123,12 +125,21 @@ def _build_core(window: MainWindow, settings: Settings) -> None:
     window._bar = OperationBar()
     window._edit_bar = EditBar()
     window._mode_bar = ModeStatusBar()
+    window._reload = ReloadController(
+        window,
+        ReloadSettingsStore(backend),
+        lambda: window._source,
+        window.open_pdf,
+        window._page_view,
+        window._report,
+    )
     window._save = SaveController(
         window,
         window._working_doc,
         window._mode_bar,
         window._report,
         lambda: window._controller.flush(),
+        on_saved=window._reload.mark_self_save,
     )
 
 

@@ -61,6 +61,8 @@ def _open_in(window: MainWindow, path: Path | None) -> None:
     """Handle a forwarded open request: load the file, then bring us frontmost."""
     if path is not None:
         window.open_pdf(path)  # unsaved-changes prompt handled inside
+    if not window.instance_controller.focus_on_forward:
+        return
     window.setWindowState(window.windowState() & ~Qt.WindowState.WindowMinimized)
     window.show()
     window.raise_()

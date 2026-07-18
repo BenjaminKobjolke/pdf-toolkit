@@ -57,6 +57,9 @@ missing or corrupt file just means no commands are floated yet.
 | **Copy page as image (W×H px)** / **at 50% (…)** / **at 25% (…)** | Render the current page to an image and put it on the clipboard — at original size (one pixel per PDF point; for image documents the native pixels), half, or quarter. Titles show the **actual output pixel size**, recomputed every time the palette opens. |
 | **Copy current view (W×H px)** / **at 50% (…)** / **at 25% (…)** | Copy exactly what the viewer shows on screen (current zoom, scroll position, overlays) as an image — at full, half, or quarter size. Same live pixel-size titles. |
 | **Close current document** | Offer to save unsaved changes, then return to the empty viewer. |
+| **Reload** | Re-read the open document from disk, keeping the current page and zoom. |
+| **Reload on changes (this time)** | Auto-reload the current document when it changes on disk — this document only (see *Reload on changes*). |
+| **Reload on changes (make default)** | Toggle auto-reload for every opened document (persisted; reset via **Remembered settings…**). |
 | **Toggle menu bar** | Show/hide the top menu bar (remembered across sessions). |
 | **Toggle toolbar** | Show/hide the button toolbars (remembered across sessions). |
 | **Toggle status bar** | Show/hide the footer status bar (remembered across sessions; see `STATUS_BAR.md`). |
@@ -72,6 +75,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Open dialog: toggle all files** | Open dialog lists every file ⇄ only the configured extensions (persisted). |
 | **Open dialog: file extensions…** | Edit which extensions the Open dialog lists (e.g. `pdf, txt, md, ini`); switches back to extension-list mode. |
 | **Single instance: toggle reuse existing window** | When on (default), launching the viewer with a file (e.g. double-click in Explorer) opens it in the already-running window instead of a new one (see *Single instance* below). |
+| **Single instance: toggle focus window on open** | When on (default), a file forwarded to the running window also brings that window to the front with keyboard focus; when off, the file opens but the window stays in the background (see *Single instance* below). |
 | **Outline: width…** | Stroke width (px) of the selected-element outline (see *Appearance settings*). |
 | **Outline: type…** | Line type of the outline — Dashed or Solid. |
 | **Outline: color…** | Color of the outline (keyboard-first picker). |
@@ -293,14 +297,40 @@ second launch does — e.g. double-clicking a file associated with
   modified.
 - **Off**: every launch opens its own viewer window (the previous behavior).
 
-The *launching* process reads the setting, so toggling it takes effect on the
-next launch — no restart of the running viewer needed. Persisted in the sqlite
-settings backend; reset from **Remembered settings…** ("Reuse existing window").
+**Single instance: toggle focus window on open** (on by default) controls what
+the running window does after it receives the file: bring itself to the front
+and take keyboard focus (on), or open the file silently in the background
+(off). To make the focus grab work on Windows — which normally blocks
+background processes from stealing focus — the launching process grants its
+foreground right to the running viewer (`AllowSetForegroundWindow`) before
+forwarding.
+
+The *launching* process reads the settings, so toggling either one takes effect
+on the next launch — no restart of the running viewer needed. Persisted in the
+sqlite settings backend; reset from **Remembered settings…** ("Reuse existing
+window").
 
 Known limitations: two launches in the same instant can still produce two
-windows (self-heals on the next launch), Windows may only flash the taskbar
-instead of focusing the window when another app holds focus, and one file per
-launch is forwarded.
+windows (self-heals on the next launch), and one file per launch is forwarded.
+
+## Reload on changes
+
+**Reload** re-reads the open document from disk once, keeping the current page and
+zoom. **Reload on changes (this time)** watches the file and reloads automatically
+whenever it changes on disk — for the current document only; opening another
+document resets to the default. **Reload on changes (make default)** flips the
+persisted default (off out of the box) so every opened document is watched;
+"this time" still overrides it per document.
+
+Details:
+
+- Rapid successive changes (editors often write a file several times per save)
+  are collapsed into one reload, and saving from the viewer itself (`Ctrl+S`)
+  does **not** trigger a reload.
+- If the document has unsaved changes when the file changes on disk, the usual
+  **Save / Discard / Cancel** prompt appears; **Cancel** skips that reload.
+- The default is persisted in the sqlite settings backend; reset it from
+  **Remembered settings…** ("Reload on file changes").
 
 ## Open file / folder from recent / history
 

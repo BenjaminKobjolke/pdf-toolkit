@@ -3,7 +3,8 @@
 Split out of :mod:`app.gui.strings` to keep that module under the 300-line cap.
 Consumers import this module directly, mirroring ``file_strings`` / ``select_strings``.
 The command *titles* for these flows stay in :mod:`app.gui.strings` beside the other
-``CMD_*`` titles (they are consumed only by the command registry).
+``CMD_*`` titles (they are consumed only by the command registry) — except the
+reload titles below, added after ``strings`` hit the cap.
 """
 
 from __future__ import annotations
@@ -31,6 +32,17 @@ PROMPT_OPEN_FILTER_EXTENSIONS = "Extensions (e.g. pdf, txt, md):"
 # Single-instance toggle confirmations
 MSG_REUSE_WINDOW_ON = "Reuse existing window: on. New launches open in this window."
 MSG_REUSE_WINDOW_OFF = "Reuse existing window: off. Each launch opens its own window."
+MSG_FOCUS_ON_FORWARD_ON = "Focus window on open: on. Forwarded files bring the window to the front."
+MSG_FOCUS_ON_FORWARD_OFF = "Focus window on open: off. Forwarded files open in the background."
+
+# Reload / reload-on-changes commands
+CMD_RELOAD_DOC = "Reload"
+CMD_RELOAD_WATCH_SESSION = "Reload on changes (this time)"
+CMD_RELOAD_WATCH_DEFAULT = "Reload on changes (make default)"
+MSG_RELOAD_WATCH_ON = "Reload on changes: on for this document."
+MSG_RELOAD_WATCH_OFF = "Reload on changes: off for this document."
+MSG_RELOAD_DEFAULT_ON = "Reload on changes by default: on."
+MSG_RELOAD_DEFAULT_OFF = "Reload on changes by default: off."
 
 # Selected-item outline appearance dialogs
 DIALOG_OUTLINE_WIDTH_TITLE = "Outline width"

@@ -83,6 +83,7 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
         self._bar.update_for(has_doc=True, is_pdf=doc_format is FileFormat.PDF)
         self._mode_bar.set_dirty(False)
         self._recent.add(path)
+        self._reload.on_document_opened(path)
         self.setWindowTitle(strings.WINDOW_TITLE_OPEN_FMT.format(path=path))
 
     def open_from_history(self) -> None:
@@ -138,6 +139,7 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
         self._mode_bar.set_dirty(False)
         if self._edit_bar.is_edit_mode():
             self._edit_bar.toggle_edit_mode()
+        self._reload.on_document_closed()
         self._source = None
         self.setWindowTitle(strings.WINDOW_TITLE)
 

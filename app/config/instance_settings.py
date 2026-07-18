@@ -8,7 +8,7 @@ or start a fresh instance. Uses the same versioned-dict pattern as
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 from app.config.record_store import RecordStore
 from app.storage.backend import StorageBackend
@@ -19,9 +19,10 @@ INSTANCE_KEY = "instance"
 
 @dataclass(frozen=True)
 class InstanceSettings:
-    """Remembered single-instance preference (default: reuse the window)."""
+    """Remembered single-instance preferences (default: reuse + focus the window)."""
 
     reuse_window: bool = True
+    focus_on_forward: bool = True
 
 
 class InstanceSettingsStore(RecordStore):
@@ -38,11 +39,10 @@ class InstanceSettingsStore(RecordStore):
         if raw is None:
             return InstanceSettings()
         default = InstanceSettings()
-        return InstanceSettings(reuse_window=bool(raw.get("reuse_window", default.reuse_window)))
+        return InstanceSettings(
+            reuse_window=bool(raw.get("reuse_window", default.reuse_window)),
+            focus_on_forward=bool(raw.get("focus_on_forward", default.focus_on_forward)),
+        )
 
     def save(self, settings: InstanceSettings) -> None:
-        self._backend.set_versioned(
-            self._key,
-            INSTANCE_VERSION,
-            {"reuse_window": settings.reuse_window},
-        )
+        self._backend.set_versioned(self._key, INSTANCE_VERSION, asdict(settings))

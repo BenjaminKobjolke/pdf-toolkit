@@ -67,7 +67,11 @@ The palette and direct shortcuts cover:
   **Next / previous file in directory** (`Alt+Right` / `Alt+Left`, wraps, skips
   unopenable files, asks to save first),
   **Rename file…** (renames the PDF and its text-field sidecar together),
-  **Copy all text from current page** (to the clipboard), Close, Exit.
+  **Copy all text from current page** (to the clipboard),
+  **Reload** (re-read from disk, keeping page + zoom) and **Reload on changes**
+  (auto-reload when the file changes on disk — per document or as a persisted
+  default; see [docs/COMMAND_PALETTE.md](docs/COMMAND_PALETTE.md), *Reload on
+  changes*), Close, Exit.
 - **Pages** — Previous/Next, **First/Last**, Swap 2 pages, Delete current page,
   Delete range…, **Insert pages (PDF or image)…** (after the current page),
   **Extract current page to file…**, Merge folder…

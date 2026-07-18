@@ -29,12 +29,14 @@ class SaveController:
         mode_bar: ModeStatusBar,
         report: Callable[[OpResult], None],
         flush: Callable[[], None],
+        on_saved: Callable[[], None] = lambda: None,
     ) -> None:
         self._parent = parent
         self._doc = working_doc
         self._mode_bar = mode_bar
         self._report = report
         self._flush = flush
+        self._on_saved = on_saved
 
     def mark_dirty(self) -> None:
         """Flag the working copy as modified and show the status-bar marker."""
@@ -47,6 +49,8 @@ class SaveController:
             self._report(OpResult(True, strings.MSG_NO_CHANGES))
             return
         self._flush()
+        # Announce before writing so a file watcher can ignore our own change.
+        self._on_saved()
         result = self._doc.save()
         if result.ok:
             self._mode_bar.set_dirty(False)
@@ -86,6 +90,7 @@ class SaveController:
             return False
         if choice is confirm_dialog.DialogResult.PRIMARY:
             self._flush()
+            self._on_saved()
             result = self._doc.save()
             if not result.ok:
                 self._report(result)

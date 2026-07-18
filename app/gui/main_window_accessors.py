@@ -52,6 +52,7 @@ if TYPE_CHECKING:
     from app.gui.palette_actions import PaletteActions
     from app.gui.palette_controller import PaletteController
     from app.gui.placement import PlacementController
+    from app.gui.reload_controller import ReloadController
     from app.pdf.file_format import FileFormat
 
 if TYPE_CHECKING:
@@ -81,6 +82,7 @@ class CollaboratorAccessors:
     _text_view: TextViewController
     _open_filter: OpenFilterController
     _instance: InstanceController
+    _reload: ReloadController
     _command_history: CommandHistoryStore
     _geometry: WindowGeometryController
     _working_doc: WorkingDocument
@@ -232,6 +234,10 @@ class CollaboratorAccessors:
     @property
     def instance_controller(self) -> InstanceController:
         return self._instance
+
+    @property
+    def reload_controller(self) -> ReloadController:
+        return self._reload
 
     @property
     def zoom_settings_controller(self) -> ZoomSettingsController:

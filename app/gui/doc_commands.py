@@ -11,7 +11,7 @@ from functools import partial
 from typing import TYPE_CHECKING
 
 from app.gui import commands as c
-from app.gui import copy_image_titles, file_strings, release_strings, strings
+from app.gui import copy_image_titles, file_strings, release_strings, settings_strings, strings
 from app.gui.commands import (
     COPY_IMAGE_PERCENTS,
     HAS_TEXT,
@@ -106,6 +106,25 @@ def document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
         Command(c.PRINT, strings.CMD_PRINT, window.print_actions.print_document, has_doc, VIEWABLE),
         Command(c.RENAME_FILE, strings.CMD_RENAME_FILE, window.rename_file, has_doc, VIEWABLE),
         Command(c.CLOSE_DOC, strings.CMD_CLOSE_DOC, window.close_document, has_doc, VIEWABLE),
+        Command(
+            c.RELOAD_DOC,
+            settings_strings.CMD_RELOAD_DOC,
+            window.reload_controller.reload,
+            has_doc,
+            VIEWABLE,
+        ),
+        Command(
+            c.RELOAD_WATCH_SESSION,
+            settings_strings.CMD_RELOAD_WATCH_SESSION,
+            window.reload_controller.toggle_session_watch,
+            has_doc,
+            VIEWABLE,
+        ),
+        Command(
+            c.RELOAD_WATCH_DEFAULT,
+            settings_strings.CMD_RELOAD_WATCH_DEFAULT,
+            window.reload_controller.toggle_watch_default,
+        ),
         Command(c.EXIT, strings.CMD_EXIT, window.exit_app),
         Command(c.SHOW_SHORTCUTS, strings.CMD_SHOW_SHORTCUTS, window.show_keyboard_shortcuts),
         Command(c.RELEASE_NOTES, release_strings.CMD_RELEASE_NOTES, window.show_release_notes),

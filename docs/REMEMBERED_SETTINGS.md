@@ -44,6 +44,7 @@ command in the palette (pick one to reset, or "clear all").
 | Default zoom | fit-to-window vs. a fixed percentage on open |
 | Keyboard shortcuts | custom chord bindings |
 | Open dialog filter | all-files vs. extension list, and the extensions themselves |
+| Reload on file changes | whether documents auto-reload when they change on disk |
 
 ## Per-document settings
 

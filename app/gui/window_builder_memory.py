@@ -20,6 +20,7 @@ from app.config.outline_settings import OutlineSettingsStore
 from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
 from app.config.record_store import RecordStore
+from app.config.reload_settings import ReloadSettingsStore
 from app.config.settings import Settings
 from app.config.text_view_settings import TextViewSettingsStore
 from app.config.window_geometry import WindowGeometryStore
@@ -80,6 +81,7 @@ def remembered_stores(window: MainWindow, settings: Settings) -> list[RecordStor
         TextViewSettingsStore(backend),
         OpenFilterSettingsStore(backend),
         InstanceSettingsStore(backend),
+        ReloadSettingsStore(backend),
         LinkHintSettingsStore(backend),
         ZoomSettingsStore(backend),
         KeyBindingStore(backend),
