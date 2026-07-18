@@ -59,9 +59,7 @@ def test_reload_without_document_is_noop(qapp: object, tmp_path: Path) -> None:
     open_pdf.assert_not_called()
 
 
-def test_reload_preserves_page_and_zoom(
-    qapp: object, tmp_path: Path, watched_file: Path
-) -> None:
+def test_reload_preserves_page_and_zoom(qapp: object, tmp_path: Path, watched_file: Path) -> None:
     ctl, open_pdf, page_view, _store = make_controller(qapp, tmp_path, watched_file)
     ctl.reload()
     open_pdf.assert_called_once_with(watched_file)
@@ -131,9 +129,7 @@ def test_timeout_reloads(qapp: object, tmp_path: Path, watched_file: Path) -> No
     open_pdf.assert_called_once_with(watched_file)
 
 
-def test_self_save_suppresses_reload(
-    qapp: object, tmp_path: Path, watched_file: Path
-) -> None:
+def test_self_save_suppresses_reload(qapp: object, tmp_path: Path, watched_file: Path) -> None:
     ctl, open_pdf, _pv, _store = make_controller(qapp, tmp_path, watched_file)
     ctl.toggle_session_watch()
     ctl.mark_self_save()
@@ -141,9 +137,7 @@ def test_self_save_suppresses_reload(
     open_pdf.assert_not_called()
 
 
-def test_timeout_rearms_dropped_path(
-    qapp: object, tmp_path: Path, watched_file: Path
-) -> None:
+def test_timeout_rearms_dropped_path(qapp: object, tmp_path: Path, watched_file: Path) -> None:
     ctl, open_pdf, _pv, _store = make_controller(qapp, tmp_path, watched_file)
     ctl.toggle_session_watch()
     ctl._watcher.removePath(str(watched_file))
