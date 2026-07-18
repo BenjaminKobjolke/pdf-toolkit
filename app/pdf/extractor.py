@@ -7,7 +7,7 @@ from pathlib import Path
 from pypdf import PdfWriter
 
 from app.pdf._atomic import write_pdf_atomic
-from app.pdf._inputs import open_reader
+from app.pdf._inputs import check_first_page, check_page_in_range, open_reader
 
 
 def default_extract_dest(source: Path, page: int) -> Path:
@@ -21,13 +21,10 @@ def extract_page(source: Path, page: int, dest: Path) -> None:
     Raises ``ValueError`` if ``page`` is < 1, exceeds the page count, or
     ``source`` is encrypted.
     """
-    if page < 1:
-        raise ValueError(f"page number must be 1-based and >= 1, got {page}")
+    check_first_page(page)
 
     reader = open_reader(source)
-    total = len(reader.pages)
-    if page > total:
-        raise ValueError(f"page {page} is out of range; PDF has {total} pages: {source}")
+    check_page_in_range(page, len(reader.pages), source)
 
     writer = PdfWriter()
     writer.add_page(reader.pages[page - 1])

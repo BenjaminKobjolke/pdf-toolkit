@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pypdf import PdfReader, PdfWriter
+from pypdf import PdfWriter
 
 from app.pdf._atomic import write_pdf_atomic
+from app.pdf._inputs import check_first_page, check_page_in_range, open_reader
 
 # Rotation amounts in clockwise degrees. "Left" is a quarter-turn
 # anticlockwise, i.e. 270 clockwise; pypdf normalizes the stored angle.
@@ -23,16 +24,10 @@ def rotate_page(source: Path, page_number: int, degrees: int) -> None:
     """
     if degrees % 90 != 0:
         raise ValueError(f"rotation must be a multiple of 90, got {degrees}")
-    if page_number < 1:
-        raise ValueError(f"page number must be 1-based and >= 1, got {page_number}")
+    check_first_page(page_number)
 
-    reader = PdfReader(str(source))
-    if reader.is_encrypted:
-        raise ValueError(f"PDF is encrypted: {source}")
-
-    total = len(reader.pages)
-    if page_number > total:
-        raise ValueError(f"page {page_number} is out of range; PDF has {total} pages: {source}")
+    reader = open_reader(source)
+    check_page_in_range(page_number, len(reader.pages), source)
 
     writer = PdfWriter()
     for page in reader.pages:

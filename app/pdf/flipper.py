@@ -7,7 +7,7 @@ from pathlib import Path
 from pypdf import PdfWriter, Transformation
 
 from app.pdf._atomic import write_pdf_atomic
-from app.pdf._inputs import open_reader
+from app.pdf._inputs import check_first_page, check_page_in_range, open_reader
 
 
 def flip_page(source: Path, page_number: int, *, horizontal: bool) -> None:
@@ -16,13 +16,10 @@ def flip_page(source: Path, page_number: int, *, horizontal: bool) -> None:
     Raises ``ValueError`` if the page number is < 1 or exceeds the page count,
     or the PDF is encrypted.
     """
-    if page_number < 1:
-        raise ValueError(f"page number must be 1-based and >= 1, got {page_number}")
+    check_first_page(page_number)
 
     reader = open_reader(source)
-    total = len(reader.pages)
-    if page_number > total:
-        raise ValueError(f"page {page_number} is out of range; PDF has {total} pages: {source}")
+    check_page_in_range(page_number, len(reader.pages), source)
 
     writer = PdfWriter()
     for page in reader.pages:

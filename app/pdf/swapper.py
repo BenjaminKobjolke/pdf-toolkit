@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pypdf import PdfReader, PdfWriter
+from pypdf import PdfWriter
 
 from app.pdf._atomic import write_pdf_atomic
+from app.pdf._inputs import open_reader
 
 
 def swap_two_pages(source: Path) -> None:
@@ -14,9 +15,7 @@ def swap_two_pages(source: Path) -> None:
 
     Raises ``ValueError`` if the PDF is encrypted or does not have exactly 2 pages.
     """
-    reader = PdfReader(str(source))
-    if reader.is_encrypted:
-        raise ValueError(f"PDF is encrypted: {source}")
+    reader = open_reader(source)
     if len(reader.pages) != 2:
         raise ValueError(f"swap requires exactly 2 pages, got {len(reader.pages)}: {source}")
 

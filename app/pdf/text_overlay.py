@@ -14,6 +14,7 @@ from pathlib import Path
 import fitz  # PyMuPDF
 
 from app.io.fs import replace_atomic
+from app.pdf._inputs import encrypted_error
 from app.pdf.colors import hex_to_rgbf as _hex_to_rgbf
 from app.pdf.fonts import FontRequest, ResolvedFont, resolve_font
 from app.pdf.image_overlay import draw_image
@@ -83,7 +84,7 @@ def apply_overlay(
     doc = fitz.open(str(source))
     try:
         if doc.is_encrypted:
-            raise ValueError(f"PDF is encrypted: {source}")
+            raise encrypted_error(source)
         total = int(doc.page_count)
         for element in _ordered_by_z(fields, images, rects):
             _require_page(element.page_index, total)

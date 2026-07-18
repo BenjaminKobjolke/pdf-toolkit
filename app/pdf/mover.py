@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pypdf import PdfReader, PdfWriter
+from pypdf import PdfWriter
 
 from app.pdf._atomic import write_pdf_atomic
+from app.pdf._inputs import open_reader
 
 
 def move_page(source: Path, from_page: int, to_page: int) -> None:
@@ -18,10 +19,7 @@ def move_page(source: Path, from_page: int, to_page: int) -> None:
     if from_page < 1 or to_page < 1:
         raise ValueError(f"page numbers must be 1-based and >= 1, got {from_page} -> {to_page}")
 
-    reader = PdfReader(str(source))
-    if reader.is_encrypted:
-        raise ValueError(f"PDF is encrypted: {source}")
-
+    reader = open_reader(source)
     total = len(reader.pages)
     if from_page > total or to_page > total:
         raise ValueError(

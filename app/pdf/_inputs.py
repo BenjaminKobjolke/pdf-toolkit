@@ -22,11 +22,28 @@ SUPPORTED_EXTENSIONS: tuple[str, ...] = (PDF_EXTENSION,) + IMAGE_EXTENSIONS
 JPEG_FALLBACK_QUALITY: int = 95
 
 
+def encrypted_error(source: Path) -> ValueError:
+    """The uniform rejection for encrypted PDFs — one message everywhere."""
+    return ValueError(f"PDF is encrypted: {source}")
+
+
+def check_first_page(page: int, *, label: str = "page number") -> None:
+    """Reject ``page`` below 1; every core op takes 1-based page numbers."""
+    if page < 1:
+        raise ValueError(f"{label} must be 1-based and >= 1, got {page}")
+
+
+def check_page_in_range(page: int, total: int, source: Path, *, label: str = "page") -> None:
+    """Reject a 1-based ``page`` beyond the ``total`` pages of ``source``."""
+    if page > total:
+        raise ValueError(f"{label} {page} is out of range; PDF has {total} pages: {source}")
+
+
 def open_reader(source: Path) -> PdfReader:
     """Return a :class:`PdfReader` for ``source``, raising on an encrypted PDF."""
     reader = PdfReader(str(source))
     if reader.is_encrypted:
-        raise ValueError(f"PDF is encrypted: {source}")
+        raise encrypted_error(source)
     return reader
 
 
