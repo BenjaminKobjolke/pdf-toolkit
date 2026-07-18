@@ -13,9 +13,10 @@ that preserves the old fixed stacking (all fields below all images below rects).
 from __future__ import annotations
 
 import json
-from dataclasses import replace
+from collections.abc import Callable
+from dataclasses import MISSING, asdict, fields, replace
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar, get_type_hints
 
 from app.io.json_store import write_json_atomic
 from app.pdf.image_spec import ImageFieldSpec, SidecarDocument
@@ -65,9 +66,9 @@ def load_sidecar(pdf: Path) -> SidecarDocument:
     if not isinstance(rects_raw, list):
         raise ValueError(f"sidecar {path} 'rects' must be a list")
 
-    fields = tuple(_field_from_dict(item) for item in fields_raw)
-    images = tuple(_image_from_dict(item) for item in images_raw)
-    rects = tuple(_rect_from_dict(item) for item in rects_raw)
+    fields = tuple(_spec_from_dict(TextFieldSpec, item, "text field") for item in fields_raw)
+    images = tuple(_spec_from_dict(ImageFieldSpec, item, "image") for item in images_raw)
+    rects = tuple(_spec_from_dict(RectFieldSpec, item, "rect") for item in rects_raw)
     if version is not None and version < _FIRST_Z_VERSION:
         fields, images, rects = _assign_legacy_z(fields, images, rects)
     return SidecarDocument(fields=fields, images=images, rects=rects)
@@ -104,114 +105,53 @@ def save_sidecar(pdf: Path, doc: SidecarDocument) -> None:
     """Write ``doc`` to ``pdf``'s sidecar atomically (always as the current version)."""
     payload = {
         "version": SIDECAR_VERSION,
-        "fields": [_field_to_dict(field) for field in doc.fields],
-        "images": [_image_to_dict(image) for image in doc.images],
-        "rects": [_rect_to_dict(rect) for rect in doc.rects],
+        "fields": [asdict(field) for field in doc.fields],
+        "images": [asdict(image) for image in doc.images],
+        "rects": [asdict(rect) for rect in doc.rects],
     }
     write_json_atomic(sidecar_path(pdf), payload)
 
 
-def _field_to_dict(field: TextFieldSpec) -> dict[str, Any]:
-    return {
-        "page_index": field.page_index,
-        "x": field.x,
-        "y": field.y,
-        "width": field.width,
-        "height": field.height,
-        "text": field.text,
-        "font_family": field.font_family,
-        "font_size": field.font_size,
-        "color": field.color,
-        "bg_color": field.bg_color,
-        "bold": field.bold,
-        "italic": field.italic,
-        "z": field.z,
-    }
+_SpecT = TypeVar("_SpecT", TextFieldSpec, ImageFieldSpec, RectFieldSpec)
+
+# Resolved once — get_type_hints re-evaluates string annotations on every call.
+_SPEC_HINTS: dict[type, dict[str, Any]] = {
+    cls: get_type_hints(cls) for cls in (TextFieldSpec, ImageFieldSpec, RectFieldSpec)
+}
 
 
-def _field_from_dict(item: Any) -> TextFieldSpec:
+def _coercer_for(hint: Any) -> Callable[[dict[str, Any], str], Any]:
+    if hint is bool:
+        return _as_bool
+    if hint is int:
+        return _as_int
+    if hint is float:
+        return _as_float
+    if hint is str:
+        return _as_str
+    if hint == (str | None):
+        return _as_opt_str
+    raise TypeError(f"unsupported spec field type: {hint!r}")
+
+
+def _spec_from_dict(cls: type[_SpecT], item: Any, label: str) -> _SpecT:
+    """Build ``cls`` from a raw sidecar entry.
+
+    The dataclass is the contract: a field without a default is required, and
+    every present value is validated against the field's annotated type.
+    """
     if not isinstance(item, dict):
-        raise ValueError(f"text field must be a JSON object, got {type(item).__name__}")
+        raise ValueError(f"{label} must be a JSON object, got {type(item).__name__}")
+    hints = _SPEC_HINTS[cls]
+    kwargs: dict[str, Any] = {}
     try:
-        return TextFieldSpec(
-            page_index=_as_int(item, "page_index"),
-            x=_as_float(item, "x"),
-            y=_as_float(item, "y"),
-            width=_as_float(item, "width"),
-            height=_as_float(item, "height"),
-            text=_as_str(item, "text"),
-            font_family=_as_str(item, "font_family"),
-            font_size=_as_float(item, "font_size"),
-            color=_as_str(item, "color"),
-            bg_color=_as_opt_str(item, "bg_color"),
-            bold=_as_bool(item, "bold"),
-            italic=_as_bool(item, "italic"),
-            z=_as_float_default(item, "z", 0.0),
-        )
+        for field in fields(cls):
+            if field.name not in item and field.default is not MISSING:
+                continue
+            kwargs[field.name] = _coercer_for(hints[field.name])(item, field.name)
     except KeyError as err:
-        raise ValueError(f"text field missing key: {err}") from err
-
-
-def _image_to_dict(image: ImageFieldSpec) -> dict[str, Any]:
-    return {
-        "page_index": image.page_index,
-        "x": image.x,
-        "y": image.y,
-        "width": image.width,
-        "height": image.height,
-        "path": image.path,
-        "absolute": image.absolute,
-        "opacity": image.opacity,
-        "z": image.z,
-    }
-
-
-def _image_from_dict(item: Any) -> ImageFieldSpec:
-    if not isinstance(item, dict):
-        raise ValueError(f"image must be a JSON object, got {type(item).__name__}")
-    try:
-        return ImageFieldSpec(
-            page_index=_as_int(item, "page_index"),
-            x=_as_float(item, "x"),
-            y=_as_float(item, "y"),
-            width=_as_float(item, "width"),
-            height=_as_float(item, "height"),
-            path=_as_str(item, "path"),
-            absolute=_as_bool(item, "absolute"),
-            opacity=_as_float_default(item, "opacity", 1.0),
-            z=_as_float_default(item, "z", 0.0),
-        )
-    except KeyError as err:
-        raise ValueError(f"image missing key: {err}") from err
-
-
-def _rect_to_dict(rect: RectFieldSpec) -> dict[str, Any]:
-    return {
-        "page_index": rect.page_index,
-        "x": rect.x,
-        "y": rect.y,
-        "width": rect.width,
-        "height": rect.height,
-        "color": rect.color,
-        "z": rect.z,
-    }
-
-
-def _rect_from_dict(item: Any) -> RectFieldSpec:
-    if not isinstance(item, dict):
-        raise ValueError(f"rect must be a JSON object, got {type(item).__name__}")
-    try:
-        return RectFieldSpec(
-            page_index=_as_int(item, "page_index"),
-            x=_as_float(item, "x"),
-            y=_as_float(item, "y"),
-            width=_as_float(item, "width"),
-            height=_as_float(item, "height"),
-            color=_as_str(item, "color"),
-            z=_as_float_default(item, "z", 0.0),
-        )
-    except KeyError as err:
-        raise ValueError(f"rect missing key: {err}") from err
+        raise ValueError(f"{label} missing key: {err}") from err
+    return cls(**kwargs)
 
 
 def _require(item: dict[str, Any], key: str) -> Any:
@@ -232,12 +172,6 @@ def _as_float(item: dict[str, Any], key: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ValueError(f"{key} must be a number, got {value!r}")
     return float(value)
-
-
-def _as_float_default(item: dict[str, Any], key: str, default: float) -> float:
-    if key not in item:
-        return default
-    return _as_float(item, key)
 
 
 def _as_str(item: dict[str, Any], key: str) -> str:
