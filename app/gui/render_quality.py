@@ -12,6 +12,7 @@ timer coalesces zoom bursts into one re-render.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QTimer
@@ -49,25 +50,45 @@ class RenderQualityController:
         self._view = view
         self._pixmap_item = pixmap_item
         self._quality = 0.0
+        self._suspended = False
         self._timer = QTimer(view)
         self._timer.setSingleShot(True)
         self._timer.setInterval(_DEBOUNCE_MS)
         self._timer.timeout.connect(self._rerender)
 
+    def set_suspended(self, on: bool) -> None:
+        """Pause fitz re-render while a ``QMovie`` drives the pixmap directly.
+
+        The single seam that keeps an animated GIF's frames from being clobbered
+        by a static frame-0 render on load or on every zoom change.
+        """
+        self._suspended = on
+        if on:
+            self._timer.stop()
+
+    def is_suspended(self) -> bool:
+        return self._suspended
+
     def render_now(self) -> None:
         """Render the current page at its target quality (call on page change)."""
+        if self._suspended:
+            return
         self._timer.stop()
         self.render_at(self._current_target())
 
     def request(self, scale: float) -> None:
         """Schedule a re-render if ``scale`` now needs a different quality."""
+        if self._suspended:
+            return
         if needs_rerender(self._quality, target_quality(scale, self._dpr())):
             self._timer.start()
 
     def render_at(self, quality: float) -> bool:
         """Render the page at ``quality`` super-sampling. False if no document."""
+        if self._suspended:
+            return False
         source = self._view.source()
-        if source is None:
+        if source is None or not Path(source).exists():
             return False
         image = render.render_page(source, self._view.current_page_index(), quality)
         self._pixmap_item.setPixmap(QPixmap.fromImage(image))
