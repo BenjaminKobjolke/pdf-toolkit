@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "GIF oynatma ve hızlı yeniden yükleme",
+  "notes": [
+    "Animasyonlu GIF'ler artık görüntüleyicide oynatılıyor",
+    "Yeni görüntüleyici denetimleriyle mevcut belgeyi yeniden yükleyin ve odağı ileri taşıyın",
+    "Kaynak dosya açıkken silindiğinde oluşan bir işleme hatası düzeltildi"
+  ]
+}

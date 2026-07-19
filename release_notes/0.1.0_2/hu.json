@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "GIF-lejátszás és gyors újratöltés",
+  "notes": [
+    "Az animált GIF-ek most már lejátszhatók a megjelenítőben",
+    "Az aktuális dokumentum újratöltése és a fókusz előre léptetése az új megjelenítő-vezérlőkkel",
+    "Javítva egy megjelenítési hiba, amikor a forrásfájlt törölték, miközben meg volt nyitva"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "Prehrávanie GIFov a rýchle opätovné načítanie",
+  "notes": [
+    "Animované GIFy sa teraz prehrávajú v prehliadači",
+    "Znovu načítajte aktuálny dokument a presuňte zameranie dopredu pomocou nových ovládacích prvkov prehliadača",
+    "Opravená chyba vykresľovania, keď bol zdrojový súbor odstránený počas otvorenia"
+  ]
+}

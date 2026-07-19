@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "GIF-afspelen en snel opnieuw laden",
+  "notes": [
+    "Geanimeerde GIF's worden nu afgespeeld in de viewer",
+    "Laad het huidige document opnieuw en verplaats de focus vooruit met nieuwe viewerbedieningselementen",
+    "Een weergavefout verholpen wanneer het bronbestand werd verwijderd terwijl het geopend was"
+  ]
+}

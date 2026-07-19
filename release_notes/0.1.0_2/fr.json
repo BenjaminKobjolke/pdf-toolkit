@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "Lecture des GIF et rechargement rapide",
+  "notes": [
+    "Les GIF animés se lisent désormais dans la visionneuse",
+    "Rechargez le document actuel et avancez le focus grâce aux nouveaux contrôles de la visionneuse",
+    "Correction d’une erreur de rendu lorsque le fichier source était supprimé pendant qu’il était ouvert"
+  ]
+}

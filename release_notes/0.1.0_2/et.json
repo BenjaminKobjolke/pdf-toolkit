@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "GIF-ide taasesitus ja kiire uuesti laadimine",
+  "notes": [
+    "Animeeritud GIF-id esitatakse nüüd vaaturis",
+    "Laadi praegune dokument uuesti ja too fookus ette uute vaaturi juhtelementidega",
+    "Parandatud renderdusviga, mis tekkis siis, kui lähtefail kustutati selle avatud oleku ajal"
+  ]
+}

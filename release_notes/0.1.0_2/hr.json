@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "Reprodukcija GIF-ova i brzo ponovno učitavanje",
+  "notes": [
+    "Animirani GIF-ovi sada se reproduciraju u pregledniku",
+    "Ponovno učitajte trenutni dokument i premjestite fokus naprijed uz nove kontrole preglednika",
+    "Ispravljena je pogreška prikaza kada je izvorna datoteka obrisana dok je bila otvorena"
+  ]
+}

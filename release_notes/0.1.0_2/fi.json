@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "GIF-toisto ja nopea uudelleenlataus",
+  "notes": [
+    "Animoidut GIFit toistuvat nyt katseluohjelmassa",
+    "Lataa nykyinen asiakirja uudelleen ja siirrä kohdistus eteenpäin uusilla katseluohjaimilla",
+    "Korjattu renderöintivirhe, joka ilmeni, kun lähdetiedosto poistettiin sen ollessa avoinna"
+  ]
+}

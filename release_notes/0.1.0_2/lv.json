@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "GIF atskaņošana un ātra pārlādēšana",
+  "notes": [
+    "Animētie GIF attēli tagad tiek atskaņoti skatītājā",
+    "Pārlādējiet pašreizējo dokumentu un pārvietojiet fokusu uz priekšu, izmantojot jaunas skatītāja vadīklas",
+    "Novērsta renderēšanas kļūda, kas radās, ja avota fails tika dzēsts, kamēr tas bija atvērts"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "GIF-avspilling og rask omlasting",
+  "notes": [
+    "Animerte GIF-er spilles nå av i visningen",
+    "Last inn gjeldende dokument på nytt og flytt fokus videre med nye kontrollere i visningen",
+    "Rettet en gjengivelsesfeil når kildefilen ble slettet mens den var åpen"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "Reproducción de GIF y recarga rápida",
+  "notes": [
+    "Los GIF animados ahora se reproducen en el visor",
+    "Recarga el documento actual y pasa el foco hacia adelante con los nuevos controles del visor",
+    "Se corrigió un error de renderizado cuando el archivo de origen se eliminaba mientras estaba abierto"
+  ]
+}

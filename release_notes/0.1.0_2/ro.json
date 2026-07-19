@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "Redare GIF și reîncărcare rapidă",
+  "notes": [
+    "GIF-urile animate sunt acum redate în vizualizator",
+    "Reîncarcă documentul curent și mută focalizarea înainte cu noile controale ale vizualizatorului",
+    "S-a remediat o eroare de randare când fișierul sursă era șters în timp ce era deschis"
+  ]
+}

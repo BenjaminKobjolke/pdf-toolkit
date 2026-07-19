@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "GIF atkūrimas ir greitas perkrovimas",
+  "notes": [
+    "Animuoti GIF dabar atkuriami peržiūros lange",
+    "Perkraukite dabartinį dokumentą ir perkelkite fokusą pirmyn naudodami naujus peržiūros valdiklius",
+    "Ištaisyta atvaizdavimo klaida, kai šaltinio failas buvo ištrintas jam esant atidarytam"
+  ]
+}

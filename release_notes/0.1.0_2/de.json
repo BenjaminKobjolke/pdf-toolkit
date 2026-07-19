@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "GIF-Wiedergabe und schnelles Neuladen",
+  "notes": [
+    "Animierte GIFs werden jetzt im Viewer wiedergegeben",
+    "Laden Sie das aktuelle Dokument neu und leiten Sie den Fokus mit neuen Viewer-Steuerelementen weiter",
+    "Ein Darstellungsfehler wurde behoben, wenn die Quelldatei gelöscht wurde, während sie geöffnet war"
+  ]
+}

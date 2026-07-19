@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "Odtwarzanie GIF-ów i szybkie przeładowanie",
+  "notes": [
+    "Animowane GIF-y są teraz odtwarzane w przeglądarce",
+    "Przeładuj bieżący dokument i przenieś fokus do przodu dzięki nowym kontrolkom przeglądarki",
+    "Naprawiono błąd renderowania, gdy plik źródłowy został usunięty podczas otwarcia"
+  ]
+}

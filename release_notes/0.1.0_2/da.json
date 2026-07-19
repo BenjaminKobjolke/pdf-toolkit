@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "Afspilning af GIF'er og hurtig genindlæsning",
+  "notes": [
+    "Animerede GIF'er afspilles nu i fremviseren",
+    "Genindlæs det aktuelle dokument, og flyt fokus fremad med nye fremviser-kontroller",
+    "Rettede en gengivelsesfejl, når kildefilen blev slettet, mens den var åben"
+  ]
+}

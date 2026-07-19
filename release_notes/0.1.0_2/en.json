@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "GIF playback and quick reload",
+  "notes": [
+    "Animated GIFs now play back in the viewer",
+    "Reload the current document and forward focus with new viewer controls",
+    "Fixed a rendering error when the source file was deleted while open"
+  ]
+}

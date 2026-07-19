@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "build": 2,
+  "date": "2026-07-19",
+  "title": "Predvajanje GIF-ov in hitro ponovno nalaganje",
+  "notes": [
+    "Animirani GIF-i se zdaj predvajajo v pregledovalniku",
+    "Z novimi kontrolniki pregledovalnika ponovno naložite trenutni dokument in prestavite fokus naprej",
+    "Odpravljena je bila napaka pri izrisovanju, ko je bila izvorna datoteka izbrisana, medtem ko je bila odprta"
+  ]
+}
