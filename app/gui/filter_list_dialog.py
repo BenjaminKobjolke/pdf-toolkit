@@ -48,6 +48,18 @@ class ListEntry:
     shortcut: str = ""
 
 
+@dataclass(frozen=True)
+class FilterListOptions:
+    """Behaviour switches for a :class:`FilterListDialog` beyond its entry list."""
+
+    placeholder: str = ""
+    title: str = ""
+    provider: Callable[[str], list[ListEntry]] | None = None
+    min_chars: int = 0
+    show_shortcuts: bool = False
+    on_delete: Callable[[ListEntry], None] | None = None
+
+
 class ShortcutItemDelegate(QStyledItemDelegate):
     """Paints the row title (default) then its chord right-aligned and dimmed."""
 
@@ -79,21 +91,16 @@ class FilterListDialog(FilterableListDialog):
     def __init__(
         self,
         entries: list[ListEntry],
-        *,
-        placeholder: str = "",
-        title: str = "",
-        provider: Callable[[str], list[ListEntry]] | None = None,
-        min_chars: int = 0,
-        show_shortcuts: bool = False,
-        on_delete: Callable[[ListEntry], None] | None = None,
+        options: FilterListOptions | None = None,
         parent: QWidget | None = None,
     ) -> None:
-        super().__init__(placeholder=placeholder, title=title, parent=parent)
+        opts = options or FilterListOptions()
+        super().__init__(placeholder=opts.placeholder, title=opts.title, parent=parent)
         self._entries = [entry for entry in entries if entry.enabled]
-        self._provider = provider
-        self._min_chars = min_chars
-        self._on_delete = on_delete
-        if show_shortcuts:
+        self._provider = opts.provider
+        self._min_chars = opts.min_chars
+        self._on_delete = opts.on_delete
+        if opts.show_shortcuts:
             self._list.setItemDelegate(ShortcutItemDelegate(self._list))
         self._visible: list[ListEntry] = []
         self._chosen: ListEntry | None = None

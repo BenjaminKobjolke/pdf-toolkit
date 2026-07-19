@@ -26,7 +26,7 @@ def _window(scale: float | None = None, text_selected: bool = False) -> MagicMoc
 def _run(window: MagicMock, factor: float) -> None:
     from app.gui.window_input import _zoom_or_scale
 
-    _zoom_or_scale(window, Command("zoom_in", "Zoom in", MagicMock()), factor)()
+    _zoom_or_scale(window, Command("zoom_in", "Zoom in", MagicMock(spec=lambda: None)), factor)()
 
 
 def test_text_field_font_scaled() -> None:
@@ -45,7 +45,7 @@ def test_image_scaled_when_no_text_selected() -> None:
 
 def test_zooms_when_nothing_selected() -> None:
     window = _window()
-    run = MagicMock()
+    run = MagicMock(spec=lambda: None)
     from app.gui.window_input import _zoom_or_scale
 
     _zoom_or_scale(window, Command("zoom_in", "Zoom in", run), 1.1)()

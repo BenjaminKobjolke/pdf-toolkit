@@ -10,9 +10,9 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QGuiApplication, QPixmap
 from PySide6.QtWidgets import QWidget
 
+from app.app_logger import log
 from app.gui import file_strings, render
 from app.gui.operations import OpResult
-from app.logging_setup import log
 from app.pdf.words import page_text
 
 

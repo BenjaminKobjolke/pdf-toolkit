@@ -54,11 +54,13 @@ class TextViewController:
         """Prompt for the text/markdown base font size in points."""
         value = number_input_dialog.prompt_int(
             self._parent,
-            settings_strings.DIALOG_TEXT_FONT_TITLE,
-            settings_strings.PROMPT_TEXT_FONT,
-            self._settings.font_pt,
-            FONT_PT_MIN,
-            FONT_PT_MAX,
+            number_input_dialog.NumberPromptSpec(
+                title=settings_strings.DIALOG_TEXT_FONT_TITLE,
+                label=settings_strings.PROMPT_TEXT_FONT,
+                value=self._settings.font_pt,
+                minimum=FONT_PT_MIN,
+                maximum=FONT_PT_MAX,
+            ),
         )
         if value is not None:
             self._save(font_pt=value)

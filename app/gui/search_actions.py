@@ -15,7 +15,7 @@ from PySide6.QtWidgets import QWidget
 from app.gui import strings
 from app.gui.edit_bar import EditBar
 from app.gui.edit_controller import EditController
-from app.gui.filter_list_dialog import FilterListDialog, ListEntry
+from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
 from app.gui.page_view import PageView
 from app.pdf.search import search_pdf
 
@@ -90,9 +90,11 @@ class SearchActions:
     def _dialog(self, title: str, provider: Callable[[str], list[ListEntry]]) -> FilterListDialog:
         return FilterListDialog(
             [],
-            placeholder=strings.SEARCH_PLACEHOLDER,
-            title=title,
-            provider=provider,
-            min_chars=_SEARCH_MIN_CHARS,
+            FilterListOptions(
+                placeholder=strings.SEARCH_PLACEHOLDER,
+                title=title,
+                provider=provider,
+                min_chars=_SEARCH_MIN_CHARS,
+            ),
             parent=self._parent,
         )

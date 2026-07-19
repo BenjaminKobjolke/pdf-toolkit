@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QWidget
 
 from app.config.record_store import RecordStore
 from app.gui import strings
-from app.gui.filter_list_dialog import FilterListDialog, ListEntry
+from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
 from app.gui.operations import OpResult
 
 
@@ -35,8 +35,10 @@ class RememberedSettingsController:
         entries.append(ListEntry(title=strings.REMEMBERED_CLEAR_ALL, payload=None))
         dialog = FilterListDialog(
             entries,
-            placeholder=strings.REMEMBERED_PLACEHOLDER,
-            title=strings.REMEMBERED_TITLE,
+            FilterListOptions(
+                placeholder=strings.REMEMBERED_PLACEHOLDER,
+                title=strings.REMEMBERED_TITLE,
+            ),
             parent=self._parent,
         )
         if not dialog.exec() or (chosen := dialog.chosen()) is None:

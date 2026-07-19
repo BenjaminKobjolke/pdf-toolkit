@@ -11,9 +11,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+from app.app_logger import log
 from app.config.settings import Settings
 from app.gui import strings
-from app.logging_setup import log
 from app.pdf.backup import create_backup
 from app.pdf.merger import find_existing_merged, merged_output_path
 

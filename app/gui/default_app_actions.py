@@ -12,10 +12,10 @@ import os
 
 from PySide6.QtWidgets import QWidget
 
+from app.app_logger import log
 from app.gui import default_app_strings as ds
 from app.gui.confirm_dialog import Severity, show_message
 from app.gui.file_association_dialog import ask_associations
-from app.logging_setup import log
 from app.os_integration import file_association
 
 # Must match the RegisteredApplications value name; Win10 ignores the query

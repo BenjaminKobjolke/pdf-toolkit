@@ -24,7 +24,7 @@ def _pick(monkeypatch: pytest.MonkeyPatch, payload: str) -> None:
     """Patch the memory menu dialog to accept the entry with ``payload``."""
 
     class _Dialog:
-        def __init__(self, entries: list[object], **_kw: object) -> None:
+        def __init__(self, entries: list[object], *_args: object, **_kw: object) -> None:
             self._entries = entries
 
         def exec(self) -> int:

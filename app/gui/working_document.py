@@ -15,11 +15,11 @@ import shutil
 import tempfile
 from pathlib import Path
 
+from app.app_logger import log
 from app.config.settings import Settings
 from app.gui import strings
 from app.gui.operations import OpResult, back_up
 from app.io.fs import clear_readonly, replace_atomic
-from app.logging_setup import log
 from app.pdf.sidecar import sidecar_path
 
 _TMP_SUFFIX = ".tmp"

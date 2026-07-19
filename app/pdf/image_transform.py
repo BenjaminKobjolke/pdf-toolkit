@@ -11,8 +11,8 @@ from pathlib import Path
 
 from PIL import Image, ImageOps
 
+from app.app_logger import log
 from app.io.fs import replace_atomic
-from app.logging_setup import log
 
 # ponytail: deliberate literal dup of _inputs.JPEG_FALLBACK_QUALITY — importing
 # _inputs would drag img2pdf into every image transform for one int.

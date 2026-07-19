@@ -24,7 +24,7 @@ def _patch_dialog(monkeypatch: pytest.MonkeyPatch, pick: int) -> None:
     """Replace FilterListDialog so it accepts and returns entry index ``pick``."""
 
     class FakeDialog:
-        def __init__(self, entries: list[Any], **_kw: Any) -> None:
+        def __init__(self, entries: list[Any], *_args: Any, **_kw: Any) -> None:
             self._entries = entries
 
         def exec(self) -> bool:

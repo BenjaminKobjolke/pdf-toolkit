@@ -153,7 +153,7 @@ def _fake_picker(monkeypatch: pytest.MonkeyPatch, window: MainWindow, chosen_tit
     from app.gui.filter_list_dialog import ListEntry
 
     class FakePicker:
-        def __init__(self, entries: list[ListEntry], **_kwargs: object) -> None:
+        def __init__(self, entries: list[ListEntry], *_args: object, **_kwargs: object) -> None:
             self._chosen = next(e for e in entries if e.title == chosen_title)
 
         def exec(self) -> int:

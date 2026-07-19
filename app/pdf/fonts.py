@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
-from app.logging_setup import log
+from app.app_logger import log
 
 # Reserved PyMuPDF Base14 font codes (need no embedded file).
 BASE14_REGULAR = "helv"

@@ -6,10 +6,10 @@ import argparse
 import sys
 from pathlib import Path
 
+from app.app_logger import configure_logging, log
 from app.cli._common import EXIT_FAILURE, EXIT_OK, EXIT_USAGE
 from app.cli.console import console
 from app.config.settings import Settings
-from app.logging_setup import configure_logging, log
 
 DEFAULT_TARGET = Path(r"C:\cmdtools")
 PROJECT_ROOT = Path(__file__).resolve().parents[2]

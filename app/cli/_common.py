@@ -7,8 +7,8 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
+from app.app_logger import configure_logging, log
 from app.config.settings import Settings
-from app.logging_setup import configure_logging, log
 from app.pdf.backup import create_backup
 from app.pdf.merger import find_existing_merged, merged_output_path
 
@@ -43,34 +43,59 @@ def run_cli(
     return (runner or run_with_backup)(target(args), op(args), settings)
 
 
+def _require_file(source: Path) -> int | None:
+    """Exit code if ``source`` is not an existing file, else None."""
+    if not source.is_file():
+        log.error("input file not found: %s", source)
+        return EXIT_USAGE
+    return None
+
+
+def _make_backup(path: Path, settings: Settings, fail_message: str) -> int | None:
+    """Back up ``path``; return an exit code on failure, else None."""
+    try:
+        backup_path = create_backup(path, settings.backup_dir)
+    except OSError as err:
+        log.error("%s: %s", fail_message, err)
+        return EXIT_FAILURE
+    log.info("backup written: %s", backup_path)
+    return None
+
+
+def _execute(
+    target: Path,
+    op: Callable[[Path], None],
+    *,
+    verb: str = "processing",
+    done: Path | None = None,
+) -> int:
+    """Run ``op`` inside the shared error boundary; log ``done`` (default: target)."""
+    try:
+        op(target)
+    except ValueError as err:
+        log.error("%s", err)
+        return EXIT_FAILURE
+    except OSError as err:
+        log.error("I/O error while %s %s: %s", verb, target, err)
+        return EXIT_FAILURE
+
+    log.info("done: %s", done if done is not None else target)
+    return EXIT_OK
+
+
 def run_with_backup(
     source: Path,
     op: Callable[[Path], None],
     settings: Settings,
 ) -> int:
     """Validate, back up, then run ``op`` on ``source``. Return a process exit code."""
-    if not source.is_file():
-        log.error("input file not found: %s", source)
-        return EXIT_USAGE
-
-    try:
-        backup_path = create_backup(source, settings.backup_dir)
-    except OSError as err:
-        log.error("failed to create backup: %s", err)
-        return EXIT_FAILURE
-    log.info("backup written: %s", backup_path)
-
-    try:
-        op(source)
-    except ValueError as err:
-        log.error("%s", err)
-        return EXIT_FAILURE
-    except OSError as err:
-        log.error("I/O error while processing %s: %s", source, err)
-        return EXIT_FAILURE
-
-    log.info("done: %s", source)
-    return EXIT_OK
+    code = _require_file(source)
+    if code is not None:
+        return code
+    code = _make_backup(source, settings, "failed to create backup")
+    if code is not None:
+        return code
+    return _execute(source, op)
 
 
 def run_to_new_file(
@@ -84,21 +109,10 @@ def run_to_new_file(
     timestamped backup the in-place ops make is unnecessary. ``settings`` is
     accepted to match the :data:`CliRunner` signature.
     """
-    if not source.is_file():
-        log.error("input file not found: %s", source)
-        return EXIT_USAGE
-
-    try:
-        op(source)
-    except ValueError as err:
-        log.error("%s", err)
-        return EXIT_FAILURE
-    except OSError as err:
-        log.error("I/O error while processing %s: %s", source, err)
-        return EXIT_FAILURE
-
-    log.info("done: %s", source)
-    return EXIT_OK
+    code = _require_file(source)
+    if code is not None:
+        return code
+    return _execute(source, op)
 
 
 def run_folder_merge(
@@ -113,21 +127,8 @@ def run_folder_merge(
 
     existing = find_existing_merged(folder)
     if existing is not None:
-        try:
-            backup_path = create_backup(existing, settings.backup_dir)
-        except OSError as err:
-            log.error("failed to back up existing merged.pdf: %s", err)
-            return EXIT_FAILURE
-        log.info("backup written: %s", backup_path)
+        code = _make_backup(existing, settings, "failed to back up existing merged.pdf")
+        if code is not None:
+            return code
 
-    try:
-        op(folder)
-    except ValueError as err:
-        log.error("%s", err)
-        return EXIT_FAILURE
-    except OSError as err:
-        log.error("I/O error while merging %s: %s", folder, err)
-        return EXIT_FAILURE
-
-    log.info("done: %s", merged_output_path(folder))
-    return EXIT_OK
+    return _execute(folder, op, verb="merging", done=merged_output_path(folder))

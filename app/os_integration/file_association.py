@@ -32,7 +32,7 @@ from collections.abc import Collection
 from dataclasses import dataclass
 from pathlib import Path
 
-from app.logging_setup import log
+from app.app_logger import log
 from app.pdf.file_format import FileFormat
 
 try:  # Real on Windows; absent elsewhere — guarded by is_supported().

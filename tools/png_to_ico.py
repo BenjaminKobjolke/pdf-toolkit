@@ -16,7 +16,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from app.logging_setup import configure_logging
+from app.app_logger import configure_logging
 
 logger = logging.getLogger("png_to_ico")
 

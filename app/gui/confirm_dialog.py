@@ -8,6 +8,7 @@ special case of the same dialog, so there is no separate ``MessageDialog`` class
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import Enum, auto
 
 from PySide6.QtWidgets import QDialogButtonBox, QWidget
@@ -39,6 +40,18 @@ _SEVERITY_PREFIX: dict[Severity, str] = {
 }
 
 
+@dataclass(frozen=True)
+class ConfirmSpec:
+    """Text and button labels for one confirmation dialog."""
+
+    title: str
+    message: str
+    primary: str
+    secondary: str | None = None
+    cancel: str | None = None
+    default: DialogResult = DialogResult.PRIMARY
+
+
 class ConfirmDialog(FormDialog):
     """A message with up to three labelled buttons mapped to :class:`DialogResult`.
 
@@ -47,25 +60,15 @@ class ConfirmDialog(FormDialog):
     (the "No"-style choice), else ``PRIMARY``.
     """
 
-    def __init__(
-        self,
-        *,
-        title: str,
-        message: str,
-        primary: str,
-        secondary: str | None = None,
-        cancel: str | None = None,
-        default: DialogResult = DialogResult.PRIMARY,
-        parent: QWidget | None = None,
-    ) -> None:
-        super().__init__(title=title, message=message, parent=parent)
-        self._result = self._fallback(secondary, cancel)
+    def __init__(self, spec: ConfirmSpec, parent: QWidget | None = None) -> None:
+        super().__init__(title=spec.title, message=spec.message, parent=parent)
+        self._result = self._fallback(spec.secondary, spec.cancel)
         box = QDialogButtonBox()
-        self._add_button(box, primary, DialogResult.PRIMARY, default)
-        if secondary is not None:
-            self._add_button(box, secondary, DialogResult.SECONDARY, default)
-        if cancel is not None:
-            self._add_button(box, cancel, DialogResult.CANCEL, default)
+        self._add_button(box, spec.primary, DialogResult.PRIMARY, spec.default)
+        if spec.secondary is not None:
+            self._add_button(box, spec.secondary, DialogResult.SECONDARY, spec.default)
+        if spec.cancel is not None:
+            self._add_button(box, spec.cancel, DialogResult.CANCEL, spec.default)
         self.add_buttons(box)
 
     def _add_button(
@@ -93,26 +96,9 @@ class ConfirmDialog(FormDialog):
         return self._result
 
 
-def confirm(
-    parent: QWidget | None,
-    title: str,
-    text: str,
-    *,
-    primary: str,
-    secondary: str | None = None,
-    cancel: str | None = None,
-    default: DialogResult = DialogResult.PRIMARY,
-) -> DialogResult:
+def confirm(parent: QWidget | None, spec: ConfirmSpec) -> DialogResult:
     """Show a keyboard-first confirmation and return the chosen :class:`DialogResult`."""
-    dialog = ConfirmDialog(
-        title=title,
-        message=text,
-        primary=primary,
-        secondary=secondary,
-        cancel=cancel,
-        default=default,
-        parent=parent,
-    )
+    dialog = ConfirmDialog(spec, parent)
     dialog.exec()
     return dialog.result_choice()
 
@@ -121,10 +107,7 @@ def show_message(
     parent: QWidget | None, title: str, text: str, severity: Severity = Severity.INFO
 ) -> None:
     """Show a single-OK alert that adopts the shared palette chrome."""
-    dialog = ConfirmDialog(
-        title=title,
-        message=_SEVERITY_PREFIX[severity] + text,
-        primary=strings.BTN_OK,
-        parent=parent,
+    spec = ConfirmSpec(
+        title=title, message=_SEVERITY_PREFIX[severity] + text, primary=strings.BTN_OK
     )
-    dialog.exec()
+    ConfirmDialog(spec, parent).exec()

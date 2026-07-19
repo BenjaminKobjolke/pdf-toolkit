@@ -18,7 +18,7 @@ from PySide6.QtWidgets import QWidget
 
 from app.config.per_document_store import PerDocumentStore
 from app.gui import settings_strings
-from app.gui.filter_list_dialog import FilterListDialog, ListEntry
+from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
 from app.gui.operations import OpResult
 
 T = TypeVar("T")
@@ -68,6 +68,17 @@ class MemoryStrings:
         )
 
 
+@dataclass(frozen=True)
+class MemoryHooks(Generic[T]):
+    """How one dimension reads, applies, reports, and falls back its value."""
+
+    current_path: Callable[[], Path | None]
+    capture_value: Callable[[], T | None]
+    apply_value: Callable[[T], None]
+    report: Callable[[OpResult], None]
+    fallback: Callable[[], None] | None = None
+
+
 class DocumentMemoryController(Generic[T]):
     """Menu + boundary capture + on-open apply for one remembered dimension."""
 
@@ -75,21 +86,17 @@ class DocumentMemoryController(Generic[T]):
         self,
         parent: QWidget | None,
         store: PerDocumentStore[T],
-        current_path: Callable[[], Path | None],
-        capture_value: Callable[[], T | None],
-        apply_value: Callable[[T], None],
-        report: Callable[[OpResult], None],
+        hooks: MemoryHooks[T],
         labels: MemoryStrings,
-        fallback: Callable[[], None] | None = None,
     ) -> None:
         self._parent = parent
         self._store = store
-        self._current_path = current_path
-        self._capture_value = capture_value
-        self._apply_value = apply_value
-        self._report = report
+        self._current_path = hooks.current_path
+        self._capture_value = hooks.capture_value
+        self._apply_value = hooks.apply_value
+        self._report = hooks.report
         self._labels = labels
-        self._fallback = fallback
+        self._fallback = hooks.fallback
 
     # --- palette command ----------------------------------------------------
 
@@ -104,7 +111,9 @@ class DocumentMemoryController(Generic[T]):
             ListEntry(title=s.forget_all, payload=_FORGET_ALL),
         ]
         dialog = FilterListDialog(
-            entries, placeholder=s.placeholder, title=s.menu_title, parent=self._parent
+            entries,
+            FilterListOptions(placeholder=s.placeholder, title=s.menu_title),
+            parent=self._parent,
         )
         if not dialog.exec() or (chosen := dialog.chosen()) is None:
             return

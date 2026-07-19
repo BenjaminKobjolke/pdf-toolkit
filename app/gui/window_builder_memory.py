@@ -29,6 +29,7 @@ from app.gui import settings_strings
 from app.gui.document_memory_controller import (
     DocumentMemoryController,
     DocumentMemoryGroup,
+    MemoryHooks,
     MemoryStrings,
 )
 
@@ -47,20 +48,24 @@ def build_document_memory(window: MainWindow) -> None:
     window._doc_zoom = DocumentMemoryController(
         window,
         DocumentZoomStore(window._backend),
-        lambda: window._source,
-        pv.current_zoom,
-        lambda zoom: pv.set_default_zoom(zoom.fit, zoom.percent),
-        window._report,
+        MemoryHooks(
+            current_path=lambda: window._source,
+            capture_value=pv.current_zoom,
+            apply_value=lambda zoom: pv.set_default_zoom(zoom.fit, zoom.percent),
+            report=window._report,
+            fallback=apply_global_zoom,
+        ),
         MemoryStrings.for_noun(settings_strings.DOC_MEM_NOUN_ZOOM),
-        fallback=apply_global_zoom,
     )
     window._doc_page = DocumentMemoryController(
         window,
         DocumentPageStore(window._backend),
-        lambda: window._source,
-        pv.current_page_index,
-        pv.go_to_page,
-        window._report,
+        MemoryHooks(
+            current_path=lambda: window._source,
+            capture_value=pv.current_page_index,
+            apply_value=pv.go_to_page,
+            report=window._report,
+        ),
         MemoryStrings.for_noun(settings_strings.DOC_MEM_NOUN_PAGE),
     )
     window._doc_memories = DocumentMemoryGroup([window._doc_zoom, window._doc_page])

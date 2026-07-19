@@ -80,13 +80,13 @@ def test_span_text_single_word() -> None:
 
 def test_word_in_rect_returns_first_overlapping() -> None:
     # A rect over "Bar" (x 50-80, line 1 at y 30-40).
-    assert m.word_in_rect(WORDS, 52, 31, 78, 39) == 3
+    assert m.word_in_rect(WORDS, (52, 31, 78, 39)) == 3
     # A rect spanning Foo+Bar -> first (lowest index) overlapping word.
-    assert m.word_in_rect(WORDS, 20, 31, 60, 39) == 2
+    assert m.word_in_rect(WORDS, (20, 31, 60, 39)) == 2
 
 
 def test_word_in_rect_none_when_disjoint() -> None:
-    assert m.word_in_rect(WORDS, 200, 200, 220, 220) is None
+    assert m.word_in_rect(WORDS, (200, 200, 220, 220)) is None
 
 
 def test_word_at_point_inside_box() -> None:

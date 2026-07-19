@@ -11,7 +11,7 @@ from PySide6.QtWidgets import QWidget
 
 from app.config.palette_settings import PaletteSettings
 from app.gui import dialog_appearance
-from app.gui.filter_list_dialog import FilterListDialog, ListEntry
+from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
 
 
 def _titles(dialog: FilterListDialog) -> list[str]:
@@ -139,7 +139,7 @@ def test_provider_mode_below_min_chars_shows_nothing(qapp: object) -> None:
         calls.append(text)
         return [ListEntry(title=f"hit:{text}")]
 
-    dialog = FilterListDialog([], provider=provider, min_chars=3)
+    dialog = FilterListDialog([], FilterListOptions(provider=provider, min_chars=3))
     dialog.set_filter("ab")
     assert _provider_titles(dialog) == []
 
@@ -148,7 +148,7 @@ def test_provider_mode_runs_at_min_chars(qapp: object) -> None:
     def provider(text: str) -> list[ListEntry]:
         return [ListEntry(title=f"hit:{text}", payload=text)]
 
-    dialog = FilterListDialog([], provider=provider, min_chars=3)
+    dialog = FilterListDialog([], FilterListOptions(provider=provider, min_chars=3))
     dialog.set_filter("abc")
     assert _provider_titles(dialog) == ["hit:abc"]
 
@@ -160,7 +160,7 @@ def test_provider_reruns_per_keystroke(qapp: object) -> None:
         calls.append(text)
         return [ListEntry(title=text)]
 
-    dialog = FilterListDialog([], provider=provider, min_chars=1)
+    dialog = FilterListDialog([], FilterListOptions(provider=provider, min_chars=1))
     dialog.set_filter("a")
     dialog.set_filter("ab")
     assert calls == ["a", "ab"]
@@ -168,14 +168,16 @@ def test_provider_reruns_per_keystroke(qapp: object) -> None:
 
 def test_shortcut_carried_on_item_role_when_shown(qapp: object) -> None:
     entries = [ListEntry(title="Exit", shortcut="Alt+W")]
-    dialog = FilterListDialog(entries, show_shortcuts=True)
+    dialog = FilterListDialog(entries, FilterListOptions(show_shortcuts=True))
     assert dialog._list.item(0).data(Qt.ItemDataRole.UserRole) == "Alt+W"
 
 
 def test_delete_key_invokes_on_delete_with_current_entry(qapp: object) -> None:
     deleted: list[str] = []
     entries = [ListEntry(title="Exit", payload="exit")]
-    dialog = FilterListDialog(entries, on_delete=lambda entry: deleted.append(entry.payload))
+    dialog = FilterListDialog(
+        entries, FilterListOptions(on_delete=lambda entry: deleted.append(entry.payload))
+    )
     assert dialog._on_delete_key() is True
     assert deleted == ["exit"]
 
@@ -189,7 +191,7 @@ def test_provider_accept_returns_payload(qapp: object) -> None:
     def provider(text: str) -> list[ListEntry]:
         return [ListEntry(title="match", payload=(1, 2))]
 
-    dialog = FilterListDialog([], provider=provider, min_chars=3)
+    dialog = FilterListDialog([], FilterListOptions(provider=provider, min_chars=3))
     dialog.set_filter("abc")
     dialog.accept_current()
     chosen = dialog.chosen()

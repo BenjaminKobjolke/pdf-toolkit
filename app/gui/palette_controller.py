@@ -82,11 +82,13 @@ class PaletteController:
         current = self._settings.font_pt or max(self._parent.font().pointSize(), FONT_PT_MIN + 1)
         value = number_input_dialog.prompt_int(
             self._parent,
-            settings_strings.DIALOG_PALETTE_FONT_TITLE,
-            settings_strings.PROMPT_PALETTE_FONT,
-            current,
-            FONT_PT_MIN,
-            FONT_PT_MAX,
+            number_input_dialog.NumberPromptSpec(
+                title=settings_strings.DIALOG_PALETTE_FONT_TITLE,
+                label=settings_strings.PROMPT_PALETTE_FONT,
+                value=current,
+                minimum=FONT_PT_MIN,
+                maximum=FONT_PT_MAX,
+            ),
         )
         if value is not None:
             self._save(font_pt=value)
@@ -110,7 +112,12 @@ class PaletteController:
     def _edit_int(self, field_name: str, title: str, prompt: str, low: int, high: int) -> None:
         """Prompt for one bounded integer field, then persist it."""
         current = int(getattr(self._settings, field_name))
-        value = number_input_dialog.prompt_int(self._parent, title, prompt, current, low, high)
+        value = number_input_dialog.prompt_int(
+            self._parent,
+            number_input_dialog.NumberPromptSpec(
+                title=title, label=prompt, value=current, minimum=low, maximum=high
+            ),
+        )
         if value is not None:
             self._save(**{field_name: value})
 

@@ -15,7 +15,7 @@ from pathlib import Path
 
 from pypdf import PdfWriter
 
-from app.logging_setup import log
+from app.app_logger import log
 from app.pdf._atomic import write_pdf_atomic, write_text_atomic
 from app.pdf._inputs import SUPPORTED_EXTENSIONS, pages_for_input
 

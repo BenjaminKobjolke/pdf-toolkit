@@ -82,11 +82,13 @@ class ImageActions:
             return
         value = number_input_dialog.prompt_float(
             self._parent,
-            strings.DIALOG_IMAGE_SCALE_TITLE,
-            strings.PROMPT_IMAGE_SCALE,
-            scale,
-            _MIN_SCALE,
-            _MAX_SCALE,
+            number_input_dialog.NumberPromptSpec(
+                title=strings.DIALOG_IMAGE_SCALE_TITLE,
+                label=strings.PROMPT_IMAGE_SCALE,
+                value=scale,
+                minimum=_MIN_SCALE,
+                maximum=_MAX_SCALE,
+            ),
         )
         if value is not None:
             self._images.set_selected_scale(value)
@@ -117,12 +119,14 @@ class ImageActions:
         )
         choice = confirm_dialog.confirm(
             self._parent,
-            strings.CONFIRM_IMAGE_COPY_TITLE,
-            strings.CONFIRM_IMAGE_COPY_TEXT,
-            primary=strings.BTN_YES,
-            secondary=strings.BTN_NO,
-            cancel=strings.BTN_CANCEL,
-            default=default,
+            confirm_dialog.ConfirmSpec(
+                title=strings.CONFIRM_IMAGE_COPY_TITLE,
+                message=strings.CONFIRM_IMAGE_COPY_TEXT,
+                primary=strings.BTN_YES,
+                secondary=strings.BTN_NO,
+                cancel=strings.BTN_CANCEL,
+                default=default,
+            ),
         )
         if choice is confirm_dialog.DialogResult.CANCEL:
             return None

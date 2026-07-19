@@ -43,6 +43,7 @@ if TYPE_CHECKING:
     from app.gui.export_actions import ExportActions
     from app.gui.instance_controller import InstanceController
     from app.gui.keybinding_actions import KeybindingActions
+    from app.gui.lifecycle_actions import LifecycleActions
     from app.gui.link_hint_controller import LinkHintController
     from app.gui.link_hint_settings_controller import LinkHintSettingsController
     from app.gui.mode_status_bar import ModeStatusBar
@@ -125,6 +126,7 @@ class CollaboratorAccessors:
     _shortcut_installer: ShortcutInstaller
     _keybinding_actions: KeybindingActions
     _chrome: ChromeController
+    _lifecycle: LifecycleActions
     _source: Path | None
 
     @property

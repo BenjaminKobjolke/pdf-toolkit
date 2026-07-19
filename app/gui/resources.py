@@ -12,7 +12,7 @@ from pathlib import Path
 
 from PySide6.QtGui import QIcon
 
-from app.logging_setup import log
+from app.app_logger import log
 from app.release.schema import RELEASE_NOTES_DIRNAME
 
 ICON_FILE = "icon.ico"

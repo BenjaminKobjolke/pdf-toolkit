@@ -15,7 +15,7 @@ from pathlib import Path
 
 from PySide6.QtNetwork import QLocalServer, QLocalSocket
 
-from app.logging_setup import log
+from app.app_logger import log
 
 SERVER_NAME = "pdf-toolkit-viewer"
 CONNECT_TIMEOUT_MS = 300

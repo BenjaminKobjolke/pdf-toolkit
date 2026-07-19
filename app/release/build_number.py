@@ -11,7 +11,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from app.logging_setup import log
+from app.app_logger import log
 from app.release.schema import BUILD_FILE_NAME
 
 # Counter = last shipped build; 0 = nothing shipped yet (bump-first, ship-next).

@@ -17,7 +17,7 @@ from app.gui import (
     text_prompt_dialog,
 )
 from app.gui.edit_controller import EditController
-from app.gui.filter_list_dialog import FilterListDialog, ListEntry
+from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
 from app.gui.operations import OpResult
 from app.gui.save_controller import SaveController
 from app.pdf.file_format import FileFormat
@@ -74,8 +74,7 @@ class DocumentActions:
             return
         dialog = FilterListDialog(
             entries,
-            placeholder=placeholder,
-            title=title,
+            FilterListOptions(placeholder=placeholder, title=title),
             parent=self._parent,
         )
         if dialog.exec() and (chosen := dialog.chosen()) is not None:
@@ -86,10 +85,12 @@ class DocumentActions:
             return
         choice = confirm_dialog.confirm(
             self._parent,
-            strings.CONFIRM_TITLE,
-            strings.CONFIRM_DELETE_SAVED_FIELDS,
-            primary=strings.BTN_YES,
-            secondary=strings.BTN_NO,
+            confirm_dialog.ConfirmSpec(
+                title=strings.CONFIRM_TITLE,
+                message=strings.CONFIRM_DELETE_SAVED_FIELDS,
+                primary=strings.BTN_YES,
+                secondary=strings.BTN_NO,
+            ),
         )
         if choice is confirm_dialog.DialogResult.PRIMARY:
             self._controller.clear_saved_fields()

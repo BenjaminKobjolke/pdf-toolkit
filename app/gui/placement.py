@@ -16,7 +16,7 @@ from PySide6.QtWidgets import QWidget
 
 from app.config.placement_settings import PlacementStore
 from app.gui import strings
-from app.gui.filter_list_dialog import FilterListDialog, ListEntry
+from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
 from app.gui.mode_status_bar import ModeStatusBar
 from app.gui.page_view import PageView
 
@@ -95,8 +95,10 @@ class PlacementController:
         ]
         dialog = FilterListDialog(
             entries,
-            placeholder=strings.PLACEMENT_PLACEHOLDER,
-            title=strings.PLACEMENT_TITLE,
+            FilterListOptions(
+                placeholder=strings.PLACEMENT_PLACEHOLDER,
+                title=strings.PLACEMENT_TITLE,
+            ),
             parent=self._parent,
         )
         if dialog.exec() and (chosen := dialog.chosen()) is not None:

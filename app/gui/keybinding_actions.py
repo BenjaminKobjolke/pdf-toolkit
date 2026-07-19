@@ -26,7 +26,7 @@ from app.config.key_bindings import (
 )
 from app.gui import commands, confirm_dialog, strings
 from app.gui.commands import Command
-from app.gui.filter_list_dialog import FilterListDialog, ListEntry
+from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
 from app.gui.key_capture_dialog import KeyCaptureDialog
 from app.gui.operations import OpResult
 from app.gui.palette_controller import PaletteController
@@ -62,10 +62,12 @@ class KeybindingActions:
         entries = build_palette_entries(self._registry, [], self._keymap())
         dialog = FilterListDialog(
             entries,
-            placeholder=strings.CONFIGURE_SHORTCUTS_PLACEHOLDER,
-            title=strings.CONFIGURE_SHORTCUTS_TITLE,
-            show_shortcuts=True,
-            on_delete=self._clear,
+            FilterListOptions(
+                placeholder=strings.CONFIGURE_SHORTCUTS_PLACEHOLDER,
+                title=strings.CONFIGURE_SHORTCUTS_TITLE,
+                show_shortcuts=True,
+                on_delete=self._clear,
+            ),
             parent=self._parent,
         )
         self._palette.apply_to(dialog, self._parent.size())
@@ -133,8 +135,10 @@ class KeybindingActions:
         entries += [ListEntry(title=chord, payload=chord) for chord in chords]
         dialog = FilterListDialog(
             entries,
-            placeholder=strings.DELETE_SHORTCUT_PLACEHOLDER,
-            title=strings.DELETE_SHORTCUT_TITLE_FMT.format(title=command.title),
+            FilterListOptions(
+                placeholder=strings.DELETE_SHORTCUT_PLACEHOLDER,
+                title=strings.DELETE_SHORTCUT_TITLE_FMT.format(title=command.title),
+            ),
             parent=self._parent,
         )
         self._palette.apply_to(dialog, self._parent.size())
@@ -163,13 +167,15 @@ class KeybindingActions:
         """Ask whether to add the new chord or replace existing ones; ``None`` cancels."""
         choice = confirm_dialog.confirm(
             self._parent,
-            strings.CONFIRM_ADD_OR_REPLACE_TITLE,
-            strings.CONFIRM_ADD_OR_REPLACE_FMT.format(
-                title=command.title, chords=", ".join(existing), chord=chord
+            confirm_dialog.ConfirmSpec(
+                title=strings.CONFIRM_ADD_OR_REPLACE_TITLE,
+                message=strings.CONFIRM_ADD_OR_REPLACE_FMT.format(
+                    title=command.title, chords=", ".join(existing), chord=chord
+                ),
+                primary=strings.BTN_APPEND,
+                secondary=strings.BTN_REPLACE,
+                cancel=strings.BTN_CANCEL,
             ),
-            primary=strings.BTN_APPEND,
-            secondary=strings.BTN_REPLACE,
-            cancel=strings.BTN_CANCEL,
         )
         if choice is confirm_dialog.DialogResult.CANCEL:
             return None
@@ -193,7 +199,10 @@ class KeybindingActions:
 
     def _confirm(self, title: str, text: str) -> bool:
         choice = confirm_dialog.confirm(
-            self._parent, title, text, primary=strings.BTN_YES, secondary=strings.BTN_NO
+            self._parent,
+            confirm_dialog.ConfirmSpec(
+                title=title, message=text, primary=strings.BTN_YES, secondary=strings.BTN_NO
+            ),
         )
         return choice is confirm_dialog.DialogResult.PRIMARY
 

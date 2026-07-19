@@ -14,21 +14,26 @@ from app.gui.operations import OpResult
 from tests.conftest import MakePdf
 
 
+def _report_mock() -> MagicMock:
+    """A mock for the ``report`` callback, spec'd to its one-argument shape."""
+    return MagicMock(spec=lambda result: None)
+
+
 def _actions(
     source: Path | None, report: MagicMock, grab_view: MagicMock | None = None
 ) -> FileActions:
     parent = MagicMock(spec=QWidget)
     return FileActions(
         parent,
-        MagicMock(return_value=source),
+        MagicMock(spec=lambda: None, return_value=source),
         report,
-        MagicMock(return_value=0),
-        grab_view or MagicMock(return_value=QPixmap()),
+        MagicMock(spec=lambda: None, return_value=0),
+        grab_view or MagicMock(spec=lambda: None, return_value=QPixmap()),
     )
 
 
 def test_copy_path_writes_full_path(qapp: object, tmp_path: Path) -> None:
-    report = MagicMock()
+    report = _report_mock()
     source = tmp_path / "report.pdf"
     _actions(source, report).copy_path()
 
@@ -37,7 +42,7 @@ def test_copy_path_writes_full_path(qapp: object, tmp_path: Path) -> None:
 
 
 def test_copy_name_writes_name_with_extension(qapp: object, tmp_path: Path) -> None:
-    report = MagicMock()
+    report = _report_mock()
     _actions(tmp_path / "report.pdf", report).copy_name()
 
     assert QGuiApplication.clipboard().text() == "report.pdf"
@@ -45,7 +50,7 @@ def test_copy_name_writes_name_with_extension(qapp: object, tmp_path: Path) -> N
 
 
 def test_copy_name_without_extension_writes_stem(qapp: object, tmp_path: Path) -> None:
-    report = MagicMock()
+    report = _report_mock()
     _actions(tmp_path / "report.pdf", report).copy_name_without_extension()
 
     assert QGuiApplication.clipboard().text() == "report"
@@ -53,7 +58,7 @@ def test_copy_name_without_extension_writes_stem(qapp: object, tmp_path: Path) -
 
 
 def test_copy_name_without_extension_no_source_does_nothing(qapp: object) -> None:
-    report = MagicMock()
+    report = _report_mock()
     QGuiApplication.clipboard().setText("untouched")
     _actions(None, report).copy_name_without_extension()
 
@@ -62,7 +67,7 @@ def test_copy_name_without_extension_no_source_does_nothing(qapp: object) -> Non
 
 
 def test_copy_page_image_full_scale_is_one_pixel_per_point(qapp: object, make_pdf: MakePdf) -> None:
-    report = MagicMock()
+    report = _report_mock()
     _actions(make_pdf([(200, 100)]), report).copy_page_image(1.0)
 
     image = QGuiApplication.clipboard().image()
@@ -71,7 +76,7 @@ def test_copy_page_image_full_scale_is_one_pixel_per_point(qapp: object, make_pd
 
 
 def test_copy_page_image_quarter_scale(qapp: object, make_pdf: MakePdf) -> None:
-    report = MagicMock()
+    report = _report_mock()
     _actions(make_pdf([(200, 100)]), report).copy_page_image(0.25)
 
     image = QGuiApplication.clipboard().image()
@@ -80,7 +85,7 @@ def test_copy_page_image_quarter_scale(qapp: object, make_pdf: MakePdf) -> None:
 
 
 def test_copy_page_image_no_source_does_nothing(qapp: object) -> None:
-    report = MagicMock()
+    report = _report_mock()
     QGuiApplication.clipboard().setText("untouched")
     _actions(None, report).copy_page_image(1.0)
 
@@ -89,8 +94,8 @@ def test_copy_page_image_no_source_does_nothing(qapp: object) -> None:
 
 
 def test_copy_view_image_puts_grabbed_pixmap_on_clipboard(qapp: object, tmp_path: Path) -> None:
-    report = MagicMock()
-    grab = MagicMock(return_value=QPixmap(12, 34))
+    report = _report_mock()
+    grab = MagicMock(spec=lambda: None, return_value=QPixmap(12, 34))
     _actions(tmp_path / "report.pdf", report, grab).copy_view_image()
 
     pixmap = QGuiApplication.clipboard().pixmap()
@@ -99,8 +104,8 @@ def test_copy_view_image_puts_grabbed_pixmap_on_clipboard(qapp: object, tmp_path
 
 
 def test_copy_view_image_half_scale_halves_pixmap(qapp: object, tmp_path: Path) -> None:
-    report = MagicMock()
-    grab = MagicMock(return_value=QPixmap(100, 40))
+    report = _report_mock()
+    grab = MagicMock(spec=lambda: None, return_value=QPixmap(100, 40))
     _actions(tmp_path / "report.pdf", report, grab).copy_view_image(0.5)
 
     pixmap = QGuiApplication.clipboard().pixmap()
@@ -109,8 +114,8 @@ def test_copy_view_image_half_scale_halves_pixmap(qapp: object, tmp_path: Path) 
 
 
 def test_copy_view_image_quarter_scale(qapp: object, tmp_path: Path) -> None:
-    report = MagicMock()
-    grab = MagicMock(return_value=QPixmap(100, 40))
+    report = _report_mock()
+    grab = MagicMock(spec=lambda: None, return_value=QPixmap(100, 40))
     _actions(tmp_path / "report.pdf", report, grab).copy_view_image(0.25)
 
     pixmap = QGuiApplication.clipboard().pixmap()

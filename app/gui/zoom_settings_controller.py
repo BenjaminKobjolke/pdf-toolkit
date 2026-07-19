@@ -20,7 +20,7 @@ from app.config.zoom_settings import (
     ZoomSettingsStore,
 )
 from app.gui import number_input_dialog, settings_strings
-from app.gui.filter_list_dialog import FilterListDialog, ListEntry
+from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
 
 if TYPE_CHECKING:
     from app.gui.page_view import PageView
@@ -54,8 +54,10 @@ class ZoomSettingsController:
         entries.append(ListEntry(title=settings_strings.ZOOM_CUSTOM_LABEL, payload=_CUSTOM))
         dialog = FilterListDialog(
             entries,
-            placeholder=settings_strings.ZOOM_PLACEHOLDER,
-            title=settings_strings.DIALOG_DEFAULT_ZOOM_TITLE,
+            FilterListOptions(
+                placeholder=settings_strings.ZOOM_PLACEHOLDER,
+                title=settings_strings.DIALOG_DEFAULT_ZOOM_TITLE,
+            ),
             parent=self._parent,
         )
         if not dialog.exec() or (chosen := dialog.chosen()) is None:
@@ -69,11 +71,13 @@ class ZoomSettingsController:
     def _prompt_custom(self) -> ZoomSettings | None:
         value = number_input_dialog.prompt_int(
             self._parent,
-            settings_strings.DIALOG_DEFAULT_ZOOM_TITLE,
-            settings_strings.PROMPT_DEFAULT_ZOOM_PCT,
-            self._settings.percent,
-            ZOOM_PCT_MIN,
-            ZOOM_PCT_MAX,
+            number_input_dialog.NumberPromptSpec(
+                title=settings_strings.DIALOG_DEFAULT_ZOOM_TITLE,
+                label=settings_strings.PROMPT_DEFAULT_ZOOM_PCT,
+                value=self._settings.percent,
+                minimum=ZOOM_PCT_MIN,
+                maximum=ZOOM_PCT_MAX,
+            ),
         )
         return ZoomSettings(fit=False, percent=value) if value is not None else None
 

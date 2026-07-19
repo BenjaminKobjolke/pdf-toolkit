@@ -60,10 +60,12 @@ class PageActions:
         total = self._page_view.total_pages()
         choice = confirm_dialog.confirm(
             self._parent,
-            strings.CONFIRM_TITLE,
-            strings.CONFIRM_DELETE_PAGE_FMT.format(page=page, total=total),
-            primary=strings.BTN_YES,
-            secondary=strings.BTN_NO,
+            confirm_dialog.ConfirmSpec(
+                title=strings.CONFIRM_TITLE,
+                message=strings.CONFIRM_DELETE_PAGE_FMT.format(page=page, total=total),
+                primary=strings.BTN_YES,
+                secondary=strings.BTN_NO,
+            ),
         )
         if choice is not confirm_dialog.DialogResult.PRIMARY:
             return
@@ -74,12 +76,26 @@ class PageActions:
             return
         total = self._page_view.total_pages()
         start = number_input_dialog.prompt_int(
-            self._parent, strings.DIALOG_RANGE_TITLE, strings.PROMPT_RANGE_START, 1, 1, total
+            self._parent,
+            number_input_dialog.NumberPromptSpec(
+                title=strings.DIALOG_RANGE_TITLE,
+                label=strings.PROMPT_RANGE_START,
+                value=1,
+                minimum=1,
+                maximum=total,
+            ),
         )
         if start is None:
             return
         end = number_input_dialog.prompt_int(
-            self._parent, strings.DIALOG_RANGE_TITLE, strings.PROMPT_RANGE_END, start, start, total
+            self._parent,
+            number_input_dialog.NumberPromptSpec(
+                title=strings.DIALOG_RANGE_TITLE,
+                label=strings.PROMPT_RANGE_END,
+                value=start,
+                minimum=start,
+                maximum=total,
+            ),
         )
         if end is None:
             return

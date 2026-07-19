@@ -27,7 +27,7 @@ def make_controller(
     from PySide6.QtCore import QObject
 
     store = ReloadSettingsStore(gui_backend(tmp_path))
-    open_pdf = MagicMock()
+    open_pdf = MagicMock(spec=lambda path: None)
     page_view = MagicMock(spec=PageView)
     page_view.current_page_index.return_value = 2
     page_view.current_zoom.return_value = ZoomSettings(fit=False, percent=150)
@@ -38,7 +38,7 @@ def make_controller(
         lambda: source,
         open_pdf,
         page_view,
-        MagicMock(),
+        MagicMock(spec=lambda result: None),
     )
     # In the app the parent is the long-lived window; here keep the Qt parent
     # (and thus the C++ watcher/timer) alive for the controller's lifetime.

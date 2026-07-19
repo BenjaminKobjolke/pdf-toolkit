@@ -94,7 +94,7 @@ class SelectController:
         rects = self._page_view.highlight_rects_points()
         if not (rects and self._words):
             return
-        idx = motions.word_in_rect(self._words, *rects[0])
+        idx = motions.word_in_rect(self._words, rects[0])
         if idx is not None:
             self._cursor = idx
             self._page_view.clear_highlights()  # gold seed consumed; blue cursor takes over

@@ -12,7 +12,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from app.logging_setup import log
+from app.app_logger import log
 from app.release import schema
 
 

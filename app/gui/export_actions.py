@@ -55,11 +55,13 @@ class ExportActions:
             return
         choice = confirm_dialog.confirm(
             self._parent,
-            strings.CONFIRM_EXPORT_TITLE,
-            strings.CONFIRM_EXPORT_OVERWRITE,
-            primary=strings.BTN_YES,
-            secondary=strings.BTN_NO,
-            cancel=strings.BTN_CANCEL,
+            confirm_dialog.ConfirmSpec(
+                title=strings.CONFIRM_EXPORT_TITLE,
+                message=strings.CONFIRM_EXPORT_OVERWRITE,
+                primary=strings.BTN_YES,
+                secondary=strings.BTN_NO,
+                cancel=strings.BTN_CANCEL,
+            ),
         )
         if choice is confirm_dialog.DialogResult.PRIMARY:
             self._overwrite(working)

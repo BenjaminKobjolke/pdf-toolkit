@@ -43,11 +43,13 @@ class RectActions:
             return
         value = number_input_dialog.prompt_float(
             self._parent,
-            overlay_strings.DIALOG_RECT_WIDTH_TITLE,
-            overlay_strings.PROMPT_RECT_WIDTH,
-            item.current_width(),
-            _MIN_DIM,
-            _MAX_DIM,
+            number_input_dialog.NumberPromptSpec(
+                title=overlay_strings.DIALOG_RECT_WIDTH_TITLE,
+                label=overlay_strings.PROMPT_RECT_WIDTH,
+                value=item.current_width(),
+                minimum=_MIN_DIM,
+                maximum=_MAX_DIM,
+            ),
         )
         if value is not None:
             self._rects.set_selected_size(value, item.current_height())
@@ -58,11 +60,13 @@ class RectActions:
             return
         value = number_input_dialog.prompt_float(
             self._parent,
-            overlay_strings.DIALOG_RECT_HEIGHT_TITLE,
-            overlay_strings.PROMPT_RECT_HEIGHT,
-            item.current_height(),
-            _MIN_DIM,
-            _MAX_DIM,
+            number_input_dialog.NumberPromptSpec(
+                title=overlay_strings.DIALOG_RECT_HEIGHT_TITLE,
+                label=overlay_strings.PROMPT_RECT_HEIGHT,
+                value=item.current_height(),
+                minimum=_MIN_DIM,
+                maximum=_MAX_DIM,
+            ),
         )
         if value is not None:
             self._rects.set_selected_size(item.current_width(), value)

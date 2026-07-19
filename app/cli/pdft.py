@@ -15,10 +15,10 @@ from prompt_toolkit import prompt as pt_prompt
 from prompt_toolkit.completion import CompleteEvent, Completer, Completion
 from prompt_toolkit.document import Document
 
+from app.app_logger import configure_logging
 from app.cli._common import EXIT_OK, run_folder_merge, run_to_new_file, run_with_backup
 from app.cli.console import console
 from app.config.settings import Settings
-from app.logging_setup import configure_logging
 from app.pdf._inputs import PDF_EXTENSION, SUPPORTED_EXTENSIONS
 from app.pdf.deleter import delete_page, delete_page_range
 from app.pdf.extractor import default_extract_dest, extract_page

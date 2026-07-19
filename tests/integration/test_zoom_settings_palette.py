@@ -26,7 +26,7 @@ class _FakeDialog:
 
     pick_title = ""
 
-    def __init__(self, entries: list[ListEntry], **_kw: object) -> None:
+    def __init__(self, entries: list[ListEntry], *_args: object, **_kw: object) -> None:
         self._entries = entries
 
     def exec(self) -> int:

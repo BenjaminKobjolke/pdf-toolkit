@@ -42,11 +42,13 @@ def _field(**overrides: object) -> TextFieldSpec:
 
 
 def test_scene_to_pdf_rect_divides_by_zoom() -> None:
-    assert scene_to_pdf_rect(150.0, 75.0, 300.0, 30.0, 1.5) == (100.0, 50.0, 300.0, 70.0)
+    box = _field(x=150.0, y=75.0, width=300.0, height=30.0)
+    assert scene_to_pdf_rect(box, 1.5) == (100.0, 50.0, 300.0, 70.0)
 
 
 def test_scene_to_pdf_rect_identity_at_zoom_one() -> None:
-    assert scene_to_pdf_rect(10.0, 20.0, 5.0, 6.0, 1.0) == (10.0, 20.0, 15.0, 26.0)
+    box = _field(x=10.0, y=20.0, width=5.0, height=6.0)
+    assert scene_to_pdf_rect(box, 1.0) == (10.0, 20.0, 15.0, 26.0)
 
 
 def test_screen_px_to_point_size() -> None:

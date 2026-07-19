@@ -48,11 +48,13 @@ class LinkHintSettingsController:
         """Prompt for the hint letter's font size in points."""
         value = number_input_dialog.prompt_int(
             self._parent,
-            link_strings.DIALOG_LINK_FONT_TITLE,
-            link_strings.PROMPT_LINK_FONT,
-            self._settings.font_pt,
-            FONT_PT_MIN,
-            FONT_PT_MAX,
+            number_input_dialog.NumberPromptSpec(
+                title=link_strings.DIALOG_LINK_FONT_TITLE,
+                label=link_strings.PROMPT_LINK_FONT,
+                value=self._settings.font_pt,
+                minimum=FONT_PT_MIN,
+                maximum=FONT_PT_MAX,
+            ),
         )
         if value is not None:
             self._save(font_pt=value)

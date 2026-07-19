@@ -29,7 +29,7 @@ def draw_image(page: fitz.Page, image: ImageFieldSpec, zoom: float, base_dir: Pa
     if not resolved.is_file():
         raise ValueError(f"image file not found: {resolved}")
 
-    x0, y0, x1, y1 = scene_to_pdf_rect(image.x, image.y, image.width, image.height, zoom)
+    x0, y0, x1, y1 = scene_to_pdf_rect(image, zoom)
     page.insert_image(
         fitz.Rect(x0, y0, x1, y1),
         filename=str(resolved),

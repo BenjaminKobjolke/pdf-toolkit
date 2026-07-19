@@ -44,6 +44,7 @@ from app.gui.image_controller import ImageController
 from app.gui.instance_controller import InstanceController
 from app.gui.keybinding_actions import KeybindingActions
 from app.gui.layer_actions import LayerActions
+from app.gui.lifecycle_actions import LifecycleActions
 from app.gui.link_hint_controller import LinkHintController
 from app.gui.link_hint_settings_controller import LinkHintSettingsController
 from app.gui.link_hint_style import LinkHintStyle
@@ -289,6 +290,27 @@ def _finish(window: MainWindow, settings: Settings) -> None:
     )
     window._chrome = ChromeController(
         window.menuBar(), window._bar, window._edit_bar, window._mode_bar, window._ui_state
+    )
+    window._lifecycle = LifecycleActions(
+        parent=window,
+        save=window._save,
+        open_filter=window._open_filter,
+        doc_memories=window._doc_memories,
+        working_doc=window._working_doc,
+        controller=window._controller,
+        images=window._images,
+        page_view=window._page_view,
+        bar=window._bar,
+        mode_bar=window._mode_bar,
+        edit_bar=window._edit_bar,
+        recent=window._recent,
+        reload=window._reload,
+        chrome=window._chrome,
+        geometry=window._geometry,
+        backend=window._backend,
+        source=lambda: window._source,
+        set_source=window._set_source,
+        set_title=window.setWindowTitle,
     )
     window._chrome.apply_saved()
     window._geometry.restore()

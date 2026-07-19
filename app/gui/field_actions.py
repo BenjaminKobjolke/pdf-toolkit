@@ -16,7 +16,7 @@ from PySide6.QtWidgets import QWidget
 from app.gui import number_input_dialog, strings
 from app.gui.color_picker_dialog import ColorPickerDialog, pick_color
 from app.gui.edit_controller import EditController
-from app.gui.filter_list_dialog import FilterListDialog, ListEntry
+from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
 from app.gui.page_view import PageView
 from app.gui.text_input_dialog import TextInputDialog
 
@@ -47,11 +47,13 @@ class FieldActions:
             return
         size = number_input_dialog.prompt_float(
             self._parent,
-            strings.DIALOG_FIELD_SIZE_TITLE,
-            strings.PROMPT_FIELD_SIZE,
-            style.font_size,
-            1,
-            400,
+            number_input_dialog.NumberPromptSpec(
+                title=strings.DIALOG_FIELD_SIZE_TITLE,
+                label=strings.PROMPT_FIELD_SIZE,
+                value=style.font_size,
+                minimum=1,
+                maximum=400,
+            ),
         )
         if size is not None:
             self._controller.apply_style(replace(style, font_size=size))
@@ -71,8 +73,10 @@ class FieldActions:
         entries = [ListEntry(title=family, payload=family) for family in QFontDatabase.families()]
         dialog = FilterListDialog(
             entries,
-            placeholder=strings.FONT_PLACEHOLDER,
-            title=strings.FONT_DIALOG_TITLE,
+            FilterListOptions(
+                placeholder=strings.FONT_PLACEHOLDER,
+                title=strings.FONT_DIALOG_TITLE,
+            ),
             parent=self._parent,
         )
         if dialog.exec() and (chosen := dialog.chosen()) is not None:

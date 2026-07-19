@@ -116,7 +116,7 @@ def test_open_folder_from_history_lists_unique_folders_and_opens_last_file(
     captured: list[ListEntry] = []
 
     class _FakeDialog:
-        def __init__(self, entries: list[ListEntry], **_kw: object) -> None:
+        def __init__(self, entries: list[ListEntry], *_args: object, **_kw: object) -> None:
             captured.extend(entries)
 
         def exec(self) -> int:
@@ -162,7 +162,7 @@ def test_palette_records_command_on_run(
     target = commands.find(window._registry, commands.TOGGLE_STATUSBAR)
 
     class _FakeDialog:
-        def __init__(self, entries: list[ListEntry], **_kw: object) -> None:
+        def __init__(self, entries: list[ListEntry], *_args: object, **_kw: object) -> None:
             self._entries = entries
 
         def exec(self) -> int:

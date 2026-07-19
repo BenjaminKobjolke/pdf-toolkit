@@ -17,7 +17,7 @@ def draw_rect(page: fitz.Page, rect: RectFieldSpec, zoom: float) -> None:
     """Draw ``rect`` (a filled box) onto ``page``."""
     from app.pdf.text_overlay import scene_to_pdf_rect  # local: shared geometry helper
 
-    x0, y0, x1, y1 = scene_to_pdf_rect(rect.x, rect.y, rect.width, rect.height, zoom)
+    x0, y0, x1, y1 = scene_to_pdf_rect(rect, zoom)
     page.draw_rect(
         fitz.Rect(x0, y0, x1, y1),
         fill=hex_to_rgbf(rect.color),

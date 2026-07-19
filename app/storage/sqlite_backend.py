@@ -13,7 +13,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-from app.logging_setup import log
+from app.app_logger import log
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS settings (

@@ -7,16 +7,9 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import QMainWindow
 
-from app.gui import (
-    confirm_dialog,
-    file_browser_model,
-    file_dialogs,
-    overlay_selection,
-    strings,
-)
+from app.gui import confirm_dialog, overlay_selection, strings
 from app.gui.main_window_accessors import CollaboratorAccessors
 from app.gui.window_builder import assemble
-from app.pdf.file_format import FileFormat
 
 if TYPE_CHECKING:
     from PySide6.QtGui import QCloseEvent
@@ -41,50 +34,7 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
 
     def open_pdf(self, path: Path | None = None) -> None:
         """Open ``path`` (or prompt for one) into a working copy and show page 1."""
-        if not self._save.confirm_unsaved():
-            return
-        if path is None:
-            chosen = file_dialogs.prompt_open_file(
-                self,
-                strings.DIALOG_OPEN_TITLE,
-                self._open_filter.current_filter(),
-                self._source.parent if self._source else None,
-            )
-            if chosen is None:
-                return
-            path = chosen
-        # Boundary: reject a format the viewer can't render (e.g. a path passed on
-        # the command line) instead of handing it to fitz and failing obscurely.
-        doc_format = FileFormat.of(path)
-        if doc_format is None:
-            confirm_dialog.show_message(
-                self,
-                strings.DIALOG_ERROR_TITLE,
-                strings.MSG_UNSUPPORTED_FORMAT_FMT.format(name=path.name),
-                confirm_dialog.Severity.WARNING,
-            )
-            return
-        # Capture the outgoing document's view state before switching away.
-        self._doc_memories.capture(self._source)
-        self._source = path
-        working = self._working_doc.open(path)
-        # Asset paths resolve against the original PDF's directory, not the temp
-        # working copy; set this before rendering so the first restore can load
-        # image pixmaps.
-        self._controller.set_base_dir(path.parent)
-        self._images.set_base_dir(path.parent)
-        # Load saved content before rendering so the first page_changed restores
-        # it onto the page (it shows whether or not edit mode is on). The sidecar
-        # is keyed to the working copy, seeded from the original on open.
-        self._load_text_fields(working)
-        self._page_view.load(working)
-        # Restore the remembered zoom/page for this document (independent dimensions).
-        self._doc_memories.apply_for(path)
-        self._bar.update_for(has_doc=True, is_pdf=doc_format is FileFormat.PDF)
-        self._mode_bar.set_dirty(False)
-        self._recent.add(path)
-        self._reload.on_document_opened(path)
-        self.setWindowTitle(strings.WINDOW_TITLE_OPEN_FMT.format(path=path))
+        self._lifecycle.open_pdf(path)
 
     def open_from_history(self) -> None:
         self._document_actions.open_from_history()
@@ -94,54 +44,19 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
 
     def open_next_file(self) -> None:
         """Open the alphabetically next openable file in the document's directory."""
-        self._open_sibling(1)
+        self._lifecycle.open_sibling(1)
 
     def open_previous_file(self) -> None:
         """Open the alphabetically previous openable file in the document's directory."""
-        self._open_sibling(-1)
-
-    def _open_sibling(self, step: int) -> None:
-        if self._source is None:
-            return
-        target = file_browser_model.sibling_file(
-            self._source, self._open_filter.current_filter(), step
-        )
-        if target is None:
-            self._mode_bar.set_hint(strings.HINT_NO_SIBLING_FILE)
-            return
-        self.open_pdf(target)
+        self._lifecycle.open_sibling(-1)
 
     def open_directory(self) -> None:
         """Browse to a folder and open its first openable file."""
-        chosen = file_dialogs.prompt_directory(
-            self,
-            strings.DIALOG_OPEN_DIR_TITLE,
-            self._source.parent if self._source else None,
-        )
-        if chosen is None:
-            return
-        target = file_browser_model.first_openable_file(chosen, self._open_filter.current_filter())
-        if target is None:
-            self._mode_bar.set_hint(strings.HINT_NO_OPENABLE_FILE)
-            return
-        self.open_pdf(target)
+        self._lifecycle.open_directory()
 
     def close_document(self) -> None:
         """Offer to save pending changes, then return to the empty viewer state."""
-        if not self._save.confirm_unsaved():
-            return
-        self._doc_memories.capture(self._source)
-        self._working_doc.close()
-        self._page_view.reset()
-        self._bar.update_for(has_doc=False, is_pdf=False)
-        self._mode_bar.clear_page_label()
-        self._mode_bar.clear_zoom_label()
-        self._mode_bar.set_dirty(False)
-        if self._edit_bar.is_edit_mode():
-            self._edit_bar.toggle_edit_mode()
-        self._reload.on_document_closed()
-        self._source = None
-        self.setWindowTitle(strings.WINDOW_TITLE)
+        self._lifecycle.close_document()
 
     def exit_app(self) -> None:
         self.close()
@@ -261,30 +176,17 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
 
     def closeEvent(self, event: QCloseEvent) -> None:
         """Confirm unsaved changes, then persist UI + window state before closing."""
-        if not self._save.confirm_unsaved():
+        if self._lifecycle.shutdown():
+            super().closeEvent(event)
+        else:
             event.ignore()
-            return
-        self._doc_memories.capture(self._source)
-        self._working_doc.close()
-        self._chrome.save()
-        self._geometry.save()
-        self._backend.close()
-        super().closeEvent(event)
 
     def _original_dir(self) -> Path | None:
         original = self._working_doc.original()
         return original.parent if original is not None else None
 
-    def _load_text_fields(self, path: Path) -> None:
-        try:
-            self._controller.on_document_loaded(path)
-        except ValueError as err:
-            confirm_dialog.show_message(
-                self,
-                strings.DIALOG_ERROR_TITLE,
-                strings.MSG_SIDECAR_LOAD_FAILED_FMT.format(error=err),
-                confirm_dialog.Severity.WARNING,
-            )
+    def _set_source(self, path: Path | None) -> None:
+        self._source = path
 
     def _report(self, result: OpResult) -> None:
         if result.ok:

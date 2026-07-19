@@ -69,11 +69,12 @@ def span_text(words: list[WordBox], a: int, b: int) -> str:
     return out
 
 
-def word_in_rect(words: list[WordBox], x0: float, y0: float, x1: float, y1: float) -> int | None:
-    """First word (lowest index) whose box intersects the rect; None if none.
+def word_in_rect(words: list[WordBox], rect: tuple[float, float, float, float]) -> int | None:
+    """First word (lowest index) whose box intersects ``rect`` (x0, y0, x1, y1); None if none.
 
     Used to seed the cursor from a search highlight: the match's first word.
     """
+    x0, y0, x1, y1 = rect
     for word in words:
         if word.x0 < x1 and word.x1 > x0 and word.y0 < y1 and word.y1 > y0:
             return word.index

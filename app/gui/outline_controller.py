@@ -22,7 +22,7 @@ from app.config.outline_settings import (
 )
 from app.gui import number_input_dialog, settings_strings
 from app.gui.color_picker_dialog import pick_color
-from app.gui.filter_list_dialog import FilterListDialog, ListEntry
+from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
 from app.gui.outline_style import OutlineStyle
 
 _STYLE_LABELS: dict[OutlineLineStyle, str] = {
@@ -55,11 +55,13 @@ class OutlineController:
         """Prompt for the outline stroke width in pixels."""
         value = number_input_dialog.prompt_int(
             self._parent,
-            settings_strings.DIALOG_OUTLINE_WIDTH_TITLE,
-            settings_strings.PROMPT_OUTLINE_WIDTH,
-            self._settings.width_px,
-            WIDTH_PX_MIN,
-            WIDTH_PX_MAX,
+            number_input_dialog.NumberPromptSpec(
+                title=settings_strings.DIALOG_OUTLINE_WIDTH_TITLE,
+                label=settings_strings.PROMPT_OUTLINE_WIDTH,
+                value=self._settings.width_px,
+                minimum=WIDTH_PX_MIN,
+                maximum=WIDTH_PX_MAX,
+            ),
         )
         if value is not None:
             self._save(width_px=value)
@@ -72,8 +74,10 @@ class OutlineController:
         ]
         dialog = FilterListDialog(
             entries,
-            placeholder=settings_strings.OUTLINE_STYLE_PLACEHOLDER,
-            title=settings_strings.DIALOG_OUTLINE_STYLE_TITLE,
+            FilterListOptions(
+                placeholder=settings_strings.OUTLINE_STYLE_PLACEHOLDER,
+                title=settings_strings.DIALOG_OUTLINE_STYLE_TITLE,
+            ),
             parent=self._parent,
         )
         if dialog.exec() and (chosen := dialog.chosen()) is not None:

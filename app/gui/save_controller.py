@@ -80,11 +80,13 @@ class SaveController:
             return True
         choice = confirm_dialog.confirm(
             self._parent,
-            strings.CONFIRM_UNSAVED_TITLE,
-            strings.CONFIRM_UNSAVED_TEXT,
-            primary=strings.BTN_SAVE,
-            secondary=strings.BTN_DISCARD,
-            cancel=strings.BTN_CANCEL,
+            confirm_dialog.ConfirmSpec(
+                title=strings.CONFIRM_UNSAVED_TITLE,
+                message=strings.CONFIRM_UNSAVED_TEXT,
+                primary=strings.BTN_SAVE,
+                secondary=strings.BTN_DISCARD,
+                cancel=strings.BTN_CANCEL,
+            ),
         )
         if choice is confirm_dialog.DialogResult.CANCEL:
             return False

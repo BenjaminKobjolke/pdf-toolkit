@@ -8,13 +8,13 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
+from app.app_logger import configure_logging, log
 from app.config.instance_settings import InstanceSettingsStore
 from app.config.settings import Settings
 from app.gui import single_instance
 from app.gui.main_window import MainWindow
 from app.gui.resources import app_icon, set_app_user_model_id
 from app.gui.single_instance import InstanceServer
-from app.logging_setup import configure_logging, log
 from app.storage.factory import make_backend
 
 __all__ = ["InstanceServer", "main", "single_instance"]

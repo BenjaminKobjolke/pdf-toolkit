@@ -10,7 +10,7 @@ from app.config.command_history import CommandHistoryStore
 from app.config.key_bindings import KeyMap
 from app.gui import strings
 from app.gui.commands import Command
-from app.gui.filter_list_dialog import FilterListDialog, ListEntry
+from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
 from app.gui.palette_controller import PaletteController
 from app.gui.palette_entries import build_palette_entries
 from app.gui.window_input import mouse_control_pairs
@@ -49,9 +49,11 @@ class PaletteActions:
         )
         dialog = FilterListDialog(
             entries,
-            placeholder=strings.PALETTE_PLACEHOLDER,
-            title=strings.PALETTE_TITLE,
-            show_shortcuts=True,
+            FilterListOptions(
+                placeholder=strings.PALETTE_PLACEHOLDER,
+                title=strings.PALETTE_TITLE,
+                show_shortcuts=True,
+            ),
             parent=self._parent,
         )
         self._palette.apply_to(dialog, self._parent.size())
@@ -64,8 +66,10 @@ class PaletteActions:
         """F1: choose between editing keyboard shortcuts or viewing mouse controls."""
         dialog = FilterListDialog(
             self._chooser_entries(),
-            placeholder=strings.SHORTCUTS_PLACEHOLDER,
-            title=strings.SHORTCUTS_TITLE,
+            FilterListOptions(
+                placeholder=strings.SHORTCUTS_PLACEHOLDER,
+                title=strings.SHORTCUTS_TITLE,
+            ),
             parent=self._parent,
         )
         self._palette.apply_to(dialog, self._parent.size())
@@ -87,8 +91,10 @@ class PaletteActions:
         ]
         dialog = FilterListDialog(
             entries,
-            placeholder=strings.MOUSE_CONTROLS_PLACEHOLDER,
-            title=strings.MOUSE_CONTROLS_TITLE,
+            FilterListOptions(
+                placeholder=strings.MOUSE_CONTROLS_PLACEHOLDER,
+                title=strings.MOUSE_CONTROLS_TITLE,
+            ),
             parent=self._parent,
         )
         self._palette.apply_to(dialog, self._parent.size())

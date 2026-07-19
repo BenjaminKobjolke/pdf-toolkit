@@ -12,8 +12,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from app.app_logger import log
 from app.io.fs import replace_atomic
-from app.logging_setup import log
 
 _TMP_SUFFIX = ".tmp"
 

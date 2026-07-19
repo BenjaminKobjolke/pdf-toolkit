@@ -18,6 +18,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QPointF, QTimer
 
+from app.app_logger import log
 from app.gui import strings, text_style
 from app.gui.image_controller import ImageController
 from app.gui.operations import OpResult
@@ -27,7 +28,6 @@ from app.gui.page_view import PageView
 from app.gui.rect_controller import RectController
 from app.gui.text_item import TextFieldItem
 from app.gui.text_style import TextStyle
-from app.logging_setup import log
 from app.pdf.sidecar import load_sidecar, save_sidecar, sidecar_path
 from app.pdf.text_overlay import apply_overlay
 

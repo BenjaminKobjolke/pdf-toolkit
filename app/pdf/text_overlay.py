@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Protocol
 
 import fitz  # PyMuPDF
 
@@ -32,14 +33,28 @@ def embedded_output_path(source: Path) -> Path:
     return source.with_name(f"{source.stem}{EMBEDDED_SUFFIX}{source.suffix}")
 
 
-def scene_to_pdf_rect(
-    x_px: float, y_px: float, w_px: float, h_px: float, zoom: float
-) -> tuple[float, float, float, float]:
-    """Map a scene-pixel rect to a PDF-point rect ``(x0, y0, x1, y1)``."""
+class SceneBox(Protocol):
+    """Anything with a scene-pixel bounding box (the overlay field specs)."""
+
+    @property
+    def x(self) -> float: ...
+
+    @property
+    def y(self) -> float: ...
+
+    @property
+    def width(self) -> float: ...
+
+    @property
+    def height(self) -> float: ...
+
+
+def scene_to_pdf_rect(box: SceneBox, zoom: float) -> tuple[float, float, float, float]:
+    """Map ``box``'s scene-pixel rect to a PDF-point rect ``(x0, y0, x1, y1)``."""
     point = 1.0 / zoom
-    x0 = x_px * point
-    y0 = y_px * point
-    return (x0, y0, x0 + w_px * point, y0 + h_px * point)
+    x0 = box.x * point
+    y0 = box.y * point
+    return (x0, y0, x0 + box.width * point, y0 + box.height * point)
 
 
 def screen_px_to_point_size(size_px: float, zoom: float) -> float:
@@ -120,7 +135,7 @@ def _require_page(page_index: int, total: int) -> None:
 
 
 def _draw_field(page: fitz.Page, field: TextFieldSpec, zoom: float) -> None:
-    x0, y0, x1, y1 = scene_to_pdf_rect(field.x, field.y, field.width, field.height, zoom)
+    x0, y0, x1, y1 = scene_to_pdf_rect(field, zoom)
     size_pt = screen_px_to_point_size(field.font_size, zoom)
     color = _hex_to_rgbf(field.color)
     resolved = resolve_font(FontRequest(field.font_family, field.bold, field.italic))

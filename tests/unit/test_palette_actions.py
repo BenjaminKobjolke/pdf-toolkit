@@ -26,13 +26,13 @@ def _actions(open_keyboard: MagicMock) -> PaletteActions:
 
 
 def test_chooser_offers_keyboard_then_mouse(qapp: object) -> None:
-    actions = _actions(MagicMock())
+    actions = _actions(MagicMock(spec=lambda: None))
     titles = [entry.title for entry in actions._chooser_entries()]
     assert titles == [strings.CHOOSE_KEYBOARD_LABEL, strings.CHOOSE_MOUSE_LABEL]
 
 
 def test_keyboard_entry_invokes_the_editable_dialog(qapp: object) -> None:
-    open_keyboard = MagicMock()
+    open_keyboard = MagicMock(spec=lambda: None)
     actions = _actions(open_keyboard)
     keyboard_entry, _mouse_entry = actions._chooser_entries()
     keyboard_entry.payload()
@@ -40,6 +40,6 @@ def test_keyboard_entry_invokes_the_editable_dialog(qapp: object) -> None:
 
 
 def test_mouse_entry_routes_to_the_mouse_list(qapp: object) -> None:
-    actions = _actions(MagicMock())
+    actions = _actions(MagicMock(spec=lambda: None))
     _keyboard_entry, mouse_entry = actions._chooser_entries()
     assert mouse_entry.payload == actions._show_mouse_controls

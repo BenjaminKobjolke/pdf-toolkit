@@ -14,7 +14,7 @@ import img2pdf  # type: ignore[import-untyped]
 from PIL import Image
 from pypdf import PageObject, PdfReader
 
-from app.logging_setup import log
+from app.app_logger import log
 
 PDF_EXTENSION: str = ".pdf"
 IMAGE_EXTENSIONS: tuple[str, ...] = (".jpg", ".jpeg", ".png")
