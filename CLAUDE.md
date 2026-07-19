@@ -223,6 +223,10 @@ Shorter (no plan-DRY phase): `bugs:fix → /verify:after-change`.
 
 ---
 
+## Accepted Rule Exceptions
+
+- No root `start.bat` (Python rules require one): `pdft.bat` (CLI wizard) and `FastFileViewer.bat` (GUI) are the entry points instead.
+
 ## Project-Specific Notes
 
 - CLI + PySide6 desktop GUI (`app/gui/`). Settings persist in a sqlite backend. No Jinja2, no localization, no web layer.
