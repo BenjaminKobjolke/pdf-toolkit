@@ -68,7 +68,11 @@ Caveats:
 
 - **JPEG** is re-encoded on save (quality 95) — repeated transforms compound the loss.
 - Any **EXIF orientation** tag is baked into the pixels; other EXIF metadata is dropped.
-- **Animated GIF / multi-frame TIFF**: only the first frame is kept.
+- **Animated GIF**: plays back in the viewer (autoplays on open; pause/resume with
+  the **GIF: play / pause** palette command — see `COMMAND_PALETTE.md`). Editing
+  operations (rotate/flip/save) still act on the first frame only, so stop playback
+  and treat it as a still before transforming. **Multi-frame TIFF**: only the first
+  frame is kept.
 - **Save As** for an image copies the bytes verbatim — the extension you type does
   not convert the format.
 - To open files by **double-click from Explorer**, associate their types with the

@@ -64,6 +64,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Toggle toolbar** | Show/hide the button toolbars (remembered across sessions). |
 | **Toggle status bar** | Show/hide the footer status bar (remembered across sessions; see `STATUS_BAR.md`). |
 | **Toggle fullscreen** | Enter/leave fullscreen for the current session (not remembered). |
+| **GIF: play / pause** | Pause or resume the current animated GIF. Shown only when an animated GIF is open (see *Animated GIF*). |
 | **Palette: width %…** | Set the palette width as a % of the window (see *Appearance settings*). |
 | **Palette: height %…** | Set the palette height as a % of the window. |
 | **Palette: font size…** | Set the palette font size in points (0 = default). |
@@ -331,6 +332,19 @@ Details:
   **Save / Discard / Cancel** prompt appears; **Cancel** skips that reload.
 - The default is persisted in the sqlite settings backend; reset it from
   **Remembered settings…** ("Reload on file changes").
+
+## Animated GIF
+
+Opening an animated `.gif` **plays it automatically**. The frames are decoded by
+Qt's native movie engine and drawn onto the page, so zoom, fit, and scroll behave
+just like any other image.
+
+- **GIF: play / pause** stops the animation and resumes it — one palette row with a
+  stable label (so a type-to-filter search for either "play" or "pause" always finds
+  it). The command appears only while an animated GIF is open (a single-frame `.gif`
+  is treated as a normal static image).
+- Editing operations (rotate, flip, save) still apply to the first frame only; stop
+  playback and treat the GIF as a still before transforming it (see `FILE_FORMATS.md`).
 
 ## Open file / folder from recent / history
 

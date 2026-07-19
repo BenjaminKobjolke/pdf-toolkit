@@ -93,10 +93,13 @@ class PageView(OverlayItemsMixin, ZoomDelegateMixin, QGraphicsView):
 
     def load(self, source: Path) -> None:
         """Open ``source`` and show its first page."""
+        # Every fresh document starts un-suspended; an animated GIF re-arms after.
+        self._render_ctl.set_suspended(False)
         self._nav.load(source)
 
     def reset(self) -> None:
         """Clear the open document and show the no-doc placeholder."""
+        self._render_ctl.set_suspended(False)
         self.clear_text_items()
         self.clear_image_items()
         self.clear_rect_items()
@@ -104,6 +107,25 @@ class PageView(OverlayItemsMixin, ZoomDelegateMixin, QGraphicsView):
         self._pixmap_item.setPixmap(QPixmap())
         self._placeholder.setVisible(True)
         self._nav.clear()
+
+    # --- animated GIF playback ----------------------------------------------
+
+    def set_animating(self, on: bool) -> None:
+        """Hide the placeholder and (un)suspend fitz re-render for movie playback."""
+        if on:
+            self._placeholder.setVisible(False)
+        self._render_ctl.set_suspended(on)
+
+    def is_render_suspended(self) -> bool:
+        """Whether fitz re-render is paused (a movie is driving the page pixmap)."""
+        return self._render_ctl.is_suspended()
+
+    def show_animation_frame(self, pixmap: QPixmap) -> None:
+        """Show one GIF frame; re-fit the scene only when the frame size changes."""
+        resized = pixmap.size() != self._pixmap_item.pixmap().size()
+        self._pixmap_item.setPixmap(pixmap)
+        if resized:
+            self._fit_scene_to_pixmap()
 
     def reload(self) -> None:
         """Re-render after the document changed, clamping the index if it shrank."""
@@ -241,7 +263,14 @@ class PageView(OverlayItemsMixin, ZoomDelegateMixin, QGraphicsView):
         self._selection.clear()
         self._placeholder.setVisible(False)
         self._render_ctl.render_now()
-        self._scene.setSceneRect(self._pixmap_item.boundingRect())
-        # Re-apply the zoom mode so 100% stays 100% and fit re-fits each page.
-        self._zoom_ctl.reapply()
+        self._fit_scene_to_pixmap()
         self.page_changed.emit(self.current_page_one_based(), self._nav.total())
+
+    def _fit_scene_to_pixmap(self) -> None:
+        """Size the scene to the page pixmap and re-apply the zoom mode.
+
+        Shared by ``_show`` (each page render) and ``show_animation_frame`` (each
+        differently-sized GIF frame) so 100% stays 100% and fit re-fits.
+        """
+        self._scene.setSceneRect(self._pixmap_item.boundingRect())
+        self._zoom_ctl.reapply()

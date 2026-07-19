@@ -200,6 +200,10 @@ CMD_TOGGLE_TOOLBAR = "Toggle toolbar"
 CMD_TOGGLE_STATUSBAR = "Toggle status bar"
 CMD_TOGGLE_FULLSCREEN = "Toggle fullscreen"
 
+# Animated-GIF playback toggle. Stable label (not state-flipped) so the palette's
+# type-to-filter finds it by "play" OR "pause" whatever the current state.
+CMD_GIF_TOGGLE = "GIF: play / pause"
+
 # Settings command titles (their dialogs live in app.gui.settings_strings)
 CMD_PALETTE_WIDTH = "Palette: width %…"
 CMD_PALETTE_HEIGHT = "Palette: height %…"

@@ -41,6 +41,7 @@ if TYPE_CHECKING:
     from app.gui.edit_bar import EditBar
     from app.gui.edit_controller import EditController
     from app.gui.export_actions import ExportActions
+    from app.gui.gif_controller import GifController
     from app.gui.instance_controller import InstanceController
     from app.gui.keybinding_actions import KeybindingActions
     from app.gui.lifecycle_actions import LifecycleActions
@@ -88,6 +89,7 @@ class CollaboratorAccessors:
     _geometry: WindowGeometryController
     _working_doc: WorkingDocument
     _page_view: PageView
+    _gif: GifController
     _zoom_settings: ZoomSettingsController
     _bar: OperationBar
     _edit_bar: EditBar

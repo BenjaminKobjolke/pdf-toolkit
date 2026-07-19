@@ -174,6 +174,14 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
         else:
             self._geometry.enter_fullscreen()
 
+    def toggle_gif_playback(self) -> None:
+        """Pause/resume the animated GIF (palette action; no-op otherwise)."""
+        self._gif.toggle()
+
+    def is_animated_gif(self) -> bool:
+        """Whether an animated GIF is open (gates the GIF playback command)."""
+        return self._gif.is_animated()
+
     def closeEvent(self, event: QCloseEvent) -> None:
         """Confirm unsaved changes, then persist UI + window state before closing."""
         if self._lifecycle.shutdown():

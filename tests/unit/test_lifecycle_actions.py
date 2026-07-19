@@ -20,6 +20,7 @@ from app.gui.controls import OperationBar
 from app.gui.document_memory_controller import DocumentMemoryGroup
 from app.gui.edit_bar import EditBar
 from app.gui.edit_controller import EditController
+from app.gui.gif_controller import GifController
 from app.gui.image_controller import ImageController
 from app.gui.lifecycle_actions import LifecycleActions
 from app.gui.mode_status_bar import ModeStatusBar
@@ -51,6 +52,7 @@ def make_lifecycle(source: Path | None = None) -> LifecycleActions:
         working_doc=MagicMock(spec=WorkingDocument),
         controller=MagicMock(spec=EditController),
         images=MagicMock(spec=ImageController),
+        gif=MagicMock(spec=GifController),
         page_view=MagicMock(spec=PageView),
         bar=MagicMock(spec=OperationBar),
         mode_bar=MagicMock(spec=ModeStatusBar),

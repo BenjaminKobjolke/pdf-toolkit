@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from app.gui.document_memory_controller import DocumentMemoryGroup
     from app.gui.edit_bar import EditBar
     from app.gui.edit_controller import EditController
+    from app.gui.gif_controller import GifController
     from app.gui.image_controller import ImageController
     from app.gui.mode_status_bar import ModeStatusBar
     from app.gui.open_filter_controller import OpenFilterController
@@ -46,6 +47,7 @@ class LifecycleActions:
     working_doc: WorkingDocument
     controller: EditController
     images: ImageController
+    gif: GifController
     page_view: PageView
     bar: OperationBar
     mode_bar: ModeStatusBar
@@ -87,6 +89,10 @@ class LifecycleActions:
             return
         # Capture the outgoing document's view state before switching away.
         self.doc_memories.capture(self.source())
+        # Release any previous animated GIF first: QMovie holds the working copy
+        # open, and working_doc.open() deletes it — which fails on Windows while
+        # the file is still open.
+        self.gif.on_document_closed()
         self.set_source(path)
         working = self.working_doc.open(path)
         # Asset paths resolve against the original PDF's directory, not the temp
@@ -99,6 +105,9 @@ class LifecycleActions:
         # is keyed to the working copy, seeded from the original on open.
         self._load_text_fields(working)
         self.page_view.load(working)
+        # Autoplay animated GIFs (no-op for every other format); after load so the
+        # static first-frame render is in place before the movie takes over.
+        self.gif.on_document_opened(working, doc_format)
         # Restore the remembered zoom/page for this document (independent dimensions).
         self.doc_memories.apply_for(path)
         self.bar.update_for(has_doc=True, is_pdf=doc_format is FileFormat.PDF)
@@ -139,6 +148,7 @@ class LifecycleActions:
         if not self.save.confirm_unsaved():
             return
         self.doc_memories.capture(self.source())
+        self.gif.on_document_closed()
         self.working_doc.close()
         self.page_view.reset()
         self.bar.update_for(has_doc=False, is_pdf=False)
@@ -156,6 +166,7 @@ class LifecycleActions:
         if not self.save.confirm_unsaved():
             return False
         self.doc_memories.capture(self.source())
+        self.gif.on_document_closed()
         self.working_doc.close()
         self.chrome.save()
         self.geometry.save()

@@ -13,7 +13,7 @@ from app.gui import commands as c
 from app.gui import default_app_strings, link_strings, select_strings, strings
 from app.gui.commands import HAS_TEXT, PDF_ONLY, Command, Predicate
 from app.os_integration import file_association
-from app.pdf.file_format import TEXT_FORMATS
+from app.pdf.file_format import TEXT_FORMATS, FileFormat
 
 if TYPE_CHECKING:
     from app.gui.main_window import MainWindow
@@ -40,6 +40,13 @@ def view_commands(window: MainWindow) -> list[Command]:
         Command(c.TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
         Command(c.TOGGLE_STATUSBAR, strings.CMD_TOGGLE_STATUSBAR, window.toggle_statusbar),
         Command(c.TOGGLE_FULLSCREEN, strings.CMD_TOGGLE_FULLSCREEN, window.toggle_fullscreen),
+        Command(
+            c.GIF_TOGGLE,
+            strings.CMD_GIF_TOGGLE,
+            window.toggle_gif_playback,
+            window.is_animated_gif,
+            frozenset({FileFormat.GIF}),
+        ),
         Command(c.PALETTE_WIDTH, strings.CMD_PALETTE_WIDTH, palette.set_width),
         Command(c.PALETTE_HEIGHT, strings.CMD_PALETTE_HEIGHT, palette.set_height),
         Command(c.PALETTE_FONT, strings.CMD_PALETTE_FONT, palette.set_font_size),

@@ -39,6 +39,7 @@ from app.gui.edit_controller import EditController
 from app.gui.export_actions import ExportActions
 from app.gui.field_actions import FieldActions
 from app.gui.file_actions import FileActions
+from app.gui.gif_controller import GifController
 from app.gui.image_actions import ImageActions
 from app.gui.image_controller import ImageController
 from app.gui.instance_controller import InstanceController
@@ -107,6 +108,7 @@ def _build_core(window: MainWindow, settings: Settings) -> None:
     window._geometry = WindowGeometryController(window, WindowGeometryStore(backend))
     window._working_doc = WorkingDocument(settings)
     window._page_view = PageView()
+    window._gif = GifController(window._page_view)
     window._zoom_settings = ZoomSettingsController(
         window, ZoomSettingsStore(backend), window._page_view
     )
@@ -299,6 +301,7 @@ def _finish(window: MainWindow, settings: Settings) -> None:
         working_doc=window._working_doc,
         controller=window._controller,
         images=window._images,
+        gif=window._gif,
         page_view=window._page_view,
         bar=window._bar,
         mode_bar=window._mode_bar,

@@ -67,6 +67,7 @@ _ALL_IDS = {
     commands.TOGGLE_TOOLBAR,
     commands.TOGGLE_STATUSBAR,
     commands.TOGGLE_FULLSCREEN,
+    commands.GIF_TOGGLE,
     commands.EDIT_MODE,
     commands.SELECT_MODE,
     commands.OPEN_LINK,
