@@ -236,3 +236,6 @@ tmp/commit_msg.tmp
 # cli-code-analyzer
 tools/analyze_code_config.bat
 code_analysis_results/
+
+# Scratch artifacts
+scratch_*
