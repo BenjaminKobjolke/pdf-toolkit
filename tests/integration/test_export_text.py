@@ -92,10 +92,10 @@ def test_export_cancel_does_nothing(
 def test_export_with_no_fields_reports_nothing(
     window: MainWindow, make_pdf: MakePdf, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    from app.gui import strings
+
     asked: list[int] = []
-    informed: list[str] = []
     monkeypatch.setattr(confirm_dialog, "confirm", lambda *a, **k: asked.append(1))
-    monkeypatch.setattr(confirm_dialog, "show_message", lambda *a, **k: informed.append(a[2]))
     pdf = make_pdf([(300, 400)])
     original_bytes = pdf.read_bytes()
     window.open_pdf(pdf)  # no fields placed
@@ -103,5 +103,6 @@ def test_export_with_no_fields_reports_nothing(
     window.export_text()
 
     assert asked == []  # never prompted to overwrite
-    assert informed  # told there is nothing to export
+    # Told there is nothing to export — as a status-bar flash, not a dialog.
+    assert window._mode_bar.flash_text() == strings.MSG_NO_TEXT_TO_EXPORT
     assert pdf.read_bytes() == original_bytes

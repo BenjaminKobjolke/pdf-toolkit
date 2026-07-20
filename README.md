@@ -125,7 +125,9 @@ The palette and direct shortcuts cover:
 - **Thumbnails view** — swap the page view for a grid of square first-page
   previews of every openable file in the current folder; arrows move, **Enter**
   opens, **Esc** returns, and the zoom keys resize the thumbnails (remembered,
-  default 256 px). See [docs/THUMBNAIL_VIEW.md](docs/THUMBNAIL_VIEW.md).
+  default 256 px). While the grid shows, file commands (copy path, file info,
+  open with, rename, print, …) act on the **selected thumbnail** and command
+  visibility follows its format. See [docs/THUMBNAIL_VIEW.md](docs/THUMBNAIL_VIEW.md).
 
 #### Keyboard and mouse controls
 
@@ -145,8 +147,10 @@ The palette and direct shortcuts cover:
 
 Full key + mouse map: [docs/KEYBOARD_SHORTCUTS.md](docs/KEYBOARD_SHORTCUTS.md).
 
-A footer **status bar** shows the current mode (left) and page `current/total`
-(centre); shown by default and hideable via **Toggle status bar** (remembered).
+A footer **status bar** shows the current mode (left), page `current/total`
+(centre), and flashes command **success messages** ("copied file path", …)
+centred for a few seconds — only errors open a dialog; shown by default and
+hideable via **Toggle status bar** (remembered).
 See [docs/STATUS_BAR.md](docs/STATUS_BAR.md). The palette window itself is tunable
 (size, font, opacity, borderless), every list/picker dialog fills a configurable
 percentage of the window (**Dialogs: size %…**), and the selected-element outline

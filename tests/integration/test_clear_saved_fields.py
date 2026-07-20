@@ -6,30 +6,12 @@ from app.gui.edit_controller import EditController
 from app.gui.page_view import PageView
 from app.pdf.image_spec import SidecarDocument
 from app.pdf.sidecar import load_sidecar, save_sidecar, sidecar_path
-from app.pdf.text_spec import TextFieldSpec
-from tests.conftest import MakePdf
-
-
-def _spec() -> TextFieldSpec:
-    return TextFieldSpec(
-        page_index=0,
-        x=20.0,
-        y=30.0,
-        width=0.0,
-        height=0.0,
-        text="Saved",
-        font_family="Helvetica",
-        font_size=18.0,
-        color="#000000",
-        bg_color=None,
-        bold=False,
-        italic=False,
-    )
+from tests.conftest import MakePdf, field_spec
 
 
 def test_clear_saved_fields_deletes_sidecar_and_items(qapp: object, make_pdf: MakePdf) -> None:
     pdf = make_pdf([(300, 400)])
-    save_sidecar(pdf, SidecarDocument(fields=(_spec(),)))
+    save_sidecar(pdf, SidecarDocument(fields=(field_spec(),)))
     view = PageView()
     controller = EditController(view)
     controller.on_document_loaded(pdf)
@@ -83,7 +65,7 @@ def test_flush_without_fields_creates_no_sidecar(qapp: object, make_pdf: MakePdf
 
 def test_flush_after_deleting_all_fields_removes_sidecar(qapp: object, make_pdf: MakePdf) -> None:
     pdf = make_pdf([(300, 400)])
-    save_sidecar(pdf, SidecarDocument(fields=(_spec(),)))
+    save_sidecar(pdf, SidecarDocument(fields=(field_spec(),)))
     view = PageView()
     controller = EditController(view)
     controller.on_document_loaded(pdf)

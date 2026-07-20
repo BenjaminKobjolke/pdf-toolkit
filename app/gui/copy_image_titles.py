@@ -12,10 +12,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from app.gui import file_strings
+from app.gui import effective_target, file_strings, render
 from app.gui.render import DEFAULT_ZOOM
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from app.gui.main_window import MainWindow
 
 
@@ -45,8 +47,12 @@ def page_image_title(window: MainWindow, percent: int) -> str:
     """Title showing the page-render output size in pixels at ``percent``.
 
     100% is original size: one pixel per PDF point — for image documents that
-    is the image's native pixel size.
+    is the image's native pixel size. While the thumbnails grid shows, the size
+    is the selected file's first page (what ``copy_page_image`` will render).
     """
+    selected = effective_target.grid_selection(window)
+    if selected is not None:
+        return _selected_page_title(selected, percent)
     rect = window.page_view.graphics_scene().sceneRect()
     if not window.has_document() or rect.isEmpty():
         return static_page_title(percent)
@@ -57,6 +63,18 @@ def page_image_title(window: MainWindow, percent: int) -> str:
         percent,
         round(rect.width() * scale),
         round(rect.height() * scale),
+    )
+
+
+def _selected_page_title(path: Path, percent: int) -> str:
+    """Pixel-size title for a grid selection, from its first page on disk."""
+    try:
+        width, height = render.page_size(path, 0)
+    except Exception:  # noqa: BLE001 — unreadable selection falls back to the static title
+        return static_page_title(percent)
+    scale = percent / 100  # 100% == 1 px per point, matching copy_page_image
+    return _px_title(
+        file_strings.CMD_COPY_PAGE_IMAGE, percent, round(width * scale), round(height * scale)
     )
 
 

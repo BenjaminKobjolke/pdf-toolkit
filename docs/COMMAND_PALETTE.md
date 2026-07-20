@@ -50,7 +50,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Next file in directory** / **Previous file in directory** | Open the alphabetically next / previous openable file in the current document's folder (also **Alt+Right** / **Alt+Left**). Wraps at the ends; honors the Open-dialog filter and skips files the viewer can't render; prompts to save unsaved changes first. |
 | **Save changes to original file** | Write the working copy back to the original (with a backup) — PDFs and images. See *Deferred saving*. |
 | **Open containing folder in native file explorer** | Open the document's folder in the OS file explorer. |
-| **Rename file…** | Rename the open PDF (and its sidecar) and reopen it. |
+| **Rename file…** | Rename the open PDF (and its sidecar) and reopen it. In the thumbnails view, renames the **selected** file in place instead. |
 | **Copy file path to clipboard** | Copy the open PDF's full path. |
 | **Copy file name to clipboard** | Copy the filename with extension. |
 | **Copy file name without extension to clipboard** | Copy the filename stem (no `.pdf`). |
@@ -408,6 +408,12 @@ palette stay available.
   instead of the page — default **256 px**, clamped 64–1024. The size is
   remembered across sessions; reset it from **Remembered settings…**
   ("Thumbnail size").
+- While the grid is showing, **file commands target the selected thumbnail**
+  (copy path/name, containing folder, file information, open with, print,
+  rename, copy page text/image, delete saved text fields), command visibility
+  follows the **selected file's format**, and commands that need the loaded
+  document (save, reload, page edits, search, edit mode, …) are hidden until
+  you leave the grid.
 - Previews render lazily starting at the selected file; files the viewer can't
   render keep a gray placeholder.
 
@@ -450,5 +456,7 @@ Each store is independent and degrades to its default if missing or corrupt.
 **Delete saved text fields for this document** removes the text-field layout for
 the open PDF: it clears the fields from the page and deletes the JSON sidecar
 (`document.json`) next to the PDF. It asks for confirmation first. The PDF itself
-is not modified — only the saved field layout is discarded. See `edit_mode/EDIT_MODE.md`
-for how the sidecar works.
+is not modified — only the saved field layout is discarded. In the thumbnails
+view it deletes the **selected** PDF's sidecar on disk instead; the open
+document's on-screen fields are untouched. See `edit_mode/EDIT_MODE.md` for how
+the sidecar works.

@@ -20,8 +20,10 @@ from app.gui.edit_controller import EditController
 from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
 from app.gui.operations import OpResult
 from app.gui.save_controller import SaveController
+from app.gui.thumbnails_controller import ThumbnailsController
 from app.pdf.file_format import FileFormat
 from app.pdf.renamer import rename_document
+from app.pdf.sidecar import sidecar_path
 
 
 class DocumentActions:
@@ -36,6 +38,7 @@ class DocumentActions:
         source: Callable[[], Path | None],
         open_pdf: Callable[[Path | None], None],
         report: Callable[[OpResult], None],
+        grid: ThumbnailsController,
     ) -> None:
         self._parent = parent
         self._recent = recent
@@ -44,6 +47,7 @@ class DocumentActions:
         self._source = source
         self._open_pdf = open_pdf
         self._report = report
+        self._grid = grid
 
     def open_from_history(self) -> None:
         """Pick a recently-opened document from the history list and open it."""
@@ -80,8 +84,13 @@ class DocumentActions:
         if dialog.exec() and (chosen := dialog.chosen()) is not None:
             self._open_pdf(chosen.payload)
 
+    def _target(self) -> Path | None:
+        """The file to act on: the selected thumbnail while the grid shows, else the open doc."""
+        return self._grid.selected_path() or self._source()
+
     def delete_saved_text_fields(self) -> None:
-        if self._source() is None:
+        target = self._target()
+        if target is None:
             return
         choice = confirm_dialog.confirm(
             self._parent,
@@ -92,8 +101,16 @@ class DocumentActions:
                 secondary=strings.BTN_NO,
             ),
         )
-        if choice is confirm_dialog.DialogResult.PRIMARY:
+        if choice is not confirm_dialog.DialogResult.PRIMARY:
+            return
+        if target == self._source():
             self._controller.clear_saved_fields()
+        else:
+            # Another file's sidecar: disk only — the open doc's overlay stays.
+            sidecar_path(target).unlink(missing_ok=True)
+            self._report(
+                OpResult(True, strings.MSG_SAVED_FIELDS_DELETED_FMT.format(name=target.name))
+            )
 
     def save_as(self) -> None:
         """Write the open document to a chosen new file and switch to it."""
@@ -116,8 +133,13 @@ class DocumentActions:
             self._open_pdf(dest)
 
     def rename_file(self) -> None:
-        """Rename the open PDF and its sidecar, then reopen under the new name."""
-        source = self._source()
+        """Rename the target file and its sidecar.
+
+        The target is the selected thumbnail while the grid shows, else the
+        open document. The open document is reopened under its new name; any
+        other file is renamed in place and the grid refreshed.
+        """
+        source = self._target()
         if source is None:
             return
         name = text_prompt_dialog.prompt_text(
@@ -131,12 +153,29 @@ class DocumentActions:
         target = source.with_name(name)
         if target.suffix == "":
             target = target.with_suffix(source.suffix)
+        if source == self._source():
+            self._rename_open_document(source, target)
+        else:
+            self._rename_other_file(source, target)
+
+    def _rename_open_document(self, source: Path, target: Path) -> None:
         if not self._save.confirm_unsaved():
             return
+        if not self._try_rename(source, target):
+            return
+        self._open_pdf(target)  # after_open dismisses the grid if it was showing
+        self._report(OpResult(True, strings.MSG_RENAMED_FMT.format(name=target.name)))
+
+    def _rename_other_file(self, source: Path, target: Path) -> None:
+        if not self._try_rename(source, target):
+            return
+        self._grid.refresh(select=target)
+        self._report(OpResult(True, strings.MSG_RENAMED_FMT.format(name=target.name)))
+
+    def _try_rename(self, source: Path, target: Path) -> bool:
         try:
             rename_document(source, target)
         except (OSError, ValueError) as err:
             self._report(OpResult(False, str(err)))
-            return
-        self._open_pdf(target)
-        self._report(OpResult(True, strings.MSG_RENAMED_FMT.format(name=target.name)))
+            return False
+        return True

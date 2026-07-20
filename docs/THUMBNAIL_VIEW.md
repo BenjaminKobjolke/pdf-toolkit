@@ -63,6 +63,36 @@ thumbnail size** instead of the page zoom:
   grid, the zoom keys act on the page again. **Zoom to fit** and **Zoom 100%**
   are not redirected.
 
+## Commands while the grid is active
+
+While the grid is showing, the palette follows the **selected thumbnail**, not
+the underlying open document:
+
+- **File commands act on the selection** — Copy file path / name / name
+  without extension, Open containing folder, File information, Open with…,
+  Print, Rename file…, Copy page text, Copy page as image (all sizes), and
+  Delete saved text fields all target the orange-framed file. Page-based
+  commands read the selection's **first page**, and the live pixel sizes in
+  the Copy-page-as-image titles show the selection's first-page size.
+- **Command visibility follows the selection's format** — select an image and
+  the PDF-only commands disappear; select a text file and the image commands
+  do.
+- **Rename file…** renames the selected file (and its sidecar) in place and
+  refreshes the grid with the new name selected; the open document stays
+  open. Renaming the thumbnail of the open document itself reopens it under
+  the new name and leaves the grid.
+- **Delete saved text fields** deletes the selected file's JSON sidecar on
+  disk; the open document's on-screen fields are untouched unless the
+  selection *is* the open document.
+- **Commands that need the loaded document are hidden** while the grid shows:
+  Save / Save as, Close, Reload, page navigation, Zoom to fit / 100%, page
+  edits (swap/delete/insert/extract/rotate/flip/move), search, edit-mode
+  commands, Export to PDF, Copy current view, and GIF play/pause. Their
+  keyboard shortcuts (Ctrl+S, Page Down, …) are inactive too. Leave the grid
+  (Esc) and they return.
+- **Always reachable**: Thumbnails view (toggle), Zoom in/out (thumbnail
+  size), Next/Previous file in directory, Open…, and every settings command.
+
 ## Details and limits
 
 - Previews are rendered once at a base resolution (longest side 512 px) and

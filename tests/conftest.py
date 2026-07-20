@@ -13,6 +13,7 @@ from pypdf import PdfReader, PdfWriter
 
 if TYPE_CHECKING:
     from app.config.settings import Settings
+    from app.pdf.text_spec import TextFieldSpec
     from app.storage.backend import StorageBackend
 
 # Qt must run headless in tests; set before any QApplication is constructed.
@@ -71,6 +72,26 @@ def window(qapp: object, tmp_path: Path) -> object:
     from app.gui.main_window import MainWindow
 
     return MainWindow(gui_settings(tmp_path))
+
+
+def field_spec() -> TextFieldSpec:
+    """A minimal saved text-field spec for sidecar-writing tests."""
+    from app.pdf.text_spec import TextFieldSpec
+
+    return TextFieldSpec(
+        page_index=0,
+        x=20.0,
+        y=30.0,
+        width=0.0,
+        height=0.0,
+        text="Saved",
+        font_family="Helvetica",
+        font_size=18.0,
+        color="#000000",
+        bg_color=None,
+        bold=False,
+        italic=False,
+    )
 
 
 PageSize = tuple[float, float]

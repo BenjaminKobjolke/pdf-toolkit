@@ -99,6 +99,7 @@ MSG_TEXT_EXPORTED_FMT = "exported text to: {name}"
 MSG_NO_TEXT_TO_EXPORT = "No text fields to export."
 
 CONFIRM_DELETE_SAVED_FIELDS = "Delete all saved text fields for this document?"
+MSG_SAVED_FIELDS_DELETED_FMT = "deleted saved text fields for: {name}"
 LABEL_HISTORY_EMPTY = "No recent documents"
 
 # Text-field placement chooser (where a new field lands)
@@ -258,7 +259,6 @@ CONFIRM_UNSAVED_TITLE = "Unsaved changes"
 CONFIRM_UNSAVED_TEXT = "Save changes to the original file before closing?"
 
 DIALOG_ERROR_TITLE = "Operation failed"
-DIALOG_SUCCESS_TITLE = "Done"
 
 # Shared dialog button labels (custom confirm / alert / input dialogs)
 BTN_OK = "OK"

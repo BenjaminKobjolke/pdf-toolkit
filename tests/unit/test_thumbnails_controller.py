@@ -120,6 +120,38 @@ def test_zoom_clamps_at_bounds(start: int, direction: int, expected: int) -> Non
     mocks["view"].set_thumb_size.assert_called_with(expected)
 
 
+def test_selected_path_none_while_inactive() -> None:
+    controller, mocks = _controller()
+    assert controller.selected_path() is None
+    mocks["view"].selected_path.assert_not_called()
+
+
+def test_selected_path_delegates_to_view_while_active(tmp_path: Path) -> None:
+    doc = tmp_path / "a.pdf"
+    doc.write_text("x")
+    controller, mocks = _controller(source=doc)
+    controller.enter()
+    mocks["view"].selected_path.return_value = doc
+    assert controller.selected_path() == doc
+
+
+def test_refresh_while_inactive_is_noop() -> None:
+    controller, mocks = _controller()
+    controller.refresh()
+    mocks["view"].populate.assert_not_called()
+
+
+def test_refresh_repopulates_with_new_listing_and_selection(tmp_path: Path) -> None:
+    doc = tmp_path / "a.pdf"
+    doc.write_text("x")
+    controller, mocks = _controller(source=doc)
+    controller.enter()
+    renamed = tmp_path / "b.pdf"
+    doc.rename(renamed)
+    controller.refresh(select=renamed)
+    mocks["view"].populate.assert_called_with([renamed], renamed)
+
+
 def test_open_selected_leaves_then_opens(tmp_path: Path) -> None:
     doc = tmp_path / "a.pdf"
     doc.write_text("x")

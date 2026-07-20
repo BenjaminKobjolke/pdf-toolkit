@@ -58,6 +58,34 @@ def test_clear_zoom_label_blanks_it(bar: ModeStatusBar) -> None:
     assert bar.zoom_text() == ""
 
 
+def test_flash_shows_centered_message_and_timer_clears_it(bar: ModeStatusBar) -> None:
+    bar.flash("copied file path")
+    assert bar.flash_text() == "copied file path"
+    assert bar.mode_text() == strings.MODE_REGULAR  # mode label untouched
+    bar._flash_timer.timeout.emit()  # fire the auto-hide without an event loop
+    assert bar.flash_text() == ""
+
+
+def test_flash_blank_by_default(bar: ModeStatusBar) -> None:
+    assert bar.flash_text() == ""
+
+
+def test_second_flash_replaces_first(bar: ModeStatusBar) -> None:
+    bar.flash("first")
+    bar.flash("second")
+    assert bar.flash_text() == "second"
+    bar._flash_timer.timeout.emit()
+    assert bar.flash_text() == ""
+
+
+def test_mode_change_leaves_flash_running(bar: ModeStatusBar) -> None:
+    bar.flash("copied")
+    bar.set_edit_mode(True)
+    assert bar.mode_text() == strings.MODE_EDIT
+    assert bar.flash_text() == "copied"
+    assert bar._flash_timer.isActive() is True
+
+
 def test_dirty_marker_blank_by_default(bar: ModeStatusBar) -> None:
     assert bar.dirty_text() == ""
 

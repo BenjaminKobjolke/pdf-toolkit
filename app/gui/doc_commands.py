@@ -27,7 +27,15 @@ if TYPE_CHECKING:
     from app.gui.main_window import MainWindow
 
 
-def document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+def document_commands(
+    window: MainWindow, has_doc: Predicate, doc_in_view: Predicate
+) -> list[Command]:
+    """File and lifecycle commands.
+
+    ``has_doc`` commands stay reachable while the thumbnails grid shows (they
+    retarget to the selected thumbnail); ``doc_in_view`` commands need the
+    loaded working copy on screen and hide while the grid covers it.
+    """
     return [
         Command(c.OPEN, strings.CMD_OPEN, lambda: window.open_pdf()),
         Command(c.OPEN_DIR, strings.CMD_OPEN_DIR, window.open_directory),
@@ -37,14 +45,16 @@ def document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
             strings.CMD_OPEN_FOLDER_HISTORY,
             window.open_folder_from_history,
         ),
-        Command(c.NEXT_FILE, strings.CMD_NEXT_FILE, window.open_next_file, has_doc, VIEWABLE),
-        Command(c.PREV_FILE, strings.CMD_PREV_FILE, window.open_previous_file, has_doc, VIEWABLE),
-        Command(c.SAVE, strings.CMD_SAVE, window.save_changes, has_doc, TRANSFORMABLE),
+        # Format-agnostic (None): they never read the grid selection, so a
+        # non-viewable selection must not hide them while the grid shows.
+        Command(c.NEXT_FILE, strings.CMD_NEXT_FILE, window.open_next_file, has_doc),
+        Command(c.PREV_FILE, strings.CMD_PREV_FILE, window.open_previous_file, has_doc),
+        Command(c.SAVE, strings.CMD_SAVE, window.save_changes, doc_in_view, TRANSFORMABLE),
         Command(
             c.SAVE_AS,
             file_strings.CMD_SAVE_AS,
             window.document_actions.save_as,
-            has_doc,
+            doc_in_view,
             TRANSFORMABLE,
         ),
         Command(
@@ -91,7 +101,7 @@ def document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
                 c.COPY_VIEW_IMAGE if pct == 100 else f"{c.COPY_VIEW_IMAGE}_{pct}",
                 copy_image_titles.static_view_title(pct),
                 partial(window.file_actions.copy_view_image, pct / 100),
-                has_doc,
+                doc_in_view,
                 VIEWABLE,
                 title_fn=partial(copy_image_titles.view_image_title, window, pct),
             )
@@ -120,19 +130,19 @@ def document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
         ),
         Command(c.PRINT, strings.CMD_PRINT, window.print_actions.print_document, has_doc, VIEWABLE),
         Command(c.RENAME_FILE, strings.CMD_RENAME_FILE, window.rename_file, has_doc, VIEWABLE),
-        Command(c.CLOSE_DOC, strings.CMD_CLOSE_DOC, window.close_document, has_doc, VIEWABLE),
+        Command(c.CLOSE_DOC, strings.CMD_CLOSE_DOC, window.close_document, doc_in_view, VIEWABLE),
         Command(
             c.RELOAD_DOC,
             settings_strings.CMD_RELOAD_DOC,
             window.reload_controller.reload,
-            has_doc,
+            doc_in_view,
             VIEWABLE,
         ),
         Command(
             c.RELOAD_WATCH_SESSION,
             settings_strings.CMD_RELOAD_WATCH_SESSION,
             window.reload_controller.toggle_session_watch,
-            has_doc,
+            doc_in_view,
             VIEWABLE,
         ),
         Command(
@@ -146,13 +156,13 @@ def document_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     ]
 
 
-def navigation_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+def navigation_commands(window: MainWindow, doc_in_view: Predicate) -> list[Command]:
     view = window.page_view
     return [
-        Command(c.PREV_PAGE, strings.CMD_PREV_PAGE, view.show_prev, has_doc, VIEWABLE),
-        Command(c.NEXT_PAGE, strings.CMD_NEXT_PAGE, view.show_next, has_doc, VIEWABLE),
-        Command(c.FIRST_PAGE, strings.CMD_FIRST_PAGE, view.show_first, has_doc, VIEWABLE),
-        Command(c.LAST_PAGE, strings.CMD_LAST_PAGE, view.show_last, has_doc, VIEWABLE),
+        Command(c.PREV_PAGE, strings.CMD_PREV_PAGE, view.show_prev, doc_in_view, VIEWABLE),
+        Command(c.NEXT_PAGE, strings.CMD_NEXT_PAGE, view.show_next, doc_in_view, VIEWABLE),
+        Command(c.FIRST_PAGE, strings.CMD_FIRST_PAGE, view.show_first, doc_in_view, VIEWABLE),
+        Command(c.LAST_PAGE, strings.CMD_LAST_PAGE, view.show_last, doc_in_view, VIEWABLE),
     ]
 
 
@@ -160,99 +170,115 @@ def _thumb_or_page(
     window: MainWindow, thumb_fn: Callable[[], None], page_fn: Callable[[], None]
 ) -> Callable[[], None]:
     """Dispatch a zoom command to the thumbnails grid while it is showing."""
-    return lambda: thumb_fn() if window.thumbnails_controller.is_active() else page_fn()
+    from app.gui import effective_target
+
+    return lambda: thumb_fn() if effective_target.grid_active(window) else page_fn()
 
 
-def zoom_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+def zoom_commands(window: MainWindow, has_doc: Predicate, doc_in_view: Predicate) -> list[Command]:
     view = window.page_view
     thumbs = window.thumbnails_controller
     return [
-        Command(c.ZOOM_FIT, strings.CMD_ZOOM_FIT, view.zoom_fit, has_doc, VIEWABLE),
-        Command(c.ZOOM_ACTUAL, strings.CMD_ZOOM_ACTUAL, view.zoom_actual, has_doc, VIEWABLE),
+        Command(c.ZOOM_FIT, strings.CMD_ZOOM_FIT, view.zoom_fit, doc_in_view, VIEWABLE),
+        Command(c.ZOOM_ACTUAL, strings.CMD_ZOOM_ACTUAL, view.zoom_actual, doc_in_view, VIEWABLE),
+        # Format-agnostic + has_doc: redirected to thumbnail sizing while the
+        # grid shows, so they must survive any (or no) selection.
         Command(
             c.ZOOM_IN,
             strings.CMD_ZOOM_IN,
             _thumb_or_page(window, thumbs.zoom_in, view.zoom_in),
             has_doc,
-            VIEWABLE,
         ),
         Command(
             c.ZOOM_OUT,
             strings.CMD_ZOOM_OUT,
             _thumb_or_page(window, thumbs.zoom_out, view.zoom_out),
             has_doc,
-            VIEWABLE,
         ),
     ]
 
 
-def page_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+def page_commands(window: MainWindow, doc_in_view: Predicate) -> list[Command]:
     pages = window.page_actions
     return [
-        Command(c.SWAP, strings.CMD_SWAP, pages.swap, has_doc, PDF_ONLY),
+        Command(c.SWAP, strings.CMD_SWAP, pages.swap, doc_in_view, PDF_ONLY),
         Command(
-            c.DELETE_PAGE, strings.CMD_DELETE_PAGE, pages.delete_current_page, has_doc, PDF_ONLY
+            c.DELETE_PAGE, strings.CMD_DELETE_PAGE, pages.delete_current_page, doc_in_view, PDF_ONLY
         ),
         Command(
-            c.DELETE_RANGE, strings.CMD_DELETE_RANGE, pages.delete_page_range, has_doc, PDF_ONLY
+            c.DELETE_RANGE, strings.CMD_DELETE_RANGE, pages.delete_page_range, doc_in_view, PDF_ONLY
         ),
-        Command(c.INSERT_PAGE, strings.CMD_INSERT_PAGE, pages.insert_pages, has_doc, PDF_ONLY),
+        Command(c.INSERT_PAGE, strings.CMD_INSERT_PAGE, pages.insert_pages, doc_in_view, PDF_ONLY),
         Command(
-            c.EXTRACT_PAGE, strings.CMD_EXTRACT_PAGE, pages.extract_current_page, has_doc, PDF_ONLY
+            c.EXTRACT_PAGE,
+            strings.CMD_EXTRACT_PAGE,
+            pages.extract_current_page,
+            doc_in_view,
+            PDF_ONLY,
         ),
         # Merge is folder-bound (picks a folder, not the open doc); format handled inside the op.
         Command(c.MERGE_FOLDER, strings.CMD_MERGE_FOLDER, pages.merge_folder),
     ]
 
 
-def rotate_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+def rotate_commands(window: MainWindow, doc_in_view: Predicate) -> list[Command]:
     rotate = window.rotate_actions
     return [
-        Command(c.ROTATE_LEFT, strings.CMD_ROTATE_LEFT, rotate.rotate_left, has_doc, TRANSFORMABLE),
         Command(
-            c.ROTATE_RIGHT, strings.CMD_ROTATE_RIGHT, rotate.rotate_right, has_doc, TRANSFORMABLE
+            c.ROTATE_LEFT, strings.CMD_ROTATE_LEFT, rotate.rotate_left, doc_in_view, TRANSFORMABLE
         ),
-        Command(c.ROTATE_180, strings.CMD_ROTATE_180, rotate.rotate_180, has_doc, TRANSFORMABLE),
+        Command(
+            c.ROTATE_RIGHT,
+            strings.CMD_ROTATE_RIGHT,
+            rotate.rotate_right,
+            doc_in_view,
+            TRANSFORMABLE,
+        ),
+        Command(
+            c.ROTATE_180, strings.CMD_ROTATE_180, rotate.rotate_180, doc_in_view, TRANSFORMABLE
+        ),
         Command(
             c.FLIP_HORIZONTAL,
             strings.CMD_FLIP_HORIZONTAL,
             rotate.flip_horizontal,
-            has_doc,
+            doc_in_view,
             TRANSFORMABLE,
         ),
         Command(
             c.FLIP_VERTICAL,
             strings.CMD_FLIP_VERTICAL,
             rotate.flip_vertical,
-            has_doc,
+            doc_in_view,
             TRANSFORMABLE,
         ),
     ]
 
 
-def move_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+def move_commands(window: MainWindow, doc_in_view: Predicate) -> list[Command]:
     move = window.move_actions
     return [
-        Command(c.MOVE_NEXT, strings.CMD_MOVE_NEXT, move.move_to_next, has_doc, PDF_ONLY),
-        Command(c.MOVE_PREV, strings.CMD_MOVE_PREV, move.move_to_prev, has_doc, PDF_ONLY),
-        Command(c.MOVE_FIRST, strings.CMD_MOVE_FIRST, move.move_to_first, has_doc, PDF_ONLY),
-        Command(c.MOVE_LAST, strings.CMD_MOVE_LAST, move.move_to_last, has_doc, PDF_ONLY),
+        Command(c.MOVE_NEXT, strings.CMD_MOVE_NEXT, move.move_to_next, doc_in_view, PDF_ONLY),
+        Command(c.MOVE_PREV, strings.CMD_MOVE_PREV, move.move_to_prev, doc_in_view, PDF_ONLY),
+        Command(c.MOVE_FIRST, strings.CMD_MOVE_FIRST, move.move_to_first, doc_in_view, PDF_ONLY),
+        Command(c.MOVE_LAST, strings.CMD_MOVE_LAST, move.move_to_last, doc_in_view, PDF_ONLY),
     ]
 
 
 def search_commands(
-    window: MainWindow, has_doc: Predicate, has_highlights: Predicate
+    window: MainWindow, doc_in_view: Predicate, has_highlights: Predicate
 ) -> list[Command]:
     search = window.search_actions
     return [
-        Command(c.SEARCH_PDF, strings.CMD_SEARCH_PDF, search.search_pdf_text, has_doc, HAS_TEXT),
         Command(
-            c.SEARCH_FIELDS, strings.CMD_SEARCH_FIELDS, search.search_fields, has_doc, PDF_ONLY
+            c.SEARCH_PDF, strings.CMD_SEARCH_PDF, search.search_pdf_text, doc_in_view, HAS_TEXT
+        ),
+        Command(
+            c.SEARCH_FIELDS, strings.CMD_SEARCH_FIELDS, search.search_fields, doc_in_view, PDF_ONLY
         ),
         Command(
             c.CLEAR_HIGHLIGHTS,
             strings.CMD_CLEAR_HIGHLIGHTS,
             search.clear_highlights,
-            has_highlights,
+            lambda: has_highlights() and doc_in_view(),
         ),
     ]

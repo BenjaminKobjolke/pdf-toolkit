@@ -98,6 +98,11 @@ class ThumbnailsView(QListWidget):
             self._render_timer.start()
         self._relayout()
 
+    def selected_path(self) -> Path | None:
+        """Path of the highlighted thumbnail, or ``None`` with nothing selected."""
+        item = self.currentItem()
+        return None if item is None else _path_of(item)
+
     def keyPressEvent(self, event: QKeyEvent) -> None:
         """Enter opens the selected file, Esc leaves the grid, arrows navigate."""
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):

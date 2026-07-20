@@ -11,25 +11,7 @@ from app.config.ui_state import UiState, UiStateStore
 from app.gui.main_window import MainWindow
 from app.pdf.image_spec import SidecarDocument
 from app.pdf.sidecar import save_sidecar, sidecar_path
-from app.pdf.text_spec import TextFieldSpec
-from tests.conftest import MakePdf, gui_backend, gui_settings
-
-
-def _spec() -> TextFieldSpec:
-    return TextFieldSpec(
-        page_index=0,
-        x=20.0,
-        y=30.0,
-        width=0.0,
-        height=0.0,
-        text="Saved",
-        font_family="Helvetica",
-        font_size=18.0,
-        color="#000000",
-        bg_color=None,
-        bold=False,
-        italic=False,
-    )
+from tests.conftest import MakePdf, field_spec, gui_backend, gui_settings
 
 
 def _settings(tmp_path: Path) -> Settings:
@@ -47,7 +29,7 @@ def test_rename_moves_pdf_and_sidecar(
     from app.gui import confirm_dialog, text_prompt_dialog
 
     pdf = make_pdf([(200, 300)], name="before.pdf")
-    save_sidecar(pdf, SidecarDocument(fields=(_spec(),)))
+    save_sidecar(pdf, SidecarDocument(fields=(field_spec(),)))
     window.open_pdf(pdf)
 
     monkeypatch.setattr(text_prompt_dialog, "prompt_text", lambda *a, **k: "after.pdf")

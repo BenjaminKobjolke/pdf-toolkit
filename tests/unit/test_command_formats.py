@@ -76,8 +76,16 @@ def test_registry_format_annotations(window: MainWindow) -> None:
     assert commands.find(registry, commands.COPY_PAGE_TEXT).formats == HAS_TEXT
     assert commands.find(registry, commands.SELECT_MODE).formats == HAS_TEXT
     assert commands.find(registry, commands.NEXT_PAGE).formats == VIEWABLE
-    assert commands.find(registry, commands.NEXT_FILE).formats == VIEWABLE
-    assert commands.find(registry, commands.PREV_FILE).formats == VIEWABLE
+    # Format-agnostic: these never read the grid selection, so a non-viewable
+    # selection while the thumbnails grid shows must not hide them.
+    for cid in (
+        commands.NEXT_FILE,
+        commands.PREV_FILE,
+        commands.ZOOM_IN,
+        commands.ZOOM_OUT,
+        commands.THUMBNAILS_VIEW,
+    ):
+        assert commands.find(registry, cid).formats is None
     for cid in ("copy_page_image", "copy_page_image_50", "copy_page_image_25"):
         assert commands.find(registry, cid).formats == VIEWABLE
     assert commands.find(registry, commands.COPY_VIEW_IMAGE).formats == VIEWABLE

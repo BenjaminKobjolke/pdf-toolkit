@@ -81,6 +81,27 @@ class ThumbnailsController:
         self.stack.setCurrentWidget(self.page_view)
         self.page_view.setFocus()
 
+    def selected_path(self) -> Path | None:
+        """Path of the highlighted thumbnail while the grid shows, else ``None``."""
+        if not self._active:
+            return None
+        return self.view.selected_path()
+
+    def refresh(self, select: Path | None = None) -> None:
+        """Re-list the directory and repopulate, selecting ``select`` (or keeping it).
+
+        No-op while the grid is hidden. Used after an on-disk change (e.g. a
+        rename from the palette) so the grid reflects the new listing without
+        leaving it.
+        """
+        if not self._active:
+            return
+        current = select or self.selected_path() or self.source()
+        if current is None:
+            return
+        paths = file_browser_model.openable_files(current.parent, self.current_filter())
+        self.view.populate(paths, current)
+
     def open_selected(self, path: Path) -> None:
         """Leave the grid and open ``path`` in the regular viewer."""
         self.leave()

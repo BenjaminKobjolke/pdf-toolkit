@@ -168,20 +168,27 @@ Predicate = Callable[[], bool]
 def build_commands(window: MainWindow) -> list[Command]:
     """Assemble the full registry from the per-concern command groups."""
     # Local imports break the cycle: the group modules import from this module.
-    from app.gui import doc_commands, overlay_commands, view_commands
+    from app.gui import doc_commands, effective_target, overlay_commands, view_commands
 
     has_doc = window.has_document
     has_highlights = window.page_view.has_highlights
+
+    def doc_in_view() -> bool:
+        # Commands needing the loaded working copy hide while the thumbnails
+        # grid covers the page view; file commands retarget instead (see
+        # effective_target).
+        return effective_target.doc_in_view(window)
+
     return [
-        *doc_commands.document_commands(window, has_doc),
-        *doc_commands.navigation_commands(window, has_doc),
-        *doc_commands.zoom_commands(window, has_doc),
-        *doc_commands.page_commands(window, has_doc),
-        *doc_commands.rotate_commands(window, has_doc),
-        *doc_commands.move_commands(window, has_doc),
+        *doc_commands.document_commands(window, has_doc, doc_in_view),
+        *doc_commands.navigation_commands(window, doc_in_view),
+        *doc_commands.zoom_commands(window, has_doc, doc_in_view),
+        *doc_commands.page_commands(window, doc_in_view),
+        *doc_commands.rotate_commands(window, doc_in_view),
+        *doc_commands.move_commands(window, doc_in_view),
         *view_commands.view_commands(window),
-        *view_commands.edit_commands(window, has_doc),
-        *doc_commands.search_commands(window, has_doc, has_highlights),
+        *view_commands.edit_commands(window, has_doc, doc_in_view),
+        *doc_commands.search_commands(window, doc_in_view, has_highlights),
         *overlay_commands.field_commands(window),
         *overlay_commands.image_commands(window),
         *overlay_commands.rectangle_commands(window, has_doc),

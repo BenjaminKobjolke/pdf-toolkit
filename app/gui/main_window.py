@@ -202,7 +202,9 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
 
     def _report(self, result: OpResult) -> None:
         if result.ok:
-            confirm_dialog.show_message(self, strings.DIALOG_SUCCESS_TITLE, result.message)
+            # Non-blocking: successes flash in the status bar; only errors
+            # interrupt with a modal dialog.
+            self._mode_bar.flash(result.message)
         else:
             confirm_dialog.show_message(
                 self, strings.DIALOG_ERROR_TITLE, result.message, confirm_dialog.Severity.ERROR

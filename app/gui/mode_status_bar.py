@@ -7,9 +7,12 @@ always reflects the real mode without owning any state of its own.
 
 from __future__ import annotations
 
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from app.gui import strings
+
+_FLASH_MS = 3000
 
 
 class ModeStatusBar(QWidget):
@@ -18,13 +21,19 @@ class ModeStatusBar(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self._label = QLabel()
+        self._flash_label = QLabel()
         self._page_label = QLabel()
         self._zoom_label = QLabel()
         self._dirty_label = QLabel()
+        self._flash_timer = QTimer(self)
+        self._flash_timer.setSingleShot(True)
+        self._flash_timer.setInterval(_FLASH_MS)
+        self._flash_timer.timeout.connect(self._end_flash)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(8, 2, 8, 2)
         layout.addWidget(self._label)
         layout.addStretch(1)
+        layout.addWidget(self._flash_label)
         layout.addWidget(self._page_label)
         layout.addStretch(1)
         layout.addWidget(self._zoom_label)
@@ -39,6 +48,22 @@ class ModeStatusBar(QWidget):
     def set_hint(self, text: str) -> None:
         """Show a transient hint in place of the mode label (e.g. while placing)."""
         self._label.setText(text)
+
+    def flash(self, text: str) -> None:
+        """Show ``text`` centred in the bar for a few seconds, then clear it.
+
+        Non-blocking success feedback for commands (vs. the modal error dialog).
+        Independent of the mode label — flashing never disturbs the mode text.
+        """
+        self._flash_label.setText(text)
+        self._flash_timer.start()
+
+    def _end_flash(self) -> None:
+        self._flash_label.setText("")
+
+    def flash_text(self) -> str:
+        """Return the currently displayed flash message (used by tests)."""
+        return self._flash_label.text()
 
     def clear_hint(self) -> None:
         """Restore the mode label after a transient hint, reading the toggle state."""

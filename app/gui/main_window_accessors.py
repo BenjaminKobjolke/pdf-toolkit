@@ -280,7 +280,13 @@ class CollaboratorAccessors:
         return self._source is not None
 
     def current_format(self) -> FileFormat | None:
-        """The format of the open document, or ``None`` when none is open."""
+        """Format of the command target: the grid selection while the thumbnails
+        view shows, else the open document (``None`` when none is open)."""
+        from typing import cast
+
+        from app.gui.effective_target import effective_source
+        from app.gui.main_window import MainWindow
         from app.pdf.file_format import FileFormat
 
-        return FileFormat.of(self._source)
+        # The mixin is only ever part of MainWindow (see module docstring).
+        return FileFormat.of(effective_source(cast(MainWindow, self)))

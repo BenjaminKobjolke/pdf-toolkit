@@ -20,9 +20,12 @@ below).
   always reflects the real mode. In **Select mode** it instead shows the live
   key hints (`set_hint`), switching to a `-- VISUAL --` variant once a selection
   is started (see `SELECT_MODE.md`).
-- **Centre — page indicator.** Shows `current/total` (e.g. `5/7`). It updates on
-  every page change via the `page_changed` signal from `PageView`, and is blank
-  when no document is open.
+- **Centre — flash message + page indicator.** Command **success feedback**
+  ("copied file path", "opened with Photoshop", …) flashes here for ~3 seconds
+  via `flash(text)` — non-blocking, left of the page indicator; only errors
+  open a modal dialog. The page indicator shows `current/total` (e.g. `5/7`),
+  updates on every page change via the `page_changed` signal from `PageView`,
+  and is blank when no document is open.
 - **Right of centre — zoom indicator.** Shows the live zoom as `150%`
   (`strings.ZOOM_FMT`), where `100%` is the page's true PDF size. It updates via
   the `zoom_changed` signal from `PageView` whenever the zoom changes (fit, 100%,

@@ -12,13 +12,14 @@ from typing import TYPE_CHECKING
 from app.gui import commands as c
 from app.gui import (
     default_app_strings,
+    effective_target,
     link_strings,
     select_strings,
     settings_strings,
     strings,
     thumbnail_strings,
 )
-from app.gui.commands import HAS_TEXT, PDF_ONLY, VIEWABLE, Command, Predicate
+from app.gui.commands import HAS_TEXT, PDF_ONLY, Command, Predicate
 from app.os_integration import file_association
 from app.pdf.file_format import IMAGE_FORMATS, TEXT_FORMATS, FileFormat
 
@@ -47,18 +48,20 @@ def view_commands(window: MainWindow) -> list[Command]:
         Command(c.TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
         Command(c.TOGGLE_STATUSBAR, strings.CMD_TOGGLE_STATUSBAR, window.toggle_statusbar),
         Command(c.TOGGLE_FULLSCREEN, strings.CMD_TOGGLE_FULLSCREEN, window.toggle_fullscreen),
+        # Format-agnostic: the toggle must stay reachable to close the grid no
+        # matter what (or whether anything) is selected in it.
         Command(
             c.THUMBNAILS_VIEW,
             thumbnail_strings.CMD_THUMBNAILS_VIEW,
             window.thumbnails_controller.toggle,
             window.has_document,
-            VIEWABLE,
         ),
         Command(
             c.GIF_TOGGLE,
             strings.CMD_GIF_TOGGLE,
             window.toggle_gif_playback,
-            window.is_animated_gif,
+            # Playback acts on the loaded movie, not a grid selection.
+            lambda: window.is_animated_gif() and not effective_target.grid_active(window),
             frozenset({FileFormat.GIF}),
         ),
         Command(c.PALETTE_WIDTH, strings.CMD_PALETTE_WIDTH, palette.set_width),
@@ -123,35 +126,49 @@ def view_commands(window: MainWindow) -> list[Command]:
     ]
 
 
-def edit_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
+def edit_commands(window: MainWindow, has_doc: Predicate, doc_in_view: Predicate) -> list[Command]:
     controller = window.controller
     return [
-        Command(c.EDIT_MODE, strings.CMD_EDIT_MODE, window.toggle_edit_mode, has_doc, PDF_ONLY),
+        Command(c.EDIT_MODE, strings.CMD_EDIT_MODE, window.toggle_edit_mode, doc_in_view, PDF_ONLY),
         Command(
             c.SELECT_MODE,
             select_strings.CMD_SELECT_MODE,
             window.toggle_select_mode,
-            has_doc,
+            doc_in_view,
             HAS_TEXT,
         ),
-        Command(c.OPEN_LINK, link_strings.CMD_OPEN_LINK, window.open_link_hints, has_doc, HAS_TEXT),
-        Command(c.COPY_LINK, link_strings.CMD_COPY_LINK, window.copy_link_hints, has_doc, HAS_TEXT),
         Command(
-            c.SELECT_NEXT, strings.CMD_SELECT_NEXT, window.select_next_editable, has_doc, PDF_ONLY
+            c.OPEN_LINK, link_strings.CMD_OPEN_LINK, window.open_link_hints, doc_in_view, HAS_TEXT
+        ),
+        Command(
+            c.COPY_LINK, link_strings.CMD_COPY_LINK, window.copy_link_hints, doc_in_view, HAS_TEXT
+        ),
+        Command(
+            c.SELECT_NEXT,
+            strings.CMD_SELECT_NEXT,
+            window.select_next_editable,
+            doc_in_view,
+            PDF_ONLY,
         ),
         Command(
             c.SELECT_PREV,
             strings.CMD_SELECT_PREV,
             window.select_previous_editable,
-            has_doc,
+            doc_in_view,
             PDF_ONLY,
         ),
-        Command(c.ADD_FIELD, strings.CMD_ADD_FIELD, window.add_text_field, has_doc, PDF_ONLY),
-        Command(c.ADD_IMAGE, strings.CMD_ADD_IMAGE, window.add_image, has_doc, PDF_ONLY),
+        Command(c.ADD_FIELD, strings.CMD_ADD_FIELD, window.add_text_field, doc_in_view, PDF_ONLY),
+        Command(c.ADD_IMAGE, strings.CMD_ADD_IMAGE, window.add_image, doc_in_view, PDF_ONLY),
         Command(
-            c.DELETE_FIELD, strings.CMD_DELETE_FIELD, controller.delete_selected, has_doc, PDF_ONLY
+            c.DELETE_FIELD,
+            strings.CMD_DELETE_FIELD,
+            controller.delete_selected,
+            doc_in_view,
+            PDF_ONLY,
         ),
-        Command(c.EXPORT_TEXT, strings.CMD_EXPORT_TEXT, window.export_text, has_doc, PDF_ONLY),
+        Command(c.EXPORT_TEXT, strings.CMD_EXPORT_TEXT, window.export_text, doc_in_view, PDF_ONLY),
+        # Retargets to the selected thumbnail (its sidecar on disk), so it
+        # keeps has_doc and stays reachable while the grid shows.
         Command(
             c.DELETE_SAVED_FIELDS,
             strings.CMD_DELETE_SAVED_FIELDS,

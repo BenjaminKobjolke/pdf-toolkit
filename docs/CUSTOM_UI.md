@@ -153,8 +153,11 @@ available result (`CANCEL` if present, else `SECONDARY`, else `PRIMARY`).
 show_message(parent, title, text, severity=Severity.INFO)  # INFO | WARNING | ERROR
 ```
 
-A single-OK alert — the same dialog as `confirm` with one button — used for success,
-warning, and error popups. The severity prepends a small prefix to the message.
+A single-OK alert — the same dialog as `confirm` with one button — used for warning
+and error popups. The severity prepends a small prefix to the message. Command
+**successes** do not open a dialog: `MainWindow._report` flashes the message in the
+**centre** of the footer status bar for a few seconds instead (`ModeStatusBar.flash`;
+see `STATUS_BAR.md`).
 
 ### Value prompts
 

@@ -13,27 +13,9 @@ from app.gui.placement import PlacementController, PlacementMode
 from app.gui.text_input_dialog import TextInputDialog
 from app.pdf.image_spec import SidecarDocument
 from app.pdf.sidecar import load_sidecar, save_sidecar, sidecar_path
-from app.pdf.text_spec import TextFieldSpec
-from tests.conftest import MakePdf
+from tests.conftest import MakePdf, field_spec
 
 _MOVABLE = QGraphicsItem.GraphicsItemFlag.ItemIsMovable
-
-
-def _spec() -> TextFieldSpec:
-    return TextFieldSpec(
-        page_index=0,
-        x=20.0,
-        y=30.0,
-        width=0.0,
-        height=0.0,
-        text="Saved",
-        font_family="Helvetica",
-        font_size=18.0,
-        color="#000000",
-        bg_color=None,
-        bold=False,
-        italic=False,
-    )
 
 
 def _press(view: PageView, key: Qt.Key, shift: bool = False) -> None:
@@ -43,7 +25,7 @@ def _press(view: PageView, key: Qt.Key, shift: bool = False) -> None:
 
 def test_saved_fields_show_without_edit_mode(window: MainWindow, make_pdf: MakePdf) -> None:
     pdf = make_pdf([(300, 400)])
-    save_sidecar(pdf, SidecarDocument(fields=(_spec(),)))
+    save_sidecar(pdf, SidecarDocument(fields=(field_spec(),)))
 
     window.open_pdf(pdf)
 
