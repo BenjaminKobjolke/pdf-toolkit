@@ -10,12 +10,64 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import fitz  # PyMuPDF
-from PySide6.QtGui import QImage
+from PySide6.QtGui import QBrush, QColor, QImage, QPainter
 
-from app.pdf.file_format import open_fitz
+from app.config.image_background_settings import ImageBackground, ImageBackgroundSettings
+from app.pdf.file_format import IMAGE_FORMATS, FileFormat, open_fitz
 
 DEFAULT_ZOOM: float = 1.5
 _RGB_CHANNELS: int = 3
+
+_SOLID_COLORS: dict[ImageBackground, str] = {
+    ImageBackground.WHITE: "#FFFFFF",
+    ImageBackground.BLACK: "#000000",
+    ImageBackground.GREEN: "#00FF00",
+    ImageBackground.BLUE: "#0000FF",
+}
+_CHECKER_SQUARE_PX = 8
+_CHECKER_LIGHT = "#FFFFFF"
+_CHECKER_DARK = "#CCCCCC"
+
+# ponytail: single-window viewer, so one module-level setting is enough (same
+# pattern as file_format's text settings). Defaults keep non-GUI callers on the
+# historical white flatten without any wiring.
+_active_image_background = ImageBackgroundSettings()
+
+
+def set_image_background(settings: ImageBackgroundSettings) -> None:
+    """Set the backdrop applied behind transparent image documents."""
+    global _active_image_background
+    _active_image_background = settings
+
+
+def active_image_background() -> ImageBackground:
+    """The backdrop currently applied by :func:`render_page` for images."""
+    return _active_image_background.background
+
+
+def _checker_tile() -> QImage:
+    tile = QImage(_CHECKER_SQUARE_PX * 2, _CHECKER_SQUARE_PX * 2, QImage.Format.Format_RGB32)
+    tile.fill(QColor(_CHECKER_LIGHT))
+    painter = QPainter(tile)
+    dark = QColor(_CHECKER_DARK)
+    painter.fillRect(_CHECKER_SQUARE_PX, 0, _CHECKER_SQUARE_PX, _CHECKER_SQUARE_PX, dark)
+    painter.fillRect(0, _CHECKER_SQUARE_PX, _CHECKER_SQUARE_PX, _CHECKER_SQUARE_PX, dark)
+    painter.end()
+    return tile
+
+
+def compose(image: QImage, background: ImageBackground) -> QImage:
+    """Flatten ``image``'s alpha onto ``background`` (same size, opaque RGB)."""
+    result = QImage(image.size(), QImage.Format.Format_RGB32)
+    painter = QPainter(result)
+    if background is ImageBackground.CHECKER:
+        painter.fillRect(result.rect(), QBrush(_checker_tile()))
+    else:
+        painter.fillRect(result.rect(), QColor(_SOLID_COLORS[background]))
+    painter.drawImage(0, 0, image)
+    painter.end()
+    result.setDevicePixelRatio(image.devicePixelRatio())
+    return result
 
 
 @dataclass(frozen=True)
@@ -91,7 +143,20 @@ def render_page(
             raise ValueError(f"page index {page_index} out of range; PDF has {total} pages")
         page = doc.load_page(page_index)
         scale = zoom * quality
-        pix = page.get_pixmap(matrix=fitz.Matrix(scale, scale), alpha=False)
+        use_background = FileFormat.of(source) in IMAGE_FORMATS
+        pix = page.get_pixmap(matrix=fitz.Matrix(scale, scale), alpha=use_background)
+        if use_background:
+            rgba = QImage(
+                pix.samples,
+                pix.width,
+                pix.height,
+                pix.stride,
+                QImage.Format.Format_RGBA8888,
+            )
+            # compose() allocates a fresh image, so no detach copy is needed.
+            image = compose(rgba, active_image_background())
+            image.setDevicePixelRatio(quality)
+            return image
         image = QImage(
             pix.samples,
             pix.width,

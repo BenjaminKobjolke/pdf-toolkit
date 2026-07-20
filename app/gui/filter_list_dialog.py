@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TypeVar, cast
 
 from PySide6.QtCore import QModelIndex, QPersistentModelIndex, Qt
 from PySide6.QtGui import QPalette
@@ -25,6 +25,32 @@ from app.gui.filterable_dialog import FilterableListDialog
 
 _CHORD_ROLE = Qt.ItemDataRole.UserRole
 _CHORD_MARGIN = 8
+
+_T = TypeVar("_T")
+
+
+def pick_option(
+    parent: QWidget | None,
+    labels: dict[_T, str],
+    *,
+    title: str,
+    placeholder: str,
+) -> _T | None:
+    """One-shot option picker: a filterable list of ``labels``, Enter returns the key.
+
+    Shared by every "choose one of a few values" settings command so the
+    labels-to-entries-to-dialog dance lives in one place.
+    """
+    entries = [ListEntry(title=label, payload=key) for key, label in labels.items()]
+    dialog = FilterListDialog(
+        entries,
+        FilterListOptions(placeholder=placeholder, title=title),
+        parent=parent,
+    )
+    if dialog.exec() and (chosen := dialog.chosen()) is not None:
+        # payload is typed Any on ListEntry; the labels dict pins its real type.
+        return cast("_T", chosen.payload)
+    return None
 
 
 def _matches(haystack: str, tokens: list[str]) -> bool:

@@ -10,10 +10,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from app.gui import commands as c
-from app.gui import default_app_strings, link_strings, select_strings, strings
+from app.gui import default_app_strings, link_strings, select_strings, settings_strings, strings
 from app.gui.commands import HAS_TEXT, PDF_ONLY, Command, Predicate
 from app.os_integration import file_association
-from app.pdf.file_format import TEXT_FORMATS, FileFormat
+from app.pdf.file_format import IMAGE_FORMATS, TEXT_FORMATS, FileFormat
 
 if TYPE_CHECKING:
     from app.gui.main_window import MainWindow
@@ -67,6 +67,12 @@ def view_commands(window: MainWindow) -> list[Command]:
             strings.CMD_TEXT_FONT_SIZE,
             text_view.set_font_size,
             formats=TEXT_FORMATS,
+        ),
+        Command(
+            c.IMAGE_BACKGROUND,
+            settings_strings.CMD_IMAGE_BACKGROUND,
+            window.image_background_controller.set_background,
+            formats=IMAGE_FORMATS,
         ),
         Command(
             c.OPEN_FILTER_ALL_FILES,

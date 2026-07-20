@@ -61,6 +61,7 @@ if TYPE_CHECKING:
 
 if TYPE_CHECKING:
     from app.gui import rotate_actions as rotate_actions_mod
+    from app.gui.image_background_controller import ImageBackgroundController
     from app.gui.open_filter_controller import OpenFilterController
     from app.gui.remembered_settings import RememberedSettingsController
     from app.gui.save_controller import SaveController
@@ -84,6 +85,7 @@ class CollaboratorAccessors:
     _palette: PaletteController
     _outline: OutlineController
     _text_view: TextViewController
+    _image_background: ImageBackgroundController
     _open_filter: OpenFilterController
     _instance: InstanceController
     _reload: ReloadController
@@ -242,6 +244,10 @@ class CollaboratorAccessors:
     @property
     def text_view_controller(self) -> TextViewController:
         return self._text_view
+
+    @property
+    def image_background_controller(self) -> ImageBackgroundController:
+        return self._image_background
 
     @property
     def open_filter_controller(self) -> OpenFilterController:

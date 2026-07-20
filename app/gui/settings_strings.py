@@ -44,6 +44,16 @@ MSG_RELOAD_WATCH_OFF = "Reload on changes: off for this document."
 MSG_RELOAD_DEFAULT_ON = "Reload on changes by default: on."
 MSG_RELOAD_DEFAULT_OFF = "Reload on changes by default: off."
 
+# Image transparency backdrop (command title lives here — ``strings`` is at the cap)
+CMD_IMAGE_BACKGROUND = "Image: transparency background…"
+DIALOG_IMAGE_BACKGROUND_TITLE = "Transparency background"
+IMAGE_BACKGROUND_PLACEHOLDER = "Type to filter backgrounds…"
+IMAGE_BACKGROUND_WHITE = "White"
+IMAGE_BACKGROUND_BLACK = "Black"
+IMAGE_BACKGROUND_GREEN = "Greenscreen green"
+IMAGE_BACKGROUND_BLUE = "Greenscreen blue"
+IMAGE_BACKGROUND_CHECKER = "Checkered"
+
 # Selected-item outline appearance dialogs
 DIALOG_OUTLINE_WIDTH_TITLE = "Outline width"
 DIALOG_OUTLINE_STYLE_TITLE = "Outline type"

@@ -55,7 +55,8 @@ def test_set_style_persists(
         def chosen(self) -> ListEntry:
             return next(e for e in self._entries if e.payload is OutlineLineStyle.SOLID)
 
-    monkeypatch.setattr("app.gui.outline_controller.FilterListDialog", _FakeDialog)
+    # pick_option constructs the dialog inside filter_list_dialog, so patch there.
+    monkeypatch.setattr("app.gui.filter_list_dialog.FilterListDialog", _FakeDialog)
     commands.find(window._registry, commands.OUTLINE_STYLE).run()
 
     stored = OutlineSettingsStore(gui_backend(tmp_path)).load()

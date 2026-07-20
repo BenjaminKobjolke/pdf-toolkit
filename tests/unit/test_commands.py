@@ -84,6 +84,7 @@ _ALL_IDS = {
     commands.ADD_IMAGE,
     commands.IMAGE_SCALE,
     commands.IMAGE_DELETE,
+    commands.IMAGE_BACKGROUND,
     commands.DELETE_FIELD,
     commands.EXPORT_TEXT,
     commands.DELETE_SAVED_FIELDS,

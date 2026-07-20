@@ -67,6 +67,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Toggle status bar** | Show/hide the footer status bar (remembered across sessions; see `STATUS_BAR.md`). |
 | **Toggle fullscreen** | Enter/leave fullscreen for the current session (not remembered). |
 | **GIF: play / pause** | Pause or resume the current animated GIF. Shown only when an animated GIF is open (see *Animated GIF*). |
+| **Image: transparency background…** | For image documents, choose what shows behind transparent pixels: white (default), black, greenscreen green, greenscreen blue, or a checkered pattern. Persisted; also affects **Copy page as image**. Animated GIF playback frames are not affected. |
 | **Palette: width %…** | Set the palette width as a % of the window (see *Appearance settings*). |
 | **Palette: height %…** | Set the palette height as a % of the window. |
 | **Palette: font size…** | Set the palette font size in points (0 = default). |

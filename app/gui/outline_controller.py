@@ -22,7 +22,7 @@ from app.config.outline_settings import (
 )
 from app.gui import number_input_dialog, settings_strings
 from app.gui.color_picker_dialog import pick_color
-from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
+from app.gui.filter_list_dialog import pick_option
 from app.gui.outline_style import OutlineStyle
 
 _STYLE_LABELS: dict[OutlineLineStyle, str] = {
@@ -68,20 +68,14 @@ class OutlineController:
 
     def set_style(self) -> None:
         """Choose the line type (dashed / solid) from a keyboard-driven list."""
-        entries = [
-            ListEntry(title=_STYLE_LABELS[style], payload=style)
-            for style in (OutlineLineStyle.DASHED, OutlineLineStyle.SOLID)
-        ]
-        dialog = FilterListDialog(
-            entries,
-            FilterListOptions(
-                placeholder=settings_strings.OUTLINE_STYLE_PLACEHOLDER,
-                title=settings_strings.DIALOG_OUTLINE_STYLE_TITLE,
-            ),
-            parent=self._parent,
+        chosen = pick_option(
+            self._parent,
+            _STYLE_LABELS,
+            title=settings_strings.DIALOG_OUTLINE_STYLE_TITLE,
+            placeholder=settings_strings.OUTLINE_STYLE_PLACEHOLDER,
         )
-        if dialog.exec() and (chosen := dialog.chosen()) is not None:
-            self._save(style=chosen.payload)
+        if chosen is not None:
+            self._save(style=chosen)
 
     def set_color(self) -> None:
         """Pick the outline color via the shared color dialog."""

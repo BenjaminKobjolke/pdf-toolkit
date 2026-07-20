@@ -9,7 +9,7 @@ import pytest
 from app.gui import commands
 from app.gui.commands import HAS_TEXT, PDF_ONLY, TRANSFORMABLE, VIEWABLE, Command
 from app.gui.main_window import MainWindow
-from app.pdf.file_format import TEXT_FORMATS, FileFormat
+from app.pdf.file_format import IMAGE_FORMATS, TEXT_FORMATS, FileFormat
 from tests.conftest import gui_settings
 
 
@@ -107,6 +107,17 @@ def test_text_appearance_commands_gated_to_text_formats(window: MainWindow) -> N
         assert cmd.available(FileFormat.MD)
         assert not cmd.available(FileFormat.PDF)
         assert not cmd.available(None)
+
+
+def test_image_background_command_gated_to_image_formats(window: MainWindow) -> None:
+    registry = commands.build_commands(window)
+    cmd = commands.find(registry, commands.IMAGE_BACKGROUND)
+    assert cmd.formats == IMAGE_FORMATS
+    assert cmd.available(FileFormat.PNG)
+    assert cmd.available(FileFormat.WEBP)
+    assert not cmd.available(FileFormat.PDF)
+    assert not cmd.available(FileFormat.TXT)
+    assert not cmd.available(None)
 
 
 def test_text_document_gates_page_ops_but_not_viewers(window: MainWindow) -> None:

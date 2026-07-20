@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from app.config.command_history import CommandHistoryStore
+from app.config.image_background_settings import ImageBackgroundSettingsStore
 from app.config.image_choice_settings import ImageChoiceStore
 from app.config.instance_settings import InstanceSettingsStore
 from app.config.key_bindings import KeyBindingStore, effective_keymap
@@ -43,6 +44,7 @@ from app.gui.file_actions import FileActions
 from app.gui.file_info import FileInfoActions
 from app.gui.gif_controller import GifController
 from app.gui.image_actions import ImageActions
+from app.gui.image_background_controller import ImageBackgroundController
 from app.gui.image_controller import ImageController
 from app.gui.instance_controller import InstanceController
 from app.gui.keybinding_actions import KeybindingActions
@@ -125,6 +127,9 @@ def _build_core(window: MainWindow, settings: Settings) -> None:
     )
     window._text_view = TextViewController(
         window, TextViewSettingsStore(backend), window._page_view.reload
+    )
+    window._image_background = ImageBackgroundController(
+        window, ImageBackgroundSettingsStore(backend), window._page_view.reload
     )
     window._open_filter = OpenFilterController(window, OpenFilterSettingsStore(backend))
     window._instance = InstanceController(InstanceSettingsStore(backend), window._report)

@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 from app.config.document_page import DocumentPageStore
 from app.config.document_zoom import DocumentZoomStore
+from app.config.image_background_settings import ImageBackgroundSettingsStore
 from app.config.image_choice_settings import ImageChoiceStore
 from app.config.instance_settings import InstanceSettingsStore
 from app.config.key_bindings import KeyBindingStore
@@ -85,6 +86,7 @@ def remembered_stores(window: MainWindow, settings: Settings) -> list[RecordStor
         ImageChoiceStore(backend),
         OutlineSettingsStore(backend),
         TextViewSettingsStore(backend),
+        ImageBackgroundSettingsStore(backend),
         OpenFilterSettingsStore(backend),
         OpenWithStore(backend),
         InstanceSettingsStore(backend),

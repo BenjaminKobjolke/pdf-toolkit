@@ -41,6 +41,7 @@ command in the palette (pick one to reset, or "clear all").
 | Window position and size | where the viewer reopens |
 | Image add: copy-vs-reference choice | last image-add choice |
 | Field outline appearance | selection outline width / style / color |
+| Image transparency background | backdrop behind transparent image pixels (white / black / green / blue / checkered) |
 | Default zoom | fit-to-window vs. a fixed percentage on open |
 | Keyboard shortcuts | custom chord bindings |
 | Open dialog filter | all-files vs. extension list, and the extensions themselves |
