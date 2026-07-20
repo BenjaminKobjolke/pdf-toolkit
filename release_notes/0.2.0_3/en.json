@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Thumbnail grid, backdrop picker, and file commands",
+  "notes": [
+    "Browse pages in a new thumbnail grid view",
+    "Select thumbnails to target page commands at just those pages",
+    "Pick a transparency backdrop for images with transparent areas",
+    "New file info and \"open with\" commands in the viewer",
+    "Refreshed application icon"
+  ]
+}

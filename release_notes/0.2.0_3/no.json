@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Rutenett med miniatyrbilder, bakgrunnsvelger og filkommandoer",
+  "notes": [
+    "Bla gjennom sider i en ny rutenettvisning med miniatyrbilder",
+    "Velg miniatyrbilder for å rette sidekommandoer mot bare disse sidene",
+    "Velg en gjennomsiktighetsbakgrunn for bilder med transparente områder",
+    "Nye kommandoer for filinfo og «åpne med» i visningen",
+    "Oppdatert programikon"
+  ]
+}

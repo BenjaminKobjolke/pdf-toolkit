@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Miniatuurraster, achtergrondkiezer en bestandsopdrachten",
+  "notes": [
+    "Blader door pagina’s in een nieuwe miniatuurrasterweergave",
+    "Selecteer miniaturen om paginaopdrachten alleen op die pagina’s toe te passen",
+    "Kies een transparantie-achtergrond voor afbeeldingen met transparante gebieden",
+    "Nieuwe bestandsinfo- en \"Openen met\"-opdrachten in de viewer",
+    "Vernieuwd applicatiepictogram"
+  ]
+}

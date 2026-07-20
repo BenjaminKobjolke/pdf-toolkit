@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Miniatyrnät, bakgrundsväljare och filkommandon",
+  "notes": [
+    "Bläddra mellan sidor i en ny miniatyrnätsvy",
+    "Välj miniatyrer för att rikta sidkommandon mot just de sidorna",
+    "Välj en transparensbakgrund för bilder med transparenta områden",
+    "Nya kommandon för filinformation och \"öppna med\" i visaren",
+    "Uppdaterad programikon"
+  ]
+}

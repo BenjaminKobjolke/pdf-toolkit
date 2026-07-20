@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Grille de vignettes, sélection de fond et commandes de fichier",
+  "notes": [
+    "Parcourez les pages dans une nouvelle vue en grille de vignettes",
+    "Sélectionnez des vignettes pour cibler les commandes de page uniquement sur ces pages",
+    "Choisissez un fond de transparence pour les images comportant des zones transparentes",
+    "Nouvelles commandes d’infos sur le fichier et « Ouvrir avec » dans la visionneuse",
+    "Icône de l’application actualisée"
+  ]
+}

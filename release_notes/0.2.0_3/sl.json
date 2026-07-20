@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Mreža sličic, izbira ozadja in ukazi za datoteke",
+  "notes": [
+    "Brskajte po straneh v novem pogledu mreže sličic",
+    "Izberite sličice, da bodo ukazi za strani ciljali samo te strani",
+    "Izberite ozadje za prosojnost pri slikah s prosojnimi deli",
+    "Novi ukazi za informacije o datoteki in »odpri z« v pregledovalniku",
+    "Osvežena ikona aplikacije"
+  ]
+}

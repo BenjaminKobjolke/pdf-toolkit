@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Mriežka miniatúr, výber pozadia a príkazy pre súbory",
+  "notes": [
+    "Prezerajte stránky v novom zobrazení s mriežkou miniatúr",
+    "Vyberte miniatúry, aby sa príkazy pre stránky použili iba na tieto stránky",
+    "Vyberte pozadie pre priehľadnosť pri obrázkoch s priehľadnými časťami",
+    "Nové informácie o súbore a príkazy „Otvoriť pomocou“ v prehliadači",
+    "Obnovená ikona aplikácie"
+  ]
+}

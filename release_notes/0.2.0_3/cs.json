@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Mřížka miniatur, výběr pozadí a příkazy pro soubory",
+  "notes": [
+    "Procházejte stránky v novém zobrazení mřížky miniatur",
+    "Vyberte miniatury a zaměřte příkazy pro stránky jen na tyto stránky",
+    "Zvolte pozadí pro průhlednost u obrázků s průhlednými oblastmi",
+    "Nové příkazy pro informace o souboru a „Otevřít v“ v prohlížeči",
+    "Obnovená ikona aplikace"
+  ]
+}

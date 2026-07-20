@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Grade de miniaturas, seletor de plano de fundo e comandos de arquivo",
+  "notes": [
+    "Navegue pelas páginas em uma nova visualização em grade de miniaturas",
+    "Selecione miniaturas para aplicar comandos de página apenas a essas páginas",
+    "Escolha um plano de fundo de transparência para imagens com áreas transparentes",
+    "Novos comandos de informações do arquivo e \"abrir com\" no visualizador",
+    "Ícone do aplicativo atualizado"
+  ]
+}

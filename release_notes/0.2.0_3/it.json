@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Griglia di miniature, selettore dello sfondo e comandi file",
+  "notes": [
+    "Sfoglia le pagine in una nuova vista a griglia di miniature",
+    "Seleziona le miniature per applicare i comandi di pagina solo a quelle pagine",
+    "Scegli uno sfondo per la trasparenza per le immagini con aree trasparenti",
+    "Nuovi comandi per le informazioni sul file e \"apri con\" nel visualizzatore",
+    "Icona dell'applicazione aggiornata"
+  ]
+}

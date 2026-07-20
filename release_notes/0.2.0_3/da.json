@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Gittervisning med miniaturer, valg af baggrund og filkommandoer",
+  "notes": [
+    "Gennemse sider i en ny gittervisning med miniaturer",
+    "Vælg miniaturer for kun at målrette sidekommandoer mod disse sider",
+    "Vælg en gennemsigtighedsbaggrund til billeder med gennemsigtige områder",
+    "Nye filoplysninger og \"åbn med\"-kommandoer i fremviseren",
+    "Opdateret programikon"
+  ]
+}

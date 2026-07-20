@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Mreža sličica, izbor pozadine i komande za fajlove",
+  "notes": [
+    "Pregledajte stranice u novom prikazu mreže sličica",
+    "Izaberite sličice kako biste primenili komande nad stranicama samo na te stranice",
+    "Izaberite pozadinu za providnost za slike sa providnim delovima",
+    "Nove informacije o fajlu i komande „Otvori pomoću” u prikazivaču",
+    "Osvežena ikonica aplikacije"
+  ]
+}

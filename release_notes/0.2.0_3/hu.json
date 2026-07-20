@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Bélyegkép-rács, háttérválasztó és fájlparancsok",
+  "notes": [
+    "Oldalak böngészése az új bélyegkép-rács nézetben",
+    "Bélyegképek kijelölése, hogy az oldalparancsokat csak azokra az oldalakra alkalmazd",
+    "Átlátszósági háttér kiválasztása az átlátszó területeket tartalmazó képekhez",
+    "Új fájlinformációk és „Megnyitás ezzel” parancsok a megjelenítőben",
+    "Frissített alkalmazásikon"
+  ]
+}

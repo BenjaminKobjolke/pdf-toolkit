@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Cuadrícula de miniaturas, selector de fondo y comandos de archivo",
+  "notes": [
+    "Explora las páginas en una nueva vista de cuadrícula de miniaturas",
+    "Selecciona miniaturas para aplicar comandos de página solo a esas páginas",
+    "Elige un fondo para imágenes con zonas transparentes",
+    "Nuevos comandos de información de archivo y \"abrir con\" en el visor",
+    "Icono de la aplicación renovado"
+  ]
+}

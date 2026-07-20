@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Grilă de miniaturi, selector de fundal și comenzi pentru fișiere",
+  "notes": [
+    "Răsfoiește paginile într-o nouă vizualizare tip grilă de miniaturi",
+    "Selectează miniaturile pentru a aplica comenzile de pagină doar acelor pagini",
+    "Alege un fundal pentru transparență pentru imaginile cu zone transparente",
+    "Noi comenzi pentru informații despre fișier și „deschide cu” în vizualizator",
+    "Pictogramă a aplicației reîmprospătată"
+  ]
+}

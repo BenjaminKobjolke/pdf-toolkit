@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Pikkukuvien ruudukko, taustan valitsin ja tiedostokomennot",
+  "notes": [
+    "Selaa sivuja uudessa pikkukuvien ruudukkonäkymässä",
+    "Valitse pikkukuvat kohdistamaan sivukomennot vain kyseisille sivuille",
+    "Valitse läpinäkyvyyden tausta kuville, joissa on läpinäkyviä alueita",
+    "Uudet tiedostotiedot ja \"avaa sovelluksella\" -komennot katselimessa",
+    "Uudistettu sovelluskuvake"
+  ]
+}

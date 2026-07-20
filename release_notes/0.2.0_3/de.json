@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Rasteransicht mit Miniaturansichten, Hintergrundauswahl und Dateibefehle",
+  "notes": [
+    "Seiten in einer neuen Rasteransicht mit Miniaturansichten durchsuchen",
+    "Miniaturansichten auswählen, um Seitenbefehle nur auf diese Seiten anzuwenden",
+    "Einen Transparenzhintergrund für Bilder mit transparenten Bereichen auswählen",
+    "Neue Dateiinformationen und „Öffnen mit“-Befehle im Viewer",
+    "Aktualisiertes Anwendungssymbol"
+  ]
+}

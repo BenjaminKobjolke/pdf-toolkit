@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Mreža minijatura, odabir pozadine i naredbe za datoteke",
+  "notes": [
+    "Pregledavajte stranice u novom prikazu mreže minijatura",
+    "Odaberite minijature kako biste usmjerili naredbe za stranice samo na te stranice",
+    "Odaberite pozadinu za prozirnost za slike s prozirnim dijelovima",
+    "Nove naredbe „informacije o datoteci” i „otvori pomoću” u pregledniku",
+    "Osvježena ikona aplikacije"
+  ]
+}

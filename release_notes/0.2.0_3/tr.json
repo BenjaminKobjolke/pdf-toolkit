@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Küçük resim ızgarası, arka plan seçici ve dosya komutları",
+  "notes": [
+    "Yeni küçük resim ızgara görünümünde sayfalara göz atın",
+    "Sayfa komutlarını yalnızca seçili sayfalara uygulamak için küçük resimleri seçin",
+    "Şeffaf alanları olan görseller için bir şeffaflık arka planı seçin",
+    "Görüntüleyicide yeni dosya bilgisi ve \"birlikte aç\" komutları",
+    "Yenilenmiş uygulama simgesi"
+  ]
+}

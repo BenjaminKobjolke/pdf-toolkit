@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Lưới hình thu nhỏ, chọn nền, và lệnh tệp",
+  "notes": [
+    "Duyệt trang trong chế độ xem lưới hình thu nhỏ mới",
+    "Chọn hình thu nhỏ để áp dụng lệnh trang chỉ cho các trang đó",
+    "Chọn nền trong suốt cho ảnh có vùng trong suốt",
+    "Lệnh thông tin tệp và \"mở bằng\" mới trong trình xem",
+    "Làm mới biểu tượng ứng dụng"
+  ]
+}

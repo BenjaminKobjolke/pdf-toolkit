@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Siatka miniatur, wybór tła i polecenia plików",
+  "notes": [
+    "Przeglądaj strony w nowym widoku siatki miniatur",
+    "Wybieraj miniatury, aby kierować polecenia stron tylko do wybranych stron",
+    "Wybierz tło dla przezroczystości dla obrazów z przezroczystymi obszarami",
+    "Nowe informacje o pliku oraz polecenia „otwórz za pomocą” w przeglądarce",
+    "Odświeżona ikona aplikacji"
+  ]
+}

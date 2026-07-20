@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "build": 3,
+  "date": "2026-07-20",
+  "title": "Pisipiltide ruudustik, tausta valik ja failikäsud",
+  "notes": [
+    "Sirvi lehekülgi uues pisipiltide ruudustikuvaates",
+    "Vali pisipildid, et suunata lehekülje käsud ainult nendele lehekülgedele",
+    "Vali läbipaistvuse taust piltidele, millel on läbipaistvad alad",
+    "Vaaturisse lisandusid uued failiinfo ja „ava rakendusega” käsud",
+    "Uuendatud rakenduse ikoon"
+  ]
+}
