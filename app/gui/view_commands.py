@@ -10,8 +10,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from app.gui import commands as c
-from app.gui import default_app_strings, link_strings, select_strings, settings_strings, strings
-from app.gui.commands import HAS_TEXT, PDF_ONLY, Command, Predicate
+from app.gui import (
+    default_app_strings,
+    link_strings,
+    select_strings,
+    settings_strings,
+    strings,
+    thumbnail_strings,
+)
+from app.gui.commands import HAS_TEXT, PDF_ONLY, VIEWABLE, Command, Predicate
 from app.os_integration import file_association
 from app.pdf.file_format import IMAGE_FORMATS, TEXT_FORMATS, FileFormat
 
@@ -40,6 +47,13 @@ def view_commands(window: MainWindow) -> list[Command]:
         Command(c.TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
         Command(c.TOGGLE_STATUSBAR, strings.CMD_TOGGLE_STATUSBAR, window.toggle_statusbar),
         Command(c.TOGGLE_FULLSCREEN, strings.CMD_TOGGLE_FULLSCREEN, window.toggle_fullscreen),
+        Command(
+            c.THUMBNAILS_VIEW,
+            thumbnail_strings.CMD_THUMBNAILS_VIEW,
+            window.thumbnails_controller.toggle,
+            window.has_document,
+            VIEWABLE,
+        ),
         Command(
             c.GIF_TOGGLE,
             strings.CMD_GIF_TOGGLE,

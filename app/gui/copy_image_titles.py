@@ -38,9 +38,7 @@ def static_page_title(percent: int) -> str:
 
 def static_view_title(percent: int) -> str:
     """Static (dimension-free) title for the view-copy command at ``percent``."""
-    if percent == 100:
-        return file_strings.CMD_COPY_VIEW_IMAGE
-    return _static_title(file_strings.CMD_COPY_VIEW_IMAGE_BASE, percent)
+    return _static_title(file_strings.CMD_COPY_VIEW_IMAGE, percent)
 
 
 def page_image_title(window: MainWindow, percent: int) -> str:
@@ -63,11 +61,15 @@ def page_image_title(window: MainWindow, percent: int) -> str:
 
 
 def view_image_title(window: MainWindow, percent: int) -> str:
-    """Title showing the viewport-grab output size in pixels at ``percent``."""
-    if not window.has_document():
+    """Title showing the clipped view-grab output size in pixels at ``percent``.
+
+    Sizes come from ``PageView.visible_page_rect`` — the same rect
+    ``grab_page_area`` copies — so the title always matches the output.
+    """
+    rect = window.page_view.visible_page_rect()
+    if not window.has_document() or rect.isEmpty():
         return static_view_title(percent)
-    viewport = window.page_view.viewport()
-    dpr = viewport.devicePixelRatioF()
-    w = round(viewport.width() * dpr * percent / 100)
-    h = round(viewport.height() * dpr * percent / 100)
-    return _px_title(file_strings.CMD_COPY_VIEW_IMAGE_BASE, percent, w, h)
+    dpr = window.page_view.viewport().devicePixelRatioF()
+    w = round(rect.width() * dpr * percent / 100)
+    h = round(rect.height() * dpr * percent / 100)
+    return _px_title(file_strings.CMD_COPY_VIEW_IMAGE, percent, w, h)

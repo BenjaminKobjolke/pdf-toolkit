@@ -122,6 +122,10 @@ The palette and direct shortcuts cover:
   keyboard-first browser instead of the OS dialog: `j`/`k` move, `l`/`Enter` enter
   a folder or pick a file, `h`/`Alt+↑`/`..` go up (drive list at a drive root), `/`
   filters. See [docs/FILE_BROWSER.md](docs/FILE_BROWSER.md).
+- **Thumbnails view** — swap the page view for a grid of square first-page
+  previews of every openable file in the current folder; arrows move, **Enter**
+  opens, **Esc** returns, and the zoom keys resize the thumbnails (remembered,
+  default 256 px). See [docs/THUMBNAIL_VIEW.md](docs/THUMBNAIL_VIEW.md).
 
 #### Keyboard and mouse controls
 
@@ -277,6 +281,12 @@ tools\run_tests.bat              REM unit tests
 tools\run_integration_tests.bat  REM integration tests
 update.bat                       REM update deps + lint + tests
 ```
+
+### Demo recording (landing-page media)
+
+Scripted, recordable demos for the fast-file-viewer landing page:
+`tools\create_media\create_demos.bat`. See
+[docs/DEMO_RECORDING.md](docs/DEMO_RECORDING.md).
 
 ## Configuration
 

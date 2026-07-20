@@ -60,6 +60,9 @@ class LifecycleActions:
     source: Callable[[], Path | None]
     set_source: Callable[[Path | None], None]
     set_title: Callable[[str], None]
+    # Runs after a document is opened or closed; lets an alternate view (the
+    # thumbnails grid) dismiss itself so it never covers a fresh document.
+    after_open: Callable[[], None] = lambda: None
 
     def open_pdf(self, path: Path | None = None) -> None:
         """Open ``path`` (or prompt for one) into a working copy and show page 1."""
@@ -115,6 +118,7 @@ class LifecycleActions:
         self.recent.add(path)
         self.reload.on_document_opened(path)
         self.set_title(strings.WINDOW_TITLE_OPEN_FMT.format(path=path))
+        self.after_open()
 
     def open_sibling(self, step: int) -> None:
         """Open the alphabetically adjacent openable file in the document's directory."""
@@ -160,6 +164,7 @@ class LifecycleActions:
         self.reload.on_document_closed()
         self.set_source(None)
         self.set_title(strings.WINDOW_TITLE)
+        self.after_open()
 
     def shutdown(self) -> bool:
         """Confirm unsaved changes, then persist UI + window state; False to veto close."""

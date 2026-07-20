@@ -11,6 +11,7 @@ from app.gui.file_browser_model import (
     first_openable_file,
     is_root,
     list_dir,
+    openable_files,
     parent_of,
     sibling_file,
     substring_filter,
@@ -85,6 +86,25 @@ def test_first_openable_file_none_when_empty(tmp_path: Path) -> None:
 def test_first_openable_file_none_when_only_unopenable(tmp_path: Path) -> None:
     (tmp_path / "a.bin").write_bytes(b"\x00\x01")
     assert first_openable_file(tmp_path, ALL) is None
+
+
+def test_openable_files_sorted_files_only(tmp_path: Path) -> None:
+    (tmp_path / "aaa").mkdir()
+    _touch(tmp_path / "b.pdf")
+    _touch(tmp_path / "a.pdf")
+    assert openable_files(tmp_path, PDF) == [tmp_path / "a.pdf", tmp_path / "b.pdf"]
+
+
+def test_openable_files_skips_unrenderable_and_honors_filter(tmp_path: Path) -> None:
+    (tmp_path / "a.bin").write_bytes(b"\x00\x01")
+    _touch(tmp_path / "b.txt")
+    _touch(tmp_path / "c.pdf")
+    assert openable_files(tmp_path, ALL) == [tmp_path / "b.txt", tmp_path / "c.pdf"]
+    assert openable_files(tmp_path, PDF) == [tmp_path / "c.pdf"]
+
+
+def test_openable_files_empty_dir(tmp_path: Path) -> None:
+    assert openable_files(tmp_path, ALL) == []
 
 
 def test_list_dir_marks_directories(tmp_path: Path) -> None:

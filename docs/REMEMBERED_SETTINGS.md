@@ -43,6 +43,7 @@ command in the palette (pick one to reset, or "clear all").
 | Field outline appearance | selection outline width / style / color |
 | Image transparency background | backdrop behind transparent image pixels (white / black / green / blue / checkered) |
 | Default zoom | fit-to-window vs. a fixed percentage on open |
+| Thumbnail size | edge length (px) of the previews in the thumbnails view |
 | Keyboard shortcuts | custom chord bindings |
 | Open dialog filter | all-files vs. extension list, and the extensions themselves |
 | Reload on file changes | whether documents auto-reload when they change on disk |

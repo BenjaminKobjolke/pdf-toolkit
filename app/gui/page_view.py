@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtCore import QEvent, QPointF, Qt, Signal
+from PySide6.QtCore import QEvent, QPointF, QRect, Qt, Signal
 from PySide6.QtGui import (
     QKeyEvent,
     QMouseEvent,
@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
     QGraphicsView,
 )
 
-from app.gui import strings
+from app.gui import page_view_grab, strings
 from app.gui.image_item import ImageItem
 from app.gui.item_layer import ItemLayer
 from app.gui.page_highlights import PageHighlights
@@ -192,6 +192,14 @@ class PageView(OverlayItemsMixin, ZoomDelegateMixin, QGraphicsView):
         x = min(max(center.x(), rect.left()), rect.right())
         y = min(max(center.y(), rect.top()), rect.bottom())
         return QPointF(x, y)
+
+    def visible_page_rect(self) -> QRect:
+        """Visible page area in viewport coords (see :mod:`app.gui.page_view_grab`)."""
+        return page_view_grab.visible_page_rect(self)
+
+    def grab_page_area(self) -> QPixmap:
+        """Viewport grab clipped to the visible page (see :mod:`app.gui.page_view_grab`)."""
+        return page_view_grab.grab_page_area(self)
 
     # --- custom text-field placement ----------------------------------------
 

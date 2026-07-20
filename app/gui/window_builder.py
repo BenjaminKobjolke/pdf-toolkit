@@ -76,6 +76,7 @@ from app.gui.save_controller import SaveController
 from app.gui.search_actions import SearchActions
 from app.gui.select_controller import SelectController
 from app.gui.text_view_controller import TextViewController
+from app.gui.thumbnails_controller import install_thumbnails
 from app.gui.window_builder_memory import build_document_memory, remembered_stores
 from app.gui.window_geometry_controller import WindowGeometryController
 from app.gui.window_input import (
@@ -210,6 +211,7 @@ def _build_overlay(window: MainWindow, settings: Settings) -> None:
 
 
 def _build_operations(window: MainWindow) -> None:
+    install_thumbnails(window)
     window._export = ExportActions(
         window,
         window._controller,
@@ -249,7 +251,7 @@ def _build_operations(window: MainWindow) -> None:
         lambda: window._source,
         window._report,
         window._page_view.current_page_index,
-        lambda: window._page_view.viewport().grab(),
+        window._page_view.grab_page_area,
     )
     window._file_info_actions = FileInfoActions(
         window,
@@ -272,7 +274,7 @@ def _lay_out(window: MainWindow) -> None:
     layout = QVBoxLayout(central)
     layout.addWidget(window._bar)
     layout.addWidget(window._edit_bar)
-    layout.addWidget(window._page_view, 1)
+    layout.addWidget(window._view_stack, 1)
     layout.addWidget(window._mode_bar)
     window.setCentralWidget(central)
 
@@ -336,6 +338,7 @@ def _finish(window: MainWindow, settings: Settings) -> None:
         source=lambda: window._source,
         set_source=window._set_source,
         set_title=window.setWindowTitle,
+        after_open=window._thumbnails.leave,
     )
     window._chrome.apply_saved()
     window._geometry.restore()

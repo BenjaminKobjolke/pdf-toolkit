@@ -69,6 +69,7 @@ _ALL_IDS = {
     commands.TOGGLE_TOOLBAR,
     commands.TOGGLE_STATUSBAR,
     commands.TOGGLE_FULLSCREEN,
+    commands.THUMBNAILS_VIEW,
     commands.GIF_TOGGLE,
     commands.EDIT_MODE,
     commands.SELECT_MODE,
@@ -239,15 +240,17 @@ def test_clear_highlights_enabled_only_with_highlights(
 
 def test_copy_image_titles_fall_back_to_static_without_document(window: MainWindow) -> None:
     registry = commands.build_commands(window)
-    assert commands.find(registry, "copy_page_image").display_title() == "Copy page as image"
+    assert commands.find(registry, "copy_page_image").display_title() == (
+        "Copy page as image to clipboard"
+    )
     assert commands.find(registry, "copy_page_image_50").display_title() == (
-        "Copy page as image at 50%"
+        "Copy page as image to clipboard at 50%"
     )
     assert commands.find(registry, commands.COPY_VIEW_IMAGE).display_title() == (
         "Copy current view to clipboard"
     )
     assert commands.find(registry, "copy_view_image_50").display_title() == (
-        "Copy current view at 50%"
+        "Copy current view to clipboard at 50%"
     )
 
 
@@ -255,29 +258,31 @@ def test_page_image_titles_show_pixels_with_document(window: MainWindow, make_pd
     window.open_pdf(make_pdf([(200, 100)]))
     registry = commands.build_commands(window)
     assert commands.find(registry, "copy_page_image").display_title() == (
-        "Copy page as image (200×100 px)"
+        "Copy page as image to clipboard (200×100 px)"
     )
     assert commands.find(registry, "copy_page_image_50").display_title() == (
-        "Copy page as image at 50% (100×50 px)"
+        "Copy page as image to clipboard at 50% (100×50 px)"
     )
     assert commands.find(registry, "copy_page_image_25").display_title() == (
-        "Copy page as image at 25% (50×25 px)"
+        "Copy page as image to clipboard at 25% (50×25 px)"
     )
 
 
-def test_view_image_titles_show_scaled_viewport_pixels(
-    window: MainWindow, make_pdf: MakePdf
-) -> None:
+def test_view_image_titles_show_visible_page_pixels(window: MainWindow, make_pdf: MakePdf) -> None:
     window.open_pdf(make_pdf([(200, 100)]))
     registry = commands.build_commands(window)
     viewport = window.page_view.viewport()
-    w = round(viewport.width() * viewport.devicePixelRatioF())
-    h = round(viewport.height() * viewport.devicePixelRatioF())
+    dpr = viewport.devicePixelRatioF()
+    rect = window.page_view.visible_page_rect()
+    assert not rect.isEmpty()
+    # Titles report the clipped page area (what grab_page_area copies), not the viewport.
+    w = round(rect.width() * dpr)
+    h = round(rect.height() * dpr)
     assert commands.find(registry, commands.COPY_VIEW_IMAGE).display_title() == (
-        f"Copy current view ({w}×{h} px)"
+        f"Copy current view to clipboard ({w}×{h} px)"
     )
     assert commands.find(registry, "copy_view_image_50").display_title() == (
-        f"Copy current view at 50% ({round(w * 0.5)}×{round(h * 0.5)} px)"
+        f"Copy current view to clipboard at 50% ({round(w * 0.5)}×{round(h * 0.5)} px)"
     )
 
 

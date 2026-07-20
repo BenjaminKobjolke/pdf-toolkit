@@ -13,6 +13,8 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from PySide6.QtWidgets import QStackedWidget
+
     from app.config.command_history import CommandHistoryStore
     from app.config.key_bindings import KeyBindingStore, KeyMap
     from app.config.recent_files import RecentFilesStore
@@ -69,6 +71,8 @@ if TYPE_CHECKING:
     from app.gui.select_controller import SelectController
     from app.gui.shortcut_installer import ShortcutInstaller
     from app.gui.text_view_controller import TextViewController
+    from app.gui.thumbnails_controller import ThumbnailsController
+    from app.gui.thumbnails_view import ThumbnailsView
     from app.gui.window_geometry_controller import WindowGeometryController
     from app.gui.working_document import WorkingDocument
     from app.gui.zoom_settings_controller import ZoomSettingsController
@@ -135,6 +139,9 @@ class CollaboratorAccessors:
     _keybinding_actions: KeybindingActions
     _chrome: ChromeController
     _lifecycle: LifecycleActions
+    _thumbnails: ThumbnailsController
+    _thumbnails_view: ThumbnailsView
+    _view_stack: QStackedWidget
     _source: Path | None
 
     @property
@@ -264,6 +271,10 @@ class CollaboratorAccessors:
     @property
     def zoom_settings_controller(self) -> ZoomSettingsController:
         return self._zoom_settings
+
+    @property
+    def thumbnails_controller(self) -> ThumbnailsController:
+        return self._thumbnails
 
     def has_document(self) -> bool:
         return self._source is not None

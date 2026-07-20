@@ -25,6 +25,7 @@ from app.config.record_store import RecordStore
 from app.config.reload_settings import ReloadSettingsStore
 from app.config.settings import Settings
 from app.config.text_view_settings import TextViewSettingsStore
+from app.config.thumbnail_settings import ThumbnailSettingsStore
 from app.config.window_geometry import WindowGeometryStore
 from app.config.zoom_settings import ZoomSettingsStore
 from app.gui import settings_strings
@@ -92,6 +93,7 @@ def remembered_stores(window: MainWindow, settings: Settings) -> list[RecordStor
         InstanceSettingsStore(backend),
         ReloadSettingsStore(backend),
         LinkHintSettingsStore(backend),
+        ThumbnailSettingsStore(backend),
         ZoomSettingsStore(backend),
         KeyBindingStore(backend),
         DocumentZoomStore(backend),

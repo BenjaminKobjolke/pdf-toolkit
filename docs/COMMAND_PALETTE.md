@@ -56,8 +56,8 @@ missing or corrupt file just means no commands are floated yet.
 | **Copy file name without extension to clipboard** | Copy the filename stem (no `.pdf`). |
 | **File information** | Show a keyboard-driven list of the document's values (name, path, format, size, pages, page dimensions, PDF title/author…); **Enter** copies the highlighted value and keeps the dialog open (see *File information*). |
 | **Open with…** | Open the current document in an external application you configure (Photoshop, GIMP, an editor…). The picker lists your apps plus **[ Add from file… ]** and **[ Add from running process… ]** rows; **Del** removes the highlighted app (see *Open with*). |
-| **Copy page as image (W×H px)** / **at 50% (…)** / **at 25% (…)** | Render the current page to an image and put it on the clipboard — at original size (one pixel per PDF point; for image documents the native pixels), half, or quarter. Titles show the **actual output pixel size**, recomputed every time the palette opens. |
-| **Copy current view (W×H px)** / **at 50% (…)** / **at 25% (…)** | Copy exactly what the viewer shows on screen (current zoom, scroll position, overlays) as an image — at full, half, or quarter size. Same live pixel-size titles. |
+| **Copy page as image to clipboard (W×H px)** / **at 50% (…)** / **at 25% (…)** | Render the current page to an image and put it on the clipboard — at original size (one pixel per PDF point; for image documents the native pixels), half, or quarter. Titles show the **actual output pixel size**, recomputed every time the palette opens. |
+| **Copy current view to clipboard (W×H px)** / **at 50% (…)** / **at 25% (…)** | Copy what the viewer shows on screen (current zoom, scroll position, overlays) as an image, **clipped to the visible page area** — the app background around the page is not included. Full, half, or quarter size; same live pixel-size titles. |
 | **Close current document** | Offer to save unsaved changes, then return to the empty viewer. |
 | **Reload** | Re-read the open document from disk, keeping the current page and zoom. |
 | **Reload on changes (this time)** | Auto-reload the current document when it changes on disk — this document only (see *Reload on changes*). |
@@ -66,6 +66,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Toggle toolbar** | Show/hide the button toolbars (remembered across sessions). |
 | **Toggle status bar** | Show/hide the footer status bar (remembered across sessions; see `STATUS_BAR.md`). |
 | **Toggle fullscreen** | Enter/leave fullscreen for the current session (not remembered). |
+| **Thumbnails view** | Swap the page view for a grid of first-page previews of every openable file in the current document's folder (see *Thumbnails view* and `THUMBNAIL_VIEW.md`). |
 | **GIF: play / pause** | Pause or resume the current animated GIF. Shown only when an animated GIF is open (see *Animated GIF*). |
 | **Image: transparency background…** | For image documents, choose what shows behind transparent pixels: white (default), black, greenscreen green, greenscreen blue, or a checkered pattern. Persisted; also affects **Copy page as image**. Animated GIF playback frames are not affected. |
 | **Palette: width %…** | Set the palette width as a % of the window (see *Appearance settings*). |
@@ -387,6 +388,30 @@ just like any other image.
   is treated as a normal static image).
 - Editing operations (rotate, flip, save) still apply to the first frame only; stop
   playback and treat the GIF as a still before transforming it (see `FILE_FORMATS.md`).
+
+## Thumbnails view
+
+**Thumbnails view** replaces the page view with a grid of first-page previews of
+every openable file in the current document's directory (same ordering and
+filter as **Next/Previous file in directory**). The toolbar, status bar, and
+palette stay available.
+
+- Previews are **uniform squares** (center-cropped), so the grid stays regular
+  regardless of page/image aspect ratios.
+- The **currently open file starts selected** and scrolled into view; an
+  orange frame marks the active thumbnail.
+- **Arrow keys** move the selection; **Enter** opens the selected file in the
+  regular viewer; **Esc** (or running the command again) returns to the current
+  document.
+- While the grid is showing, the regular **Zoom in 10% / Zoom out 10%**
+  commands and keys (`Ctrl++` / `Ctrl+-` / `Ctrl+↑/↓`) resize the thumbnails
+  instead of the page — default **256 px**, clamped 64–1024. The size is
+  remembered across sessions; reset it from **Remembered settings…**
+  ("Thumbnail size").
+- Previews render lazily starting at the selected file; files the viewer can't
+  render keep a gray placeholder.
+
+See `THUMBNAIL_VIEW.md` for the full details.
 
 ## Open file / folder from recent / history
 

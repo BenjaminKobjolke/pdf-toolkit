@@ -7,6 +7,7 @@ because ``commands`` imports this module only inside the function body.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from functools import partial
 from typing import TYPE_CHECKING
 
@@ -155,13 +156,33 @@ def navigation_commands(window: MainWindow, has_doc: Predicate) -> list[Command]
     ]
 
 
+def _thumb_or_page(
+    window: MainWindow, thumb_fn: Callable[[], None], page_fn: Callable[[], None]
+) -> Callable[[], None]:
+    """Dispatch a zoom command to the thumbnails grid while it is showing."""
+    return lambda: thumb_fn() if window.thumbnails_controller.is_active() else page_fn()
+
+
 def zoom_commands(window: MainWindow, has_doc: Predicate) -> list[Command]:
     view = window.page_view
+    thumbs = window.thumbnails_controller
     return [
         Command(c.ZOOM_FIT, strings.CMD_ZOOM_FIT, view.zoom_fit, has_doc, VIEWABLE),
         Command(c.ZOOM_ACTUAL, strings.CMD_ZOOM_ACTUAL, view.zoom_actual, has_doc, VIEWABLE),
-        Command(c.ZOOM_IN, strings.CMD_ZOOM_IN, view.zoom_in, has_doc, VIEWABLE),
-        Command(c.ZOOM_OUT, strings.CMD_ZOOM_OUT, view.zoom_out, has_doc, VIEWABLE),
+        Command(
+            c.ZOOM_IN,
+            strings.CMD_ZOOM_IN,
+            _thumb_or_page(window, thumbs.zoom_in, view.zoom_in),
+            has_doc,
+            VIEWABLE,
+        ),
+        Command(
+            c.ZOOM_OUT,
+            strings.CMD_ZOOM_OUT,
+            _thumb_or_page(window, thumbs.zoom_out, view.zoom_out),
+            has_doc,
+            VIEWABLE,
+        ),
     ]
 
 

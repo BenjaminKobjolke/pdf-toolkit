@@ -93,16 +93,25 @@ def sibling_file(current: Path, filt: FileFilter, step: int) -> Path | None:
     return None
 
 
+def openable_files(directory: Path, filt: FileFilter) -> list[Path]:
+    """All filter-matching, renderable files in ``directory``, in list order.
+
+    Same openability rule as :func:`sibling_file` (``FileFormat.of`` must
+    recognize the file); directories are excluded.
+    """
+    return [
+        entry.path
+        for entry in list_dir(directory, filt)
+        if not entry.is_dir and FileFormat.of(entry.path) is not None
+    ]
+
+
 def first_openable_file(directory: Path, filt: FileFilter) -> Path | None:
     """The alphabetically first filter-matching, renderable file in ``directory``.
 
-    Same openability rule as :func:`sibling_file`; ``None`` when the directory
-    holds nothing the viewer can open.
+    ``None`` when the directory holds nothing the viewer can open.
     """
-    for entry in list_dir(directory, filt):
-        if not entry.is_dir and FileFormat.of(entry.path) is not None:
-            return entry.path
-    return None
+    return next(iter(openable_files(directory, filt)), None)
 
 
 def parent_of(directory: Path) -> Path:
