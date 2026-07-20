@@ -1,0 +1,122 @@
+{
+    "process_name": "python.exe",
+    "title_substring": "FastFileViewer",
+    "output_dir": "output",
+    "texts_dir": "texts",
+    "launch": {
+        "command": [
+            "uv",
+            "run",
+            "python",
+            "-m",
+            "app.cli.gui",
+            "--automation-demo",
+            "{demo_id}",
+            "--automation-demo-port",
+            "{port}",
+            "--automation-demo-width",
+            "{width}",
+            "--automation-demo-height",
+            "{height}"
+        ],
+        "cwd": "../.."
+    },
+    "demos": [
+        {
+            "id": 1,
+            "name": "viewer-overview",
+            "fps": 10,
+            "formats": [
+                "gif",
+                "mp4"
+            ],
+            "width": 520,
+            "height": 269,
+            "app_settings": {
+                "text_view/font_pt": 14
+            },
+            "languages": [
+                "en",
+                "de"
+            ],
+            "crop": {
+                "top": 8,
+                "right": 3,
+                "bottom": 3,
+                "left": 3
+            }
+        },
+        {
+            "id": 2,
+            "name": "features",
+            "fps": 10,
+            "formats": [
+                "gif",
+                "mp4"
+            ],
+            "width": 520,
+            "height": 269,
+            "app_settings": {
+                "text_view/font_pt": 14
+            },
+            "languages": [
+                "en",
+                "de"
+            ],
+            "crop": {
+                "top": 8,
+                "right": 3,
+                "bottom": 3,
+                "left": 3
+            }
+        },
+        {
+            "id": 3,
+            "name": "viewer-overview-square",
+            "fps": 10,
+            "formats": [
+                "gif",
+                "mp4"
+            ],
+            "width": 460,
+            "height": 436,
+            "app_settings": {
+                "text_view/font_pt": 13
+            },
+            "languages": [
+                "en",
+                "de"
+            ],
+            "crop": {
+                "top": 8,
+                "right": 3,
+                "bottom": 3,
+                "left": 3
+            }
+        },
+        {
+            "id": 4,
+            "name": "features-square",
+            "fps": 10,
+            "formats": [
+                "gif",
+                "mp4"
+            ],
+            "width": 460,
+            "height": 436,
+            "app_settings": {
+                "text_view/font_pt": 13
+            },
+            "languages": [
+                "en",
+                "de"
+            ],
+            "crop": {
+                "top": 8,
+                "right": 3,
+                "bottom": 3,
+                "left": 3
+            }
+        }
+    ]
+}

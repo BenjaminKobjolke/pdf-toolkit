@@ -74,6 +74,15 @@ class SaveController:
         self._mode_bar.set_dirty(False)
         return OpResult(True, file_strings.MSG_SAVED_AS_FMT.format(name=dest.name))
 
+    def discard_unsaved(self) -> None:
+        """Abandon pending edits and clear the dirty marker, without prompting.
+
+        For automation/demo runs: lets the app exit without the unsaved-changes
+        dialog blocking shutdown.
+        """
+        self._doc.discard()
+        self._mode_bar.set_dirty(False)
+
     def confirm_unsaved(self) -> bool:
         """Prompt to save pending changes. Return False to abort the caller."""
         if not self._doc.is_dirty():

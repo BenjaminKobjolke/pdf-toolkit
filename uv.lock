@@ -12,6 +12,20 @@ wheels = [
 ]
 
 [[package]]
+name = "automated-screenshot-connector"
+version = "0.5.0"
+source = { directory = "../automated-application-screenshots-python-connector" }
+
+[package.metadata]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "ruff" },
+]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -218,6 +232,7 @@ name = "pdf-toolkit"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "automated-screenshot-connector" },
     { name = "img2pdf" },
     { name = "markdown" },
     { name = "pillow" },
@@ -238,6 +253,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "automated-screenshot-connector", directory = "../automated-application-screenshots-python-connector" },
     { name = "img2pdf", specifier = ">=0.5,<1.0" },
     { name = "markdown", specifier = ">=3.7,<4.0" },
     { name = "pillow", specifier = ">=10.0,<12.0" },

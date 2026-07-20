@@ -182,6 +182,10 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
         """Whether an animated GIF is open (gates the GIF playback command)."""
         return self._gif.is_animated()
 
+    def discard_changes(self) -> None:
+        """Drop pending working-copy edits without prompting (automation/demos)."""
+        self._save.discard_unsaved()
+
     def closeEvent(self, event: QCloseEvent) -> None:
         """Confirm unsaved changes, then persist UI + window state before closing."""
         if self._lifecycle.shutdown():

@@ -12,7 +12,11 @@ dependencies = [
     "pymupdf>=1.27.2.3",
     "pypdf>=5.0",
     "pyside6>=6.11.1",
+    "automated-screenshot-connector",
 ]
+
+[tool.uv.sources]
+automated-screenshot-connector = { path = "../automated-application-screenshots-python-connector" }
 
 [project.scripts]
 pdf-swap = "app.cli.swap:main"
