@@ -18,6 +18,7 @@ from app.config.instance_settings import InstanceSettingsStore
 from app.config.key_bindings import KeyBindingStore, effective_keymap
 from app.config.link_hint_settings import LinkHintSettingsStore
 from app.config.open_filter_settings import OpenFilterSettingsStore
+from app.config.open_with import OpenWithStore
 from app.config.outline_settings import OutlineSettingsStore
 from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
@@ -39,6 +40,7 @@ from app.gui.edit_controller import EditController
 from app.gui.export_actions import ExportActions
 from app.gui.field_actions import FieldActions
 from app.gui.file_actions import FileActions
+from app.gui.file_info import FileInfoActions
 from app.gui.gif_controller import GifController
 from app.gui.image_actions import ImageActions
 from app.gui.image_controller import ImageController
@@ -52,6 +54,7 @@ from app.gui.link_hint_style import LinkHintStyle
 from app.gui.mode_status_bar import ModeStatusBar
 from app.gui.move_actions import MoveActions
 from app.gui.open_filter_controller import OpenFilterController
+from app.gui.open_with import OpenWithActions
 from app.gui.operations import GuiOperationRunner
 from app.gui.outline_controller import OutlineController
 from app.gui.outline_style import OutlineStyle, set_active
@@ -242,6 +245,20 @@ def _build_operations(window: MainWindow) -> None:
         window._report,
         window._page_view.current_page_index,
         lambda: window._page_view.viewport().grab(),
+    )
+    window._file_info_actions = FileInfoActions(
+        window,
+        window._palette,
+        lambda: window._source,
+        window._page_view.current_page_index,
+        window._report,
+    )
+    window._open_with_actions = OpenWithActions(
+        window,
+        window._palette,
+        OpenWithStore(window._backend),
+        lambda: window._source,
+        window._report,
     )
 
 

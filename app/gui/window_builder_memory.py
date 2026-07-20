@@ -16,6 +16,7 @@ from app.config.instance_settings import InstanceSettingsStore
 from app.config.key_bindings import KeyBindingStore
 from app.config.link_hint_settings import LinkHintSettingsStore
 from app.config.open_filter_settings import OpenFilterSettingsStore
+from app.config.open_with import OpenWithStore
 from app.config.outline_settings import OutlineSettingsStore
 from app.config.palette_settings import PaletteSettingsStore
 from app.config.placement_settings import PlacementStore
@@ -85,6 +86,7 @@ def remembered_stores(window: MainWindow, settings: Settings) -> list[RecordStor
         OutlineSettingsStore(backend),
         TextViewSettingsStore(backend),
         OpenFilterSettingsStore(backend),
+        OpenWithStore(backend),
         InstanceSettingsStore(backend),
         ReloadSettingsStore(backend),
         LinkHintSettingsStore(backend),

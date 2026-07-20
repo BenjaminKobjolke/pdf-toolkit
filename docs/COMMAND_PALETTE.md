@@ -54,6 +54,8 @@ missing or corrupt file just means no commands are floated yet.
 | **Copy file path to clipboard** | Copy the open PDF's full path. |
 | **Copy file name to clipboard** | Copy the filename with extension. |
 | **Copy file name without extension to clipboard** | Copy the filename stem (no `.pdf`). |
+| **File information** | Show a keyboard-driven list of the document's values (name, path, format, size, pages, page dimensions, PDF title/author…); **Enter** copies the highlighted value and keeps the dialog open (see *File information*). |
+| **Open with…** | Open the current document in an external application you configure (Photoshop, GIMP, an editor…). The picker lists your apps plus **[ Add from file… ]** and **[ Add from running process… ]** rows; **Del** removes the highlighted app (see *Open with*). |
 | **Copy page as image (W×H px)** / **at 50% (…)** / **at 25% (…)** | Render the current page to an image and put it on the clipboard — at original size (one pixel per PDF point; for image documents the native pixels), half, or quarter. Titles show the **actual output pixel size**, recomputed every time the palette opens. |
 | **Copy current view (W×H px)** / **at 50% (…)** / **at 25% (…)** | Copy exactly what the viewer shows on screen (current zoom, scroll position, overlays) as an image — at full, half, or quarter size. Same live pixel-size titles. |
 | **Close current document** | Offer to save unsaved changes, then return to the empty viewer. |
@@ -139,6 +141,45 @@ When an **image** is selected, these extra commands appear instead:
 You can also resize a selected image by dragging its corner handles, and grow /
 shrink it with **+** / **-** (or **Ctrl+↑/↓**). See `edit_mode/IMAGE_EDITING.md`
 for the full image workflow.
+
+## File information
+
+**File information** opens a keyboard-first list of the open document's values —
+one `Label: value` row per value — in the same type-to-filter dialog as the
+palette. It works for every supported format (PDF, images, text/markdown):
+
+- **Core:** file name, full path, format, file size.
+- **Pages:** page count and the current page number (PDFs only).
+- **Page dimensions:** the current page's width and height — in **points** for
+  PDF and text, in **pixels** for images.
+- **PDF metadata:** title, author, subject, keywords, creator, producer — only
+  the fields that are set, and only for PDFs.
+
+Keyboard flow: **Up / Down** move the highlight, **type** to filter, **Enter**
+copies the highlighted value to the clipboard and marks the row **✓ copied**
+while the dialog **stays open** (so you can copy several values in a row), and
+**Esc** closes. No mouse needed.
+
+## Open with
+
+**Open with…** hands the **current document** to an external application you
+choose. It opens a type-to-filter picker listing the applications you have
+configured, plus two add-rows at the bottom:
+
+- **Enter** on a configured app launches it with the open file as its argument.
+- **Enter** on **[ Add from file… ]** opens a file browser to pick an executable
+  (`.exe`).
+- **Enter** on **[ Add from running process… ]** lists the applications you
+  currently have running (by name); picking one stores its executable path — no
+  need to know where the `.exe` lives.
+- In both cases the display name is the exe filename stem (`Photoshop.exe` →
+  **Photoshop**), and the picker reopens after adding so you can select the new
+  app right away.
+- **Del** on a configured app removes it from the list.
+
+The picker always opens, even with one or zero apps configured. The list
+persists in the sqlite settings backend and is reset from **Remembered
+settings…** ("Open-with applications").
 
 ## Deferred saving
 

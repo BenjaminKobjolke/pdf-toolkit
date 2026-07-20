@@ -57,6 +57,8 @@ _ALL_IDS = {
     "copy_view_image_50",
     "copy_view_image_25",
     commands.OPEN_FOLDER,
+    commands.FILE_INFO,
+    commands.OPEN_WITH,
     commands.PRINT,
     commands.SHOW_SHORTCUTS,
     commands.RELEASE_NOTES,

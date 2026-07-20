@@ -68,6 +68,8 @@ COPY_VIEW_IMAGE = "copy_view_image"
 # the rest get an "_<pct>" suffix (copy_page_image_50, copy_view_image_25, …).
 COPY_IMAGE_PERCENTS = (100, 50, 25)
 OPEN_FOLDER = "open_folder"
+FILE_INFO = "file_info"
+OPEN_WITH = "open_with"
 PRINT = "print"
 SHOW_SHORTCUTS = "show_shortcuts"
 RELEASE_NOTES = "release_notes"

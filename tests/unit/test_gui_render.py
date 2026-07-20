@@ -14,6 +14,22 @@ def test_page_count_matches_pdf(make_pdf: MakePdf) -> None:
     assert render.page_count(pdf) == 3
 
 
+def test_page_size_returns_point_dimensions(make_pdf: MakePdf) -> None:
+    pdf = make_pdf([(100, 200), (300, 400)])
+
+    assert render.page_size(pdf, 0) == pytest.approx((100.0, 200.0))
+    assert render.page_size(pdf, 1) == pytest.approx((300.0, 400.0))
+
+
+def test_doc_metadata_empty_when_absent(make_pdf: MakePdf) -> None:
+    pdf = make_pdf([(100, 200)])
+
+    meta = render.doc_metadata(pdf)
+
+    assert meta.title == ""
+    assert meta.author == ""
+
+
 def test_render_page_returns_nonempty_image(qapp: object, make_pdf: MakePdf) -> None:
     pdf = make_pdf([(100, 200), (300, 400)])
 

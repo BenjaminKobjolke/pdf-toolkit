@@ -8,6 +8,7 @@ dependencies = [
     "markdown>=3.7,<4.0",
     "pillow>=10.0,<12.0",
     "prompt-toolkit>=3.0.43",
+    "psutil>=6.0,<8.0",
     "pymupdf>=1.27.2.3",
     "pypdf>=5.0",
     "pyside6>=6.11.1",
@@ -47,7 +48,7 @@ strict = true
 files = ["app", "tests"]
 
 [[tool.mypy.overrides]]
-module = ["fitz", "markdown"]
+module = ["fitz", "markdown", "psutil"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

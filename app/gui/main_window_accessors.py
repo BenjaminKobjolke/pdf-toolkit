@@ -19,10 +19,12 @@ if TYPE_CHECKING:
     from app.config.ui_state import UiStateStore
     from app.gui import field_actions as field_actions_mod
     from app.gui import file_actions as file_actions_mod
+    from app.gui import file_info as file_info_mod
     from app.gui import image_actions as image_actions_mod
     from app.gui import image_controller as image_controller_mod
     from app.gui import layer_actions as layer_actions_mod
     from app.gui import move_actions as move_actions_mod
+    from app.gui import open_with as open_with_mod
     from app.gui import overlay_actions as overlay_actions_mod
     from app.gui import page_actions as page_actions_mod
     from app.gui import print_actions as print_actions_mod
@@ -120,6 +122,8 @@ class CollaboratorAccessors:
     _print_actions: print_actions_mod.PrintActions
     _default_app_actions: DefaultAppActions
     _file_actions: file_actions_mod.FileActions
+    _file_info_actions: file_info_mod.FileInfoActions
+    _open_with_actions: open_with_mod.OpenWithActions
     _registry: list[Command]
     _document_actions: DocumentActions
     _palette_actions: PaletteActions
@@ -218,6 +222,14 @@ class CollaboratorAccessors:
     @property
     def file_actions(self) -> file_actions_mod.FileActions:
         return self._file_actions
+
+    @property
+    def file_info_actions(self) -> file_info_mod.FileInfoActions:
+        return self._file_info_actions
+
+    @property
+    def open_with_actions(self) -> open_with_mod.OpenWithActions:
+        return self._open_with_actions
 
     @property
     def palette_controller(self) -> PaletteController:

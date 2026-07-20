@@ -17,6 +17,7 @@ FILTER_VIEWER_IMAGES = FileFilter("Images", tuple(sorted(fmt.value for fmt in IM
 OPEN_FILTER_LABEL = "Documents"
 FILTER_INSERT = FileFilter("PDF or image", (".pdf", ".jpg", ".jpeg", ".png"))
 FILTER_IMAGE = FileFilter("Images", (".png", ".jpg", ".jpeg"))
+FILTER_EXECUTABLE = FileFilter("Executables", (".exe",))
 FILTER_ALL = FileFilter("All files", ())
 
 FILTER_PLACEHOLDER = "type to filter…"
