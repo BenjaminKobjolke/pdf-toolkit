@@ -1,0 +1,21 @@
+[
+  {
+    "prompt": "Pure white (#FFFFFF) monochrome minimal line icon, flat, matching the reference icons' style. Centered symbol: one complete document page outline (rounded rectangle with folded top-right corner) with a lightning bolt inside it, suggesting fast file viewing. The full page outline must be visible and the bolt fully contained within the page. Bold rounded strokes, pure white only, no dark colors, generous padding, symbol fills about 70% of the frame, vertically and horizontally centered, square composition. Transparent background. No other text.",
+    "provider": "openai",
+    "model": "gpt-image-1",
+    "size": "1024x1024",
+    "background": "transparent",
+    "reference_images": [
+      "examples/media/icon_01.png",
+      "examples/media/icon_02.png",
+      "examples/media/icon_03.png"
+    ],
+    "output": {
+      "path": "D:/GIT/BenjaminKobjolke/pdf-toolkit/assets/icon.png",
+      "width": 512,
+      "height": 512,
+      "crop": "center",
+      "format": "png"
+    }
+  }
+]
