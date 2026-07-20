@@ -10,5 +10,5 @@ cd /d "%AIC%"
 call "%AIC%\start.bat" "%PROJECT%\tools\create_media\create_app_icon.json"
 if errorlevel 1 exit /b 1
 
-REM Convert PNG -> .ico with the project's own PySide6 (no extra dep).
-uv run --project "%PROJECT%" python -c "from PySide6.QtGui import QImage; QImage(r'%PROJECT%\assets\icon.png').save(r'%PROJECT%\assets\icon.ico')"
+REM Convert PNG -> multi-size .ico via the project's existing converter (Pillow).
+call "%PROJECT%\tools\png_to_ico.bat"
