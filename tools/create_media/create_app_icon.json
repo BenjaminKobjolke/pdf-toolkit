@@ -1,6 +1,6 @@
 [
   {
-    "prompt": "Pure white (#FFFFFF) monochrome minimal line icon, flat, matching the reference icons' style. Centered symbol: one complete document page outline (rounded rectangle with folded top-right corner) with a lightning bolt inside it, suggesting fast file viewing. The full page outline must be visible and the bolt fully contained within the page. Bold rounded strokes, pure white only, no dark colors, generous padding, symbol fills about 70% of the frame, vertically and horizontally centered, square composition. Transparent background. No other text.",
+    "prompt": "Pure white (#FFFFFF) monochrome minimal line icon, flat, matching the reference icons' style. Centered symbol: one complete square document outline (rounded square, equal width and height, with folded top-right corner) with a lightning bolt inside it, suggesting fast file viewing. The document must be square, not a tall page. The full outline must be visible and the bolt fully contained within it. Bold rounded strokes, pure white only, no dark colors, generous padding, symbol fills about 70% of the frame, vertically and horizontally centered, square composition. Transparent background. No other text.",
     "provider": "openai",
     "model": "gpt-image-1",
     "size": "1024x1024",
