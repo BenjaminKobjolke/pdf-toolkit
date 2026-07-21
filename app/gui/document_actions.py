@@ -6,10 +6,12 @@ from collections.abc import Callable
 from pathlib import Path
 
 from PySide6.QtWidgets import QWidget
+from send2trash import send2trash
 
 from app.config.recent_files import RecentFilesStore
 from app.gui import (
     confirm_dialog,
+    file_browser_model,
     file_browser_strings,
     file_dialogs,
     file_strings,
@@ -39,6 +41,7 @@ class DocumentActions:
         open_pdf: Callable[[Path | None], None],
         report: Callable[[OpResult], None],
         grid: ThumbnailsController,
+        advance: Callable[[], None],
     ) -> None:
         self._parent = parent
         self._recent = recent
@@ -48,6 +51,7 @@ class DocumentActions:
         self._open_pdf = open_pdf
         self._report = report
         self._grid = grid
+        self._advance = advance
 
     def open_from_history(self) -> None:
         """Pick a recently-opened document from the history list and open it."""
@@ -88,20 +92,23 @@ class DocumentActions:
         """The file to act on: the selected thumbnail while the grid shows, else the open doc."""
         return self._grid.selected_path() or self._source()
 
-    def delete_saved_text_fields(self) -> None:
-        target = self._target()
-        if target is None:
-            return
+    def _confirm_yes_no(self, message: str) -> bool:
         choice = confirm_dialog.confirm(
             self._parent,
             confirm_dialog.ConfirmSpec(
                 title=strings.CONFIRM_TITLE,
-                message=strings.CONFIRM_DELETE_SAVED_FIELDS,
+                message=message,
                 primary=strings.BTN_YES,
                 secondary=strings.BTN_NO,
             ),
         )
-        if choice is not confirm_dialog.DialogResult.PRIMARY:
+        return choice is confirm_dialog.DialogResult.PRIMARY
+
+    def delete_saved_text_fields(self) -> None:
+        target = self._target()
+        if target is None:
+            return
+        if not self._confirm_yes_no(strings.CONFIRM_DELETE_SAVED_FIELDS):
             return
         if target == self._source():
             self._controller.clear_saved_fields()
@@ -111,6 +118,43 @@ class DocumentActions:
             self._report(
                 OpResult(True, strings.MSG_SAVED_FIELDS_DELETED_FMT.format(name=target.name))
             )
+
+    def delete_file(self) -> None:
+        """Move the target file and its sidecar to the recycle bin.
+
+        Deleting the open document advances to the next file in the folder
+        (empty state if none); deleting another file refreshes the grid onto
+        its next sibling.
+        """
+        target = self._target()
+        if target is None:
+            return
+        if not self._confirm_yes_no(file_strings.CONFIRM_DELETE_FILE_FMT.format(name=target.name)):
+            return
+        is_open_doc = target == self._source()
+        if is_open_doc:
+            # The file is going away; a save prompt would write into the trash.
+            self._save.discard_unsaved()
+        if not self._try_trash(target):
+            return
+        if is_open_doc:
+            self._advance()  # next sibling or empty state; after_open dismisses the grid
+        else:
+            self._grid.refresh(
+                select=file_browser_model.nearest_file(target, self._grid.current_filter())
+            )
+        self._report(OpResult(True, file_strings.MSG_FILE_DELETED_FMT.format(name=target.name)))
+
+    def _try_trash(self, target: Path) -> bool:
+        try:
+            send2trash(target)
+            sidecar = sidecar_path(target)
+            if sidecar.exists():  # send2trash has no missing_ok
+                send2trash(sidecar)
+        except OSError as err:
+            self._report(OpResult(False, str(err)))
+            return False
+        return True
 
     def save_as(self) -> None:
         """Write the open document to a chosen new file and switch to it."""

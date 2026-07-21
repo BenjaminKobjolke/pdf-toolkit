@@ -93,6 +93,22 @@ def sibling_file(current: Path, filt: FileFilter, step: int) -> Path | None:
     return None
 
 
+def nearest_file(missing: Path, filt: FileFilter) -> Path | None:
+    """The openable file closest to a (deleted) ``missing``: successor, else predecessor.
+
+    Unlike :func:`sibling_file` this never wraps — after deleting the last file
+    the selection lands on the new last file, not the first. Never returns
+    ``missing`` itself, so it also works before the deletion hits the disk.
+    ``None`` when no other openable file exists.
+    """
+    files = [path for path in openable_files(missing.parent, filt) if path != missing]
+    if not files:
+        return None
+    names = [path.name.casefold() for path in files]
+    index = bisect.bisect_left(names, missing.name.casefold())
+    return files[min(index, len(files) - 1)]
+
+
 def openable_files(directory: Path, filt: FileFilter) -> list[Path]:
     """All filter-matching, renderable files in ``directory``, in list order.
 

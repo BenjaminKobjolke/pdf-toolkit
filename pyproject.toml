@@ -13,6 +13,7 @@ dependencies = [
     "pypdf>=5.0",
     "pyside6>=6.11.1",
     "automated-screenshot-connector",
+    "send2trash>=1.8,<2.0",
 ]
 
 [tool.uv.sources]
@@ -37,6 +38,7 @@ dev = [
     "ruff>=0.6",
     "mypy>=1.10",
     "pyinstaller>=6.11,<7.0",
+    "types-send2trash>=2.1.0.20260408",
 ]
 
 [tool.ruff]

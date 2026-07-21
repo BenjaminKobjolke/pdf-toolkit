@@ -44,6 +44,23 @@ def silence_dialogs(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
 
+@pytest.fixture
+def fake_trash(monkeypatch: pytest.MonkeyPatch) -> list[Path]:
+    """Replace send2trash with a recorder that unlinks instead.
+
+    Keeps tmp_path files out of the real recycle bin while keeping directory
+    listings truthful for sibling navigation and grid refresh.
+    """
+    trashed: list[Path] = []
+
+    def _trash(path: Path) -> None:
+        trashed.append(Path(path))
+        Path(path).unlink()
+
+    monkeypatch.setattr("app.gui.document_actions.send2trash", _trash)
+    return trashed
+
+
 def gui_settings(tmp_path: Path) -> Settings:
     """Settings pointing at a per-test SQLite DB so GUI tests stay hermetic."""
     from app.config.settings import Settings

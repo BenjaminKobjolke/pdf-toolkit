@@ -51,6 +51,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Save changes to original file** | Write the working copy back to the original (with a backup) — PDFs and images. See *Deferred saving*. |
 | **Open containing folder in native file explorer** | Open the document's folder in the OS file explorer. |
 | **Rename file…** | Rename the open PDF (and its sidecar) and reopen it. In the thumbnails view, renames the **selected** file in place instead. |
+| **Delete file…** | Move the open document (and its sidecar) to the recycle bin after confirmation, then open the nearest file in the folder — the next one, or the previous when the last file was deleted (empty viewer if none). In the thumbnails view, deletes the **selected** file and refreshes the grid. |
 | **Copy file path to clipboard** | Copy the open PDF's full path. |
 | **Copy file name to clipboard** | Copy the filename with extension. |
 | **Copy file name without extension to clipboard** | Copy the filename stem (no `.pdf`). |

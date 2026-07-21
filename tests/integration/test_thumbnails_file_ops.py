@@ -6,6 +6,8 @@ and fixtures are shared from there.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from app.gui import commands
@@ -77,6 +79,40 @@ def test_rename_open_doc_selection_reopens_and_dismisses(
 
     assert window._source == doc.with_name("moved.pdf")
     assert window._thumbnails.is_active() is False
+
+
+def test_delete_file_removes_selected_thumbnail_and_keeps_grid(
+    window: MainWindow, make_pdf: MakePdf, fake_trash: list[Path]
+) -> None:
+    other = make_pdf([(100, 100)], name="a.pdf")
+    doc = make_pdf([(100, 100)], name="b.pdf")
+    window.open_pdf(doc)
+    _enter_grid(window)
+    _select(window, other)
+
+    commands.find(window._registry, commands.DELETE_FILE).run()
+
+    assert not other.exists()
+    assert fake_trash == [other]
+    assert window._source == doc  # the open doc survives
+    assert window._thumbnails.is_active() is True
+    assert window._thumbnails_view.currentItem().text() == "b.pdf"
+
+
+def test_delete_last_file_selects_previous_thumbnail(
+    window: MainWindow, make_pdf: MakePdf, fake_trash: list[Path]
+) -> None:
+    doc = make_pdf([(100, 100)], name="a.pdf")
+    make_pdf([(100, 100)], name="b.pdf")
+    last = make_pdf([(100, 100)], name="c.pdf")
+    window.open_pdf(doc)
+    _enter_grid(window)
+    _select(window, last)
+
+    commands.find(window._registry, commands.DELETE_FILE).run()
+
+    # Nearest, not wrapped-to-first: the new last file gets the selection.
+    assert window._thumbnails_view.currentItem().text() == "b.pdf"
 
 
 def test_delete_saved_fields_removes_selected_files_sidecar_only(

@@ -11,6 +11,7 @@ from app.gui.file_browser_model import (
     first_openable_file,
     is_root,
     list_dir,
+    nearest_file,
     openable_files,
     parent_of,
     sibling_file,
@@ -202,6 +203,30 @@ def test_sibling_file_never_returns_current(tmp_path: Path) -> None:
 
 def test_sibling_file_missing_dir_returns_none(tmp_path: Path) -> None:
     assert sibling_file(tmp_path / "gone" / "x.pdf", PDF, 1) is None
+
+
+def test_nearest_file_of_deleted_returns_successor(tmp_path: Path) -> None:
+    _touch(tmp_path / "a.pdf")
+    _touch(tmp_path / "c.pdf")
+    assert nearest_file(tmp_path / "b.pdf", PDF) == tmp_path / "c.pdf"
+
+
+def test_nearest_file_of_deleted_last_returns_predecessor(tmp_path: Path) -> None:
+    # No wrap: deleting the last file lands on the new last file, not the first.
+    _touch(tmp_path / "a.pdf")
+    _touch(tmp_path / "b.pdf")
+    assert nearest_file(tmp_path / "c.pdf", PDF) == tmp_path / "b.pdf"
+
+
+def test_nearest_file_never_returns_the_file_itself(tmp_path: Path) -> None:
+    # Callable before the deletion has happened on disk.
+    _touch(tmp_path / "a.pdf")
+    _touch(tmp_path / "b.pdf")
+    assert nearest_file(tmp_path / "a.pdf", PDF) == tmp_path / "b.pdf"
+
+
+def test_nearest_file_empty_dir_returns_none(tmp_path: Path) -> None:
+    assert nearest_file(tmp_path / "x.pdf", PDF) is None
 
 
 def test_drives_look_like_roots() -> None:

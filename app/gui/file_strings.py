@@ -35,6 +35,10 @@ MSG_OPEN_WITH_FAILED_FMT = "could not open with application: {error}"
 
 DIALOG_SAVE_AS_TITLE = "Save file as"
 
+CMD_DELETE_FILE = "Delete file…"
+CONFIRM_DELETE_FILE_FMT = "Move {name} to the recycle bin?"
+MSG_FILE_DELETED_FMT = "moved to recycle bin: {name}"
+
 FILE_INFO_TITLE = "File information — Enter copies, Esc closes"
 FILE_INFO_PLACEHOLDER = "Filter values…"
 FILE_INFO_COPIED_MARK = "   ✓ copied"

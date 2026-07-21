@@ -65,6 +65,7 @@ _ALL_IDS = {
     commands.COMMAND_PALETTE,
     commands.CONFIGURE_SHORTCUTS,
     commands.RENAME_FILE,
+    commands.DELETE_FILE,
     commands.TOGGLE_MENU,
     commands.TOGGLE_TOOLBAR,
     commands.TOGGLE_STATUSBAR,

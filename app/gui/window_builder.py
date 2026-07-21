@@ -219,6 +219,8 @@ def _finish(window: MainWindow, settings: Settings) -> None:
         window.open_pdf,
         window._report,
         window._thumbnails,
+        # Lambda: _lifecycle is assigned later in the build sequence.
+        lambda: window._lifecycle.open_sibling_or_close(),
     )
     window._registry = commands.build_commands(window)
     defaults = default_shortcut_pairs()

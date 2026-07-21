@@ -72,6 +72,82 @@ def test_delete_saved_fields_command_removes_sidecar(
     assert not sidecar_path(pdf).is_file()
 
 
+def test_delete_file_command_trashes_open_doc_and_opens_next(
+    window: MainWindow,
+    make_pdf: MakePdf,
+    monkeypatch: pytest.MonkeyPatch,
+    fake_trash: list[Path],
+) -> None:
+    first = make_pdf([(200, 300)], name="a.pdf")
+    save_sidecar(first, SidecarDocument(fields=(_spec(),)))
+    second = make_pdf([(200, 300)], name="b.pdf")
+    window.open_pdf(first)
+    silence_dialogs(monkeypatch)
+
+    commands.find(window._registry, commands.DELETE_FILE).run()
+
+    assert fake_trash == [first, sidecar_path(first)]
+    assert not first.exists()
+    assert window._source == second
+
+
+def test_delete_file_command_on_last_file_opens_previous(
+    window: MainWindow,
+    make_pdf: MakePdf,
+    monkeypatch: pytest.MonkeyPatch,
+    fake_trash: list[Path],
+) -> None:
+    make_pdf([(200, 300)], name="a.pdf")
+    middle = make_pdf([(200, 300)], name="b.pdf")
+    last = make_pdf([(200, 300)], name="c.pdf")
+    window.open_pdf(last)
+    silence_dialogs(monkeypatch)
+
+    commands.find(window._registry, commands.DELETE_FILE).run()
+
+    # Nearest, not wrapped-to-first: the predecessor opens.
+    assert window._source == middle
+
+
+def test_delete_file_command_falls_back_to_empty_state(
+    window: MainWindow,
+    make_pdf: MakePdf,
+    monkeypatch: pytest.MonkeyPatch,
+    fake_trash: list[Path],
+) -> None:
+    pdf = make_pdf([(200, 300)])
+    window.open_pdf(pdf)
+    silence_dialogs(monkeypatch)
+
+    commands.find(window._registry, commands.DELETE_FILE).run()
+
+    assert not pdf.exists()
+    assert window.has_document() is False
+    assert window._source is None
+
+
+def test_delete_file_command_declined_keeps_file(
+    window: MainWindow,
+    make_pdf: MakePdf,
+    monkeypatch: pytest.MonkeyPatch,
+    fake_trash: list[Path],
+) -> None:
+    from app.gui import confirm_dialog
+
+    pdf = make_pdf([(200, 300)])
+    window.open_pdf(pdf)
+    monkeypatch.setattr(confirm_dialog, "show_message", lambda *a, **k: None)
+    monkeypatch.setattr(
+        confirm_dialog, "confirm", lambda *a, **k: confirm_dialog.DialogResult.SECONDARY
+    )
+
+    commands.find(window._registry, commands.DELETE_FILE).run()
+
+    assert pdf.is_file()
+    assert fake_trash == []
+    assert window._source == pdf
+
+
 def test_copy_name_no_ext_command_gated_by_document(window: MainWindow, make_pdf: MakePdf) -> None:
     registry = commands.build_commands(window)
     assert commands.find(registry, commands.COPY_FILE_NAME_NO_EXT).is_enabled() is False

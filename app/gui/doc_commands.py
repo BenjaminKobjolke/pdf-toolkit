@@ -130,6 +130,7 @@ def document_commands(
         ),
         Command(c.PRINT, strings.CMD_PRINT, window.print_actions.print_document, has_doc, VIEWABLE),
         Command(c.RENAME_FILE, strings.CMD_RENAME_FILE, window.rename_file, has_doc, VIEWABLE),
+        Command(c.DELETE_FILE, file_strings.CMD_DELETE_FILE, window.delete_file, has_doc, VIEWABLE),
         Command(c.CLOSE_DOC, strings.CMD_CLOSE_DOC, window.close_document, doc_in_view, VIEWABLE),
         Command(
             c.RELOAD_DOC,

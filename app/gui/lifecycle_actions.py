@@ -128,6 +128,19 @@ class LifecycleActions:
         target = file_browser_model.sibling_file(source, self.open_filter.current_filter(), step)
         self._open_or_hint(target, strings.HINT_NO_SIBLING_FILE)
 
+    def open_sibling_or_close(self) -> None:
+        """Open the file nearest the (now deleted) source, else the empty state."""
+        source = self.source()
+        target = (
+            None
+            if source is None
+            else file_browser_model.nearest_file(source, self.open_filter.current_filter())
+        )
+        if target is None:
+            self.close_document()
+        else:
+            self.open_pdf(target)
+
     def open_directory(self) -> None:
         """Browse to a folder and open its first openable file."""
         current = self.source()

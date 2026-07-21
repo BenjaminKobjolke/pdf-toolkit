@@ -155,6 +155,9 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
     def rename_file(self) -> None:
         self._document_actions.rename_file()
 
+    def delete_file(self) -> None:
+        self._document_actions.delete_file()
+
     def toggle_menu_bar(self) -> None:
         """Show/hide the top menu bar (remembered across sessions)."""
         self._chrome.toggle_menu()
