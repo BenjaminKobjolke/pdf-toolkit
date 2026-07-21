@@ -84,7 +84,7 @@ class PaletteController:
             self._parent,
             number_input_dialog.NumberPromptSpec(
                 title=settings_strings.DIALOG_PALETTE_FONT_TITLE,
-                label=settings_strings.PROMPT_PALETTE_FONT,
+                label=settings_strings.PROMPT_FONT_PT_ZERO_DEFAULT,
                 value=current,
                 minimum=FONT_PT_MIN,
                 maximum=FONT_PT_MAX,

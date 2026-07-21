@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from PySide6.QtWidgets import QStackedWidget
+    from PySide6.QtWidgets import QLabel, QStackedWidget
 
     from app.config.command_history import CommandHistoryStore
     from app.config.key_bindings import KeyBindingStore, KeyMap
@@ -70,6 +70,7 @@ if TYPE_CHECKING:
     from app.gui.search_actions import SearchActions
     from app.gui.select_controller import SelectController
     from app.gui.shortcut_installer import ShortcutInstaller
+    from app.gui.status_bar_settings_controller import StatusBarSettingsController
     from app.gui.text_view_controller import TextViewController
     from app.gui.thumbnails_controller import ThumbnailsController
     from app.gui.thumbnails_view import ThumbnailsView
@@ -102,6 +103,7 @@ class CollaboratorAccessors:
     _bar: OperationBar
     _edit_bar: EditBar
     _mode_bar: ModeStatusBar
+    _status_bar_settings: StatusBarSettingsController
     _save: SaveController
     _controller: EditController
     _images: image_controller_mod.ImageController
@@ -141,6 +143,7 @@ class CollaboratorAccessors:
     _lifecycle: LifecycleActions
     _thumbnails: ThumbnailsController
     _thumbnails_view: ThumbnailsView
+    _thumb_filter_label: QLabel
     _view_stack: QStackedWidget
     _source: Path | None
 
@@ -251,6 +254,10 @@ class CollaboratorAccessors:
     @property
     def text_view_controller(self) -> TextViewController:
         return self._text_view
+
+    @property
+    def status_bar_settings(self) -> StatusBarSettingsController:
+        return self._status_bar_settings
 
     @property
     def image_background_controller(self) -> ImageBackgroundController:

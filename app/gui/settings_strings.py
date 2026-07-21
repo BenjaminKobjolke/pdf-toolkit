@@ -17,13 +17,18 @@ DIALOG_PALETTE_OPACITY_TITLE = "Palette opacity"
 DIALOG_DIALOG_SIZE_TITLE = "Dialog size"
 PROMPT_PALETTE_WIDTH = "Width (% of window):"
 PROMPT_PALETTE_HEIGHT = "Height (% of window):"
-PROMPT_PALETTE_FONT = "Font size (pt, 0 = default):"
+# Shared by every "0 = default" font prompt (palette, status bar).
+PROMPT_FONT_PT_ZERO_DEFAULT = "Font size (pt, 0 = default):"
 PROMPT_PALETTE_OPACITY = "Opacity (%):"
 PROMPT_DIALOG_SIZE = "Size (% of window):"
 
 # Text/Markdown appearance dialogs
 DIALOG_TEXT_FONT_TITLE = "Text/Markdown font size"
 PROMPT_TEXT_FONT = "Font size (pt):"
+
+# Status-bar appearance (command title lives here — ``strings`` is at the cap)
+CMD_STATUSBAR_FONT = "Status bar: font size…"
+DIALOG_STATUSBAR_FONT_TITLE = "Status bar font size"
 
 # Open-dialog filter dialogs
 DIALOG_OPEN_FILTER_TITLE = "Open dialog file extensions"

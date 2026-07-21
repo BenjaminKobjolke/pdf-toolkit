@@ -51,6 +51,49 @@ def test_open_image_renders_single_page(window: MainWindow, make_image: MakeImag
     assert window._page_view.total_pages() == 1
 
 
+def test_footer_shows_file_position_and_page(window: MainWindow, make_pdf: MakePdf) -> None:
+    make_pdf([(100, 200)], "a.pdf")
+    target = make_pdf([(100, 200), (300, 400)], "b.pdf")
+    make_pdf([(100, 200)], "c.pdf")
+
+    window.open_pdf(target)
+
+    assert window.mode_bar.file_text() == "File 2/3"
+    assert window.mode_bar.page_text() == "Page 1/2"
+
+
+def test_footer_compact_for_image(
+    window: MainWindow, make_pdf: MakePdf, make_image: MakeImage
+) -> None:
+    make_pdf([(100, 200)], "a.pdf")
+    image = make_image("png", "b.png")
+
+    window.open_pdf(image)
+
+    assert window.mode_bar.file_text() == "2/2"
+    assert window.mode_bar.page_text() == ""
+
+
+def test_footer_labeled_again_after_image(
+    window: MainWindow, make_pdf: MakePdf, make_image: MakeImage
+) -> None:
+    pdf = make_pdf([(100, 200), (300, 400)], "a.pdf")
+    window.open_pdf(make_image("png", "b.png"))
+
+    window.open_pdf(pdf)
+
+    assert window.mode_bar.file_text() == "File 1/2"
+    assert window.mode_bar.page_text() == "Page 1/2"
+
+
+def test_footer_clears_on_close(window: MainWindow, make_pdf: MakePdf) -> None:
+    window.open_pdf(make_pdf([(100, 200)]))
+    window.close_document()
+
+    assert window.mode_bar.file_text() == ""
+    assert window.mode_bar.page_text() == ""
+
+
 def test_swap_pages_through_window(
     window: MainWindow,
     monkeypatch: pytest.MonkeyPatch,
@@ -86,6 +129,69 @@ def test_invalid_swap_reports_error_and_keeps_file(
 
     assert captured  # an error dialog was shown
     assert page_sizes_of(pdf) == [(100, 200), (300, 400), (120, 120)]
+
+
+def test_psd_rotate_previews_without_dirty(
+    window: MainWindow, monkeypatch: pytest.MonkeyPatch, make_image: MakeImage
+) -> None:
+    from PIL import Image
+
+    psd = make_image("psd", size=(16, 8))
+    window.open_pdf(psd)
+    silence_dialogs(monkeypatch)
+    original_bytes = psd.read_bytes()
+
+    window.rotate_actions.rotate_right()
+
+    working = window._working_doc.working()
+    assert working is not None and working.suffix == ".png"
+    with Image.open(working) as img:
+        assert img.size == (8, 16)
+    # Preview-only: never dirty, no Modified marker, original untouched.
+    assert not window._working_doc.is_dirty()
+    assert window.mode_bar.dirty_text() == ""
+    assert psd.read_bytes() == original_bytes
+
+
+def test_open_corrupt_psd_warns_and_aborts(
+    window: MainWindow, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    bad = tmp_path / "bad.psd"
+    bad.write_bytes(b"8BPS garbage")
+    captured: list[str] = []
+    monkeypatch.setattr(
+        confirm_dialog, "show_message", lambda parent, title, msg, *a, **k: captured.append(msg)
+    )
+
+    window.open_pdf(bad)
+
+    assert captured  # a warning dialog was shown
+    assert not window.has_document()
+
+
+def test_psd_save_as_suggests_and_exports_png(
+    window: MainWindow, monkeypatch: pytest.MonkeyPatch, make_image: MakeImage, tmp_path: Path
+) -> None:
+    from PIL import Image
+
+    from app.gui import file_dialogs
+
+    psd = make_image("psd")
+    window.open_pdf(psd)
+    silence_dialogs(monkeypatch)
+    dest = tmp_path / "exported.png"
+    captured: list[Path] = []
+
+    def fake_prompt(parent: object, title: str, suggestion: Path, filt: object) -> Path:
+        captured.append(suggestion)
+        return dest
+
+    monkeypatch.setattr(file_dialogs, "prompt_save_file", fake_prompt)
+    window.document_actions.save_as()
+
+    assert captured and captured[0].suffix == ".png"
+    with Image.open(dest) as img:
+        assert img.format == "PNG"
 
 
 def test_window_geometry_restored_on_construct(qapp: object, tmp_path: Path) -> None:

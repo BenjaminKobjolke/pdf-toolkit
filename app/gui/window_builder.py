@@ -25,6 +25,7 @@ from app.config.placement_settings import PlacementStore
 from app.config.recent_files import RecentFilesStore
 from app.config.reload_settings import ReloadSettingsStore
 from app.config.settings import Settings
+from app.config.status_bar_settings import StatusBarSettingsStore
 from app.config.text_view_settings import TextViewSettingsStore
 from app.config.ui_state import UiStateStore
 from app.config.window_geometry import WindowGeometryStore
@@ -63,6 +64,7 @@ from app.gui.reload_controller import ReloadController
 from app.gui.remembered_settings import RememberedSettingsController
 from app.gui.save_controller import SaveController
 from app.gui.select_controller import SelectController
+from app.gui.status_bar_settings_controller import StatusBarSettingsController
 from app.gui.text_view_controller import TextViewController
 from app.gui.window_builder_files import build_operations
 from app.gui.window_builder_memory import build_document_memory, remembered_stores
@@ -204,6 +206,7 @@ def _lay_out(window: MainWindow) -> None:
     layout.addWidget(window._bar)
     layout.addWidget(window._edit_bar)
     layout.addWidget(window._view_stack, 1)
+    layout.addWidget(window._thumb_filter_label)
     layout.addWidget(window._mode_bar)
     window.setCentralWidget(central)
 
@@ -221,6 +224,12 @@ def _finish(window: MainWindow, settings: Settings) -> None:
         window._thumbnails,
         # Lambda: _lifecycle is assigned later in the build sequence.
         lambda: window._lifecycle.open_sibling_or_close(),
+    )
+    # Both footer rows (mode bar + thumbnail filter label) exist by now.
+    window._status_bar_settings = StatusBarSettingsController(
+        window,
+        [window._mode_bar, window._thumb_filter_label],
+        StatusBarSettingsStore(window._backend),
     )
     window._registry = commands.build_commands(window)
     defaults = default_shortcut_pairs()

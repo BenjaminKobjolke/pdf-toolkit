@@ -210,6 +210,20 @@ def test_open_folder_from_history_lists_unique_folders_and_opens_last_file(
     assert window._source == second
 
 
+def test_statusbar_font_command_applies_and_persists(
+    window: MainWindow, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("app.gui.number_input_dialog.prompt_int", lambda *a, **k: 18)
+    commands.find(window._registry, commands.STATUSBAR_FONT).run()
+
+    assert window.mode_bar.font().pointSize() == 18
+    assert window._thumb_filter_label.font().pointSize() == 18
+    # Survives a fresh window against the same store path.
+    reopened = MainWindow(_settings(tmp_path))
+    assert reopened.mode_bar.font().pointSize() == 18
+    assert reopened._thumb_filter_label.font().pointSize() == 18
+
+
 def test_dialog_size_command_persists(
     window: MainWindow, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

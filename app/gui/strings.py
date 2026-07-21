@@ -271,12 +271,16 @@ BTN_APPEND = "Add"
 BTN_REPLACE = "Replace"
 
 LABEL_NO_DOC = "No document open"
-LABEL_PAGE_FMT = "Page {current} / {total}"
+# Shared by the operation bar and the mode footer so both read identically.
+LABEL_PAGE_FMT = "Page {current}/{total}"
 
 # Mode footer bar
 MODE_REGULAR = "Regular Mode"
 MODE_EDIT = "Edit Mode"
-PAGE_OF_FMT = "{current}/{total}"
+FILE_OF_FMT = "File {current}/{total}"
+# Bare counter for unpaged formats (images): no "File" word, no page row to
+# disambiguate from, so the label stays clean.
+FILE_COMPACT_FMT = "{current}/{total}"
 ZOOM_FMT = "{percent}%"
 MODIFIED_MARKER = "● Modified"
 HINT_NO_SIBLING_FILE = "No other file in directory"
@@ -284,6 +288,7 @@ HINT_NO_OPENABLE_FILE = "No openable file in this folder"
 
 MSG_NOT_FOUND_FMT = "input file not found: {path}"
 MSG_UNSUPPORTED_FORMAT_FMT = "unsupported file type: {name}"
+MSG_OPEN_FAILED_FMT = "could not open {name}: {error}"
 MSG_BACKUP_FAILED_FMT = "failed to create backup: {error}"
 MSG_DONE_FMT = "done: {name}"
 MSG_MERGED_FMT = "merged: {path}"

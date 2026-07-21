@@ -34,13 +34,68 @@ def test_page_label_blank_by_default(bar: ModeStatusBar) -> None:
 
 def test_set_page_label_shows_current_of_total(bar: ModeStatusBar) -> None:
     bar.set_page_label(5, 7)
-    assert bar.page_text() == "5/7"
+    assert bar.page_text() == "Page 5/7"
 
 
 def test_clear_page_label_blanks_it(bar: ModeStatusBar) -> None:
     bar.set_page_label(5, 7)
     bar.clear_page_label()
     assert bar.page_text() == ""
+
+
+def test_file_label_blank_and_hidden_by_default(bar: ModeStatusBar) -> None:
+    assert bar.file_text() == ""
+    assert bar._file_label.isHidden()
+
+
+def test_set_file_label_shows_position(bar: ModeStatusBar) -> None:
+    bar.set_file_label(2, 5)
+    assert bar.file_text() == "File 2/5"
+    assert not bar._file_label.isHidden()
+
+
+def test_clear_file_label_blanks_and_hides(bar: ModeStatusBar) -> None:
+    bar.set_file_label(2, 5)
+    bar.clear_file_label()
+    assert bar.file_text() == ""
+    assert bar._file_label.isHidden()
+
+
+def test_clear_page_label_keeps_file_label(bar: ModeStatusBar) -> None:
+    bar.set_file_label(2, 5)
+    bar.set_page_label(3, 10)
+    bar.clear_page_label()
+    assert bar.file_text() == "File 2/5"
+    assert bar._page_label.isHidden()
+
+
+def test_unpaged_document_shows_bare_file_counter(bar: ModeStatusBar) -> None:
+    bar.set_paged_document(False)
+    bar.set_file_label(6, 7)
+    assert bar.file_text() == "6/7"
+
+
+def test_unpaged_document_ignores_page_label(bar: ModeStatusBar) -> None:
+    bar.set_paged_document(False)
+    bar.set_page_label(1, 1)
+    assert bar.page_text() == ""
+    assert bar._page_label.isHidden()
+
+
+def test_switching_to_unpaged_clears_stale_page_label(bar: ModeStatusBar) -> None:
+    bar.set_page_label(3, 10)
+    bar.set_paged_document(False)
+    assert bar.page_text() == ""
+    assert bar._page_label.isHidden()
+
+
+def test_switching_back_to_paged_restores_labeled_rows(bar: ModeStatusBar) -> None:
+    bar.set_paged_document(False)
+    bar.set_paged_document(True)
+    bar.set_file_label(2, 5)
+    bar.set_page_label(3, 10)
+    assert bar.file_text() == "File 2/5"
+    assert bar.page_text() == "Page 3/10"
 
 
 def test_zoom_label_blank_by_default(bar: ModeStatusBar) -> None:

@@ -96,8 +96,19 @@ class LifecycleActions:
         # open, and working_doc.open() deletes it — which fails on Windows while
         # the file is still open.
         self.gif.on_document_closed()
+        # Creating the working copy reads the source (PSD converts to PNG here);
+        # a corrupt/unreadable file must warn and abort, not crash the open.
+        try:
+            working = self.working_doc.open(path)
+        except OSError as err:
+            confirm_dialog.show_message(
+                self.parent,
+                strings.DIALOG_ERROR_TITLE,
+                strings.MSG_OPEN_FAILED_FMT.format(name=path.name, error=err),
+                confirm_dialog.Severity.WARNING,
+            )
+            return
         self.set_source(path)
-        working = self.working_doc.open(path)
         # Asset paths resolve against the original PDF's directory, not the temp
         # working copy; set this before rendering so the first restore can load
         # image pixmaps.
@@ -107,6 +118,9 @@ class LifecycleActions:
         # it onto the page (it shows whether or not edit mode is on). The sidecar
         # is keyed to the working copy, seeded from the original on open.
         self._load_text_fields(working)
+        # Before load: the first page_changed from load() must already know
+        # whether this format shows a Page row (PDFs) or a bare file counter.
+        self.mode_bar.set_paged_document(doc_format is FileFormat.PDF)
         self.page_view.load(working)
         # Autoplay animated GIFs (no-op for every other format); after load so the
         # static first-frame render is in place before the movie takes over.
@@ -114,6 +128,13 @@ class LifecycleActions:
         # Restore the remembered zoom/page for this document (independent dimensions).
         self.doc_memories.apply_for(path)
         self.bar.update_for(has_doc=True, is_pdf=doc_format is FileFormat.PDF)
+        # ponytail: computed once per open — not refreshed on filter changes or
+        # external directory changes while the doc stays open; next open fixes it.
+        position = file_browser_model.file_position(path, self.open_filter.current_filter())
+        if position is None:
+            self.mode_bar.clear_file_label()
+        else:
+            self.mode_bar.set_file_label(position.index, position.total)
         self.mode_bar.set_dirty(False)
         self.recent.add(path)
         self.reload.on_document_opened(path)
@@ -169,6 +190,7 @@ class LifecycleActions:
         self.working_doc.close()
         self.page_view.reset()
         self.bar.update_for(has_doc=False, is_pdf=False)
+        self.mode_bar.clear_file_label()
         self.mode_bar.clear_page_label()
         self.mode_bar.clear_zoom_label()
         self.mode_bar.set_dirty(False)

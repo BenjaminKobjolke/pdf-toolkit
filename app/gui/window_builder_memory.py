@@ -24,6 +24,7 @@ from app.config.placement_settings import PlacementStore
 from app.config.record_store import RecordStore
 from app.config.reload_settings import ReloadSettingsStore
 from app.config.settings import Settings
+from app.config.status_bar_settings import StatusBarSettingsStore
 from app.config.text_view_settings import TextViewSettingsStore
 from app.config.thumbnail_settings import ThumbnailSettingsStore
 from app.config.window_geometry import WindowGeometryStore
@@ -87,6 +88,7 @@ def remembered_stores(window: MainWindow, settings: Settings) -> list[RecordStor
         ImageChoiceStore(backend),
         OutlineSettingsStore(backend),
         TextViewSettingsStore(backend),
+        StatusBarSettingsStore(backend),
         ImageBackgroundSettingsStore(backend),
         OpenFilterSettingsStore(backend),
         OpenWithStore(backend),

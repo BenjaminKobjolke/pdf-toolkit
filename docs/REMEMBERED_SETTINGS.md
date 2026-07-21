@@ -41,6 +41,7 @@ command in the palette (pick one to reset, or "clear all").
 | Window position and size | where the viewer reopens |
 | Image add: copy-vs-reference choice | last image-add choice |
 | Field outline appearance | selection outline width / style / color |
+| Status bar appearance | footer font size (0 = default) |
 | Image transparency background | backdrop behind transparent image pixels (white / black / green / blue / checkered) |
 | Default zoom | fit-to-window vs. a fixed percentage on open |
 | Thumbnail size | edge length (px) of the previews in the thumbnails view |
