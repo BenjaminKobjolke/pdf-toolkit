@@ -20,4 +20,7 @@ if errorlevel 1 (
 )
 move /y "%PROJECT_ROOT%\releases\windows\installer.exe" "%PROJECT_ROOT%\releases\windows\FastFileViewer_v%LABEL%_unsigned.exe" >nul
 echo [build_installer_testing] Installer: %PROJECT_ROOT%\releases\windows\FastFileViewer_v%LABEL%_unsigned.exe
+
+echo [build_installer_testing] Launching installer...
+start "" "%PROJECT_ROOT%\releases\windows\FastFileViewer_v%LABEL%_unsigned.exe"
 exit /b 0
