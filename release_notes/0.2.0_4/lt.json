@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "„Photoshop“ failai, greitas filtravimas ir išmanesnė būsenos juosta",
+  "notes": [
+    "Atidarykite „Photoshop“ (.psd) failus — peržiūrėkite juos, pasukite ar apverskite ir eksportuokite kaip PNG",
+    "Filtruokite miniatiūras rašydami — tinklelis gyvai susiaurėja jums rašant, Esc išvalo",
+    "Filtruokite failų naršyklę su / — įveskite pavadinimo dalis bet kokia tvarka, kad rastumėte",
+    "Būsenos juosta dabar rodo jūsų padėtį aplanke ir dabartinį puslapį",
+    "Pritaikykite būsenos juostos šrifto dydį pagal savo poreikius",
+    "Ištrinkite dabartinį failą tiesiai į šiukšlinę",
+    "Į jau veikiančią programos langą atidaryti failai dabar matomi nesuimdami fokusavimo"
+  ]
+}

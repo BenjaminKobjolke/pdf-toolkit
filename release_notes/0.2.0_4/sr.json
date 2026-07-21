@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Photoshop fajlovi, brzo filtriranje i pametnija statusna traka",
+  "notes": [
+    "Otvarajte Photoshop (.psd) fajlove — pregledajte ih, rotirajte ili prevrnite i izvezite kao PNG",
+    "Filtrirajte sličice kucanjem — mreža se uživo sužava dok kucate, Esc briše",
+    "Filtrirajte pregledač fajlova pomoću / — kucajte delove imena bilo kojim redosledom da biste ga pronašli",
+    "Statusna traka sada prikazuje vašu poziciju u fascikli i trenutnu stranicu",
+    "Podesite veličinu fonta statusne trake po želji",
+    "Obrišite trenutni fajl direktno u kantu za otpatke",
+    "Fajlovi otvoreni u već pokrenutom prozoru sada se prikazuju bez preuzimanja fokusa"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Pliki Photoshopa, szybkie filtrowanie i inteligentniejszy pasek stanu",
+  "notes": [
+    "Otwieraj pliki Photoshop (.psd) — podglądaj je, obracaj lub odbijaj i eksportuj jako PNG",
+    "Filtruj miniatury przez wpisywanie — siatka zawęża się na żywo podczas pisania, Esc czyści",
+    "Filtruj przeglądarkę plików klawiszem / — wpisuj fragmenty nazwy w dowolnej kolejności, aby ją znaleźć",
+    "Pasek stanu pokazuje teraz Twoją pozycję w folderze i bieżącą stronę",
+    "Dostosuj rozmiar czcionki paska stanu do swoich preferencji",
+    "Usuń bieżący plik bezpośrednio do kosza",
+    "Pliki otwierane w już uruchomionym oknie są teraz wyświetlane bez przejmowania fokusu"
+  ]
+}

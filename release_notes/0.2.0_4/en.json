@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Photoshop files, quick filtering, and a smarter status bar",
+  "notes": [
+    "Open Photoshop (.psd) files — preview them, rotate or flip, and export as PNG",
+    "Filter thumbnails by typing — the grid narrows live as you type, Esc clears",
+    "Filter the file browser with / — type parts of a name in any order to find it",
+    "The status bar now shows your position in the folder and the current page",
+    "Adjust the status bar font size to your liking",
+    "Delete the current file straight to the recycle bin",
+    "Files opened into an already-running window now come into view without stealing focus"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Photoshop-fájlok, gyors szűrés és okosabb állapotsor",
+  "notes": [
+    "Photoshop (.psd) fájlok megnyitása — előnézet, forgatás vagy tükrözés, majd exportálás PNG-be",
+    "Bélyegképek szűrése gépeléssel — a rács gépelés közben azonnal szűkül, az Esc töröl",
+    "A fájlböngésző szűrése a / jellel — a név részeit bármilyen sorrendben beírva megtalálod",
+    "Az állapotsor most már mutatja a mappán belüli pozíciódat és az aktuális oldalt",
+    "Az állapotsor betűmérete igény szerint állítható",
+    "Az aktuális fájl törlése közvetlenül a Lomtárba",
+    "A már futó ablakba megnyitott fájlok most fókuszlopás nélkül kerülnek a nézetbe"
+  ]
+}

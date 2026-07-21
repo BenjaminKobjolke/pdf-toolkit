@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Photoshop-Dateien, schnelles Filtern und eine intelligentere Statusleiste",
+  "notes": [
+    "Photoshop-Dateien (.psd) öffnen — Vorschau anzeigen, drehen oder spiegeln und als PNG exportieren",
+    "Thumbnails durch Tippen filtern — das Raster wird während der Eingabe live eingegrenzt, Esc löscht",
+    "Dateibrowser mit / filtern — Teile eines Namens in beliebiger Reihenfolge eingeben, um ihn zu finden",
+    "Die Statusleiste zeigt jetzt Ihre Position im Ordner und die aktuelle Seite an",
+    "Schriftgröße der Statusleiste nach Wunsch anpassen",
+    "Aktuelle Datei direkt in den Papierkorb löschen",
+    "Dateien, die in ein bereits laufendes Fenster geöffnet werden, werden jetzt sichtbar, ohne den Fokus zu stehlen"
+  ]
+}

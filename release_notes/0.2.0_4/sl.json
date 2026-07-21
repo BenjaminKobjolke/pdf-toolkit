@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Datoteke Photoshop, hitro filtriranje in pametnejša vrstica stanja",
+  "notes": [
+    "Odprite datoteke Photoshop (.psd) — predoglejte si jih, zavrtite ali zrcalite in izvozite kot PNG",
+    "Filtrirajte sličice z vnosom — mreža se sproti oži med tipkanjem, Esc počisti",
+    "Filtrirajte brskalnik datotek z / — vnesite dele imena v poljubnem vrstnem redu, da ga najdete",
+    "Vrstica stanja zdaj prikazuje vaš položaj v mapi in trenutno stran",
+    "Prilagodite velikost pisave vrstice stanja po svojem okusu",
+    "Izbrišite trenutno datoteko neposredno v koš",
+    "Datoteke, odprte v že zagnano okno, so zdaj prikazane brez prevzema fokusa"
+  ]
+}

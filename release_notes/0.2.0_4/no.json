@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Photoshop-filer, rask filtrering og en smartere statuslinje",
+  "notes": [
+    "Åpne Photoshop-filer (.psd) — forhåndsvis dem, roter eller speilvend, og eksporter som PNG",
+    "Filtrer miniatyrbilder ved å skrive — rutenettet snevres inn i sanntid mens du skriver, Esc tømmer",
+    "Filtrer filutforskeren med / — skriv deler av et navn i vilkårlig rekkefølge for å finne det",
+    "Statuslinjen viser nå posisjonen din i mappen og gjeldende side",
+    "Juster skriftstørrelsen i statuslinjen etter eget ønske",
+    "Slett gjeldende fil rett til papirkurven",
+    "Filer som åpnes i et vindu som allerede kjører, vises nå uten å stjele fokus"
+  ]
+}

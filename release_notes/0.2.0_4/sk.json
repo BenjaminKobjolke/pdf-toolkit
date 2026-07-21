@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Súbory Photoshopu, rýchle filtrovanie a inteligentnejší stavový riadok",
+  "notes": [
+    "Otvárajte súbory Photoshopu (.psd) — zobrazte náhľad, otáčajte alebo prevracajte a exportujte ako PNG",
+    "Filtrujte miniatúry písaním — mriežka sa pri písaní priebežne zužuje, Esc vymaže filter",
+    "Filtrujte prehliadač súborov pomocou / — zadajte časti názvu v ľubovoľnom poradí a nájdite ho",
+    "Stavový riadok teraz zobrazuje vašu pozíciu v priečinku a aktuálnu stránku",
+    "Upravte si veľkosť písma stavového riadku podľa svojich preferencií",
+    "Odstráňte aktuálny súbor priamo do koša",
+    "Súbory otvorené v už spustenom okne sa teraz zobrazia bez toho, aby prevzali fokus"
+  ]
+}

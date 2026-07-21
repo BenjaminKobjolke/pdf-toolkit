@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Photoshopi failid, kiire filtreerimine ja nutikam olekuriba",
+  "notes": [
+    "Ava Photoshopi (.psd) failid — eelvaata neid, pööra või peegelda ning ekspordi PNG-na",
+    "Filtreeri pisipilte kirjutades — ruudustik kitseneb kirjutamise ajal, Esc tühistab",
+    "Filtreeri failihaldurit klahviga / — kirjuta nime osi suvalises järjekorras, et see leida",
+    "Olekuriba näitab nüüd sinu asukohta kaustas ja praegust lehte",
+    "Kohanda olekuriba fondi suurust endale sobivaks",
+    "Kustuta praegune fail otse prügikasti",
+    "Juba töötavasse aknasse avatud failid tuuakse nüüd nähtavale ilma fookust röövimata"
+  ]
+}

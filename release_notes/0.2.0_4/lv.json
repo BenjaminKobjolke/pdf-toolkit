@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Photoshop faili, ātra filtrēšana un gudrāka statusa josla",
+  "notes": [
+    "Atveriet Photoshop (.psd) failus — priekšskatiet tos, pagrieziet vai apgrieziet un eksportējiet kā PNG",
+    "Filtrējiet sīktēlus, rakstot — režģis sašaurinās reāllaikā, kamēr rakstāt; Esc notīra",
+    "Filtrējiet failu pārlūku ar / — rakstiet nosaukuma daļas jebkurā secībā, lai to atrastu",
+    "Statusa josla tagad rāda jūsu pozīciju mapē un pašreizējo lapu",
+    "Pielāgojiet statusa joslas fonta lielumu pēc savas gaumes",
+    "Dzēsiet pašreizējo failu tieši uz atkritni",
+    "Faili, kas atvērti jau darbojošā logā, tagad tiek parādīti skatā, neatņemot fokusu"
+  ]
+}

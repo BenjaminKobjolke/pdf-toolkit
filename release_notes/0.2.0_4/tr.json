@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Photoshop dosyaları, hızlı filtreleme ve daha akıllı bir durum çubuğu",
+  "notes": [
+    "Photoshop (.psd) dosyalarını açın — önizleyin, döndürün veya çevirin ve PNG olarak dışa aktarın",
+    "Yazarak küçük resimleri filtreleyin — siz yazdıkça ızgara anında daralır, Esc temizler",
+    "/ ile dosya tarayıcısını filtreleyin — herhangi bir sırada adın parçalarını yazarak bulun",
+    "Durum çubuğu artık klasördeki konumunuzu ve mevcut sayfayı gösteriyor",
+    "Durum çubuğu yazı tipi boyutunu isteğinize göre ayarlayın",
+    "Geçerli dosyayı doğrudan geri dönüşüm kutusuna silin",
+    "Zaten açık olan bir pencereye açılan dosyalar artık odağı çalmadan görünür hale geliyor"
+  ]
+}

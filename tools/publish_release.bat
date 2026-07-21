@@ -21,5 +21,5 @@ set "ARTIFACT=%~dp0..\releases\windows\FastFileViewer.exe"
 copy /y "%INSTALLER%" "%ARTIFACT%" >nul
 
 cd D:\GIT\BenjaminKobjolke\release-tool
-call uv run python -m release_tool "%ARTIFACT%" "%~dp0publish_settings.ini" --previous-version 0.1.0_2 --verbose
+call uv run python -m release_tool "%ARTIFACT%" "%~dp0publish_settings.ini" --previous-version 0.2.0_3 --verbose
 cd "%~dp0"

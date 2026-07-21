@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "File Photoshop, filtro rapido e una barra di stato più intelligente",
+  "notes": [
+    "Apri file Photoshop (.psd): visualizzali in anteprima, ruotali o specchiali ed esportali in PNG",
+    "Filtra le miniature digitando: la griglia si restringe in tempo reale mentre scrivi, Esc cancella",
+    "Filtra il browser dei file con /: digita parti di un nome in qualsiasi ordine per trovarlo",
+    "La barra di stato ora mostra la tua posizione nella cartella e la pagina corrente",
+    "Regola la dimensione del carattere della barra di stato come preferisci",
+    "Elimina il file corrente direttamente nel cestino",
+    "I file aperti in una finestra già in esecuzione ora vengono portati in vista senza rubare il focus"
+  ]
+}

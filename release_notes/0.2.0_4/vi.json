@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Tệp Photoshop, lọc nhanh và thanh trạng thái thông minh hơn",
+  "notes": [
+    "Mở tệp Photoshop (.psd) — xem trước, xoay hoặc lật, và xuất ra PNG",
+    "Lọc ảnh thu nhỏ bằng cách gõ — lưới thu hẹp theo thời gian thực khi bạn gõ, nhấn Esc để xóa",
+    "Lọc trình duyệt tệp bằng / — gõ các phần của tên theo bất kỳ thứ tự nào để tìm",
+    "Thanh trạng thái giờ hiển thị vị trí của bạn trong thư mục và trang hiện tại",
+    "Điều chỉnh cỡ chữ của thanh trạng thái theo ý bạn",
+    "Xóa tệp hiện tại thẳng vào thùng rác",
+    "Các tệp được mở vào một cửa sổ đang chạy giờ sẽ hiển thị mà không giành lấy tiêu điểm"
+  ]
+}

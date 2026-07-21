@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Fișiere Photoshop, filtrare rapidă și o bară de stare mai inteligentă",
+  "notes": [
+    "Deschide fișiere Photoshop (.psd) — previzualizează-le, rotește sau răstoarnă și exportă ca PNG",
+    "Filtrează miniaturile prin tastare — grila se restrânge în timp real pe măsură ce tastezi, Esc șterge filtrul",
+    "Filtrează navigatorul de fișiere cu / — tastează părți dintr-un nume în orice ordine pentru a-l găsi",
+    "Bara de stare afișează acum poziția ta în folder și pagina curentă",
+    "Ajustează dimensiunea fontului barei de stare după preferințe",
+    "Șterge fișierul curent direct în coșul de reciclare",
+    "Fișierele deschise într-o fereastră deja pornită apar acum în vizualizare fără a prelua focusul"
+  ]
+}

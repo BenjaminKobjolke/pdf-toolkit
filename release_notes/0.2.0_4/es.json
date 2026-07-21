@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Archivos de Photoshop, filtrado rápido y una barra de estado más inteligente",
+  "notes": [
+    "Abrir archivos de Photoshop (.psd): prévisualízalos, gíralos o voltéalos y expórtalos como PNG",
+    "Filtra miniaturas escribiendo: la cuadrícula se reduce en vivo mientras escribes; Esc limpia",
+    "Filtra el explorador de archivos con /: escribe partes de un nombre en cualquier orden para encontrarlo",
+    "La barra de estado ahora muestra tu posición en la carpeta y la página actual",
+    "Ajusta el tamaño de fuente de la barra de estado a tu gusto",
+    "Elimina el archivo actual directamente a la papelera de reciclaje",
+    "Los archivos abiertos en una ventana ya en ejecución ahora pasan a estar a la vista sin robar el foco"
+  ]
+}

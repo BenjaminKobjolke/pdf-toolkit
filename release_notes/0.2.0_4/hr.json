@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Photoshop datoteke, brzo filtriranje i pametnija statusna traka",
+  "notes": [
+    "Otvorite Photoshop (.psd) datoteke — pregledajte ih, zakrenite ili zrcalite i izvezite kao PNG",
+    "Filtrirajte minijature upisivanjem — mreža se sužava u stvarnom vremenu dok tipkate, Esc briše",
+    "Filtrirajte preglednik datoteka pomoću / — upišite dijelove naziva bilo kojim redoslijedom kako biste ga pronašli",
+    "Statusna traka sada prikazuje vaš položaj u mapi i trenutačnu stranicu",
+    "Prilagodite veličinu fonta statusne trake po želji",
+    "Izbrišite trenutačnu datoteku izravno u koš za smeće",
+    "Datoteke otvorene u već pokrenutom prozoru sada se prikazuju bez preuzimanja fokusa"
+  ]
+}

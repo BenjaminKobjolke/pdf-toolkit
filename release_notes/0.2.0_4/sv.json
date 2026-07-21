@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Photoshop-filer, snabbfiltrering och ett smartare statusfält",
+  "notes": [
+    "Öppna Photoshop-filer (.psd) – förhandsgranska dem, rotera eller vänd, och exportera som PNG",
+    "Filtrera miniatyrer genom att skriva – rutnätet smalnar av live medan du skriver, Esc rensar",
+    "Filtrera filbläddraren med / – skriv delar av ett namn i valfri ordning för att hitta det",
+    "Statusfältet visar nu din position i mappen och den aktuella sidan",
+    "Justera statusfältets teckenstorlek efter eget tycke",
+    "Ta bort den aktuella filen direkt till papperskorgen",
+    "Filer som öppnas i ett redan körande fönster visas nu utan att ta fokus"
+  ]
+}

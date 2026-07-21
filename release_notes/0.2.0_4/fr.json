@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Fichiers Photoshop, filtrage rapide et barre d’état plus intelligente",
+  "notes": [
+    "Ouvrez des fichiers Photoshop (.psd) — prévisualisez-les, faites-les pivoter ou retournez-les, et exportez-les en PNG",
+    "Filtrez les vignettes en tapant — la grille se resserre en direct au fur et à mesure de la saisie, Échap efface",
+    "Filtrez le navigateur de fichiers avec / — saisissez des parties d’un nom dans n’importe quel ordre pour le trouver",
+    "La barre d’état affiche désormais votre position dans le dossier et la page actuelle",
+    "Ajustez la taille de la police de la barre d’état selon vos préférences",
+    "Supprimez le fichier actuel directement dans la corbeille",
+    "Les fichiers ouverts dans une fenêtre déjà en cours d’exécution s’affichent désormais sans voler le focus"
+  ]
+}

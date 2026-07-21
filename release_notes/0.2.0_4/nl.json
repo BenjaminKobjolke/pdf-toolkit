@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Photoshop-bestanden, snel filteren en een slimmere statusbalk",
+  "notes": [
+    "Open Photoshop-bestanden (.psd) — bekijk een voorbeeld, draai of spiegel ze en exporteer als PNG",
+    "Filter miniaturen door te typen — het raster wordt live smaller terwijl je typt, Esc wist",
+    "Filter de bestandsbrowser met / — typ delen van een naam in willekeurige volgorde om het te vinden",
+    "De statusbalk toont nu je positie in de map en de huidige pagina",
+    "Pas de lettergrootte van de statusbalk naar wens aan",
+    "Verwijder het huidige bestand rechtstreeks naar de prullenbak",
+    "Bestanden die in een al draaiend venster worden geopend, komen nu in beeld zonder de focus te stelen"
+  ]
+}

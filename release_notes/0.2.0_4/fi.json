@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "build": 4,
+  "date": "2026-07-21",
+  "title": "Photoshop-tiedostot, nopea suodatus ja älykkäämpi tilarivi",
+  "notes": [
+    "Avaa Photoshop (.psd) -tiedostoja — esikatsele ne, kierrä tai peilaa ja vie PNG-muodossa",
+    "Suodata pikkukuvia kirjoittamalla — ruudukko kapenee reaaliajassa kirjoittaessasi, Esc tyhjentää",
+    "Suodata tiedostoselain merkillä / — kirjoita nimen osia missä järjestyksessä tahansa löytääksesi sen",
+    "Tilarivi näyttää nyt sijaintisi kansiossa ja nykyisen sivun",
+    "Säädä tilarivin fonttikokoa mieleiseksesi",
+    "Poista nykyinen tiedosto suoraan roskakoriin",
+    "Jo käynnissä olevaan ikkunaan avatut tiedostot tulevat nyt näkyviin viemättä kohdistusta"
+  ]
+}
