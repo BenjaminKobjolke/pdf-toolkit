@@ -13,12 +13,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QSize, Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QIcon, QKeyEvent, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import QListWidget, QListWidgetItem
 
 from app.app_logger import log
 from app.gui import render
+from app.gui.file_browser_model import matches_all_terms
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QWidget
@@ -48,6 +49,8 @@ class ThumbnailsView(QListWidget):
 
     open_requested = Signal(object)  # Path of the activated file
     dismiss_requested = Signal()
+    filter_changed = Signal(str)  # the current type-to-filter query
+    filter_mode_changed = Signal(bool)  # filter mode entered/left
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -59,6 +62,8 @@ class ThumbnailsView(QListWidget):
         self.setWordWrap(True)
         self.setStyleSheet(_STYLE)
         self._thumb_px = 0
+        self._filter_text = ""
+        self._filter_mode = False
         self._pixmaps: dict[Path, QPixmap] = {}
         self._pending: list[QListWidgetItem] = []
         self._render_timer = QTimer(self)
@@ -96,22 +101,86 @@ class ThumbnailsView(QListWidget):
             self._apply_icon(item)
         if self._pending:
             self._render_timer.start()
-        self._relayout()
+        self._apply_filter()
 
     def selected_path(self) -> Path | None:
         """Path of the highlighted thumbnail, or ``None`` with nothing selected."""
         item = self.currentItem()
         return None if item is None else _path_of(item)
 
+    def start_filter(self) -> None:
+        """Enter filter mode: typing edits the query, shortcuts are muted."""
+        if not self._filter_mode:
+            self._filter_mode = True
+            self.filter_mode_changed.emit(True)
+            self.filter_changed.emit(self._filter_text)
+
+    def clear_filter(self) -> None:
+        """Leave filter mode and drop the query, showing every file again."""
+        if self._filter_text:
+            self._set_filter("")
+        if self._filter_mode:
+            self._filter_mode = False
+            self.filter_mode_changed.emit(False)
+
+    def event(self, event: QEvent) -> bool:
+        """Claim every key from the window's shortcuts while filter mode is on.
+
+        Accepting ``ShortcutOverride`` makes Qt deliver the key to
+        ``keyPressEvent`` instead of any bound ``QShortcut`` — user bindings
+        (including bare letters) must not steal typed filter characters.
+        """
+        if event.type() == QEvent.Type.ShortcutOverride and self._filter_mode:
+            event.accept()
+            return True
+        return super().event(event)
+
     def keyPressEvent(self, event: QKeyEvent) -> None:
-        """Enter opens the selected file, Esc leaves the grid, arrows navigate."""
+        """Enter opens, Esc leaves (filter mode first, then the grid)."""
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             self._activate(self.currentItem())
+            return
+        if self._filter_mode and self._handle_filter_key(event):
             return
         if event.key() == Qt.Key.Key_Escape:
             self.dismiss_requested.emit()
             return
         super().keyPressEvent(event)
+
+    def _handle_filter_key(self, event: QKeyEvent) -> bool:
+        """Filter-mode key handling; False lets navigation keys pass through."""
+        if event.key() == Qt.Key.Key_Escape:
+            self.clear_filter()
+            return True
+        if event.key() == Qt.Key.Key_Backspace:
+            self._set_filter(self._filter_text[:-1])
+            return True
+        text = event.text()
+        blocked = Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier
+        if text and text.isprintable() and not event.modifiers() & blocked:
+            self._set_filter(self._filter_text + text)
+            return True
+        return False
+
+    def _set_filter(self, text: str) -> None:
+        self._filter_text = text
+        self._apply_filter()
+        self.filter_changed.emit(text)
+
+    def _apply_filter(self) -> None:
+        """Hide non-matching items and keep the selection on a visible one."""
+        for index in range(self.count()):
+            item = self.item(index)
+            item.setHidden(not matches_all_terms(item.text(), self._filter_text))
+        current = self.currentItem()
+        if current is None or current.isHidden():
+            visible = (self.item(i) for i in range(self.count()))
+            first = next((item for item in visible if not item.isHidden()), None)
+            if first is None:
+                self.setCurrentRow(-1)
+            else:
+                self.setCurrentItem(first)
+        self._relayout()
 
     def _activate(self, item: QListWidgetItem | None) -> None:
         if item is not None:

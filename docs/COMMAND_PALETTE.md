@@ -48,7 +48,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Open file from recent / history…** | Pick from recently opened documents (see below). |
 | **Open folder from recent / history…** | Pick from recently used folders; reopens the last file you opened from that folder (see below). |
 | **Next file in directory** / **Previous file in directory** | Open the alphabetically next / previous openable file in the current document's folder (also **Alt+Right** / **Alt+Left**). Wraps at the ends; honors the Open-dialog filter and skips files the viewer can't render; prompts to save unsaved changes first. |
-| **Save changes to original file** | Write the working copy back to the original (with a backup) — PDFs and images. See *Deferred saving*. |
+| **Save changes to original file** | Write the working copy back to the original (with a backup) — PDFs and images (not PSD, which is preview-only). See *Deferred saving*. |
 | **Open containing folder in native file explorer** | Open the document's folder in the OS file explorer. |
 | **Rename file…** | Rename the open PDF (and its sidecar) and reopen it. In the thumbnails view, renames the **selected** file in place instead. |
 | **Delete file…** | Move the open document (and its sidecar) to the recycle bin after confirmation, then open the nearest file in the folder — the next one, or the previous when the last file was deleted (empty viewer if none). In the thumbnails view, deletes the **selected** file and refreshes the grid. |
@@ -66,8 +66,10 @@ missing or corrupt file just means no commands are floated yet.
 | **Toggle menu bar** | Show/hide the top menu bar (remembered across sessions). |
 | **Toggle toolbar** | Show/hide the button toolbars (remembered across sessions). |
 | **Toggle status bar** | Show/hide the footer status bar (remembered across sessions; see `STATUS_BAR.md`). |
+| **Status bar: font size…** | Font size (pt) of the footer — status bar + thumbnail filter bar — 0 = default (see *Appearance settings*). |
 | **Toggle fullscreen** | Enter/leave fullscreen for the current session (not remembered). |
 | **Thumbnails view** | Swap the page view for a grid of first-page previews of every openable file in the current document's folder (see *Thumbnails view* and `THUMBNAIL_VIEW.md`). |
+| **Filter thumbnails** | Enter filter mode in the thumbnails view (opening it first if needed): typing narrows the grid to filenames containing every typed term, all keyboard shortcuts are muted, Esc exits. See `THUMBNAIL_VIEW.md`. |
 | **GIF: play / pause** | Pause or resume the current animated GIF. Shown only when an animated GIF is open (see *Animated GIF*). |
 | **Image: transparency background…** | For image documents, choose what shows behind transparent pixels: white (default), black, greenscreen green, greenscreen blue, or a checkered pattern. Persisted; also affects **Copy page as image**. Animated GIF playback frames are not affected. |
 | **Palette: width %…** | Set the palette width as a % of the window (see *Appearance settings*). |
@@ -194,6 +196,9 @@ unsaved changes.
 
 - **Save changes to original file** (`Ctrl+S`) writes the working copy back to the
   original, creating one timestamped backup (`backup/YYYYMMDD-HHMM-<name>.pdf`).
+- **PSD** documents are preview-only: rotate/flip apply to the session's preview
+  and are discarded silently (no Modified marker, no save prompt — PSD can't be
+  written). **Save As** exports the transformed preview as a `.png`.
 - Closing the window, opening another PDF, or closing the document while modified
   prompts to **Save**, **Discard**, or **Cancel**.
 
@@ -243,6 +248,7 @@ prompts) and remembered across sessions:
 | **Palette: opacity %…** | 20–100 | Window transparency. |
 | **Palette: toggle borderless** | — | Removes/restores the OS window frame. |
 | **Dialogs: size %…** | 20–100 | Width **and** height of every other list/picker dialog — file browser (Open/Save/folder), the recent file/folder pickers, font and color pickers, search, and the small option menus — as a percentage of the main window (default 60). The palette itself keeps its own width/height settings above. |
+| **Status bar: font size…** | 0–40 pt | Font size of the footer — the status bar and the thumbnail filter bar (0 keeps the default). Persisted; reset from **Remembered settings…** ("Status bar appearance"). |
 
 Settings persist in a global file:
 
@@ -390,7 +396,8 @@ just like any other image.
   it). The command appears only while an animated GIF is open (a single-frame `.gif`
   is treated as a normal static image).
 - Editing operations (rotate, flip, save) still apply to the first frame only; stop
-  playback and treat the GIF as a still before transforming it (see `FILE_FORMATS.md`).
+  playback and treat the GIF as a still before transforming it (see
+  `file_formats/IMAGES.md`).
 
 ## Thumbnails view
 

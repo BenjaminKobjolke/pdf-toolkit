@@ -37,13 +37,34 @@ needs an open document and toggles: running it again returns to the page view.
 |-----|--------|
 | **Arrow keys** | Move the selection through the grid. |
 | **Enter** | Open the selected file in the regular viewer (leaves the grid). |
-| **Esc** | Return to the current document. |
+| **Esc** | Return to the current document (leaves filter mode first, if active). |
 | **Double-click** | Same as Enter. |
 
 The **currently open file starts selected** and scrolled into view. The
 selected thumbnail is marked with an **orange stroke** drawn around the preview
 itself (not the filename); the stroke keeps a constant width at every
 thumbnail size.
+
+## Filter mode
+
+Run **Filter thumbnails** from the command palette (works from the page view
+too — it opens the grid first when needed). The **filter bar** — a "Filter: …"
+footer row above the status bar, created in `app/gui/thumbnails_controller.py`
+(`install_thumbnails`) — appears and everything you type narrows the grid live:
+every whitespace-separated term must appear in the filename (case-insensitive,
+any order), so `elec jpg` keeps `20260218_electronics.jpg`. The filter bar is
+unaffected by **Toggle status bar**; its font size follows **Status bar: font
+size…** (see `STATUS_BAR.md`).
+
+- While filter mode is active, **all keyboard shortcuts are muted** (including
+  user-bound single letters and the palette chord) — every key goes to the
+  filter. This is why filtering is an explicit mode instead of type-to-filter.
+- **Backspace** edits the query, **arrow keys** still navigate the (filtered)
+  grid, **Enter** opens the selected match, and **Esc** is the only way out:
+  it clears the query, shows every file again, and restores the shortcuts.
+- The selection always stays on a visible thumbnail; with no match the grid is
+  empty until the query is edited.
+- Re-entering the grid always starts with filter mode off and no query.
 
 ## Thumbnail size
 
@@ -95,8 +116,9 @@ the underlying open document:
   commands, Export to PDF, Copy current view, and GIF play/pause. Their
   keyboard shortcuts (Ctrl+S, Page Down, …) are inactive too. Leave the grid
   (Esc) and they return.
-- **Always reachable**: Thumbnails view (toggle), Zoom in/out (thumbnail
-  size), Next/Previous file in directory, Open…, and every settings command.
+- **Always reachable**: Thumbnails view (toggle), Filter thumbnails, Zoom
+  in/out (thumbnail size), Next/Previous file in directory, Open…, and every
+  settings command.
 
 ## Details and limits
 

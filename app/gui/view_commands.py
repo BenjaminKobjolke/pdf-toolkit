@@ -35,6 +35,7 @@ def view_commands(window: MainWindow) -> list[Command]:
     open_filter = window.open_filter_controller
     link = window.link_hint_settings
     zoom = window.zoom_settings_controller
+    status_bar = window.status_bar_settings
     return [
         Command(c.COMMAND_PALETTE, strings.CMD_COMMAND_PALETTE, window.open_command_palette),
         Command(c.CONFIGURE_SHORTCUTS, strings.CMD_CONFIGURE_SHORTCUTS, window.configure_shortcuts),
@@ -47,6 +48,7 @@ def view_commands(window: MainWindow) -> list[Command]:
         Command(c.TOGGLE_MENU, strings.CMD_TOGGLE_MENU, window.toggle_menu_bar),
         Command(c.TOGGLE_TOOLBAR, strings.CMD_TOGGLE_TOOLBAR, window.toggle_toolbar),
         Command(c.TOGGLE_STATUSBAR, strings.CMD_TOGGLE_STATUSBAR, window.toggle_statusbar),
+        Command(c.STATUSBAR_FONT, settings_strings.CMD_STATUSBAR_FONT, status_bar.set_font_size),
         Command(c.TOGGLE_FULLSCREEN, strings.CMD_TOGGLE_FULLSCREEN, window.toggle_fullscreen),
         # Format-agnostic: the toggle must stay reachable to close the grid no
         # matter what (or whether anything) is selected in it.
@@ -54,6 +56,14 @@ def view_commands(window: MainWindow) -> list[Command]:
             c.THUMBNAILS_VIEW,
             thumbnail_strings.CMD_THUMBNAILS_VIEW,
             window.thumbnails_controller.toggle,
+            window.has_document,
+        ),
+        # Enters the grid itself when needed, so it works straight from the
+        # page view; typing then filters with all shortcuts muted (Esc exits).
+        Command(
+            c.FILTER_THUMBNAILS,
+            thumbnail_strings.CMD_FILTER_THUMBNAILS,
+            window.thumbnails_controller.start_filter,
             window.has_document,
         ),
         Command(

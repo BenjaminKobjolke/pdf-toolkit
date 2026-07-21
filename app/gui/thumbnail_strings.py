@@ -8,3 +8,7 @@ from __future__ import annotations
 
 # Command palette / shortcut titles
 CMD_THUMBNAILS_VIEW = "Thumbnails view"
+CMD_FILTER_THUMBNAILS = "Filter thumbnails"
+
+# Type-to-filter footer label
+FILTER_FMT = "Filter: {text}"

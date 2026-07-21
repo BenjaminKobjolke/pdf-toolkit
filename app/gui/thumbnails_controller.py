@@ -66,12 +66,20 @@ class ThumbnailsController:
         # bound to item scaling (window_input._zoom_or_scale) instead of the
         # redirected zoom commands.
         self.page_view.graphics_scene().clearSelection()
+        self.view.clear_filter()
         paths = file_browser_model.openable_files(current.parent, self.current_filter())
         self.view.set_thumb_size(self._size)
         self.view.populate(paths, current)
         self.stack.setCurrentWidget(self.view)
         self.view.setFocus()
         self._active = True
+
+    def start_filter(self) -> None:
+        """Begin filter mode, entering the grid first when it is hidden."""
+        if not self._active:
+            self.enter()
+        if self._active:
+            self.view.start_filter()
 
     def leave(self) -> None:
         """Swap the page view back in; no-op while the grid is not showing."""
@@ -127,12 +135,22 @@ def install_thumbnails(window: MainWindow) -> None:
     Extracted from :mod:`app.gui.window_builder` (over the file-length cap);
     local imports keep this module import-light for the unit tests.
     """
-    from PySide6.QtWidgets import QStackedWidget
+    from PySide6.QtWidgets import QLabel, QStackedWidget
 
     from app.config.thumbnail_settings import ThumbnailSettingsStore
+    from app.gui import thumbnail_strings
     from app.gui.thumbnails_view import ThumbnailsView
 
     window._thumbnails_view = ThumbnailsView()
+    window._thumb_filter_label = QLabel()
+    window._thumb_filter_label.setContentsMargins(8, 2, 8, 2)  # matches ModeStatusBar
+    window._thumb_filter_label.hide()
+
+    def _show_filter(text: str) -> None:
+        window._thumb_filter_label.setText(thumbnail_strings.FILTER_FMT.format(text=text))
+
+    window._thumbnails_view.filter_changed.connect(_show_filter)
+    window._thumbnails_view.filter_mode_changed.connect(window._thumb_filter_label.setVisible)
     window._view_stack = QStackedWidget()
     window._view_stack.addWidget(window._page_view)
     window._view_stack.addWidget(window._thumbnails_view)
