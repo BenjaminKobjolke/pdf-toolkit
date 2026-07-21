@@ -110,16 +110,43 @@ def _run_demo(app: QApplication, settings: Settings, options: DemoOptions) -> in
     return int(app.exec())
 
 
+def _raise_above_others(window: MainWindow) -> None:
+    """Bring the window to the front of the Z-order WITHOUT taking keyboard focus.
+
+    On Windows a background window can't reach the front with ``raise_()`` alone
+    (that only reorders within our own app). Toggling the topmost flag on and off
+    with ``SWP_NOACTIVATE`` reorders it above other apps' windows while leaving
+    keyboard focus wherever the user is typing.
+    """
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+
+        hwnd = int(window.winId())
+        HWND_TOPMOST, HWND_NOTOPMOST = -1, -2
+        SWP_NOSIZE, SWP_NOMOVE, SWP_NOACTIVATE = 0x0001, 0x0002, 0x0010
+        flags = SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE
+        set_pos = ctypes.windll.user32.SetWindowPos
+        set_pos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, flags)
+        set_pos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, flags)
+    except (AttributeError, OSError):  # pragma: no cover - defensive, never fatal
+        log.debug("single-instance: raise-above-others failed", exc_info=True)
+
+
 def _open_in(window: MainWindow, path: Path | None) -> None:
-    """Handle a forwarded open request: load the file, then bring us frontmost."""
+    """Handle a forwarded open request: load the file, then surface the window."""
     if path is not None:
         window.open_pdf(path)  # unsaved-changes prompt handled inside
-    if not window.instance_controller.focus_on_forward:
-        return
+    # Always surface the window — a forwarded open must never look like nothing
+    # happened. Only grab keyboard focus when the user opted in.
     window.setWindowState(window.windowState() & ~Qt.WindowState.WindowMinimized)
     window.show()
     window.raise_()
-    window.activateWindow()
+    if window.instance_controller.focus_on_forward:
+        window.activateWindow()
+    else:
+        _raise_above_others(window)  # front, but don't steal focus
 
 
 if __name__ == "__main__":

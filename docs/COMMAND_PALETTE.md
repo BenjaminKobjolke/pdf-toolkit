@@ -81,7 +81,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Open dialog: toggle all files** | Open dialog lists every file ⇄ only the configured extensions (persisted). |
 | **Open dialog: file extensions…** | Edit which extensions the Open dialog lists (e.g. `pdf, txt, md, ini`); switches back to extension-list mode. |
 | **Single instance: toggle reuse existing window** | When on (default), launching the viewer with a file (e.g. double-click in Explorer) opens it in the already-running window instead of a new one (see *Single instance* below). |
-| **Single instance: toggle focus window on open** | When on (default), a file forwarded to the running window also brings that window to the front with keyboard focus; when off, the file opens but the window stays in the background (see *Single instance* below). |
+| **Single instance: toggle focus window on open** | When on (default), a file forwarded to the running window also brings that window to the front with keyboard focus; when off, the window is still brought to the front but does not take keyboard focus (see *Single instance* below). |
 | **Outline: width…** | Stroke width (px) of the selected-element outline (see *Appearance settings*). |
 | **Outline: type…** | Line type of the outline — Dashed or Solid. |
 | **Outline: color…** | Color of the outline (keyboard-first picker). |
@@ -344,8 +344,10 @@ second launch does — e.g. double-clicking a file associated with
 
 **Single instance: toggle focus window on open** (on by default) controls what
 the running window does after it receives the file: bring itself to the front
-and take keyboard focus (on), or open the file silently in the background
-(off). To make the focus grab work on Windows — which normally blocks
+and take keyboard focus (on), or come to the front **without** taking keyboard
+focus (off). Either way the window is raised, so a forwarded open never looks
+like nothing happened — off only means it does not steal focus from whatever
+you are currently typing in. To make the focus grab work on Windows — which normally blocks
 background processes from stealing focus — the launching process grants its
 foreground right to the running viewer (`AllowSetForegroundWindow`) before
 forwarding.
