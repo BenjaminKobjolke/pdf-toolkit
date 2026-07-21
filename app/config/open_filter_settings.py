@@ -15,7 +15,8 @@ from app.storage.backend import StorageBackend
 
 # v2: image formats joined FileFormat — reset stored filters to the new defaults
 # so images aren't silently hidden from the open dialog and sibling navigation.
-OPEN_FILTER_VERSION = 2
+# v3: same again for .psd.
+OPEN_FILTER_VERSION = 3
 OPEN_FILTER_KEY = "open_filter"
 
 # The viewer's own formats are the natural default — derived, not restated.

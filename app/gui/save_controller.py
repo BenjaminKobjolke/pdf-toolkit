@@ -39,9 +39,13 @@ class SaveController:
         self._on_saved = on_saved
 
     def mark_dirty(self) -> None:
-        """Flag the working copy as modified and show the status-bar marker."""
+        """Flag the working copy as modified and show the status-bar marker.
+
+        The marker mirrors the document: preview-only formats (PSD) refuse the
+        dirty flag, so no Modified marker appears for them either.
+        """
         self._doc.mark_dirty()
-        self._mode_bar.set_dirty(True)
+        self._mode_bar.set_dirty(self._doc.is_dirty())
 
     def save(self) -> None:
         """The 'Save changes to original file' command."""

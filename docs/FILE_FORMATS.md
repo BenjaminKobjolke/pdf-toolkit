@@ -1,19 +1,19 @@
 # File Formats (multi-format viewer)
 
 The GUI viewer opens **PDF, plain-text (`.txt`), Markdown (`.md`), and image
-(`.png` `.jpg` `.jpeg` `.gif` `.bmp` `.tif` `.tiff` `.webp`)** documents — plus
+(`.png` `.jpg` `.jpeg` `.gif` `.bmp` `.tif` `.tiff` `.webp` `.psd`)** documents — plus
 **any other plain-text file** (`.ini`, `.log`, `.json`, …) via a content sniff
 (see *Opening a file*). Each command declares which formats it supports, so a
-feature is reachable only for the formats it actually works on — you can read,
-search, and open links in a `.txt` or `.md`, but page operations like *Delete page*
-stay PDF-only, and text features (search, select, links) are greyed out for
-images, which have no extractable text.
+feature is reachable only for the formats it actually works on.
 
-`.md` files render as **formatted markdown** — `## x` becomes a heading, `**bold**`,
-lists, code, and links are styled. Text (`.txt`/`.md`) documents are turned into a
-styled HTML document and handed to fitz's HTML engine (fitz has no native markdown
-reader). The **font size** and a **light/dark theme** are adjustable from the command
-palette and remembered across sessions (see below).
+Per-format details live in `file_formats/`:
+
+| Format | Doc |
+|--------|-----|
+| PDF (`.pdf`) | [file_formats/PDF.md](file_formats/PDF.md) |
+| Text / Markdown (`.txt`, `.md`, sniffed plain-text) | [file_formats/TEXT.md](file_formats/TEXT.md) |
+| Images (`.png` `.jpg` `.jpeg` `.gif` `.bmp` `.tif` `.tiff` `.webp`) | [file_formats/IMAGES.md](file_formats/IMAGES.md) |
+| Photoshop (`.psd`) | [file_formats/PSD.md](file_formats/PSD.md) |
 
 ## What works per format
 
@@ -30,9 +30,9 @@ palette and remembered across sessions (see below).
 | Copy page / current view as image | ✅ | ✅ | ✅ | ✅ |
 | Print, rename, open folder | ✅ | ✅ | ✅ | ✅ |
 | Delete / insert / extract / swap / move page | ✅ | — | — | — |
-| Rotate / flip (page for PDFs, whole image for img) | ✅ | — | — | ✅ |
+| Rotate / flip (page for PDFs, whole image for img) | ✅ | — | — | ✅ (PSD: preview-only) |
 | Edit mode (text fields, images, rectangles), export | ✅ | — | — | — |
-| Save / Save As | ✅ | — | — | ✅ |
+| Save / Save As | ✅ | — | — | ✅ (PSD: no Save; Save As exports `.png`) |
 | Merge folder | ✅ (→ `merged.pdf`) | ✅ (→ `merged.txt`) | ✅ (→ `merged.md`) | ✅ (→ `merged.pdf`, png/jpg/jpeg only) |
 
 Commands that don't apply to the open document's format are greyed out in the
@@ -55,34 +55,14 @@ command palette and their keyboard shortcuts are no-ops. Format-agnostic command
   `.log`, `.cfg`, `.json`, … just work. Binary or non-UTF-8 files are rejected
   with a warning rather than handed to the renderer to fail obscurely. A known
   suffix always wins — a `.pdf` or `.png` is never sniffed.
-- **Images** open as a single-page document rendered by fitz directly; no text
-  layer, so search/select/link commands are greyed out.
-
-## Editing images
-
-**Rotate** (90° left/right, 180°) and **flip** (horizontal/vertical) work on image
-documents: the pixels themselves are transformed (an image has no rotation flag).
-Like PDF page edits, the change applies to the working copy and is deferred until
-**Save changes to original file** (`Ctrl+S`), which backs up the original first.
-Caveats:
-
-- **JPEG** is re-encoded on save (quality 95) — repeated transforms compound the loss.
-- Any **EXIF orientation** tag is baked into the pixels; other EXIF metadata is dropped.
-- **Animated GIF**: plays back in the viewer (autoplays on open; pause/resume with
-  the **GIF: play / pause** palette command — see `COMMAND_PALETTE.md`). Editing
-  operations (rotate/flip/save) still act on the first frame only, so stop playback
-  and treat it as a still before transforming. **Multi-frame TIFF**: only the first
-  frame is kept.
-- **Save As** for an image copies the bytes verbatim — the extension you type does
-  not convert the format.
 - To open files by **double-click from Explorer**, associate their types with the
   viewer via **File type associations…** (Windows only; see `FILE_ASSOCIATIONS.md`).
 
 ## Merging text folders
 
-*Merge folder…* now dispatches on the folder's contents:
+*Merge folder…* dispatches on the folder's contents:
 
-- A folder of **PDFs / images** → `merged.pdf` (pages concatenated, as before).
+- A folder of **PDFs / images** → `merged.pdf` (pages concatenated).
   Merge accepts only `.png`/`.jpg`/`.jpeg` images (the `img2pdf` conversion set) —
   deliberately narrower than what the viewer can *display* (`IMAGE_FORMATS`).
 - A folder of **text files** (`.txt` / `.md`) → `merged.<ext>`: the files are read
@@ -100,10 +80,10 @@ This applies to the CLI `pdf-merge-folder.bat` too — it shares the same backen
   sniff — first 8KB, no null bytes, valid UTF-8 → `TXT` — else `None`), and
   `open_fitz(source)`. `open_fitz` is the single seam every fitz consumer uses; for
   text formats it builds a styled HTML document (via `app/pdf/text_html.py`) and opens
-  it with `filetype="html"` — so `.md` renders formatted and `.txt`/`.md` honor the
-  font-size / dark-mode preferences. Images take the plain `fitz.open` path (fitz
-  renders them natively as one page). `set_text_view_settings(...)` sets those (a
-  module-level holder read at open time). Unit-tested in `tests/unit/test_file_format.py`.
+  it with `filetype="html"`. Images take the plain `fitz.open` path (fitz renders
+  them natively as one page); PSD goes through `psd_to_png_bytes` (see
+  [file_formats/PSD.md](file_formats/PSD.md)). Unit-tested in
+  `tests/unit/test_file_format.py`.
 - `app/pdf/text_html.py` — `render_html(text, is_markdown, settings)`: markdown → HTML
   (the `markdown` package) or plain text → `<pre>`, wrapped in one CSS `<style>` that
   owns font size, the light/dark theme, and heading/code styling. Pure; unit-tested in
@@ -119,8 +99,9 @@ This applies to the CLI `pdf-merge-folder.bat` too — it shares the same backen
   commands; `MainWindow.open_pdf` asks the controller for the current
   `FileFilter`. Unit-tested in `tests/unit/test_open_filter_settings.py`.
 - `app/gui/commands.py` — each `Command` carries a `formats` field (`None` =
-  agnostic, `PDF_ONLY`, `HAS_TEXT` = pdf/txt/md, or `VIEWABLE` = everything
-  renderable including images) and a `available(fmt)` gate.
+  agnostic, `PDF_ONLY`, `HAS_TEXT` = pdf/txt/md, `VIEWABLE` = everything
+  renderable including images, `TRANSFORMABLE` = pdf + images for rotate/flip,
+  or `SAVEABLE` = `TRANSFORMABLE` minus PSD for Save) and a `available(fmt)` gate.
   The command palette (`palette_entries.py`), keyboard shortcuts
   (`window_input.py`), and the button toolbar (`controls.py`) all consult it
   against `MainWindow.current_format()`. Covered by `tests/unit/test_commands.py`.
@@ -136,4 +117,5 @@ This applies to the CLI `pdf-merge-folder.bat` too — it shares the same backen
   (`write_text_atomic`) path. Covered by `tests/unit/test_merger.py`.
 
 Adding a future format (e.g. `.docx`) is one enum member plus a real render path
-(fitz cannot open docx), then widening the `formats` of the commands it supports.
+(fitz cannot open docx), a doc in `file_formats/`, then widening the `formats`
+of the commands it supports.

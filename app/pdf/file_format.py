@@ -14,10 +14,12 @@ path, since fitz cannot open docx.
 
 from __future__ import annotations
 
+import io
 from enum import StrEnum
 from pathlib import Path
 
 import fitz  # PyMuPDF
+from PIL import Image
 
 from app.config.text_view_settings import TextViewSettings
 from app.pdf import text_html
@@ -37,6 +39,7 @@ class FileFormat(StrEnum):
     TIF = ".tif"
     TIFF = ".tiff"
     WEBP = ".webp"
+    PSD = ".psd"
 
     @classmethod
     def of(cls, path: Path | None) -> FileFormat | None:
@@ -56,7 +59,8 @@ class FileFormat(StrEnum):
 
 TEXT_FORMATS = frozenset({FileFormat.TXT, FileFormat.MD})
 
-# What fitz can *render*; deliberately wider than merge's img2pdf-convertible set
+# What renders as an image (fitz natively; PSD via the Pillow branch in
+# open_fitz); deliberately wider than merge's img2pdf-convertible set
 # (app/pdf/_inputs.py IMAGE_EXTENSIONS). Listed explicitly, not derived, so a
 # future non-image member (e.g. DOCX) can't silently classify as an image.
 IMAGE_FORMATS = frozenset(
@@ -69,6 +73,7 @@ IMAGE_FORMATS = frozenset(
         FileFormat.TIF,
         FileFormat.TIFF,
         FileFormat.WEBP,
+        FileFormat.PSD,
     }
 )
 
@@ -123,4 +128,29 @@ def open_fitz(source: Path) -> fitz.Document:
             settings=_active_text_settings,
         )
         return fitz.open(stream=html.encode("utf-8"), filetype="html")
+    if fmt is FileFormat.PSD:
+        return fitz.open(stream=psd_to_png_bytes(source), filetype="png")
     return fitz.open(source, filetype=None)
+
+
+def psd_to_png_bytes(source: Path) -> bytes:
+    """Decode a PSD's merged composite with Pillow and re-encode as PNG bytes.
+
+    fitz can't read PSD, so both render paths go through this: :func:`open_fitz`
+    streams the bytes to fitz, and the viewer's working copy is written from them
+    (making transforms/save-as operate on a plain PNG). PNG keeps alpha for the
+    backdrop-compose path; CMYK/duotone must convert first (PNG can't encode
+    them). PSDs saved without "Maximize Compatibility" have no composite — that
+    and every other decode failure raises ``OSError`` so callers hit one
+    corrupt-file surface.
+    """
+    try:
+        with Image.open(source) as img:
+            flat = img if img.mode in ("RGB", "RGBA") else img.convert("RGBA")
+            buf = io.BytesIO()
+            flat.save(buf, format="PNG")
+        return buf.getvalue()
+    except OSError:
+        raise
+    except Exception as exc:  # Pillow decode errors are not all OSError
+        raise OSError(f"cannot read PSD {source.name}: {exc}") from exc

@@ -11,7 +11,7 @@ from PySide6.QtGui import QColor, QImage
 
 from app.config.image_background_settings import ImageBackground, ImageBackgroundSettings
 from app.gui import render
-from tests.conftest import MakePdf
+from tests.conftest import MakeImage, MakePdf
 
 
 @pytest.fixture(autouse=True)
@@ -51,6 +51,15 @@ def test_render_page_returns_nonempty_image(qapp: object, make_pdf: MakePdf) -> 
     assert not image.isNull()
     assert image.width() > 0
     assert image.height() > 0
+
+
+def test_render_page_renders_psd(qapp: object, make_image: MakeImage) -> None:
+    psd = make_image("psd")
+
+    assert render.page_count(psd) == 1
+    image = render.render_page(psd, 0)
+    assert not image.isNull()
+    assert image.width() > 0
 
 
 def test_render_page_rejects_out_of_range(qapp: object, make_pdf: MakePdf) -> None:

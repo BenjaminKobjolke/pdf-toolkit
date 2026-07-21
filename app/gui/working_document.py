@@ -20,6 +20,7 @@ from app.config.settings import Settings
 from app.gui import strings
 from app.gui.operations import OpResult, back_up
 from app.io.fs import clear_readonly, replace_atomic
+from app.pdf.file_format import FileFormat, psd_to_png_bytes
 from app.pdf.sidecar import sidecar_path
 
 _TMP_SUFFIX = ".tmp"
@@ -54,13 +55,26 @@ class WorkingDocument:
 
         Returns the working PDF path. Resets the dirty flag.
         """
+        # Pillow can't write PSD, so a PSD's working copy is a PNG conversion:
+        # rotate/flip and Save-As then operate on a plain PNG. Preview-only —
+        # mark_dirty is a no-op for PSD and Save is gated out (SAVEABLE), so
+        # save() never writes these PNG bytes onto the .psd original. Convert
+        # before close() so a corrupt PSD raises while the previous document's
+        # working copy is still intact.
+        is_psd = FileFormat.of(original) is FileFormat.PSD
+        png_bytes = psd_to_png_bytes(original) if is_psd else None
         self.close()
         tmp_dir = Path(tempfile.mkdtemp(prefix="pdftk-"))
-        working = tmp_dir / original.name
-        shutil.copy2(original, working)
-        # ``copy2`` carries over a read-only attribute the source may have (common
-        # for email/download PDFs); strip it so in-place edits can replace it.
-        clear_readonly(working)
+        if png_bytes is not None:
+            working = tmp_dir / (original.stem + ".png")
+            working.write_bytes(png_bytes)
+        else:
+            working = tmp_dir / original.name
+            shutil.copy2(original, working)
+            # ``copy2`` carries over a read-only attribute the source may have
+            # (common for email/download PDFs); strip it so in-place edits can
+            # replace it.
+            clear_readonly(working)
         original_sidecar = sidecar_path(original)
         if original_sidecar.is_file():
             shutil.copy2(original_sidecar, sidecar_path(working))
@@ -80,6 +94,11 @@ class WorkingDocument:
         return self._dirty
 
     def mark_dirty(self) -> None:
+        # PSD documents are preview-only (their working copy is a PNG conversion
+        # that can never be saved back); staying clean keeps every unsaved-changes
+        # prompt and the Modified marker away.
+        if FileFormat.of(self._original) is FileFormat.PSD:
+            return
         self._dirty = True
 
     def discard(self) -> None:

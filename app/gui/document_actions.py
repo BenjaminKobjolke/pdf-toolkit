@@ -161,13 +161,17 @@ class DocumentActions:
         source = self._source()
         if source is None:
             return
+        fmt = FileFormat.of(source)
         filt = (
             file_browser_strings.FILTER_PDF
-            if FileFormat.of(source) is FileFormat.PDF
+            if fmt is FileFormat.PDF
             else file_browser_strings.FILTER_VIEWER_IMAGES
         )
+        # A PSD's working copy is a PNG conversion; the suggested name must match
+        # the bytes Save-As will actually copy.
+        suggestion = source.with_suffix(".png") if fmt is FileFormat.PSD else source
         dest = file_dialogs.prompt_save_file(
-            self._parent, file_strings.DIALOG_SAVE_AS_TITLE, source, filt
+            self._parent, file_strings.DIALOG_SAVE_AS_TITLE, suggestion, filt
         )
         if dest is None:
             return

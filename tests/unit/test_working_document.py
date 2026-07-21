@@ -5,11 +5,15 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+import pytest
+from PIL import Image
+
 from app.config.settings import Settings
 from app.gui.working_document import WorkingDocument
+from app.pdf.image_transform import rotate_image
 from app.pdf.sidecar import sidecar_path
 from app.pdf.swapper import swap_two_pages
-from tests.conftest import MakePdf, PageSizesOf
+from tests.conftest import MakeImage, MakePdf, PageSizesOf
 
 _EMPTY_SIDECAR = '{"version": 1, "fields": []}'
 
@@ -114,3 +118,43 @@ def test_save_without_open_document_fails(tmp_path: Path) -> None:
     result = doc.save()
 
     assert not result.ok
+
+
+def test_open_psd_creates_png_working_copy(tmp_path: Path, make_image: MakeImage) -> None:
+    original = make_image("psd")
+
+    doc = WorkingDocument(_settings(tmp_path))
+    working = doc.open(original)
+
+    assert working.suffix == ".png"
+    with Image.open(working) as img:
+        assert img.format == "PNG"
+
+
+def test_psd_working_copy_supports_rotate(tmp_path: Path, make_image: MakeImage) -> None:
+    doc = WorkingDocument(_settings(tmp_path))
+    working = doc.open(make_image("psd", size=(16, 8)))
+
+    rotate_image(working, 90)
+
+    with Image.open(working) as img:
+        assert img.size == (8, 16)
+
+
+def test_psd_never_marks_dirty(tmp_path: Path, make_image: MakeImage) -> None:
+    doc = WorkingDocument(_settings(tmp_path))
+    doc.open(make_image("psd"))
+
+    doc.mark_dirty()
+
+    assert not doc.is_dirty()
+
+
+def test_open_corrupt_psd_raises_oserror(tmp_path: Path) -> None:
+    bad = tmp_path / "bad.psd"
+    bad.write_bytes(b"8BPS garbage")
+
+    doc = WorkingDocument(_settings(tmp_path))
+
+    with pytest.raises(OSError):
+        doc.open(bad)

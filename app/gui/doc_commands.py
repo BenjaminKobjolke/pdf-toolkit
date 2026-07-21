@@ -17,6 +17,7 @@ from app.gui.commands import (
     COPY_IMAGE_PERCENTS,
     HAS_TEXT,
     PDF_ONLY,
+    SAVEABLE,
     TRANSFORMABLE,
     VIEWABLE,
     Command,
@@ -49,7 +50,7 @@ def document_commands(
         # non-viewable selection must not hide them while the grid shows.
         Command(c.NEXT_FILE, strings.CMD_NEXT_FILE, window.open_next_file, has_doc),
         Command(c.PREV_FILE, strings.CMD_PREV_FILE, window.open_previous_file, has_doc),
-        Command(c.SAVE, strings.CMD_SAVE, window.save_changes, doc_in_view, TRANSFORMABLE),
+        Command(c.SAVE, strings.CMD_SAVE, window.save_changes, doc_in_view, SAVEABLE),
         Command(
             c.SAVE_AS,
             file_strings.CMD_SAVE_AS,

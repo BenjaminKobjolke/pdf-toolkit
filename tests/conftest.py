@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import struct
 from collections.abc import Iterator, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Protocol
@@ -112,7 +113,21 @@ def field_spec() -> TextFieldSpec:
 
 
 PageSize = tuple[float, float]
-ImageKind = Literal["png", "jpg", "rgba_png"]
+ImageKind = Literal["png", "jpg", "rgba_png", "psd"]
+
+
+def _psd_bytes(width: int, height: int) -> bytes:
+    """Minimal raw-RGB PSD (Pillow can read but not write PSD).
+
+    Header per the PSD spec: signature, version 1, 3 channels, 8-bit, RGB mode,
+    three empty sections, uncompressed planar channel data.
+    """
+    header = b"8BPS" + struct.pack(">H", 1) + b"\x00" * 6
+    header += struct.pack(">HIIHH", 3, height, width, 8, 3)
+    header += struct.pack(">I", 0) * 3  # color mode / resources / layers: empty
+    plane = height * width
+    channels = bytes([50] * plane) + bytes([100] * plane) + bytes([200] * plane)
+    return header + struct.pack(">H", 0) + channels
 
 
 class MakePdf(Protocol):
@@ -172,6 +187,11 @@ def make_image(tmp_path: Path) -> MakeImage:
         size: tuple[int, int] = (16, 16),
     ) -> Path:
         counter["n"] += 1
+        if kind == "psd":
+            width, height = size
+            target = tmp_path / (name or f"image_{counter['n']}.psd")
+            target.write_bytes(_psd_bytes(width, height))
+            return target
         if kind == "jpg":
             ext = ".jpg"
             mode = "RGB"

@@ -22,7 +22,11 @@ if TYPE_CHECKING:
 PDF_ONLY = frozenset({FileFormat.PDF})
 HAS_TEXT = PDF_ONLY | TEXT_FORMATS  # formats with extractable text (pdf/txt/md)
 VIEWABLE = HAS_TEXT | IMAGE_FORMATS  # any rendered doc (pdf/txt/md/images)
-TRANSFORMABLE = PDF_ONLY | IMAGE_FORMATS  # rotate/flip/save mutate the file itself
+# Rotate/flip mutate the working copy (for PSD a PNG conversion, so transforms
+# are preview-only there; Save As exports that PNG).
+TRANSFORMABLE = PDF_ONLY | IMAGE_FORMATS
+# Save-to-original needs a writable original format; Pillow can't encode PSD.
+SAVEABLE = PDF_ONLY | (IMAGE_FORMATS - {FileFormat.PSD})
 
 # Command ids — stable keys for menu/shortcut lookups (UPPER_SNAKE_CASE).
 OPEN = "open"
@@ -81,8 +85,10 @@ DELETE_FILE = "delete_file"
 TOGGLE_MENU = "toggle_menu"
 TOGGLE_TOOLBAR = "toggle_toolbar"
 TOGGLE_STATUSBAR = "toggle_statusbar"
+STATUSBAR_FONT = "statusbar_font"
 TOGGLE_FULLSCREEN = "toggle_fullscreen"
 THUMBNAILS_VIEW = "thumbnails_view"
+FILTER_THUMBNAILS = "filter_thumbnails"
 GIF_TOGGLE = "gif_toggle"
 PALETTE_WIDTH = "palette_width"
 PALETTE_HEIGHT = "palette_height"

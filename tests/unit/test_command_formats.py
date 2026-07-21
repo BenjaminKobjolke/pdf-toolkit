@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from app.gui import commands
-from app.gui.commands import HAS_TEXT, PDF_ONLY, TRANSFORMABLE, VIEWABLE, Command
+from app.gui.commands import HAS_TEXT, PDF_ONLY, SAVEABLE, TRANSFORMABLE, VIEWABLE, Command
 from app.gui.main_window import MainWindow
 from app.pdf.file_format import IMAGE_FORMATS, TEXT_FORMATS, FileFormat
 from tests.conftest import gui_settings
@@ -61,6 +61,15 @@ def test_available_has_text_excludes_images() -> None:
     assert not cmd.available(None)
 
 
+def test_psd_preview_only_gating() -> None:
+    # PSD transforms work on the PNG working copy (preview-only, Save As exports
+    # PNG); Save-to-original stays out — Pillow can't write PSD.
+    assert _cmd(VIEWABLE).available(FileFormat.PSD)
+    assert _cmd(TRANSFORMABLE).available(FileFormat.PSD)
+    assert not _cmd(SAVEABLE).available(FileFormat.PSD)
+    assert _cmd(IMAGE_FORMATS).available(FileFormat.PSD)
+
+
 def test_available_respects_is_enabled() -> None:
     assert not _cmd(None, enabled=False).available(FileFormat.PDF)
 
@@ -97,10 +106,10 @@ def test_registry_format_annotations(window: MainWindow) -> None:
         commands.ROTATE_180,
         commands.FLIP_HORIZONTAL,
         commands.FLIP_VERTICAL,
-        commands.SAVE,
         commands.SAVE_AS,
     ):
         assert commands.find(registry, cid).formats == TRANSFORMABLE
+    assert commands.find(registry, commands.SAVE).formats == SAVEABLE
     assert commands.find(registry, commands.OPEN).formats is None
     assert commands.find(registry, commands.OPEN_DIR).formats is None
     assert commands.find(registry, commands.MERGE_FOLDER).formats is None

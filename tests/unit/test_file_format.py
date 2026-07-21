@@ -33,6 +33,8 @@ from tests.conftest import MakeImage, MakePdf
         ("a.tif", FileFormat.TIF),
         ("a.tiff", FileFormat.TIFF),
         ("a.webp", FileFormat.WEBP),
+        ("a.psd", FileFormat.PSD),
+        ("a.PSD", FileFormat.PSD),
         ("a.docx", None),
         ("a", None),
     ],
@@ -126,7 +128,7 @@ def test_image_formats_cover_all_image_members() -> None:
     assert frozenset(FileFormat) - {FileFormat.PDF} - TEXT_FORMATS == IMAGE_FORMATS
 
 
-@pytest.mark.parametrize("kind", ["png", "jpg"])
+@pytest.mark.parametrize("kind", ["png", "jpg", "psd"])
 def test_open_fitz_opens_image_as_single_page(make_image: MakeImage, kind: str) -> None:
     image = make_image(kind)  # type: ignore[arg-type]
     doc = open_fitz(image)

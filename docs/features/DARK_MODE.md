@@ -33,7 +33,7 @@ palette used to draw them:
 | **Dark** | `#dddddd` | `#1e1e1e` | `#6cb6ff` |
 
 For `.md` this is applied on top of the formatted rendering (`##` → heading, `**bold**`,
-lists, code, links). See `../FILE_FORMATS.md`.
+lists, code, links). See `../file_formats/TEXT.md`.
 
 ## Persistence
 
