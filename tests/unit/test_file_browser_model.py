@@ -6,8 +6,9 @@ from pathlib import Path
 
 from app.gui.file_browser_model import (
     FileFilter,
-    FsEntry,
+    FilePosition,
     drives,
+    file_position,
     first_openable_file,
     is_root,
     list_dir,
@@ -15,7 +16,6 @@ from app.gui.file_browser_model import (
     openable_files,
     parent_of,
     sibling_file,
-    substring_filter,
 )
 
 PDF = FileFilter("pdf", (".pdf",))
@@ -108,6 +108,42 @@ def test_openable_files_empty_dir(tmp_path: Path) -> None:
     assert openable_files(tmp_path, ALL) == []
 
 
+def test_file_position_middle_of_listing(tmp_path: Path) -> None:
+    _touch(tmp_path / "a.pdf")
+    _touch(tmp_path / "b.pdf")
+    _touch(tmp_path / "c.pdf")
+    assert file_position(tmp_path / "b.pdf", PDF) == FilePosition(index=2, total=3)
+
+
+def test_file_position_first_and_last(tmp_path: Path) -> None:
+    _touch(tmp_path / "a.pdf")
+    _touch(tmp_path / "b.pdf")
+    assert file_position(tmp_path / "a.pdf", PDF) == FilePosition(index=1, total=2)
+    assert file_position(tmp_path / "b.pdf", PDF) == FilePosition(index=2, total=2)
+
+
+def test_file_position_only_file(tmp_path: Path) -> None:
+    _touch(tmp_path / "a.pdf")
+    assert file_position(tmp_path / "a.pdf", PDF) == FilePosition(index=1, total=1)
+
+
+def test_file_position_match_is_case_insensitive(tmp_path: Path) -> None:
+    _touch(tmp_path / "a.pdf")
+    _touch(tmp_path / "B.PDF")
+    _touch(tmp_path / "c.pdf")
+    assert file_position(tmp_path / "B.PDF", PDF) == FilePosition(index=2, total=3)
+
+
+def test_file_position_none_when_filtered_out(tmp_path: Path) -> None:
+    _touch(tmp_path / "a.pdf")
+    _touch(tmp_path / "notes.txt")
+    assert file_position(tmp_path / "notes.txt", PDF) is None
+
+
+def test_file_position_none_in_empty_dir(tmp_path: Path) -> None:
+    assert file_position(tmp_path / "missing.pdf", PDF) is None
+
+
 def test_list_dir_marks_directories(tmp_path: Path) -> None:
     (tmp_path / "d").mkdir()
     _touch(tmp_path / "f.pdf")
@@ -123,19 +159,6 @@ def test_parent_of_goes_up(tmp_path: Path) -> None:
 def test_parent_of_clamps_at_root() -> None:
     root = Path(Path.cwd().anchor)
     assert parent_of(root) == root
-
-
-def test_substring_filter_is_case_insensitive() -> None:
-    entries = [
-        FsEntry("Report.pdf", Path("Report.pdf"), False),
-        FsEntry("notes.txt", Path("notes.txt"), False),
-    ]
-    assert [e.name for e in substring_filter(entries, "REP")] == ["Report.pdf"]
-
-
-def test_substring_filter_empty_keeps_all() -> None:
-    entries = [FsEntry("a", Path("a"), False)]
-    assert substring_filter(entries, "") == entries
 
 
 def test_is_root_true_at_anchor() -> None:

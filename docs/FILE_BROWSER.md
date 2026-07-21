@@ -33,7 +33,7 @@ document's folder (or the prefilled destination for save/extract).
 | **gg** / **G** | First / last entry |
 | **l** / **→** / **Enter** | Enter the highlighted folder, or pick the highlighted file |
 | **h** / **←** / **Alt+↑** | Up one level (the `..` row does the same) |
-| **/** | Type-ahead filter; **Enter** returns to the list, **Esc** clears it |
+| **/** | Type-ahead filter (every space-separated term must appear in the name, any order — `elec jpg` finds `20260218_electronics.jpg`); **Enter** returns to the list, **Esc** clears it |
 | **Tab** | (save only) jump to the filename field; **Enter** there saves the typed name |
 | **Esc** / **q** | Cancel |
 

@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app.gui.file_browser_model import matches_all_terms
 from app.gui.filterable_dialog import FilterableListDialog
 
 _CHORD_ROLE = Qt.ItemDataRole.UserRole
@@ -51,15 +52,6 @@ def pick_option(
         # payload is typed Any on ListEntry; the labels dict pins its real type.
         return cast("_T", chosen.payload)
     return None
-
-
-def _matches(haystack: str, tokens: list[str]) -> bool:
-    """True if every whitespace-separated token is a substring of ``haystack``.
-
-    Relaxed matching so a query like ``field del`` finds ``Field: delete``
-    without needing the punctuation or exact word order.
-    """
-    return all(token in haystack for token in tokens)
 
 
 @dataclass(frozen=True)
@@ -192,5 +184,5 @@ class FilterListDialog(FilterableListDialog):
             if len(text.strip()) < self._min_chars:
                 return []
             return self._provider(text)
-        tokens = text.casefold().split()
-        return [e for e in self._entries if _matches(e.title.casefold(), tokens)]
+        # Relaxed term matching so ``field del`` finds ``Field: delete``.
+        return [e for e in self._entries if matches_all_terms(e.title, text)]

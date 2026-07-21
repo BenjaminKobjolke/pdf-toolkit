@@ -122,6 +122,29 @@ def openable_files(directory: Path, filt: FileFilter) -> list[Path]:
     ]
 
 
+@dataclass(frozen=True)
+class FilePosition:
+    """Where a file sits in its directory's openable listing (1-based)."""
+
+    index: int
+    total: int
+
+
+def file_position(current: Path, filt: FileFilter) -> FilePosition | None:
+    """``current``'s 1-based position among the openable files beside it.
+
+    Matches by case-folded name (same rule as :func:`sibling_file`) so path
+    spelling differences on Windows can't miss the file. ``None`` when
+    ``current`` isn't in the listing (e.g. filtered out or sniff-opened).
+    """
+    files = openable_files(current.parent, filt)
+    names = [path.name.casefold() for path in files]
+    key = current.name.casefold()
+    if key not in names:
+        return None
+    return FilePosition(index=names.index(key) + 1, total=len(files))
+
+
 def first_openable_file(directory: Path, filt: FileFilter) -> Path | None:
     """The alphabetically first filter-matching, renderable file in ``directory``.
 
@@ -158,8 +181,14 @@ def drives() -> list[FsEntry]:
 
 
 def substring_filter(entries: list[FsEntry], query: str) -> list[FsEntry]:
-    """Entries whose name contains ``query`` (case-insensitive); empty query keeps all."""
+    """Entries matching every term of ``query``; empty query keeps all."""
     if not query:
         return entries
-    needle = query.casefold()
-    return [entry for entry in entries if needle in entry.name.casefold()]
+    return [entry for entry in entries if matches_all_terms(entry.name, query)]
+
+
+def matches_all_terms(name: str, query: str) -> bool:
+    """True if every whitespace-separated term of ``query`` is a
+    case-insensitive substring of ``name``. Empty query matches everything."""
+    haystack = name.casefold()
+    return all(term in haystack for term in query.casefold().split())
