@@ -81,7 +81,8 @@ This applies to the CLI `pdf-merge-folder.bat` too — it shares the same backen
   `open_fitz(source)`. `open_fitz` is the single seam every fitz consumer uses; for
   text formats it builds a styled HTML document (via `app/pdf/text_html.py`) and opens
   it with `filetype="html"`. Images take the plain `fitz.open` path (fitz renders
-  them natively as one page); PSD goes through `psd_to_png_bytes` (see
+  them natively as one page); PSD and WebP go through `to_png_bytes` — fitz's
+  bundled MuPDF cannot decode either (see
   [file_formats/PSD.md](file_formats/PSD.md)). Unit-tested in
   `tests/unit/test_file_format.py`.
 - `app/pdf/text_html.py` — `render_html(text, is_markdown, settings)`: markdown → HTML

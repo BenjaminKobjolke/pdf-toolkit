@@ -2,7 +2,7 @@
 
 fitz can't read PSD, so the viewer renders the file's **merged composite**
 (the stored full-resolution preview — what IrfanView shows) via Pillow:
-`psd_to_png_bytes` in `app/pdf/file_format.py` decodes it and re-encodes as
+`to_png_bytes` in `app/pdf/file_format.py` decodes it and re-encodes as
 PNG.
 
 - **Thumbnails grid**: the PNG bytes are streamed to fitz in memory — no file

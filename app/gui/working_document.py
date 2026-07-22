@@ -20,7 +20,7 @@ from app.config.settings import Settings
 from app.gui import strings
 from app.gui.operations import OpResult, back_up
 from app.io.fs import clear_readonly, replace_atomic
-from app.pdf.file_format import FileFormat, psd_to_png_bytes
+from app.pdf.file_format import FileFormat, to_png_bytes
 from app.pdf.sidecar import sidecar_path
 
 _TMP_SUFFIX = ".tmp"
@@ -62,7 +62,7 @@ class WorkingDocument:
         # before close() so a corrupt PSD raises while the previous document's
         # working copy is still intact.
         is_psd = FileFormat.of(original) is FileFormat.PSD
-        png_bytes = psd_to_png_bytes(original) if is_psd else None
+        png_bytes = to_png_bytes(original) if is_psd else None
         self.close()
         tmp_dir = Path(tempfile.mkdtemp(prefix="pdftk-"))
         if png_bytes is not None:

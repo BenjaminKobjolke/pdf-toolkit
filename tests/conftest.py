@@ -137,7 +137,7 @@ def field_spec() -> TextFieldSpec:
 
 
 PageSize = tuple[float, float]
-ImageKind = Literal["png", "jpg", "rgba_png", "psd"]
+ImageKind = Literal["png", "jpg", "rgba_png", "webp", "psd"]
 
 
 def _psd_bytes(width: int, height: int) -> bytes:
@@ -224,6 +224,10 @@ def make_image(tmp_path: Path) -> MakeImage:
             ext = ".png"
             mode = "RGBA"
             color = (10, 200, 50, 128)
+        elif kind == "webp":
+            ext = ".webp"
+            mode = "RGB"
+            color = (100, 50, 200)
         else:
             ext = ".png"
             mode = "RGB"
