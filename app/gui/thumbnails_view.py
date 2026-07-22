@@ -43,6 +43,30 @@ QListWidget::item:selected { background: transparent; border: none; color: palet
 _HIGHLIGHT = "#FF8000"
 _STROKE_PX = 4  # constant on screen — thumbnails are shown 1:1, never scaled up
 
+# Keys the grid always claims from window shortcuts (a user binding e.g. bare
+# Right to "next file" must not steal grid navigation). Modified chords
+# (Ctrl+Up = thumbnail zoom, Alt+Right = next file) stay with the shortcuts.
+_NAV_KEYS = frozenset(
+    {
+        Qt.Key.Key_Left,
+        Qt.Key.Key_Right,
+        Qt.Key.Key_Up,
+        Qt.Key.Key_Down,
+        Qt.Key.Key_Home,
+        Qt.Key.Key_End,
+        Qt.Key.Key_PageUp,
+        Qt.Key.Key_PageDown,
+        Qt.Key.Key_Return,
+        Qt.Key.Key_Enter,
+        Qt.Key.Key_Escape,
+    }
+)
+_NAV_BLOCKING_MODS = (
+    Qt.KeyboardModifier.ControlModifier
+    | Qt.KeyboardModifier.AltModifier
+    | Qt.KeyboardModifier.MetaModifier
+)
+
 
 class ThumbnailsView(QListWidget):
     """Icon-mode grid of file previews with keyboard-first navigation."""
@@ -124,15 +148,21 @@ class ThumbnailsView(QListWidget):
             self.filter_mode_changed.emit(False)
 
     def event(self, event: QEvent) -> bool:
-        """Claim every key from the window's shortcuts while filter mode is on.
+        """Claim keys from the window's shortcuts so grid input keeps working.
 
         Accepting ``ShortcutOverride`` makes Qt deliver the key to
-        ``keyPressEvent`` instead of any bound ``QShortcut`` — user bindings
-        (including bare letters) must not steal typed filter characters.
+        ``keyPressEvent`` instead of any bound ``QShortcut``. In filter mode
+        every key is claimed (user bindings, including bare letters, must not
+        steal typed filter characters); otherwise only unmodified navigation
+        keys are, so grid navigation beats user-bound single-key shortcuts.
         """
-        if event.type() == QEvent.Type.ShortcutOverride and self._filter_mode:
-            event.accept()
-            return True
+        if event.type() == QEvent.Type.ShortcutOverride:
+            assert isinstance(event, QKeyEvent)
+            if self._filter_mode or (
+                event.key() in _NAV_KEYS and not event.modifiers() & _NAV_BLOCKING_MODS
+            ):
+                event.accept()
+                return True
         return super().event(event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:

@@ -8,6 +8,8 @@ way to jump between the files of a folder.
 
 Run **Thumbnails view** from the command palette (Ctrl+Shift+P). The command
 needs an open document and toggles: running it again returns to the page view.
+The grid can also be entered for any directory — no document needed — via
+**Open thumbnails view from favorites** (see *Favorites* in `COMMAND_PALETTE.md`).
 
 - The grid **replaces the page view in place** — the toolbar, status bar, menu
   bar, and the command palette all stay available while it is showing.
@@ -44,6 +46,12 @@ The **currently open file starts selected** and scrolled into view. The
 selected thumbnail is marked with an **orange stroke** drawn around the preview
 itself (not the filename); the stroke keeps a constant width at every
 thumbnail size.
+
+These navigation keys (arrows, Home/End, Page Up/Down, Enter, Esc) **always go
+to the grid**, even when a user-bound shortcut uses the same bare key — e.g.
+binding **Next file in directory** to `Right` does not stop the arrow from
+moving the selection. Modified chords (`Ctrl+↑/↓`, `Alt+Right/Left`, …) still
+reach their commands.
 
 ## Filter mode
 
@@ -87,7 +95,9 @@ thumbnail size** instead of the page zoom:
 ## Commands while the grid is active
 
 While the grid is showing, the palette follows the **selected thumbnail**, not
-the underlying open document:
+the underlying open document. This also holds for a grid entered **from
+favorites with no document open** — the file commands below are available
+there and act on the selection:
 
 - **File commands act on the selection** — Copy file path / name / name
   without extension, Open containing folder, File information, Open with…,

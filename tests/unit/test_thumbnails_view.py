@@ -185,6 +185,46 @@ def test_shortcut_override_ignored_outside_filter_mode(view: ThumbnailsView) -> 
     assert not _shortcut_override(view, "a")
 
 
+def _nav_override(
+    view: ThumbnailsView,
+    key: Qt.Key,
+    mods: Qt.KeyboardModifier = Qt.KeyboardModifier.NoModifier,
+) -> bool:
+    event = QKeyEvent(QEvent.Type.ShortcutOverride, key, mods)
+    event.ignore()
+    view.event(event)
+    return event.isAccepted()
+
+
+def test_navigation_keys_claimed_from_shortcuts_outside_filter_mode(
+    view: ThumbnailsView,
+) -> None:
+    # A user-bound single-key shortcut (e.g. Right -> next file) must not steal
+    # grid navigation.
+    for key in (
+        Qt.Key.Key_Left,
+        Qt.Key.Key_Right,
+        Qt.Key.Key_Up,
+        Qt.Key.Key_Down,
+        Qt.Key.Key_Home,
+        Qt.Key.Key_End,
+        Qt.Key.Key_PageUp,
+        Qt.Key.Key_PageDown,
+        Qt.Key.Key_Return,
+        Qt.Key.Key_Enter,
+        Qt.Key.Key_Escape,
+    ):
+        assert _nav_override(view, key), key
+
+
+def test_modified_navigation_keys_stay_with_shortcuts(view: ThumbnailsView) -> None:
+    # Ctrl+Up/Down = thumbnail zoom, Alt+Right/Left = next/prev file.
+    assert not _nav_override(view, Qt.Key.Key_Up, Qt.KeyboardModifier.ControlModifier)
+    assert not _nav_override(view, Qt.Key.Key_Down, Qt.KeyboardModifier.ControlModifier)
+    assert not _nav_override(view, Qt.Key.Key_Right, Qt.KeyboardModifier.AltModifier)
+    assert not _nav_override(view, Qt.Key.Key_Left, Qt.KeyboardModifier.AltModifier)
+
+
 def test_enter_in_filter_mode_opens_selected_file(filtering: ThumbnailsView) -> None:
     opened: list[Path] = []
     filtering.open_requested.connect(opened.append)
