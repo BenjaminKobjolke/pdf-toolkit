@@ -73,6 +73,7 @@ _ALL_IDS = {
     commands.TOGGLE_FULLSCREEN,
     commands.THUMBNAILS_VIEW,
     commands.FILTER_THUMBNAILS,
+    commands.OPEN_FAVORITES_THUMBNAILS,
     commands.GIF_TOGGLE,
     commands.EDIT_MODE,
     commands.SELECT_MODE,
@@ -220,6 +221,41 @@ def test_next_file_solo_document_stays_open(window: MainWindow, make_pdf: MakePd
     assert window._source == only
 
 
+def test_file_commands_available_in_grid_without_document(
+    window: MainWindow, make_pdf: MakePdf, tmp_path: Path
+) -> None:
+    # Grid entered via favorites: no open document, but a selected thumbnail.
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    make_pdf([(200, 300)], name="docs/one.pdf")
+    assert window.thumbnails_controller.enter_directory(docs)
+
+    registry = commands.build_commands(window)
+    fmt = window.current_format()
+    for command_id in (
+        commands.FILE_INFO,
+        commands.COPY_FILE_PATH,
+        commands.COPY_FILE_NAME,
+        commands.COPY_FILE_NAME_NO_EXT,
+        commands.COPY_PAGE_TEXT,
+        "copy_page_image",
+        commands.OPEN_FOLDER,
+        commands.OPEN_WITH,
+        commands.PRINT,
+        commands.RENAME_FILE,
+        commands.DELETE_FILE,
+        commands.DELETE_SAVED_FIELDS,
+    ):
+        assert commands.find(registry, command_id).available(fmt) is True, command_id
+    # Thumbnail sizing must work in a favorites grid too.
+    assert commands.find(registry, commands.ZOOM_IN).is_enabled() is True
+    assert commands.find(registry, commands.ZOOM_OUT).is_enabled() is True
+    # These act on the open document and stay unavailable without one.
+    assert commands.find(registry, commands.NEXT_FILE).is_enabled() is False
+    assert commands.find(registry, commands.PREV_FILE).is_enabled() is False
+    assert commands.find(registry, commands.SAVE).available(fmt) is False
+
+
 def test_field_commands_disabled_without_selection(window: MainWindow, make_pdf: MakePdf) -> None:
     window.open_pdf(make_pdf([(200, 300)]))
     registry = commands.build_commands(window)
@@ -238,55 +274,7 @@ def test_clear_highlights_enabled_only_with_highlights(
     assert commands.find(registry, commands.CLEAR_HIGHLIGHTS).is_enabled() is True
 
 
-# --- dynamic pixel-size titles -------------------------------------------------
-
-
-def test_copy_image_titles_fall_back_to_static_without_document(window: MainWindow) -> None:
-    registry = commands.build_commands(window)
-    assert commands.find(registry, "copy_page_image").display_title() == (
-        "Copy page as image to clipboard"
-    )
-    assert commands.find(registry, "copy_page_image_50").display_title() == (
-        "Copy page as image to clipboard at 50%"
-    )
-    assert commands.find(registry, commands.COPY_VIEW_IMAGE).display_title() == (
-        "Copy current view to clipboard"
-    )
-    assert commands.find(registry, "copy_view_image_50").display_title() == (
-        "Copy current view to clipboard at 50%"
-    )
-
-
-def test_page_image_titles_show_pixels_with_document(window: MainWindow, make_pdf: MakePdf) -> None:
-    window.open_pdf(make_pdf([(200, 100)]))
-    registry = commands.build_commands(window)
-    assert commands.find(registry, "copy_page_image").display_title() == (
-        "Copy page as image to clipboard (200×100 px)"
-    )
-    assert commands.find(registry, "copy_page_image_50").display_title() == (
-        "Copy page as image to clipboard at 50% (100×50 px)"
-    )
-    assert commands.find(registry, "copy_page_image_25").display_title() == (
-        "Copy page as image to clipboard at 25% (50×25 px)"
-    )
-
-
-def test_view_image_titles_show_visible_page_pixels(window: MainWindow, make_pdf: MakePdf) -> None:
-    window.open_pdf(make_pdf([(200, 100)]))
-    registry = commands.build_commands(window)
-    viewport = window.page_view.viewport()
-    dpr = viewport.devicePixelRatioF()
-    rect = window.page_view.visible_page_rect()
-    assert not rect.isEmpty()
-    # Titles report the clipped page area (what grab_page_area copies), not the viewport.
-    w = round(rect.width() * dpr)
-    h = round(rect.height() * dpr)
-    assert commands.find(registry, commands.COPY_VIEW_IMAGE).display_title() == (
-        f"Copy current view to clipboard ({w}×{h} px)"
-    )
-    assert commands.find(registry, "copy_view_image_50").display_title() == (
-        f"Copy current view to clipboard at 50% ({round(w * 0.5)}×{round(h * 0.5)} px)"
-    )
+# Dynamic pixel-size title tests live in test_copy_image_title_commands.py.
 
 
 def test_display_title_defaults_to_title() -> None:

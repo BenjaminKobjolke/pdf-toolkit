@@ -89,6 +89,7 @@ STATUSBAR_FONT = "statusbar_font"
 TOGGLE_FULLSCREEN = "toggle_fullscreen"
 THUMBNAILS_VIEW = "thumbnails_view"
 FILTER_THUMBNAILS = "filter_thumbnails"
+OPEN_FAVORITES_THUMBNAILS = "open_favorites_thumbnails"
 GIF_TOGGLE = "gif_toggle"
 PALETTE_WIDTH = "palette_width"
 PALETTE_HEIGHT = "palette_height"
@@ -180,6 +181,14 @@ def build_commands(window: MainWindow) -> list[Command]:
     has_doc = window.has_document
     has_highlights = window.page_view.has_highlights
 
+    def has_target() -> bool:
+        # File commands retarget to the selected thumbnail; a favorites-opened
+        # grid has a selection but no open document.
+        return effective_target.effective_source(window) is not None
+
+    def doc_or_grid() -> bool:
+        return window.has_document() or effective_target.grid_active(window)
+
     def doc_in_view() -> bool:
         # Commands needing the loaded working copy hide while the thumbnails
         # grid covers the page view; file commands retarget instead (see
@@ -187,14 +196,14 @@ def build_commands(window: MainWindow) -> list[Command]:
         return effective_target.doc_in_view(window)
 
     return [
-        *doc_commands.document_commands(window, has_doc, doc_in_view),
+        *doc_commands.document_commands(window, has_doc, has_target, doc_in_view),
         *doc_commands.navigation_commands(window, doc_in_view),
-        *doc_commands.zoom_commands(window, has_doc, doc_in_view),
+        *doc_commands.zoom_commands(window, doc_or_grid, doc_in_view),
         *doc_commands.page_commands(window, doc_in_view),
         *doc_commands.rotate_commands(window, doc_in_view),
         *doc_commands.move_commands(window, doc_in_view),
         *view_commands.view_commands(window),
-        *view_commands.edit_commands(window, has_doc, doc_in_view),
+        *view_commands.edit_commands(window, has_target, doc_in_view),
         *doc_commands.search_commands(window, doc_in_view, has_highlights),
         *overlay_commands.field_commands(window),
         *overlay_commands.image_commands(window),

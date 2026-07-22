@@ -70,6 +70,7 @@ missing or corrupt file just means no commands are floated yet.
 | **Toggle fullscreen** | Enter/leave fullscreen for the current session (not remembered). |
 | **Thumbnails view** | Swap the page view for a grid of first-page previews of every openable file in the current document's folder (see *Thumbnails view* and `THUMBNAIL_VIEW.md`). |
 | **Filter thumbnails** | Enter filter mode in the thumbnails view (opening it first if needed): typing narrows the grid to filenames containing every typed term, all keyboard shortcuts are muted, Esc exits. See `THUMBNAIL_VIEW.md`. |
+| **Open thumbnails view from favorites** | Pick a directory from your `~/.favoritedirs` favorites and open its thumbnails grid — no document needs to be open. Shown only while that file exists (see *Favorites*). |
 | **GIF: play / pause** | Pause or resume the current animated GIF. Shown only when an animated GIF is open (see *Animated GIF*). |
 | **Image: transparency background…** | For image documents, choose what shows behind transparent pixels: white (default), black, greenscreen green, greenscreen blue, or a checkered pattern. Persisted; also affects **Copy page as image**. Animated GIF playback frames are not affected. |
 | **Palette: width %…** | Set the palette width as a % of the window (see *Appearance settings*). |
@@ -412,7 +413,8 @@ palette stay available.
   orange frame marks the active thumbnail.
 - **Arrow keys** move the selection; **Enter** opens the selected file in the
   regular viewer; **Esc** (or running the command again) returns to the current
-  document.
+  document. These keys always go to the grid, even when a user-bound shortcut
+  uses the same bare key.
 - While the grid is showing, the regular **Zoom in 10% / Zoom out 10%**
   commands and keys (`Ctrl++` / `Ctrl+-` / `Ctrl+↑/↓`) resize the thumbnails
   instead of the page — default **256 px**, clamped 64–1024. The size is
@@ -428,6 +430,27 @@ palette stay available.
   render keep a gray placeholder.
 
 See `THUMBNAIL_VIEW.md` for the full details.
+
+### Favorites
+
+**Open thumbnails view from favorites** reads an fman-style favorites file:
+
+```
+~/.favoritedirs
+```
+
+One entry per line, `Display Name|Path` (e.g. `Downloads|~/Downloads`). `~` is
+expanded to your home directory; UNC paths (`\\server\share`) work as-is. Lines
+with fman-internal `{{…}}` placeholders are ignored. The location can be
+overridden with the `PDF_TOOLKIT_FAVORITES_FILE` environment variable.
+
+Picking a favorite opens that directory's thumbnails grid directly (first file
+selected) — it works from the empty viewer, and the command is hidden while the
+favorites file does not exist. The file commands (File information, rename,
+delete, copy path/name, …) target the selected thumbnail even with no document
+open. A favorite with no openable files shows a hint
+instead. The file is read-only for the viewer — manage it with fman or a text
+editor.
 
 ## Open file / folder from recent / history
 

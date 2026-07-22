@@ -66,6 +66,13 @@ def view_commands(window: MainWindow) -> list[Command]:
             window.thumbnails_controller.start_filter,
             window.has_document,
         ),
+        # Needs no open document; hidden while the favorites file is absent.
+        Command(
+            c.OPEN_FAVORITES_THUMBNAILS,
+            thumbnail_strings.CMD_OPEN_FAVORITES_THUMBNAILS,
+            window.document_actions.open_thumbnails_from_favorites,
+            window.document_actions.favorites_available,
+        ),
         Command(
             c.GIF_TOGGLE,
             strings.CMD_GIF_TOGGLE,
@@ -136,7 +143,9 @@ def view_commands(window: MainWindow) -> list[Command]:
     ]
 
 
-def edit_commands(window: MainWindow, has_doc: Predicate, doc_in_view: Predicate) -> list[Command]:
+def edit_commands(
+    window: MainWindow, has_target: Predicate, doc_in_view: Predicate
+) -> list[Command]:
     controller = window.controller
     return [
         Command(c.EDIT_MODE, strings.CMD_EDIT_MODE, window.toggle_edit_mode, doc_in_view, PDF_ONLY),
@@ -178,12 +187,12 @@ def edit_commands(window: MainWindow, has_doc: Predicate, doc_in_view: Predicate
         ),
         Command(c.EXPORT_TEXT, strings.CMD_EXPORT_TEXT, window.export_text, doc_in_view, PDF_ONLY),
         # Retargets to the selected thumbnail (its sidecar on disk), so it
-        # keeps has_doc and stays reachable while the grid shows.
+        # stays reachable while the grid shows — even with no open document.
         Command(
             c.DELETE_SAVED_FIELDS,
             strings.CMD_DELETE_SAVED_FIELDS,
             window.delete_saved_text_fields,
-            has_doc,
+            has_target,
             PDF_ONLY,
         ),
     ]

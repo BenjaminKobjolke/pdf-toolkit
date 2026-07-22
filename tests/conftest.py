@@ -14,6 +14,7 @@ from pypdf import PdfReader, PdfWriter
 
 if TYPE_CHECKING:
     from app.config.settings import Settings
+    from app.gui.filter_list_dialog import ListEntry
     from app.pdf.text_spec import TextFieldSpec
     from app.storage.backend import StorageBackend
 
@@ -45,6 +46,27 @@ def silence_dialogs(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
 
+def fake_picker(
+    monkeypatch: pytest.MonkeyPatch, choose_index: int, captured: list[ListEntry]
+) -> None:
+    """Replace the DocumentActions filter picker with one that picks entry ``choose_index``.
+
+    Shown entries are appended to ``captured`` so tests can assert on the list.
+    """
+
+    class _FakeDialog:
+        def __init__(self, entries: list[ListEntry], *_args: object, **_kw: object) -> None:
+            captured.extend(entries)
+
+        def exec(self) -> int:
+            return 1
+
+        def chosen(self) -> ListEntry | None:
+            return captured[choose_index]
+
+    monkeypatch.setattr("app.gui.document_actions.FilterListDialog", _FakeDialog)
+
+
 @pytest.fixture
 def fake_trash(monkeypatch: pytest.MonkeyPatch) -> list[Path]:
     """Replace send2trash with a recorder that unlinks instead.
@@ -70,6 +92,8 @@ def gui_settings(tmp_path: Path) -> Settings:
         backup_dir=tmp_path / "backup",
         log_level="INFO",
         database_url=f"sqlite:///{tmp_path / 'pdf-toolkit.db'}",
+        # Hermetic: never see the developer's real ~/.favoritedirs.
+        favorites_file=tmp_path / ".favoritedirs",
     )
 
 

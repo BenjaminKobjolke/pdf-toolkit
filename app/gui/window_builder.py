@@ -224,6 +224,7 @@ def _finish(window: MainWindow, settings: Settings) -> None:
         window._thumbnails,
         # Lambda: _lifecycle is assigned later in the build sequence.
         lambda: window._lifecycle.open_sibling_or_close(),
+        settings.favorites_file,
     )
     # Both footer rows (mode bar + thumbnail filter label) exist by now.
     window._status_bar_settings = StatusBarSettingsController(

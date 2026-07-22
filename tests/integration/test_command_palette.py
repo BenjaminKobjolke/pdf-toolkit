@@ -14,7 +14,7 @@ from app.gui.palette_entries import build_palette_entries
 from app.pdf.image_spec import SidecarDocument
 from app.pdf.sidecar import save_sidecar, sidecar_path
 from app.pdf.text_spec import TextFieldSpec
-from tests.conftest import MakePdf, gui_settings, silence_dialogs
+from tests.conftest import MakePdf, fake_picker, gui_settings, silence_dialogs
 
 
 def _settings(tmp_path: Path) -> Settings:
@@ -190,18 +190,7 @@ def test_open_folder_from_history_lists_unique_folders_and_opens_last_file(
         window.open_pdf(pdf)
 
     captured: list[ListEntry] = []
-
-    class _FakeDialog:
-        def __init__(self, entries: list[ListEntry], *_args: object, **_kw: object) -> None:
-            captured.extend(entries)
-
-        def exec(self) -> int:
-            return 1
-
-        def chosen(self) -> ListEntry | None:
-            return captured[1]  # folder "b"
-
-    monkeypatch.setattr("app.gui.document_actions.FilterListDialog", _FakeDialog)
+    fake_picker(monkeypatch, choose_index=1, captured=captured)  # folder "b"
     window.open_folder_from_history()
 
     # Unique folders, most-recent-first; payload is that folder's last-opened file.

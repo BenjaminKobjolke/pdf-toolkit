@@ -8,6 +8,7 @@ from pathlib import Path
 from PySide6.QtWidgets import QWidget
 from send2trash import send2trash
 
+from app.config.favorites import load_favorites
 from app.config.recent_files import RecentFilesStore
 from app.gui import (
     confirm_dialog,
@@ -17,6 +18,7 @@ from app.gui import (
     file_strings,
     strings,
     text_prompt_dialog,
+    thumbnail_strings,
 )
 from app.gui.edit_controller import EditController
 from app.gui.filter_list_dialog import FilterListDialog, FilterListOptions, ListEntry
@@ -42,6 +44,7 @@ class DocumentActions:
         report: Callable[[OpResult], None],
         grid: ThumbnailsController,
         advance: Callable[[], None],
+        favorites_file: Path,
     ) -> None:
         self._parent = parent
         self._recent = recent
@@ -52,6 +55,7 @@ class DocumentActions:
         self._report = report
         self._grid = grid
         self._advance = advance
+        self._favorites_file = favorites_file
 
     def open_from_history(self) -> None:
         """Pick a recently-opened document from the history list and open it."""
@@ -76,17 +80,48 @@ class DocumentActions:
             entries, strings.FOLDER_HISTORY_TITLE, strings.FOLDER_HISTORY_PLACEHOLDER
         )
 
+    def favorites_available(self) -> bool:
+        """Gate for the palette entry: the favorites file exists on disk."""
+        return self._favorites_file.exists()
+
+    def open_thumbnails_from_favorites(self) -> None:
+        """Pick a favorite directory and show its thumbnails grid."""
+        entries = [
+            ListEntry(title=fav.name, subtitle=str(fav.path), payload=fav.path)
+            for fav in load_favorites(self._favorites_file)
+        ]
+        chosen = self._pick(
+            entries,
+            thumbnail_strings.TITLE_FAVORITES,
+            thumbnail_strings.PLACEHOLDER_FAVORITES,
+            thumbnail_strings.HINT_NO_FAVORITES,
+        )
+        if chosen is not None and not self._grid.enter_directory(chosen):
+            confirm_dialog.show_message(
+                self._parent, thumbnail_strings.TITLE_FAVORITES, strings.HINT_NO_OPENABLE_FILE
+            )
+
     def _pick_and_open(self, entries: list[ListEntry], title: str, placeholder: str) -> None:
+        chosen = self._pick(entries, title, placeholder, strings.LABEL_HISTORY_EMPTY)
+        if chosen is not None:
+            self._open_pdf(chosen)
+
+    def _pick(
+        self, entries: list[ListEntry], title: str, placeholder: str, empty_message: str
+    ) -> Path | None:
+        """Show the filter picker; the chosen entry's payload, or ``None``."""
         if not entries:
-            confirm_dialog.show_message(self._parent, title, strings.LABEL_HISTORY_EMPTY)
-            return
+            confirm_dialog.show_message(self._parent, title, empty_message)
+            return None
         dialog = FilterListDialog(
             entries,
             FilterListOptions(placeholder=placeholder, title=title),
             parent=self._parent,
         )
         if dialog.exec() and (chosen := dialog.chosen()) is not None:
-            self._open_pdf(chosen.payload)
+            # ListEntry.payload is Any; every caller here stores a Path in it.
+            return Path(chosen.payload)
+        return None
 
     def _target(self) -> Path | None:
         """The file to act on: the selected thumbnail while the grid shows, else the open doc."""

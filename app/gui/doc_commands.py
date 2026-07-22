@@ -29,13 +29,15 @@ if TYPE_CHECKING:
 
 
 def document_commands(
-    window: MainWindow, has_doc: Predicate, doc_in_view: Predicate
+    window: MainWindow, has_doc: Predicate, has_target: Predicate, doc_in_view: Predicate
 ) -> list[Command]:
     """File and lifecycle commands.
 
-    ``has_doc`` commands stay reachable while the thumbnails grid shows (they
-    retarget to the selected thumbnail); ``doc_in_view`` commands need the
-    loaded working copy on screen and hide while the grid covers it.
+    ``has_target`` commands act on the effective file (open document or grid
+    selection) and stay reachable in a favorites-opened grid with no document;
+    ``has_doc`` commands act on the open document itself; ``doc_in_view``
+    commands need the loaded working copy on screen and hide while the grid
+    covers it.
     """
     return [
         Command(c.OPEN, strings.CMD_OPEN, lambda: window.open_pdf()),
@@ -62,28 +64,28 @@ def document_commands(
             c.COPY_FILE_PATH,
             file_strings.CMD_COPY_FILE_PATH,
             window.file_actions.copy_path,
-            has_doc,
+            has_target,
             VIEWABLE,
         ),
         Command(
             c.COPY_FILE_NAME,
             file_strings.CMD_COPY_FILE_NAME,
             window.file_actions.copy_name,
-            has_doc,
+            has_target,
             VIEWABLE,
         ),
         Command(
             c.COPY_FILE_NAME_NO_EXT,
             file_strings.CMD_COPY_FILE_NAME_NO_EXT,
             window.file_actions.copy_name_without_extension,
-            has_doc,
+            has_target,
             VIEWABLE,
         ),
         Command(
             c.COPY_PAGE_TEXT,
             file_strings.CMD_COPY_PAGE_TEXT,
             window.file_actions.copy_page_text,
-            has_doc,
+            has_target,
             HAS_TEXT,
         ),
         *(
@@ -91,7 +93,7 @@ def document_commands(
                 c.COPY_PAGE_IMAGE if pct == 100 else f"{c.COPY_PAGE_IMAGE}_{pct}",
                 copy_image_titles.static_page_title(pct),
                 partial(window.file_actions.copy_page_image, pct / 100),
-                has_doc,
+                has_target,
                 VIEWABLE,
                 title_fn=partial(copy_image_titles.page_image_title, window, pct),
             )
@@ -112,26 +114,30 @@ def document_commands(
             c.OPEN_FOLDER,
             file_strings.CMD_OPEN_FOLDER,
             window.file_actions.open_folder,
-            has_doc,
+            has_target,
             VIEWABLE,
         ),
         Command(
             c.FILE_INFO,
             file_strings.CMD_FILE_INFO,
             window.file_info_actions.show,
-            has_doc,
+            has_target,
             VIEWABLE,
         ),
         Command(
             c.OPEN_WITH,
             file_strings.CMD_OPEN_WITH,
             window.open_with_actions.show,
-            has_doc,
+            has_target,
             VIEWABLE,
         ),
-        Command(c.PRINT, strings.CMD_PRINT, window.print_actions.print_document, has_doc, VIEWABLE),
-        Command(c.RENAME_FILE, strings.CMD_RENAME_FILE, window.rename_file, has_doc, VIEWABLE),
-        Command(c.DELETE_FILE, file_strings.CMD_DELETE_FILE, window.delete_file, has_doc, VIEWABLE),
+        Command(
+            c.PRINT, strings.CMD_PRINT, window.print_actions.print_document, has_target, VIEWABLE
+        ),
+        Command(c.RENAME_FILE, strings.CMD_RENAME_FILE, window.rename_file, has_target, VIEWABLE),
+        Command(
+            c.DELETE_FILE, file_strings.CMD_DELETE_FILE, window.delete_file, has_target, VIEWABLE
+        ),
         Command(c.CLOSE_DOC, strings.CMD_CLOSE_DOC, window.close_document, doc_in_view, VIEWABLE),
         Command(
             c.RELOAD_DOC,
@@ -177,25 +183,28 @@ def _thumb_or_page(
     return lambda: thumb_fn() if effective_target.grid_active(window) else page_fn()
 
 
-def zoom_commands(window: MainWindow, has_doc: Predicate, doc_in_view: Predicate) -> list[Command]:
+def zoom_commands(
+    window: MainWindow, doc_or_grid: Predicate, doc_in_view: Predicate
+) -> list[Command]:
     view = window.page_view
     thumbs = window.thumbnails_controller
     return [
         Command(c.ZOOM_FIT, strings.CMD_ZOOM_FIT, view.zoom_fit, doc_in_view, VIEWABLE),
         Command(c.ZOOM_ACTUAL, strings.CMD_ZOOM_ACTUAL, view.zoom_actual, doc_in_view, VIEWABLE),
-        # Format-agnostic + has_doc: redirected to thumbnail sizing while the
-        # grid shows, so they must survive any (or no) selection.
+        # Format-agnostic + doc_or_grid: redirected to thumbnail sizing while
+        # the grid shows (even a favorites grid with no open document), so
+        # they must survive any (or no) selection.
         Command(
             c.ZOOM_IN,
             strings.CMD_ZOOM_IN,
             _thumb_or_page(window, thumbs.zoom_in, view.zoom_in),
-            has_doc,
+            doc_or_grid,
         ),
         Command(
             c.ZOOM_OUT,
             strings.CMD_ZOOM_OUT,
             _thumb_or_page(window, thumbs.zoom_out, view.zoom_out),
-            has_doc,
+            doc_or_grid,
         ),
     ]
 

@@ -62,12 +62,27 @@ class ThumbnailsController:
         current = self.source()
         if current is None:
             return
+        paths = file_browser_model.openable_files(current.parent, self.current_filter())
+        self._show(paths, current)
+
+    def enter_directory(self, directory: Path) -> bool:
+        """Swap the grid in for ``directory``; ``False`` when nothing is openable.
+
+        Unlike :meth:`enter` this needs no open document — the first file in the
+        listing starts selected.
+        """
+        paths = file_browser_model.openable_files(directory, self.current_filter())
+        if not paths:
+            return False
+        self._show(paths, paths[0])
+        return True
+
+    def _show(self, paths: list[Path], current: Path) -> None:
         # An overlay item selected in edit mode would keep the Ctrl+arrow keys
         # bound to item scaling (window_input._zoom_or_scale) instead of the
         # redirected zoom commands.
         self.page_view.graphics_scene().clearSelection()
         self.view.clear_filter()
-        paths = file_browser_model.openable_files(current.parent, self.current_filter())
         self.view.set_thumb_size(self._size)
         self.view.populate(paths, current)
         self.stack.setCurrentWidget(self.view)
