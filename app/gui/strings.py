@@ -157,7 +157,7 @@ MSG_NO_IMAGE_SELECTED = "No image selected."
 
 # Keyboard-shortcut configuration
 CONFIGURE_SHORTCUTS_TITLE = "Configure keyboard shortcuts"
-CONFIGURE_SHORTCUTS_PLACEHOLDER = "Search a command to bind, Del to clear…"
+CONFIGURE_SHORTCUTS_PLACEHOLDER = "Search a command · Enter to add/replace · Del to clear…"
 CAPTURE_TITLE = "Set shortcut"
 CAPTURE_PROMPT_FMT = "Press a shortcut for:\n{title}"
 CAPTURE_DETECTED_FMT = "Detected: {chord}\n\nEnter to confirm · Esc to cancel"
