@@ -79,8 +79,21 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
         ReleaseNotesDialog(load_release_notes(), self).exec()
 
     def configure_shortcuts(self) -> None:
-        """Open the searchable command list for binding/clearing shortcuts."""
-        self._keybinding_actions.open_config()
+        """Open the shared library's add/replace/remove shortcut editor."""
+        from command_palette import open_shortcut_editor
+
+        from app.gui.operations import OpResult
+        from app.gui.shortcut_editor_labels import APP_SHORTCUT_LABELS
+
+        open_shortcut_editor(
+            self._registry,
+            self._keymap_state,
+            on_change=self.apply_keymap,
+            labels=APP_SHORTCUT_LABELS,
+            report=lambda message: self._report(OpResult(True, message)),
+            decorate=lambda dialog: self._palette.apply_to(dialog, self.size()),
+            parent=self,
+        )
 
     def current_keymap(self) -> KeyMap:
         """Return the effective keymap (used by the palette to show chords)."""

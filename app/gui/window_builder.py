@@ -10,13 +10,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from command_palette import KeymapState
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from app.config.command_history import CommandHistoryStore
 from app.config.image_background_settings import ImageBackgroundSettingsStore
 from app.config.image_choice_settings import ImageChoiceStore
 from app.config.instance_settings import InstanceSettingsStore
-from app.config.key_bindings import KeyBindingStore, effective_keymap
+from app.config.key_bindings import KeyBindingStore
 from app.config.link_hint_settings import LinkHintSettingsStore
 from app.config.open_filter_settings import OpenFilterSettingsStore
 from app.config.outline_settings import OutlineSettingsStore
@@ -42,7 +43,6 @@ from app.gui.image_actions import ImageActions
 from app.gui.image_background_controller import ImageBackgroundController
 from app.gui.image_controller import ImageController
 from app.gui.instance_controller import InstanceController
-from app.gui.keybinding_actions import KeybindingActions
 from app.gui.layer_actions import LayerActions
 from app.gui.lifecycle_actions import LifecycleActions
 from app.gui.link_hint_controller import LinkHintController
@@ -235,7 +235,8 @@ def _finish(window: MainWindow, settings: Settings) -> None:
     window._registry = commands.build_commands(window)
     defaults = default_shortcut_pairs()
     window._key_bindings = KeyBindingStore(window._backend)
-    window._keymap = effective_keymap(window._key_bindings, defaults)
+    window._keymap_state = KeymapState(window._key_bindings, defaults)
+    window._keymap = window._keymap_state.effective()
     window._palette_actions = PaletteActions(
         window,
         window._registry,
@@ -247,15 +248,6 @@ def _finish(window: MainWindow, settings: Settings) -> None:
     )
     build_file_menu(window)
     window._shortcut_installer = install_shortcuts(window, window._registry, window._keymap)
-    window._keybinding_actions = KeybindingActions(
-        window,
-        window._registry,
-        window._palette,
-        window._key_bindings,
-        defaults,
-        window.apply_keymap,
-        window._report,
-    )
     window._chrome = ChromeController(
         window.menuBar(), window._bar, window._edit_bar, window._mode_bar, window._ui_state
     )

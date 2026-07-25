@@ -4,7 +4,7 @@ Keeps a small user-managed list of application executables (persisted via
 :class:`OpenWithStore`) and opens the current file with the picked one. The same
 picker adds apps (an "[ Add application… ]" row browses for an ``.exe``) and
 removes them (Del on a configured app), mirroring the Configure-shortcuts
-workflow in :mod:`app.gui.keybinding_actions`.
+workflow in ``command_palette.shortcut_editor.open_shortcut_editor``.
 """
 
 from __future__ import annotations

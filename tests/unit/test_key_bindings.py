@@ -1,8 +1,11 @@
-"""Pure keymap merge/mutations and the JSON-backed override store."""
+"""Pure keymap merge/mutations, and the sqlite-backed Store adapter feeding
+:class:`~command_palette.KeymapState`."""
 
 from __future__ import annotations
 
 from pathlib import Path
+
+from command_palette import KeymapState
 
 from app.config.key_bindings import (
     KeyBindingStore,
@@ -88,18 +91,24 @@ def test_remove_chord_tombstones_only_named_chord() -> None:
     assert keymap.chords_for("zoom_in") == ("Ctrl+=",)  # sibling chord survives
 
 
-# --- store --------------------------------------------------------------------
+# --- store adapter (feeds KeymapState) -----------------------------------------
 
 
-def test_load_missing_returns_empty(tmp_path: Path) -> None:
-    assert _store(tmp_path).load() == ()
+def test_store_adapter_round_trips_through_keymap_state(tmp_path: Path) -> None:
+    state = KeymapState(_store(tmp_path), _DEFAULTS)
+    state.assign("Alt+W", "exit")
+    state.remove_chord("Ctrl+S")
+
+    # A fresh KeyBindingStore/KeymapState pair over the same file proves this
+    # round-tripped through SQLite, not just an in-memory KeymapState.
+    reloaded = KeymapState(_store(tmp_path), _DEFAULTS)
+    assert reloaded.effective().command_for("Alt+W") == "exit"
+    assert reloaded.effective().command_for("Ctrl+S") is None
 
 
-def test_save_then_load_round_trips_with_tombstone(tmp_path: Path) -> None:
-    store = _store(tmp_path)
-    overrides = (KeyOverride("Alt+W", "exit"), KeyOverride("Ctrl+S", None))
-    store.save(overrides)
-    assert store.load() == overrides
+def test_store_adapter_missing_row_yields_defaults_only(tmp_path: Path) -> None:
+    state = KeymapState(_store(tmp_path), _DEFAULTS)
+    assert state.effective().command_for("Ctrl+S") == "save"
 
 
 def test_store_has_remembered_label(tmp_path: Path) -> None:

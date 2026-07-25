@@ -6,10 +6,8 @@ from PySide6.QtCore import QEvent, Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QApplication
 
-from app.config.key_bindings import assign, merge_keymap
 from app.gui import commands
 from app.gui.main_window import MainWindow
-from app.gui.window_input import default_shortcut_pairs
 from tests.conftest import MakePdf
 
 # The ``window`` fixture comes from tests/conftest.py.
@@ -23,9 +21,8 @@ def test_user_bound_right_arrow_navigates_grid_not_shortcut(
     first = make_pdf([(100, 100)], name="a.pdf")
     second = make_pdf([(100, 100)], name="b.pdf")
     window.open_pdf(first)
-    overrides = assign(window._key_bindings.load(), "Right", commands.NEXT_FILE)
-    window._key_bindings.save(overrides)
-    window.apply_keymap(merge_keymap(default_shortcut_pairs(), overrides))
+    window._keymap_state.assign("Right", commands.NEXT_FILE)
+    window.apply_keymap(window._keymap_state.effective())
     commands.find(window._registry, commands.THUMBNAILS_VIEW).run()
 
     grid = window._thumbnails_view

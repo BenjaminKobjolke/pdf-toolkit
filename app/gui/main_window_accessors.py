@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from command_palette import KeymapState
     from PySide6.QtWidgets import QLabel, QStackedWidget
 
     from app.config.command_history import CommandHistoryStore
@@ -47,7 +48,6 @@ if TYPE_CHECKING:
     from app.gui.export_actions import ExportActions
     from app.gui.gif_controller import GifController
     from app.gui.instance_controller import InstanceController
-    from app.gui.keybinding_actions import KeybindingActions
     from app.gui.lifecycle_actions import LifecycleActions
     from app.gui.link_hint_controller import LinkHintController
     from app.gui.link_hint_settings_controller import LinkHintSettingsController
@@ -136,9 +136,9 @@ class CollaboratorAccessors:
     _document_actions: DocumentActions
     _palette_actions: PaletteActions
     _key_bindings: KeyBindingStore
+    _keymap_state: KeymapState
     _keymap: KeyMap
     _shortcut_installer: ShortcutInstaller
-    _keybinding_actions: KeybindingActions
     _chrome: ChromeController
     _lifecycle: LifecycleActions
     _thumbnails: ThumbnailsController
