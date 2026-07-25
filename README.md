@@ -290,6 +290,12 @@ tools\run_integration_tests.bat  REM integration tests
 update.bat                       REM update deps + lint + tests
 ```
 
+The command palette (filter dialog, keymap merge logic, MRU history) is built on
+[python-command-palette](https://github.com/BenjaminKobjolke/python-command-palette.git),
+pulled in as a local editable dependency (`../python-command-palette`, see
+`[tool.uv.sources]` in `pyproject.toml`). Clone it as a sibling of this repo before
+running `uv sync`.
+
 ### Demo recording (landing-page media)
 
 Scripted, recordable demos for the fast-file-viewer landing page:
