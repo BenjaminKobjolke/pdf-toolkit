@@ -35,6 +35,25 @@ wheels = [
 ]
 
 [[package]]
+name = "command-palette"
+version = "0.1.0"
+source = { editable = "../python-command-palette" }
+dependencies = [
+    { name = "pyside6" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "pyside6", specifier = ">=6.11.1" }]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy", specifier = ">=1.13" },
+    { name = "pytest", specifier = ">=8.3" },
+    { name = "pytest-qt", specifier = ">=4.4" },
+    { name = "ruff", specifier = ">=0.8" },
+]
+
+[[package]]
 name = "deprecated"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
@@ -233,6 +252,7 @@ version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "automated-screenshot-connector" },
+    { name = "command-palette" },
     { name = "img2pdf" },
     { name = "markdown" },
     { name = "pillow" },
@@ -256,6 +276,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "automated-screenshot-connector", directory = "../automated-application-screenshots-python-connector" },
+    { name = "command-palette", editable = "../python-command-palette" },
     { name = "img2pdf", specifier = ">=0.5,<1.0" },
     { name = "markdown", specifier = ">=3.7,<4.0" },
     { name = "pillow", specifier = ">=10.0,<12.0" },

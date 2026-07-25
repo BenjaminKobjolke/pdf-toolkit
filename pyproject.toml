@@ -13,11 +13,13 @@ dependencies = [
     "pypdf>=5.0",
     "pyside6>=6.11.1",
     "automated-screenshot-connector",
+    "command-palette",
     "send2trash>=1.8,<2.0",
 ]
 
 [tool.uv.sources]
 automated-screenshot-connector = { path = "../automated-application-screenshots-python-connector" }
+command-palette = { path = "../python-command-palette", editable = true }
 
 [project.scripts]
 pdf-swap = "app.cli.swap:main"

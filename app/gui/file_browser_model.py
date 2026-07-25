@@ -17,6 +17,8 @@ import string
 from dataclasses import dataclass
 from pathlib import Path
 
+from command_palette.matching import matches_all_terms as matches_all_terms
+
 from app.pdf.file_format import FileFormat
 
 
@@ -185,10 +187,3 @@ def substring_filter(entries: list[FsEntry], query: str) -> list[FsEntry]:
     if not query:
         return entries
     return [entry for entry in entries if matches_all_terms(entry.name, query)]
-
-
-def matches_all_terms(name: str, query: str) -> bool:
-    """True if every whitespace-separated term of ``query`` is a
-    case-insensitive substring of ``name``. Empty query matches everything."""
-    haystack = name.casefold()
-    return all(term in haystack for term in query.casefold().split())

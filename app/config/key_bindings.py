@@ -1,17 +1,23 @@
 """Effective keyboard map: built-in defaults overlaid by chord-keyed overrides.
 
-Defaults are passed in (from :func:`app.gui.window_input.default_shortcut_pairs`)
-so this config module never imports the GUI. A user override is keyed by *chord*:
-a value reassigns/adds that chord to a command; ``None`` is a tombstone that
-deletes the chord. This makes built-in defaults behave like ordinary, mutable
-bindings while still letting brand-new defaults appear unless the user explicitly
-removed them. Merge and mutations are pure and Qt-free (cf. ``order_ids`` in
-:mod:`app.config.command_history`).
+The merge/mutation logic (:class:`KeyMap`, :class:`KeyOverride`, ``merge_keymap``,
+``assign``, ``remove_command``, ``remove_chord``) now lives in the extracted
+``command_palette`` library — re-exported here so every existing import path
+(``from app.config.key_bindings import ...``) keeps working unchanged. Only the
+sqlite-backed store stays app-specific, since it persists through this app's
+:class:`~app.storage.backend.StorageBackend` rather than the library's own
+``Store`` protocol.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from command_palette.keymap import DefaultPair as DefaultPair
+from command_palette.keymap import KeyMap as KeyMap
+from command_palette.keymap import KeyOverride as KeyOverride
+from command_palette.keymap import assign as assign
+from command_palette.keymap import merge_keymap as merge_keymap
+from command_palette.keymap import remove_chord as remove_chord
+from command_palette.keymap import remove_command as remove_command
 
 from app.config.record_store import RecordStore
 from app.storage.backend import StorageBackend
@@ -19,82 +25,10 @@ from app.storage.backend import StorageBackend
 KEY_BINDINGS_VERSION = 1
 KEY_BINDINGS_KEY = "key_bindings"
 
-# A (chord, command_id) default binding pair, as produced by the GUI defaults.
-DefaultPair = tuple[str, str]
-
-
-@dataclass(frozen=True)
-class KeyOverride:
-    """One chord-keyed override. ``command_id=None`` is a tombstone (removed)."""
-
-    chord: str
-    command_id: str | None
-
-
-@dataclass(frozen=True)
-class KeyMap:
-    """Effective chord->command_id bindings (chords unique), ordered for display."""
-
-    bindings: tuple[tuple[str, str], ...]
-
-    def command_for(self, chord: str) -> str | None:
-        """Return the command bound to ``chord``, or ``None`` if unbound."""
-        for bound_chord, command_id in self.bindings:
-            if bound_chord == chord:
-                return command_id
-        return None
-
-    def chords_for(self, command_id: str) -> tuple[str, ...]:
-        """Return every chord bound to ``command_id``, in binding order."""
-        return tuple(chord for chord, bound_id in self.bindings if bound_id == command_id)
-
-
-def merge_keymap(defaults: list[DefaultPair], overrides: tuple[KeyOverride, ...]) -> KeyMap:
-    """Overlay ``overrides`` onto ``defaults`` by chord (value sets, ``None`` deletes)."""
-    effective: dict[str, str] = {}
-    for chord, command_id in defaults:
-        effective[chord] = command_id
-    for override in overrides:
-        if override.command_id is None:
-            effective.pop(override.chord, None)
-        else:
-            effective[override.chord] = override.command_id
-    return KeyMap(tuple(effective.items()))
-
 
 def effective_keymap(store: KeyBindingStore, defaults: list[DefaultPair]) -> KeyMap:
     """Load the stored overrides and merge them onto ``defaults`` (the live keymap)."""
     return merge_keymap(defaults, store.load())
-
-
-def assign(
-    overrides: tuple[KeyOverride, ...], chord: str, command_id: str
-) -> tuple[KeyOverride, ...]:
-    """Upsert ``chord -> command_id`` (chords stay unique in the override layer)."""
-    return _upsert(overrides, chord, command_id)
-
-
-def remove_command(
-    overrides: tuple[KeyOverride, ...], defaults: list[DefaultPair], command_id: str
-) -> tuple[KeyOverride, ...]:
-    """Tombstone every chord that currently maps to ``command_id``."""
-    keymap = merge_keymap(defaults, overrides)
-    result = overrides
-    for chord in keymap.chords_for(command_id):
-        result = _upsert(result, chord, None)
-    return result
-
-
-def remove_chord(overrides: tuple[KeyOverride, ...], chord: str) -> tuple[KeyOverride, ...]:
-    """Tombstone a single chord (leaves the command's other chords intact)."""
-    return _upsert(overrides, chord, None)
-
-
-def _upsert(
-    overrides: tuple[KeyOverride, ...], chord: str, command_id: str | None
-) -> tuple[KeyOverride, ...]:
-    kept = tuple(override for override in overrides if override.chord != chord)
-    return (*kept, KeyOverride(chord, command_id))
 
 
 class KeyBindingStore(RecordStore):
