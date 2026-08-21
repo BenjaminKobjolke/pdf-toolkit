@@ -16,6 +16,8 @@ if TYPE_CHECKING:
 
     from app.config.key_bindings import KeyMap
     from app.config.settings import Settings
+    from app.gui.ocr_actions import OcrActions
+    from app.gui.ocr_language_controller import OcrLanguageController
     from app.gui.operations import OpResult
 
 
@@ -26,6 +28,11 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
     :func:`app.gui.window_builder.assemble`; they are declared (with their
     read-only accessors) on :class:`CollaboratorAccessors`.
     """
+
+    # Declared here (not main_window_accessors, which is at the file-length
+    # cap); assigned by window_builder_files.
+    _ocr_actions: OcrActions
+    _ocr_language: OcrLanguageController
 
     def __init__(self, settings: Settings) -> None:
         super().__init__()
@@ -189,6 +196,14 @@ class MainWindow(CollaboratorAccessors, QMainWindow):
             self._geometry.exit_fullscreen()
         else:
             self._geometry.enter_fullscreen()
+
+    def ocr_image(self) -> None:
+        """Recognize the effective image's text, then copy or save it."""
+        self._ocr_actions.recognize()
+
+    def ocr_language(self) -> None:
+        """Pick the persisted OCR recognition language (automatic or a pack)."""
+        self._ocr_language.set_language()
 
     def toggle_gif_playback(self) -> None:
         """Pause/resume the animated GIF (palette action; no-op otherwise)."""

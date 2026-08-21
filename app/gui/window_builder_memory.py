@@ -16,6 +16,7 @@ from app.config.image_choice_settings import ImageChoiceStore
 from app.config.instance_settings import InstanceSettingsStore
 from app.config.key_bindings import KeyBindingStore
 from app.config.link_hint_settings import LinkHintSettingsStore
+from app.config.ocr_settings import OcrSettingsStore
 from app.config.open_filter_settings import OpenFilterSettingsStore
 from app.config.open_with import OpenWithStore
 from app.config.outline_settings import OutlineSettingsStore
@@ -90,6 +91,7 @@ def remembered_stores(window: MainWindow, settings: Settings) -> list[RecordStor
         TextViewSettingsStore(backend),
         StatusBarSettingsStore(backend),
         ImageBackgroundSettingsStore(backend),
+        OcrSettingsStore(backend),
         OpenFilterSettingsStore(backend),
         OpenWithStore(backend),
         InstanceSettingsStore(backend),

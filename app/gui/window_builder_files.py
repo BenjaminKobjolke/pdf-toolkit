@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from app.config.ocr_settings import OcrSettingsStore
 from app.config.open_with import OpenWithStore
 from app.gui import effective_target
 from app.gui.default_app_actions import DefaultAppActions
@@ -18,12 +19,15 @@ from app.gui.export_actions import ExportActions
 from app.gui.file_actions import FileActions
 from app.gui.file_info import FileInfoActions
 from app.gui.move_actions import MoveActions
+from app.gui.ocr_actions import OcrActions
+from app.gui.ocr_language_controller import OcrLanguageController
 from app.gui.open_with import OpenWithActions
 from app.gui.page_actions import PageActions
 from app.gui.print_actions import PrintActions
 from app.gui.rotate_actions import RotateActions
 from app.gui.search_actions import SearchActions
 from app.gui.thumbnails_controller import install_thumbnails
+from app.ocr.provider import default_provider
 
 if TYPE_CHECKING:
     from app.gui.main_window import MainWindow
@@ -84,6 +88,17 @@ def _build_file_actions(window: MainWindow) -> None:
         window._report,
         lambda: effective_target.effective_page_index(window),
         window._page_view.grab_page_area,
+    )
+    provider = default_provider()
+    window._ocr_language = OcrLanguageController(
+        window, OcrSettingsStore(window._backend), provider
+    )
+    window._ocr_actions = OcrActions(
+        window,
+        provider,
+        lambda: effective_target.effective_source(window),
+        window._report,
+        window._ocr_language.current_language,
     )
     window._file_info_actions = FileInfoActions(
         window,

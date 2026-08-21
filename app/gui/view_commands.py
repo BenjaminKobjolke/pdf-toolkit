@@ -14,6 +14,7 @@ from app.gui import (
     default_app_strings,
     effective_target,
     link_strings,
+    ocr_strings,
     select_strings,
     settings_strings,
     strings,
@@ -109,6 +110,12 @@ def view_commands(window: MainWindow) -> list[Command]:
             formats=IMAGE_FORMATS,
         ),
         Command(
+            c.OCR_LANGUAGE,
+            ocr_strings.CMD_OCR_LANGUAGE,
+            window.ocr_language,
+            formats=IMAGE_FORMATS,
+        ),
+        Command(
             c.OPEN_FILTER_ALL_FILES,
             strings.CMD_OPEN_FILTER_ALL_FILES,
             open_filter.toggle_all_files,
@@ -149,6 +156,15 @@ def edit_commands(
     controller = window.controller
     return [
         Command(c.EDIT_MODE, strings.CMD_EDIT_MODE, window.toggle_edit_mode, doc_in_view, PDF_ONLY),
+        # Lives here (not doc_commands, which is at the file-length cap). Reads
+        # the file on disk, so it retargets to the selected thumbnail.
+        Command(
+            c.OCR_IMAGE,
+            ocr_strings.CMD_OCR_IMAGE,
+            window.ocr_image,
+            has_target,
+            IMAGE_FORMATS,
+        ),
         Command(
             c.SELECT_MODE,
             select_strings.CMD_SELECT_MODE,
