@@ -102,7 +102,8 @@ there and act on the selection:
 - **File commands act on the selection** — Copy file path / name / name
   without extension, Open containing folder, File information, Open with…,
   Print, Rename file…, Delete file…, Copy page text, Copy page as image (all
-  sizes), and Delete saved text fields all target the orange-framed file. Page-based
+  sizes), OCR image (reads the selected file on disk), and Delete saved text
+  fields all target the orange-framed file. Page-based
   commands read the selection's **first page**, and the live pixel sizes in
   the Copy-page-as-image titles show the selection's first-page size.
 - **Command visibility follows the selection's format** — select an image and

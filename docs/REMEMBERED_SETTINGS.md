@@ -43,6 +43,7 @@ command in the palette (pick one to reset, or "clear all").
 | Field outline appearance | selection outline width / style / color |
 | Status bar appearance | footer font size (0 = default) |
 | Image transparency background | backdrop behind transparent image pixels (white / black / green / blue / checkered) |
+| OCR language | recognition language for OCR image (automatic / an installed Windows OCR language pack) |
 | Default zoom | fit-to-window vs. a fixed percentage on open |
 | Thumbnail size | edge length (px) of the previews in the thumbnails view |
 | Keyboard shortcuts | custom chord bindings |
