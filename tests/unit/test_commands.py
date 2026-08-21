@@ -127,6 +127,8 @@ _ALL_IDS = {
     commands.DOC_ZOOM_REMEMBER,
     commands.DOC_PAGE_REMEMBER,
     commands.FILE_TYPE_ASSOCIATIONS,
+    commands.OCR_IMAGE,
+    commands.OCR_LANGUAGE,
     overlay_commands.ADD_RECT,
     overlay_commands.RECT_FILL_COLOR,
     overlay_commands.RECT_WIDTH,
