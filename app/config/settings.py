@@ -10,6 +10,7 @@ ENV_BACKUP_DIR = "PDF_TOOLKIT_BACKUP_DIR"
 ENV_LOG_LEVEL = "PDF_TOOLKIT_LOG_LEVEL"
 ENV_DATABASE_URL = "PDF_TOOLKIT_DATABASE_URL"
 ENV_FAVORITES_FILE = "PDF_TOOLKIT_FAVORITES_FILE"
+ENV_WATCHER_COMMAND_RUN = "TICKETS_WATCHER_COMMAND_RUN"
 
 DEFAULT_BACKUP_DIR = "backup"
 DEFAULT_LOG_LEVEL = "INFO"
@@ -31,6 +32,7 @@ class Settings:
     log_level: str
     database_url: str = field(default_factory=_default_database_url)
     favorites_file: Path = field(default_factory=_default_favorites_file)
+    watcher_command_run: bool = False
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -39,4 +41,5 @@ class Settings:
             log_level=os.getenv(ENV_LOG_LEVEL, DEFAULT_LOG_LEVEL),
             database_url=os.getenv(ENV_DATABASE_URL) or _default_database_url(),
             favorites_file=Path(os.getenv(ENV_FAVORITES_FILE) or _default_favorites_file()),
+            watcher_command_run=os.getenv(ENV_WATCHER_COMMAND_RUN) == "1",
         )

@@ -74,16 +74,18 @@ def install_bats(project_root: Path, target_dir: Path, overwrite: bool) -> list[
     return written
 
 
-def _read_target_from_stdin() -> Path:
-    raw = input(f"Install target directory [{DEFAULT_TARGET}]: ").strip()
+def _read_target_from_stdin(*, watcher_run: bool) -> Path:
+    raw = console.ask(
+        f"Install target directory [{DEFAULT_TARGET}]: ", watcher_run=watcher_run
+    ).strip()
     return Path(raw) if raw else DEFAULT_TARGET
 
 
-def _confirm_overwrite(existing_names: list[str]) -> bool:
+def _confirm_overwrite(existing_names: list[str], *, watcher_run: bool) -> bool:
     console.line("These files already exist:")
     for name in existing_names:
         console.line(f"  - {name}")
-    answer = input("Overwrite? [y/N]: ").strip().lower()
+    answer = console.ask("Overwrite? [y/N]: ", watcher_run=watcher_run).strip().lower()
     return answer == "y"
 
 
@@ -114,14 +116,18 @@ def main() -> int:
     except SystemExit as err:
         return int(err.code) if isinstance(err.code, int) else EXIT_USAGE
 
-    target: Path = args.target if args.target is not None else _read_target_from_stdin()
+    target: Path = (
+        args.target
+        if args.target is not None
+        else _read_target_from_stdin(watcher_run=settings.watcher_command_run)
+    )
 
     try:
         written = install_bats(PROJECT_ROOT, target, overwrite=args.force)
     except InstallError as err:
         if "already exist" in str(err) and not args.force:
             existing = [name for name, *_ in BAT_FILES if (target / name).exists()]
-            if not _confirm_overwrite(existing):
+            if not _confirm_overwrite(existing, watcher_run=settings.watcher_command_run):
                 log.error("aborted; nothing installed")
                 return EXIT_FAILURE
             try:
