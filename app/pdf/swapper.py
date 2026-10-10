@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pypdf import PdfWriter
-
 from app.pdf._atomic import write_pdf_atomic
 from app.pdf._inputs import open_reader
 
@@ -18,6 +16,9 @@ def swap_two_pages(source: Path) -> None:
     reader = open_reader(source)
     if len(reader.pages) != 2:
         raise ValueError(f"swap requires exactly 2 pages, got {len(reader.pages)}: {source}")
+
+    # Keep pypdf off the document display startup path; see the startup import guard.
+    from pypdf import PdfWriter
 
     writer = PdfWriter()
     writer.add_page(reader.pages[1])

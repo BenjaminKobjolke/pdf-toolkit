@@ -9,10 +9,12 @@ from __future__ import annotations
 
 from io import BytesIO
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-import img2pdf  # type: ignore[import-untyped]
 from PIL import Image
-from pypdf import PageObject, PdfReader
+
+if TYPE_CHECKING:
+    from pypdf import PageObject, PdfReader
 
 from app.app_logger import log
 
@@ -41,6 +43,9 @@ def check_page_in_range(page: int, total: int, source: Path, *, label: str = "pa
 
 def open_reader(source: Path) -> PdfReader:
     """Return a :class:`PdfReader` for ``source``, raising on an encrypted PDF."""
+    # Keep pypdf off the document display startup path; see the startup import guard.
+    from pypdf import PdfReader
+
     reader = PdfReader(str(source))
     if reader.is_encrypted:
         raise encrypted_error(source)
@@ -53,6 +58,9 @@ def image_to_pdf_bytes(path: Path) -> bytes:
     Falls back to an RGB JPEG re-encode when the image has an alpha channel that
     ``img2pdf`` refuses.
     """
+    # Keep image conversion libraries off the document display startup path.
+    import img2pdf  # type: ignore[import-untyped]
+
     try:
         result: bytes = img2pdf.convert([str(path)])
         return result
@@ -71,6 +79,9 @@ def pages_for_input(path: Path) -> list[PageObject]:
 
     Raises ``ValueError`` for an encrypted PDF or an unsupported file type.
     """
+    # Keep pypdf off the document display startup path; see the startup import guard.
+    from pypdf import PdfReader
+
     suffix = path.suffix.lower()
     if suffix == PDF_EXTENSION:
         return list(open_reader(path).pages)

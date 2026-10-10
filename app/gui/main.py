@@ -10,6 +10,7 @@ from __future__ import annotations
 import sys
 from dataclasses import replace
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from automated_screenshot_connector import DemoOptions, parse_demo_args
 from PySide6.QtCore import Qt
@@ -19,10 +20,12 @@ from app.app_logger import configure_logging, log
 from app.config.instance_settings import InstanceSettingsStore
 from app.config.settings import Settings
 from app.gui import single_instance
-from app.gui.main_window import MainWindow
 from app.gui.resources import app_icon, set_app_user_model_id
 from app.gui.single_instance import InstanceServer
 from app.storage.factory import make_backend
+
+if TYPE_CHECKING:
+    from app.gui.main_window import MainWindow
 
 __all__ = ["InstanceServer", "main", "single_instance"]
 
@@ -64,6 +67,8 @@ def main(argv: list[str] | None = None) -> int:
         log.info("single-instance: forwarded to running viewer, exiting")
         return 0
 
+    from app.gui.main_window import MainWindow
+
     window = MainWindow(settings)
     # Always listen, even with reuse off: the running viewer can serve future
     # launches the moment the user toggles the setting on — no restart needed.
@@ -82,6 +87,7 @@ def _run_demo(app: QApplication, settings: Settings, options: DemoOptions) -> in
     the recording must never land in (or collide with) a real running viewer."""
     from automated_screenshot_connector import DemoClient
 
+    from app.gui.main_window import MainWindow
     from demo.player import ViewerDemoPlayer
     from demo.scripts import DEMOS
     from demo.steps import localize_viewer_script

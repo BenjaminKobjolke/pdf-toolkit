@@ -231,6 +231,7 @@ Shorter (no plan-DRY phase): `bugs:fix → /verify:after-change`.
 
 - CLI + PySide6 desktop GUI (`app/gui/`). Settings persist in a sqlite backend. No Jinja2, no localization, no web layer.
 - All PDF I/O goes through `pypdf`.
+- Heavy libraries not needed to display a document (`pypdf`, `img2pdf`, `markdown`, `send2trash`, `asyncio`) stay imported inside the functions that use them; `app/gui/main.py` must not import `MainWindow` at module level. `tests/integration/test_startup_imports.py` guards both rules.
 - The single error boundary for the CLI layer is `app/cli/_common.run_with_backup`.
 - Backup format is locked: `backup/YYYYMMDD-HHMM-<filename>.pdf`.
 - **Every new feature must be added to the wizard** (`app/cli/pdft.py` — append a `WizardOption` to `WIZARD_OPTIONS`). The wizard is the global entry point installed by `pdf-install-global`; if a feature isn't in the wizard, users with the global install can't reach it.

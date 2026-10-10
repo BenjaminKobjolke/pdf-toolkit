@@ -13,8 +13,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pypdf import PdfWriter
-
 from app.app_logger import log
 from app.pdf._atomic import write_pdf_atomic, write_text_atomic
 from app.pdf._inputs import SUPPORTED_EXTENSIONS, pages_for_input
@@ -112,6 +110,9 @@ def _merge_pdf(folder: Path, target: Path) -> None:
     inputs = scan_folder(folder)
     if not inputs:
         raise ValueError(f"no supported files in {folder}")
+    # Keep pypdf off the document display startup path; see the startup import guard.
+    from pypdf import PdfWriter
+
     writer = PdfWriter()
     for path in inputs:
         for page in pages_for_input(path):

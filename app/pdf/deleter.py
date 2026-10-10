@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pypdf import PdfWriter
-
 from app.pdf._atomic import write_pdf_atomic
 from app.pdf._inputs import check_first_page, check_page_in_range, open_reader
 
@@ -25,6 +23,9 @@ def delete_page(source: Path, page_number: int) -> None:
             f"refusing to delete: PDF has {total} page(s); deletion would leave it empty"
         )
     check_page_in_range(page_number, total, source)
+
+    # Keep pypdf off the document display startup path; see the startup import guard.
+    from pypdf import PdfWriter
 
     writer = PdfWriter()
     drop_index = page_number - 1
@@ -56,6 +57,9 @@ def delete_page_range(source: Path, start_page: int, end_page: int) -> None:
         raise ValueError(
             f"refusing to delete: would leave PDF empty (deleting {delete_count} of {total} pages)"
         )
+
+    # Keep pypdf off the document display startup path; see the startup import guard.
+    from pypdf import PdfWriter
 
     writer = PdfWriter()
     drop_start = start_page - 1

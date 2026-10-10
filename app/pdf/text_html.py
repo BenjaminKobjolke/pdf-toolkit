@@ -14,8 +14,6 @@ from __future__ import annotations
 
 from html import escape
 
-import markdown
-
 from app.config.text_view_settings import TextViewSettings
 
 # Reading themes: (foreground, background, link). Two constants own the colors.
@@ -27,11 +25,13 @@ _MD_EXTENSIONS = ["fenced_code", "tables", "sane_lists"]
 
 def render_html(text: str, *, is_markdown: bool, settings: TextViewSettings) -> str:
     """Return a full HTML document for ``text`` styled per ``settings``."""
-    body = (
-        markdown.markdown(text, extensions=_MD_EXTENSIONS)
-        if is_markdown
-        else f"<pre>{escape(text)}</pre>"
-    )
+    if is_markdown:
+        # Keep Markdown off the document display startup path; see the startup import guard.
+        import markdown
+
+        body = markdown.markdown(text, extensions=_MD_EXTENSIONS)
+    else:
+        body = f"<pre>{escape(text)}</pre>"
     fg, bg, link = (
         (DARK_FG, DARK_BG, DARK_LINK)
         if settings.dark_mode

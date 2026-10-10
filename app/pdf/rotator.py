@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pypdf import PdfWriter
-
 from app.pdf._atomic import write_pdf_atomic
 from app.pdf._inputs import check_first_page, check_page_in_range, open_reader
 
@@ -28,6 +26,9 @@ def rotate_page(source: Path, page_number: int, degrees: int) -> None:
 
     reader = open_reader(source)
     check_page_in_range(page_number, len(reader.pages), source)
+
+    # Keep pypdf off the document display startup path; see the startup import guard.
+    from pypdf import PdfWriter
 
     writer = PdfWriter()
     for page in reader.pages:

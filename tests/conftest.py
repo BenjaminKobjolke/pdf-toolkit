@@ -80,7 +80,7 @@ def fake_trash(monkeypatch: pytest.MonkeyPatch) -> list[Path]:
         trashed.append(Path(path))
         Path(path).unlink()
 
-    monkeypatch.setattr("app.gui.document_actions.send2trash", _trash)
+    monkeypatch.setattr("send2trash.send2trash", _trash)
     return trashed
 
 

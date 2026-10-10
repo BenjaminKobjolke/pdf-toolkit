@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pypdf import PdfWriter
-
 from app.pdf._atomic import write_pdf_atomic
 from app.pdf._inputs import open_reader
 
@@ -31,6 +29,9 @@ def move_page(source: Path, from_page: int, to_page: int) -> None:
     pages = list(reader.pages)
     moved = pages.pop(from_page - 1)
     pages.insert(to_page - 1, moved)
+
+    # Keep pypdf off the document display startup path; see the startup import guard.
+    from pypdf import PdfWriter
 
     writer = PdfWriter()
     for page in pages:

@@ -6,8 +6,6 @@ from collections.abc import Callable
 from pathlib import Path
 
 from PySide6.QtWidgets import QWidget
-from send2trash import send2trash
-
 from app.config.favorites import load_favorites
 from app.config.recent_files import RecentFilesStore
 from app.gui import (
@@ -182,6 +180,9 @@ class DocumentActions:
 
     def _try_trash(self, target: Path) -> bool:
         try:
+            # Keep send2trash off the document display startup path; see the startup import guard.
+            from send2trash import send2trash
+
             send2trash(target)
             sidecar = sidecar_path(target)
             if sidecar.exists():  # send2trash has no missing_ok

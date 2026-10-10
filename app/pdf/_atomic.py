@@ -9,8 +9,10 @@ reader never sees a half-written PDF. This mirrors
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from pypdf import PdfWriter
+if TYPE_CHECKING:
+    from pypdf import PdfWriter
 
 from app.io.fs import replace_atomic
 

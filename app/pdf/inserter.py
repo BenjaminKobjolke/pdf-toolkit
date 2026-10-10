@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pypdf import PdfWriter
-
 from app.pdf._atomic import write_pdf_atomic
 from app.pdf._inputs import open_reader, pages_for_input
 
@@ -27,6 +25,9 @@ def insert_after(source: Path, insert: Path, after_page: int) -> None:
 
     insert_pages = pages_for_input(insert)
     existing = list(reader.pages)
+
+    # Keep pypdf off the document display startup path; see the startup import guard.
+    from pypdf import PdfWriter
 
     writer = PdfWriter()
     for page in existing[:after_page]:

@@ -12,7 +12,6 @@ automatic pick from the user's Windows profile languages.
 
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 import sys
 from abc import ABC, abstractmethod
@@ -85,6 +84,9 @@ class WindowsOcrProvider(OcrProvider):
             raise OcrError(str(err)) from err
         engine = self._engine(language)
         try:
+            # Keep asyncio off the document display startup path; see the startup import guard.
+            import asyncio
+
             return asyncio.run(_recognize_bytes(engine, data, width, height))
         except Exception as err:
             log.warning("OCR failed for %s: %s", image_path, err)
