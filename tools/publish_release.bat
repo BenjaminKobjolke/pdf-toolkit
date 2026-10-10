@@ -22,4 +22,5 @@ copy /y "%INSTALLER%" "%ARTIFACT%" >nul
 
 cd D:\GIT\BenjaminKobjolke\release-tool
 call uv run python -m release_tool "%ARTIFACT%" "%~dp0publish_settings.ini" --previous-version 0.2.0_3 --verbose
-cd "%~dp0"
+REM %ERRORLEVEL% expands when this line is parsed, so the tool's exit code survives the cd.
+cd "%~dp0" & exit /b %ERRORLEVEL%

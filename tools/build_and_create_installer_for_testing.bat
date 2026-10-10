@@ -21,6 +21,12 @@ if errorlevel 1 (
 move /y "%PROJECT_ROOT%\releases\windows\installer.exe" "%PROJECT_ROOT%\releases\windows\FastFileViewer_v%LABEL%_unsigned.exe" >nul
 echo [build_installer_testing] Installer: %PROJECT_ROOT%\releases\windows\FastFileViewer_v%LABEL%_unsigned.exe
 
+REM Nothing can click through the installer wizard in a Tickets Watcher run.
+if "%TICKETS_WATCHER_COMMAND_RUN%"=="1" (
+    echo [build_installer_testing] Tickets Watcher run: installer built, not launched.
+    exit /b 0
+)
+
 echo [build_installer_testing] Launching installer...
 start "" "%PROJECT_ROOT%\releases\windows\FastFileViewer_v%LABEL%_unsigned.exe"
 exit /b 0

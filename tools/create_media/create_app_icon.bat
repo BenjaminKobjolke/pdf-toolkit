@@ -12,3 +12,4 @@ if errorlevel 1 exit /b 1
 
 REM Convert PNG -> multi-size .ico via the project's existing converter (Pillow).
 call "%PROJECT%\tools\png_to_ico.bat"
+exit /b %ERRORLEVEL%

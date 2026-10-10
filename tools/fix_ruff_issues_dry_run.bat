@@ -9,4 +9,5 @@ cd /d "%~dp0.."
 
 "%CLI_ANALYZER_PATH%\venv\Scripts\python.exe" "%CLI_ANALYZER_PATH%\ruff_fixer.py" --path "." --rules "code_analysis_rules.json" --dry-run
 
-cd /d "%~dp0"
+REM %ERRORLEVEL% expands when this line is parsed, so the tool's exit code survives the cd.
+cd /d "%~dp0" & exit /b %ERRORLEVEL%

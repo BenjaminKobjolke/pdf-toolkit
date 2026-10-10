@@ -8,4 +8,5 @@ cd "d:\GIT\BenjaminKobjolke\GPT-json-translator"
 
 call .\.venv\Scripts\python.exe json_translator.py "%NOTES_DIR%" --translate-recursive="en.json"
 
-cd %~dp0
+REM %ERRORLEVEL% expands when this line is parsed, so the tool's exit code survives the cd.
+cd %~dp0 & exit /b %ERRORLEVEL%
