@@ -6,6 +6,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from PySide6.QtWidgets import QWidget
+
 from app.config.favorites import load_favorites
 from app.config.recent_files import RecentFilesStore
 from app.gui import (
