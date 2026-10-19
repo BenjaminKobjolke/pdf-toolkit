@@ -6,5 +6,63 @@
     "tools\\run_tests.bat",
     "tools\\run_integration_tests.bat",
     "tools\\analyze_code.bat"
-  ]
+  ],
+  "command_check_scripts": [
+    "analyze_code.bat",
+    "analyze_code_config.bat",
+    "analyze_code_config.example.bat",
+    "build_and_create_installer_for_testing.bat",
+    "build_decrement.bat",
+    "build_exe.bat",
+    "build_get.bat",
+    "build_increment.bat",
+    "build_release.bat",
+    "fix_ruff_issues.bat",
+    "fix_ruff_issues_dry_run.bat",
+    "install_global.bat",
+    "png_to_ico.bat",
+    "publish_release.bat",
+    "run_integration_tests.bat",
+    "run_tests.bat",
+    "translator_release_notes.bat",
+    "version_get.bat"
+  ],
+  "analysis_commands_seen": {
+    "scripts": [
+      "analyze_code.bat",
+      "analyze_code_config.bat",
+      "analyze_code_config.example.bat",
+      "build_and_create_installer_for_testing.bat",
+      "build_decrement.bat",
+      "build_exe.bat",
+      "build_get.bat",
+      "build_increment.bat",
+      "build_release.bat",
+      "fix_ruff_issues.bat",
+      "fix_ruff_issues_dry_run.bat",
+      "install_global.bat",
+      "png_to_ico.bat",
+      "publish_release.bat",
+      "run_integration_tests.bat",
+      "run_tests.bat",
+      "translator_release_notes.bat",
+      "version_get.bat"
+    ],
+    "tests": true
+  },
+  "analysis_command_states": {
+    "tools/fix_ruff_issues.bat": {
+      "code_quality": "green"
+    },
+    "tools\\run_tests.bat": {
+      "test": "green"
+    },
+    "tools\\run_integration_tests.bat": {
+      "test": "green"
+    },
+    "tools\\analyze_code.bat": {
+      "code_quality": "green"
+    }
+  },
+  "analysis_format_command": "tools/fix_ruff_issues.bat"
 }
