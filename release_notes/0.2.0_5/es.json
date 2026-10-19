@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, favoritos y un inicio más rápido",
+  "notes": [
+    "Extrae texto de imágenes con el OCR de Windows y, después, cópialo o guárdalo como archivo de texto",
+    "Elige y recuerda tu idioma preferido para el OCR de Windows",
+    "Abre carpetas de tus favoritos directamente en la vista de miniaturas",
+    "Las imágenes WebP ahora se abren sin problemas",
+    "Las teclas de navegación por las miniaturas permanecen en la cuadrícula, incluso al configurar atajos personalizados",
+    "El visor se inicia más rápido porque solo carga las funciones que consumen muchos recursos cuando las necesita"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, favoritter og raskere oppstart",
+  "notes": [
+    "Hent ut tekst fra bilder med Windows OCR, og kopier den eller lagre den som en tekstfil",
+    "Velg hvilket Windows OCR-språk du foretrekker, og husk valget",
+    "Åpne mapper fra favorittene dine direkte i miniatyrvisningen",
+    "WebP-bilder åpnes nå pålitelig",
+    "Navigeringstastene for miniatyrbilder holder seg i rutenettet, selv når egendefinerte snarveier er konfigurert",
+    "Visningsprogrammet starter raskere ved å laste inn tunge funksjoner bare når det trengs"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, favoris et démarrage plus rapide",
+  "notes": [
+    "Extrayez le texte des images avec l’OCR de Windows, puis copiez-le ou enregistrez-le dans un fichier texte",
+    "Choisissez votre langue préférée pour l’OCR de Windows et mémorisez-la",
+    "Ouvrez directement dans la vue miniatures les dossiers de vos favoris",
+    "Les images WebP s’ouvrent désormais de manière fiable",
+    "Les touches de navigation des miniatures restent dans la grille, même lorsque des raccourcis personnalisés sont configurés",
+    "Le lecteur démarre plus rapidement en ne chargeant les fonctionnalités avancées qu’en cas de besoin"
+  ]
+}

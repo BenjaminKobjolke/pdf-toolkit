@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, favoriler ve daha hızlı başlangıç",
+  "notes": [
+    "Windows OCR ile görsellerden metin çıkarın, ardından metni kopyalayın veya metin dosyası olarak kaydedin",
+    "Tercih ettiğiniz Windows OCR dilini seçin ve hatırlayın",
+    "Favorilerinizdeki klasörleri doğrudan küçük resim görünümünde açın",
+    "WebP görseller artık sorunsuz açılıyor",
+    "Özel kısayollar ayarlanmış olsa bile küçük resimlerde gezinme tuşları ızgarada çalışmaya devam ediyor",
+    "Görüntüleyici, ağır özellikleri yalnızca gerektiğinde yükleyerek daha hızlı başlıyor"
+  ]
+}

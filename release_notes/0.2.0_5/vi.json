@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, mục yêu thích và khởi động nhanh hơn",
+  "notes": [
+    "Trích xuất văn bản từ hình ảnh bằng OCR của Windows, sau đó sao chép hoặc lưu dưới dạng tệp văn bản",
+    "Chọn và ghi nhớ ngôn ngữ OCR Windows bạn muốn dùng",
+    "Mở trực tiếp các thư mục trong mục yêu thích ở chế độ xem hình thu nhỏ",
+    "Giờ đây, hình ảnh WebP được mở ổn định",
+    "Các phím điều hướng hình thu nhỏ vẫn hoạt động trong lưới, ngay cả khi đã thiết lập phím tắt tùy chỉnh",
+    "Trình xem khởi động nhanh hơn nhờ chỉ tải các tính năng nặng khi cần"
+  ]
+}

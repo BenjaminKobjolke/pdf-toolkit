@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, favoritter og hurtigere opstart",
+  "notes": [
+    "Udtræk tekst fra billeder med Windows OCR, og kopiér den eller gem den som en tekstfil",
+    "Vælg dit foretrukne Windows OCR-sprog, og husk valget",
+    "Åbn mapper fra dine favoritter direkte i miniaturevisningen",
+    "WebP-billeder åbnes nu pålideligt",
+    "Navigeringstasterne til miniaturebilleder bliver i gitteret, også når der er konfigureret brugerdefinerede genveje",
+    "Fremviseren starter hurtigere ved kun at indlæse tunge funktioner, når der er brug for dem"
+  ]
+}

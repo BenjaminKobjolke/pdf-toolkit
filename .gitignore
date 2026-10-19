@@ -246,3 +246,7 @@ PLAN.md
 PLAN_*.md
 graphify-out/
 .reasonix/
+
+# release-tool create: transient publish state + snapshot of shared notes recipe
+tools/previous_version.txt
+tools/CREATE_RELEASE_NOTES.md

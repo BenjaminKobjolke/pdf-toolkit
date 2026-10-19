@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, priljubljene in hitrejši zagon",
+  "notes": [
+    "Iz slik izluščite besedilo z OCR-jem v sistemu Windows, nato pa ga kopirajte ali shranite kot besedilno datoteko",
+    "Izberite želeni jezik OCR-ja v sistemu Windows in si ga zapomnite",
+    "Mape iz priljubljenih odprite neposredno v pogledu sličic",
+    "Slike WebP se zdaj odpirajo zanesljivo",
+    "Tipke za krmarjenje po sličicah ostanejo v mreži, tudi če so nastavljene bližnjice po meri",
+    "Pregledovalnik se zažene hitreje, saj zahtevnejše funkcije naloži šele, ko so potrebne"
+  ]
+}

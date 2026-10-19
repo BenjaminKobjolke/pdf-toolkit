@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, oblíbené položky a rychlejší spuštění",
+  "notes": [
+    "Extrahujte text z obrázků pomocí OCR ve Windows a poté jej zkopírujte nebo uložte jako textový soubor",
+    "Vyberte si preferovaný jazyk OCR ve Windows a nechte si ho zapamatovat",
+    "Otevírejte složky z oblíbených položek přímo v zobrazení miniatur",
+    "Obrázky WebP se nyní otevírají spolehlivě",
+    "Navigační klávesy pro miniatury zůstávají v mřížce i při nastavení vlastních klávesových zkratek",
+    "Prohlížeč se spouští rychleji, protože náročné funkce načítá až ve chvíli, kdy jsou potřeba"
+  ]
+}

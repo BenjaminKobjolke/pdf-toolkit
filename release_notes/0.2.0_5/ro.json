@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, favorite și o pornire mai rapidă",
+  "notes": [
+    "Extrage text din imagini cu OCR-ul Windows, apoi copiază-l sau salvează-l într-un fișier text",
+    "Alege limba preferată pentru OCR-ul Windows și păstreaz-o ca limbă implicită",
+    "Deschide folderele din favorite direct în vizualizarea miniaturilor",
+    "Imaginile WebP se deschid acum fără probleme",
+    "Tastele de navigare printre miniaturi rămân în grilă, chiar și când sunt configurate comenzi rapide personalizate",
+    "Vizualizatorul pornește mai repede, încărcând funcțiile care consumă multe resurse doar atunci când este nevoie"
+  ]
+}

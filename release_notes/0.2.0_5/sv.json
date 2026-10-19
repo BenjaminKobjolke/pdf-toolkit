@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, favoriter och snabbare start",
+  "notes": [
+    "Extrahera text från bilder med Windows OCR och kopiera den eller spara den som en textfil",
+    "Välj och kom ihåg vilket språk du föredrar för Windows OCR",
+    "Öppna mappar från dina favoriter direkt i miniatyrvyn",
+    "WebP-bilder öppnas nu utan problem",
+    "Tangentbordsgenvägar för miniatyrnavigering stannar i rutnätet, även när anpassade genvägar har konfigurerats",
+    "Visningsprogrammet startar snabbare genom att bara läsa in resurskrävande funktioner när de behövs"
+  ]
+}

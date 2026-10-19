@@ -6,6 +6,46 @@ notes that ship inside the build.
 
 ---
 
+## One-command release
+
+```bat
+tools\release_create.bat              :: full release
+tools\release_create.bat --internal   :: internal test build
+tools\release_create.bat --dry-run    :: preview only
+```
+
+Runs `release-tool create` (`D:\GIT\BenjaminKobjolke\release-tool`) with
+`tools\release_create.ini`: bumps the build (`tools\build_increment.bat` — the
+only bump), has Codex author missing `en.json`, translates, runs
+`tools\build_release.bat` (rolls the build back via `build_decrement.bat` on
+failure), writes the previous online label to `tools\previous_version.txt`, then
+**asks** before publishing to the website and **asks** before commit + tag + push
+(`RELEASE (viewer): <label>`, tag `<label>`).
+
+Preflight: it stops before bumping anything if `tools\publish_settings.ini` or
+`release-tool\ftp_profiles.ini` is missing. FTP credentials live in the shared
+profile `workflow-tools.com - apps`; `publish_settings.ini` only names it.
+
+**Completed-build record:** `tools\build_release.bat` writes the label to
+`releases\windows\release_version.txt` only after the installer exists.
+`tools\publish_release.bat` ships the installer named there — never the current
+source label, so a later counter bump can't change what gets uploaded.
+Rebuilding the recorded label deletes the record first, so a failed rebuild
+can't be published.
+
+**Retry publishing without rebuilding/incrementing:**
+
+```bat
+tools\publish_release.bat                    :: recorded build, prev from previous_version.txt
+tools\publish_release.bat 0.2.0_4            :: %1 = previous ONLINE label (remote archive folder)
+tools\publish_release.bat 0.2.0_4 0.2.0_5    :: %2 = label of an older build to ship
+```
+
+`python tools\test_release_version.py` checks this handoff with fake
+build/upload commands (no real build, no upload).
+
+---
+
 ## 1. Version & build number
 
 A release is identified by the label **`<version>_<build>`**, e.g. `0.1.0_22`.
@@ -148,11 +188,11 @@ download URL): the bat copies `releases\windows\FastFileViewer_v<label>.exe` to
 verified), then uploads it per `tools\publish_settings.ini`. Both the installer
 **and** the FastFileViewer.exe inside it end up signed.
 
-The previous remote `FastFileViewer.exe` is archived to
-`versions/<--previous-version>/` before being replaced — update the
-`--previous-version` value in the bat to the last **shipped** label when cutting
-a release. Run `tools\build_release.bat` first — the bat aborts if the installer
-for the current label doesn't exist.
+The previous remote `FastFileViewer.exe` is archived to `versions/<previous>/`
+before being replaced. `<previous>` is `%1`, else `tools\previous_version.txt`
+(written by `tools\release_create.bat`). The shipped installer is the one named
+in `releases\windows\release_version.txt` (or `%2`); the bat aborts if that
+record or installer is missing. See **One-command release** above.
 
 The publish step also uploads every `release_notes/<label>/*.json` to the
 website assets path (`[ReleaseNotes]` in `tools\publish_settings.ini`).

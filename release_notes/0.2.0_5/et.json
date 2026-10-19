@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, lemmikud ja kiirem käivitumine",
+  "notes": [
+    "Eralda piltidelt teksti Windowsi OCR-iga ning kopeeri see või salvesta tekstifailina",
+    "Vali eelistatud Windowsi OCR-i keel ja jäta see meelde",
+    "Ava lemmikutes olevad kaustad otse pisipiltide vaates",
+    "WebP-pildid avanevad nüüd usaldusväärselt",
+    "Pisipiltide navigeerimisklahvid toimivad endiselt ruudustikus ka siis, kui kohandatud kiirklahvid on seadistatud",
+    "Vaatur käivitub kiiremini, laadides mahukad funktsioonid alles siis, kui neid vaja läheb"
+  ]
+}

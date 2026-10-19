@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, ulubione i szybsze uruchamianie",
+  "notes": [
+    "Wyodrębniaj tekst z obrazów za pomocą funkcji OCR systemu Windows, a następnie kopiuj go lub zapisuj jako plik tekstowy",
+    "Wybierz preferowany język OCR systemu Windows i zapamiętaj go",
+    "Otwieraj foldery z ulubionych bezpośrednio w widoku miniatur",
+    "Obrazy WebP otwierają się teraz niezawodnie",
+    "Klawisze nawigacji po miniaturach pozostają w siatce, nawet gdy skonfigurowano niestandardowe skróty",
+    "Przeglądarka uruchamia się szybciej, ponieważ wymagające funkcje są ładowane tylko wtedy, gdy są potrzebne"
+  ]
+}

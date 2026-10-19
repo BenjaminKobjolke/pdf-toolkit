@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, Favoriten und ein schnellerer Start",
+  "notes": [
+    "Extrahiere Text aus Bildern mit Windows-OCR und kopiere ihn anschließend oder speichere ihn als Textdatei.",
+    "Wähle deine bevorzugte Windows-OCR-Sprache aus und merke sie dir.",
+    "Öffne Ordner aus deinen Favoriten direkt in der Miniaturansicht.",
+    "WebP-Bilder lassen sich jetzt zuverlässig öffnen.",
+    "Die Navigationstasten für Miniaturansichten bleiben im Raster, auch wenn benutzerdefinierte Tastenkürzel eingerichtet sind.",
+    "Der Viewer startet schneller, da aufwendige Funktionen erst bei Bedarf geladen werden."
+  ]
+}

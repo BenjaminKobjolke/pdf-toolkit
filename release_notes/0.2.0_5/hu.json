@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, kedvencek és gyorsabb indítás",
+  "notes": [
+    "Nyerjen ki szöveget képekből a Windows OCR segítségével, majd másolja ki, vagy mentse szövegfájlba",
+    "Válassza ki a kívánt Windows OCR-nyelvet, amelyet a rendszer megjegyez",
+    "Nyissa meg kedvencei mappáit közvetlenül a miniatűrnézetben",
+    "A WebP-képek mostantól megbízhatóan nyílnak meg",
+    "A miniatűrök közötti navigáció billentyűi a rácsban maradnak, egyéni billentyűparancsok beállítása esetén is",
+    "A képnézegető gyorsabban indul, mert csak szükség esetén tölti be az erőforrás-igényes funkciókat"
+  ]
+}

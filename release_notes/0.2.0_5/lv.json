@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, izlase un ātrāka palaišana",
+  "notes": [
+    "Izvelciet tekstu no attēliem, izmantojot Windows OCR, un pēc tam kopējiet to vai saglabājiet teksta failā",
+    "Izvēlieties un saglabājiet vēlamo Windows OCR valodu",
+    "Atveriet mapes no izlases tieši sīktēlu skatā",
+    "WebP attēli tagad tiek atvērti uzticami",
+    "Sīktēlu navigācijas taustiņi paliek režģa skatā pat tad, ja ir konfigurēti pielāgoti īsinājumtaustiņi",
+    "Skatītājs tiek palaists ātrāk, ielādējot resursietilpīgās funkcijas tikai tad, kad tās ir nepieciešamas"
+  ]
+}

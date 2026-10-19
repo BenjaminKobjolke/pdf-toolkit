@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, omiljene stavke i brže pokretanje",
+  "notes": [
+    "Izdvojite tekst sa slika pomoću Windows OCR-a, a zatim ga kopirajte ili sačuvajte kao tekstualnu datoteku",
+    "Izaberite željeni jezik za Windows OCR i zapamtite izbor",
+    "Otvorite fascikle iz omiljenih stavki direktno u prikazu sličica",
+    "WebP slike se sada pouzdano otvaraju",
+    "Tasteri za navigaciju kroz sličice ostaju u mreži, čak i kada su podešene prilagođene prečice",
+    "Pregledač se pokreće brže jer učitava zahtevne funkcije samo kada su potrebne"
+  ]
+}

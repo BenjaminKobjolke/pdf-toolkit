@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, favorites, and a faster start",
+  "notes": [
+    "Extract text from images with Windows OCR, then copy it or save it as a text file",
+    "Choose and remember your preferred Windows OCR language",
+    "Open folders from your favorites directly in the thumbnail view",
+    "WebP images now open reliably",
+    "Thumbnail navigation keys stay in the grid, even when custom shortcuts are configured",
+    "The viewer starts faster by loading heavy features only when needed"
+  ]
+}

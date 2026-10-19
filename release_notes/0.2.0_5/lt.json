@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, parankiniai ir greitesnis paleidimas",
+  "notes": [
+    "Ištraukite tekstą iš vaizdų naudodami „Windows“ OCR, tada nukopijuokite jį arba išsaugokite kaip tekstinį failą",
+    "Pasirinkite ir įsiminkite pageidaujamą „Windows“ OCR kalbą",
+    "Atidarykite aplankus iš parankinių tiesiai miniatiūrų rodinyje",
+    "WebP vaizdai dabar atidaromi patikimai",
+    "Miniatiūrų naršymo klavišai lieka tinklelyje, net jei sukonfigūruoti pasirinktiniai spartieji klavišai",
+    "Peržiūros programa paleidžiama greičiau, nes daug išteklių reikalaujančios funkcijos įkeliamos tik tada, kai jų prireikia"
+  ]
+}

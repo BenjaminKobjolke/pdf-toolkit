@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, favorieten en sneller opstarten",
+  "notes": [
+    "Haal tekst uit afbeeldingen met Windows-OCR en kopieer deze of sla deze op als tekstbestand",
+    "Kies de gewenste OCR-taal van Windows en onthoud deze",
+    "Open mappen vanuit je favorieten rechtstreeks in de miniaturenweergave",
+    "WebP-afbeeldingen worden nu betrouwbaar geopend",
+    "Navigatietoetsen voor miniaturen blijven in het raster, ook wanneer aangepaste sneltoetsen zijn ingesteld",
+    "De viewer start sneller doordat uitgebreide functies pas worden geladen wanneer ze nodig zijn"
+  ]
+}

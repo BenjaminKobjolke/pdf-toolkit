@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "build": 5,
+  "date": "2026-10-19",
+  "title": "OCR, suosikit ja nopeampi käynnistys",
+  "notes": [
+    "Poimi tekstiä kuvista Windowsin OCR-toiminnolla ja kopioi se tai tallenna tekstitiedostona",
+    "Valitse haluamasi Windowsin OCR-kieli ja tallenna se",
+    "Avaa suosikkikansiosi suoraan pikkukuvanäkymässä",
+    "WebP-kuvat avautuvat nyt luotettavasti",
+    "Pikkukuvanäkymän navigointinäppäimet pysyvät ruudukossa myös silloin, kun mukautetut pikanäppäimet ovat käytössä",
+    "Katseluohjelma käynnistyy nopeammin, koska raskaat ominaisuudet ladataan vasta tarvittaessa"
+  ]
+}
