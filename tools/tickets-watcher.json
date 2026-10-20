@@ -22,6 +22,7 @@
     "install_global.bat",
     "png_to_ico.bat",
     "publish_release.bat",
+    "release_create.bat",
     "run_integration_tests.bat",
     "run_tests.bat",
     "translator_release_notes.bat",
@@ -58,11 +59,16 @@
       "test": "green"
     },
     "tools\\run_integration_tests.bat": {
-      "test": "green"
+      "test": "failed"
     },
     "tools\\analyze_code.bat": {
       "code_quality": "green"
     }
   },
-  "analysis_format_command": "tools/fix_ruff_issues.bat"
+  "analysis_format_command": "tools/fix_ruff_issues.bat",
+  "analysis_command_failing_tests": {
+    "tools\\run_integration_tests.bat": [
+      "tests/integration/test_single_instance_ipc.py::test_forwarded_path_reaches_callback"
+    ]
+  }
 }
