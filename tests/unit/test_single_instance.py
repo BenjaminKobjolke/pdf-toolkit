@@ -9,7 +9,11 @@ from __future__ import annotations
 
 import uuid
 from pathlib import Path
+from unittest.mock import MagicMock
 
+from PySide6.QtNetwork import QLocalSocket
+
+from app.gui import single_instance
 from app.gui.single_instance import InstanceServer, try_send_to_running
 
 
@@ -38,3 +42,29 @@ def test_start_twice_on_same_name_still_works(qapp: object) -> None:
     second = InstanceServer(lambda _p: None, name=name)
     assert second.start() is True
     second.stop()
+
+
+def test_dispatch_preserves_whitespace_in_forwarded_path() -> None:
+    received: list[Path | None] = []
+    server = InstanceServer(received.append)
+
+    server._dispatch(bytearray(b" leading and trailing.pdf "))
+
+    assert received == [Path(" leading and trailing.pdf ")]
+
+
+def test_send_succeeds_when_wait_drains_pending_bytes(
+    monkeypatch: object,
+) -> None:
+    socket = MagicMock(spec=QLocalSocket)
+    socket.waitForConnected.return_value = True
+    socket.write.return_value = len(str(Path("x.pdf")).encode("utf-8"))
+    socket.bytesToWrite.side_effect = [4, 0]
+    socket.waitForBytesWritten.return_value = False
+    socket.state.return_value = QLocalSocket.LocalSocketState.UnconnectedState
+    socket_factory = MagicMock(spec=QLocalSocket)
+    socket_factory.return_value = socket
+    socket_factory.LocalSocketState = QLocalSocket.LocalSocketState
+    monkeypatch.setattr(single_instance, "QLocalSocket", socket_factory)  # type: ignore[attr-defined]
+
+    assert try_send_to_running(Path("x.pdf"), name="existing-viewer") is True
