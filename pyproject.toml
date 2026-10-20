@@ -6,7 +6,7 @@ requires-python = ">=3.11,<3.13"
 dependencies = [
     "img2pdf>=0.5,<1.0",
     "markdown>=3.7,<4.0",
-    "pillow>=12.3.0,<13.0",
+    "pillow>=13.0.0,<14.0",
     "prompt-toolkit>=3.0.43",
     "psutil>=6.0,<8.0",
     "pymupdf>=1.27.2.3",
