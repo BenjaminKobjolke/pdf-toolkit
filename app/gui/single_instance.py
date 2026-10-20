@@ -58,11 +58,14 @@ def try_send_to_running(
         log.debug("single-instance: no running viewer (%s)", socket.errorString())
         return False
     payload = str(path).encode("utf-8") if path is not None else b""
-    socket.write(payload)
+    if socket.write(payload) != len(payload):
+        log.debug("single-instance: failed to queue forwarded path (%s)", socket.errorString())
+        return False
     socket.flush()
-    # flush() may drain synchronously; waitForBytesWritten returns False when
-    # there is nothing left to write, so only wait while bytes are pending.
-    ok = socket.bytesToWrite() == 0 or bool(socket.waitForBytesWritten(timeout_ms))
+    # Windows can drain the buffer while waitForBytesWritten returns False.
+    if socket.bytesToWrite() != 0:
+        socket.waitForBytesWritten(timeout_ms)
+    ok = socket.bytesToWrite() == 0
     socket.disconnectFromServer()
     if socket.state() != QLocalSocket.LocalSocketState.UnconnectedState:
         socket.waitForDisconnected(timeout_ms)
@@ -104,13 +107,15 @@ class InstanceServer:
             return
         buffer = bytearray()
         socket.readyRead.connect(lambda: buffer.extend(socket.readAll().data()))
-        socket.disconnected.connect(lambda: self._dispatch(socket, buffer))
+        # Qt may delete the socket before delivering a queued disconnected
+        # callback. readyRead has already drained the payload, so dispatch
+        # from the owned buffer without touching the socket after disconnect.
+        socket.disconnected.connect(lambda: self._dispatch(buffer))
 
-    def _dispatch(self, socket: QLocalSocket, buffer: bytearray) -> None:
-        buffer.extend(socket.readAll().data())  # drain anything readyRead missed
-        socket.deleteLater()
-        text = buffer.decode("utf-8", errors="replace").strip()
+    def _dispatch(self, buffer: bytearray) -> None:
+        text = buffer.decode("utf-8", errors="replace")
+        has_path = bool(buffer)
         try:
-            self._on_open(Path(text) if text else None)
+            self._on_open(Path(text) if has_path else None)
         except Exception:
             log.exception("single-instance: open callback failed for %r", text)
