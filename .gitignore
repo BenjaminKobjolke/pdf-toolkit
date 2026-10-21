@@ -245,6 +245,7 @@ HANDOFF.md
 PLAN.md
 PLAN_*.md
 graphify-out/
+coding-rules.json
 .reasonix/
 
 # release-tool create: transient publish state + snapshot of shared notes recipe
