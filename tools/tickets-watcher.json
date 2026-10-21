@@ -19,6 +19,7 @@
     "build_release.bat",
     "fix_ruff_issues.bat",
     "fix_ruff_issues_dry_run.bat",
+    "graphify_update.bat",
     "install_global.bat",
     "png_to_ico.bat",
     "publish_release.bat",
@@ -56,7 +57,7 @@
       "code_quality": "green"
     },
     "tools\\run_tests.bat": {
-      "test": "green"
+      "test": "failed"
     },
     "tools\\run_integration_tests.bat": {
       "test": "green"
@@ -65,5 +66,10 @@
       "code_quality": "green"
     }
   },
-  "analysis_format_command": "tools/fix_ruff_issues.bat"
+  "analysis_format_command": "tools/fix_ruff_issues.bat",
+  "analysis_command_failing_tests": {
+    "tools\\run_tests.bat": [
+      "tests/unit/test_tools_bats_watcher_compat.py::test_tool_batch_files_return_and_do_not_block[graphify_update.bat]"
+    ]
+  }
 }
