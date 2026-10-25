@@ -65,10 +65,13 @@ def try_send_to_running(
     # Windows can drain the buffer while waitForBytesWritten returns False.
     if socket.bytesToWrite() != 0:
         socket.waitForBytesWritten(timeout_ms)
-    ok = socket.bytesToWrite() == 0
     socket.disconnectFromServer()
     if socket.state() != QLocalSocket.LocalSocketState.UnconnectedState:
         socket.waitForDisconnected(timeout_ms)
+    # disconnectFromServer() drains queued data before closing. Check afterward:
+    # on Windows the buffer can still be non-empty before that graceful drain,
+    # even though the server receives the complete message.
+    ok = socket.bytesToWrite() == 0
     if ok:
         log.info("single-instance: forwarded %s to running viewer", path or "<activate>")
     return ok
@@ -92,6 +95,21 @@ class InstanceServer:
         """Begin listening. Retries once past a stale pipe left by a crash."""
         if self._server.listen(self._name):
             return True
+        probe = QLocalSocket()
+        probe.connectToServer(self._name)
+        if probe.waitForConnected(CONNECT_TIMEOUT_MS):
+            probe.abort()
+            log.debug("single-instance: endpoint already has a live viewer")
+            return False
+        stale_errors = {
+            QLocalSocket.LocalSocketError.ServerNotFoundError,
+            QLocalSocket.LocalSocketError.ConnectionRefusedError,
+        }
+        if probe.error() not in stale_errors:
+            log.debug("single-instance: endpoint probe failed: %s", probe.errorString())
+            probe.abort()
+            return False
+        probe.abort()
         QLocalServer.removeServer(self._name)
         if self._server.listen(self._name):
             return True
@@ -110,7 +128,12 @@ class InstanceServer:
         # Qt may delete the socket before delivering a queued disconnected
         # callback. readyRead has already drained the payload, so dispatch
         # from the owned buffer without touching the socket after disconnect.
-        socket.disconnected.connect(lambda: self._dispatch(buffer))
+
+        def on_disconnected() -> None:
+            self._dispatch(buffer)
+            socket.deleteLater()
+
+        socket.disconnected.connect(on_disconnected)
 
     def _dispatch(self, buffer: bytearray) -> None:
         text = buffer.decode("utf-8", errors="replace")
