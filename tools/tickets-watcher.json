@@ -60,16 +60,11 @@
       "test": "green"
     },
     "tools\\run_integration_tests.bat": {
-      "test": "failed"
+      "test": "green"
     },
     "tools\\analyze_code.bat": {
       "code_quality": "green"
     }
   },
-  "analysis_format_command": "tools/fix_ruff_issues.bat",
-  "analysis_command_failing_tests": {
-    "tools\\run_integration_tests.bat": [
-      "tests/integration/test_single_instance_ipc.py::test_forwarded_path_reaches_callback"
-    ]
-  }
+  "analysis_format_command": "tools/fix_ruff_issues.bat"
 }
