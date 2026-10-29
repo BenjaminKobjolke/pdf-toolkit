@@ -961,7 +961,7 @@ error states — are language-independent and live in `DESIGN_RULES.md`.
 ---
 
 # Version
-1
+2
 
 Increase this version number whenever this rule file changes.
 
@@ -974,31 +974,36 @@ Applies on top of `PYTHON_RULES.md` when the project uses release tooling.
 Set up the release system with `/release:setup`. Reusable pieces live in
 `python_setup_files/`:
 
-- `tools/release/build_number.py` — self-contained helper: manages the integer in
-  `build_version.txt` (project root) and prints the `<version>_<build>` label
-  (version from `pyproject.toml`). Actions: `get | increment | decrement | label`.
-- `tools/build_get.bat`, `tools/build_increment.bat`, `tools/build_decrement.bat`,
-  `tools/version_get.bat` — thin `uv run` wrappers over the helper.
+- `tools/release/version_number.py` — self-contained helper: reads the
+  `pyproject.toml` `[project] version` and bumps or rolls back its last segment.
+  Actions: `get | increment | decrement`.
+- `tools/version_get.bat`, `tools/version_increment.bat`,
+  `tools/version_decrement.bat` — thin `uv run` wrappers over the helper.
 - `CREATE_NEW_RELEASE.template.md` — fill-in-the-blanks for `docs/CREATE_NEW_RELEASE.md`.
 - The Python stack recipe read by `/release:create-release-notes` lives in the shared
   `coding-rules/CREATE_RELEASE_NOTES.md` (`## Python / uv` section), not here.
 
 Conventions:
 
-- **Release label** = `<version>_<build>` (e.g. `0.1.0_22`). `version` is semver in
-  `pyproject.toml` (bumped by hand); `build` is an integer in `build_version.txt`.
-- **Release notes** = `release_notes/<version>_<build>/<locale>.json`. The actual
+- **Release label** = the version `<major>.<minor>.<patch>` (e.g. `0.1.4`), no build
+  number. `pyproject.toml` holds the last shipped version; each release bumps the
+  last segment (`release-tool create` with `versioning = semver`). For a new
+  minor/major line, set e.g. `0.2.0` by hand; the next release ships `0.2.1`.
+  Projects that already use `<version>_<build>` labels keep working, but new
+  setups use semver.
+- **Release notes** = `release_notes/<version>/<locale>.json`, no `build` key. The actual
   text is the `notes` array. Author **only `en.json`**; generate other locales with
   a translation bat (mandatory — never skip).
 - **Bundle `release_notes/` into the build** so the in-app view ships with the binary
   (PyInstaller: add to spec `datas` + `copy_metadata(<pkg>)`).
 - **In-app view**: load all releases, sort **newest first**, show the latest first
-  with Older/Newer navigation, fall back to `en.json` when a locale is missing.
+  with Older/Newer navigation; sort by the numeric version segments (`0.1.10`
+  after `0.1.9`), never as strings, fall back to `en.json` when a locale is missing.
 
 ---
 
 # Version
-1
+3
 
 Increase this version number whenever this rule file changes.
 
@@ -1018,21 +1023,30 @@ Reusable pieces in `python_setup_files/`:
 
 - `installer/setup.nsi.template` — the script; fill in app name, exe name, company.
 - `tools/build_installer.bat` — packages an existing `dist/<App>/` into the setup exe.
-- `tools/sign_exe.bat` — code-signs one exe via the XIDA network-share handshake.
+- `tools/sign_exe.bat` — code-signs one exe in place with
+  `release-tool sign <exe> <profile>`.
+- `tools/config_example.bat` — copy to the gitignored `tools/config.bat`; sets
+  `RELEASE_TOOL_DIR` (release-tool checkout) and `SIGNING_PROFILE` (a section of
+  `release-tool\signing_profiles.ini`, e.g. `xida remote`).
 
 Conventions:
 
 - **Two separate bats, no chaining.** `tools/compile_exe.bat` freezes;
   `tools/build_installer.bat` packages and fails with "run compile_exe.bat first" if
   `dist/` is missing. Neither bat calls the other.
-- **Version and build reach the installer as `/D` defines** from the bat
-  (`/DVERSION= /DBUILD= /DSRCDIR= /DOUTFILE=`), never via the exe's version resource.
+- **The version reaches the installer as a `/D` define** from the bat
+  (`/DVERSION= /DSRCDIR= /DOUTFILE=`), never via the exe's version resource.
   A bare PyInstaller CLI build has no `--version-file`, so there is no resource to
-  read — the bat owns the label. `tools/version_get.bat` already prints the full
-  `<version>_<build>` label, so read it once and split on `_` rather than also
-  calling `build_get.bat`.
-- **Output** = `dist/<App>Setup_<version>_<build>.exe`, so the filename carries the
-  release label (see `python/RELEASE.md`).
+  read — the bat owns the version, read once from `tools/version_get.bat`.
+  `VIProductVersion` needs four numeric parts, so the script appends `.0` to the
+  three-part semver version.
+- **Output** = `dist/<App>Setup_<version>.exe`, so the filename carries the
+  release version (see `python/RELEASE.md`).
+- **Never name an installer `<AppExe>.exe`** — not the versioned file, not a
+  stable-name copy for a download URL. The installer runs
+  `taskkill /F /IM "<AppExe>.exe"` to close a running instance, which then kills the
+  installer itself: it reports installing, closes, and writes no files. Use
+  `<App>Setup.exe` for a stable name.
 - **Exclude the app's own runtime files from the payload**:
   `File /r /x settings.json /x sessions.db "${SRCDIR}\*.*"`. PyInstaller builds into
   `dist/`, and every local test run of that exe drops its config and database right
@@ -1053,11 +1067,16 @@ Conventions:
 - **Registry** goes under `HKCU` (per-user install) with `DisplayName`,
   `DisplayVersion` = the full label, `Publisher`, `DisplayIcon`, `InstallLocation`,
   `UninstallString`, `EstimatedSize`.
-- **Signing is opt-in** via `build_installer.bat --sign`, off by default: the XIDA
-  handshake needs the `//XIDA-SERVER` share and takes ~5 minutes per binary, so local
-  test builds stay unsigned. When on, sign the app exe **before** packaging (the
-  signed binary must be the one inside) and the setup exe after. `sign_exe.bat` `cd`s
-  into the release-tool checkout, so it must be handed an **absolute** path.
+- **Signing is opt-in** via `build_installer.bat --sign`, off by default: it needs
+  the signing server, so local test builds stay unsigned. When on, sign the app exe
+  **before** packaging (the signed binary must be the one inside) and the setup exe
+  after. `sign_exe.bat` `cd`s into the release-tool checkout, so it must be handed
+  an **absolute** path.
+- **Sign through the profile CLI, never by constructing `PreSignConfig` yourself.**
+  release-tool owns the signing method (SafeNet `remote` or network share) and the
+  config field order; an inline `PreSignConfig(True, ...)` call broke when the fields
+  were reordered (`Network path not accessible: XIDA GmbH`). Test a profile with
+  release-tool's `tools\test_signing.bat "<profile>"`.
 - **Test the installer silently**, no clicking: `Setup.exe /S`, then
   `Uninstall.exe /S`. Check the install dir contents, the Start Menu shortcut, the
   `HKCU` key, that the installed app can write its database, and that a reinstall
