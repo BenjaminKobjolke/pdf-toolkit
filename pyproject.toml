@@ -10,7 +10,7 @@ dependencies = [
     "prompt-toolkit>=3.0.43",
     "psutil>=6.0,<8.0",
     "pymupdf>=1.27.2.3",
-    "pypdf>=6.21.2",
+    "pypdf>=6.21.4",
     "pyside6>=6.11.1",
     "automated-screenshot-connector",
     "command-palette",
