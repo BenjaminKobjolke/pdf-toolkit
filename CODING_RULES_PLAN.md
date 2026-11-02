@@ -2,7 +2,7 @@
 <!-- Step file for plan runs, generated from CODING_RULES.md — CODING_RULES.md stays the complete rule set -->
 
 # Version
-12
+15
 
 Increase this version number whenever this rule file changes.
 
@@ -10,28 +10,6 @@ Increase this version number whenever this rule file changes.
 
 These rules apply to all projects, regardless of language. Language-specific rules live in the
 corresponding `*_RULES.md` files.
-
----
-
-## Keep CODING_RULES.md in Sync
-
-When working on a project, copy all relevant rules into the project's `CODING_RULES.md` file
-(project root). The project's `CLAUDE.md` carries only a small versioned pointer block that
-mandates reading `CODING_RULES.md` before code work — never the full rules, and never an
-`@import` of `CODING_RULES.md` (imports auto-expand into context every turn).
-
-- Always include all rules from `COMMON_RULES.md` and `IMPLEMENTATION_FLOW.md`.
-  `COMMON_RULES.md` is copied into the project's `CODING_RULES.md`;
-  `IMPLEMENTATION_FLOW.md` is copied into the project's own `IMPLEMENTATION_FLOW.md`
-- Also include applicable language-specific, project-type, and supplemental rule files
-  (see `PROJECT_TYPES.md` for the project-type overview)
-- Include optional addon rule files only when the user has opted in to that addon
-- If applicability is unclear, ask the user which rules to include
-- Include each source file's `# Version` block with its copied rules
-- If `CODING_RULES.md` already exists, compare each source file's version with the corresponding
-  copied rule block and update only stale or unversioned blocks, keeping the result deduplicated
-- If `CLAUDE.md` contains inlined rule blocks or coding-rule `@import` lines from an earlier run,
-  migrate that content into `CODING_RULES.md` and leave only the pointer block in `CLAUDE.md`
 
 ---
 
@@ -117,45 +95,6 @@ components work correctly together and catch issues that unit tests alone cannot
 
 ---
 
-## Test Runner Scripts
-
-Every project must provide the following batch files in the `tools/` directory:
-
-- `tools/run_tests.bat` — runs unit tests
-- `tools/run_integration_tests.bat` — runs integration tests
-
-These scripts ensure a consistent way to execute tests across environments.
-
-Both scripts must show progress while tests run: report the current setup stage, suite, or test
-before potentially slow work, and show results as execution proceeds. A start banner followed only
-by a final summary is insufficient. Prefer the runner's verbose output and stream or flush it so
-callers can see it during execution. Print one line per test: `flutter test --reporter expanded`,
-`pytest -v`, `phpunit --debug` (`--testdox` lists the tests only after the run on PHPUnit 10+).
-For a legitimate long wait without ordinary output, report the current stage or test and elapsed
-time at least every 60 seconds. Elapsed-time updates must not imply that a test completed or
-advanced. If output is captured for logs or filtering, keep progress visible during execution;
-replaying it only after completion does not count.
-
-Both must **exit with the test runner's own exit code** — capture it right after the run
-(`set TESTRESULT=%ERRORLEVEL%`) and end with `exit /b %TESTRESULT%`. A bat that prints
-"Some tests failed!" but exits 0 reports green to CI, to callers and to AI agents. Never pipe the
-test command into a plain filter — the pipe's exit code is the *filter's*, not the runner's. Never
-redirect the run into a temp file and print or filter that afterwards either: the script is then
-silent for the whole run. Run the command directly so its output streams. If output has to be
-filtered or logged, do it while it streams and return the runner's own code, e.g. `powershell
--NoProfile -Command "<test command> | Where-Object { $_ -notmatch '<noise>' }; exit $LASTEXITCODE"`,
-or use the runner's own log-file option.
-
----
-
-## No `pause` in Batch Files
-
-Batch files must never contain a `pause` line. `pause` waits for a keypress, so any bat that has one
-hangs forever when run by CI, another bat, or an AI agent. End with an explicit `exit /b <code>`
-instead, and let the caller decide whether to keep the window open (`cmd /k`).
-
----
-
 ## Prefer Type-Safe Values
 
 Use strong, explicit types instead of loosely typed or stringly typed values (e.g., typed DTOs,
@@ -189,6 +128,7 @@ from being re-invented in every new project.
 ---
 
 ## New Projects Start From a Template
+<!-- steps: plan -->
 
 Before creating a new project (an API, an app, a tool — anything that gets its own folder),
 ask the user whether a template project exists for that kind of project. Never scaffold from
@@ -262,12 +202,22 @@ kept to a minimum — a future maintainer (or you, at 3am) has to understand it.
 
 ## Confirm Dependency Versions
 
-Before adding any new package or library, confirm the version with the user to ensure we use
-up-to-date dependencies.
+When adding a new package or library, choose its version yourself from verified facts. Do not
+ask the user to confirm a routine version choice.
 
-- Do not assume which version to use
-- Ask the user to verify the latest stable version
-- Avoid outdated packages that may have security vulnerabilities or missing features
+- Never assume a version from memory: check the authoritative release source (the package
+  registry or the project's official releases) for the latest stable release.
+- Check the project's constraints: runtime/SDK version, the existing lock file, peer
+  dependencies and the package's supported platforms.
+- Use the latest stable release that satisfies them. Skip pre-releases (alpha, beta, rc, dev).
+- Pin or lock the resolved version the way the project already does (lock file, exact pin, or
+  its range convention), and name the chosen version and where it was checked in the plan or
+  change summary.
+- A version the user specified wins.
+- Ask the user only when a real tradeoff remains: the latest stable needs a new major line or a
+  runtime upgrade, supported versions conflict, a security advisory affects the candidate, or
+  the release source cannot be checked.
+- Avoid outdated packages that may have security vulnerabilities or missing features.
 
 ---
 
@@ -309,6 +259,7 @@ The logger's name is fixed per language so it is the same known type in every pr
 | Dart/Flutter  | `AppLogger`        | `app_logger.dart`   |
 | Kotlin        | `AppLogger`        | `AppLogger.kt`      |
 | C# (plain)    | `AppLogger`        | `AppLogger.cs`      |
+| C++           | `AppLogger`        | `AppLogger.h` / `AppLogger.cpp` |
 | Unity C#      | `GameLog` (static) | `GameLog.cs`        |
 | Svelte/JS/TS  | `logger` (export)  | `logger.ts`         |
 | Arduino       | `Log`              | `Log.h` / `Log.cpp` |
@@ -1086,7 +1037,7 @@ Conventions:
 ---
 
 # Version
-1
+3
 
 Increase this version number whenever this rule file changes.
 
@@ -1100,6 +1051,7 @@ guides are:
 
 - `python_setup_files/MODERN_GUI.md` — PySide6 desktop apps
 - `project_type/FRONTEND.md` — web SPAs (Vite, Tailwind, dark mode)
+- `project_type/SERVER_RENDERED_FRONTEND.md` — server-rendered PHP web frontends (Twig, Bootstrap)
 
 Default UI toolkits ship a *safe* look, not a good one: gradient buttons, boxed tabs,
 every control the same size, no hierarchy. An interface built from defaults reads as a
@@ -1260,13 +1212,20 @@ fragments — translate the whole sentence with placeholders.
 
 A restyle is not done because the tests pass — tests do not look at the screen.
 
-- Render each screen to an image (offscreen/headless is fine and deterministic) and
-  actually look at all of them after a change.
+- Render each screen to an image and actually look at all of them after a change.
+  Offscreen/headless rendering is fine for quick, deterministic checks.
+- Automatic screenshots of the real running app are allowed and wanted — to verify a
+  task and to produce promotional images (store pages, manuals). Take them with the
+  `automated-application-screenshots` tool and the app's connector (Python, Flutter or
+  web). The connector drives the app from inside its own process — calling a button's
+  click, setting a field's text, opening a screen — so no input can reach another
+  application.
 - Check the app at its smallest supported size, not just the size it opens at.
 - Automate what an image cannot assert: no minimum-size rule in the theme, a focus style
   on every control, a recolored icon that still has pixels.
-- Never drive a real window with synthetic mouse clicks to capture screenshots — the
-  moment focus moves, those clicks land in someone else's application.
+- Never send OS-level synthetic mouse or keyboard input (moving the cursor, injected
+  clicks or key presses) to a real window — the moment focus moves, that input lands in
+  someone else's application. This forbids the input method, not screenshots.
 
 ---
 
